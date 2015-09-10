@@ -12,6 +12,8 @@ import org.radare.radare2.RAnalFunction;
 import org.radare.radare2.RAnalFunctionVector;
 import org.radare.radare2.RCore;
 
+import exceptions.radareInput.InvalidRadareFunction;
+
 public class Radare
 {
 	RCore rCore;
@@ -74,7 +76,7 @@ public class Radare
 		return (int) numberOfFunctions;
 	}
 
-	public JSONObject getJSONFunctionAt(Long addr)
+	public JSONObject getJSONFunctionAt(Long addr) throws InvalidRadareFunction
 	{
 
 		String jsonStr = rCore.cmd_str("agj " + Long.toUnsignedString(addr));
@@ -90,12 +92,7 @@ public class Radare
 		}
 
 		if (jsonArray.length() != 1)
-		{
-
-			System.err.println("Warning: invalid jsonArray for function: "
-					+ addr);
-			return null;
-		}
+			throw new InvalidRadareFunction();
 
 		return jsonArray.getJSONObject(0);
 	}

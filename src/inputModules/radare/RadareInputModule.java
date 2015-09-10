@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.json.JSONObject;
 
 import structures.Function;
+import exceptions.radareInput.InvalidRadareFunction;
 
 public class RadareInputModule implements InputModule
 {
@@ -33,13 +34,17 @@ public class RadareInputModule implements InputModule
 	@Override
 	public Function getFunctionAtAddress(Long addr)
 	{
-		JSONObject jsonFunction = radare.getJSONFunctionAt(addr);
-		if (jsonFunction == null)
+		JSONObject jsonFunction;
+		try
+		{
+			jsonFunction = radare.getJSONFunctionAt(addr);
+		}
+		catch (InvalidRadareFunction e)
+		{
 			return null;
+		}
 
 		Function function = RadareFunctionCreator.createFromJSON(jsonFunction);
-
 		return function;
 	}
-
 }
