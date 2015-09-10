@@ -17,4 +17,17 @@ public class JSONUtils
 			return null;
 		}
 	}
+
+	public static String getStringFromObject(JSONObject jsonObj, String key)
+	{
+		try
+		{
+			String val = jsonObj.getString(key);
+			return val;
+		}
+		catch (JSONException ex)
+		{
+			return null;
+		}
+	}
 }

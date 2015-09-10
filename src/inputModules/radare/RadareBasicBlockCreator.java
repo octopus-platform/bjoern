@@ -1,9 +1,12 @@
 package inputModules.radare;
 
+import nodeStore.NodeStore;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import structures.BasicBlock;
+import structures.Instruction;
 
 public class RadareBasicBlockCreator
 {
@@ -32,9 +35,11 @@ public class RadareBasicBlockCreator
 		int numberOfInstructions = instructionsJSON.length();
 		for (int i = 0; i < numberOfInstructions; i++)
 		{
-			JSONObject instr = instructionsJSON.getJSONObject(i);
-			// TODO
-			// NodeStore.addNode(instrNode);
+			JSONObject jsonInstr = instructionsJSON.getJSONObject(i);
+			Instruction instr = RadareInstructionCreator
+					.createFromJSON(jsonInstr);
+			NodeStore.addNode(instr);
+			node.addInstruction(instr);
 		}
 	}
 

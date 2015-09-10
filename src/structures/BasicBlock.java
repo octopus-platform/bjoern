@@ -1,5 +1,6 @@
 package structures;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import nodeStore.Node;
@@ -13,6 +14,16 @@ public class BasicBlock extends Node
 	public BasicBlock()
 	{
 		this.setType(NodeTypes.BASIC_BLOCK);
+	}
+
+	public void addInstruction(Instruction instr)
+	{
+		instructions.put(instr.getAddress(), instr);
+	}
+
+	public Collection<Instruction> getInstructions()
+	{
+		return instructions.values();
 	}
 
 }

@@ -2,6 +2,7 @@ package outputModules.CSV;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import outputModules.OutputModule;
 import structures.BasicBlock;
 import structures.CFGEdge;
 import structures.Function;
+import structures.Instruction;
 
 public class CSVOutputModule implements OutputModule
 {
@@ -40,6 +42,27 @@ public class CSVOutputModule implements OutputModule
 	}
 
 	public void writeBasicBlock(BasicBlock block)
+	{
+		writeNodeForBasicBlock(block);
+		writeInstructions(block);
+	}
+
+	private void writeInstructions(BasicBlock block)
+	{
+		Collection<Instruction> instructions = block.getInstructions();
+		Iterator<Instruction> it = instructions.iterator();
+		while (it.hasNext())
+		{
+			Instruction instr = it.next();
+			Map<String, Object> properties = new HashMap<String, Object>();
+			properties.put("addr", block.getAddress().toString());
+			properties.put("repr", instr.getStringRepr());
+			CSVWriter.addNode(instr, properties);
+		}
+
+	}
+
+	private void writeNodeForBasicBlock(BasicBlock block)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("addr", block.getAddress().toString());
