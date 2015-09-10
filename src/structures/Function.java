@@ -5,10 +5,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public class Function
 {
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<CFGEdge> edges = new LinkedList<CFGEdge>();
+	List<Pair<Long, Long>> unresolvedEdges = new LinkedList<Pair<Long, Long>>();
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -41,4 +44,9 @@ public class Function
 		edges.add(newEdge);
 	}
 
+	public void addUnresolvedEdge(Long from, Long to)
+	{
+		Pair<Long, Long> pair = Pair.of(from, to);
+		unresolvedEdges.add(pair);
+	}
 }

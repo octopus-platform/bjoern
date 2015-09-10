@@ -24,7 +24,7 @@ public class Node
 		address = addr;
 	}
 
-	public Long getAddr()
+	public Long getAddress()
 	{
 		return address;
 	}

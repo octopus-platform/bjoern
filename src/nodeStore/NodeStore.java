@@ -29,7 +29,7 @@ public class NodeStore
 
 	public static void addNode(Node node) throws DuplicateNode
 	{
-		NodeStoreKey key = new NodeStoreKey(node.getAddr(), node.getType());
+		NodeStoreKey key = new NodeStoreKey(node.getAddress(), node.getType());
 
 		if (addrToNode.get(key) != null)
 			throw new DuplicateNode();

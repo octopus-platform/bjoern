@@ -1,15 +1,16 @@
 package inputModules.radare;
 
+import nodeStore.NodeStore;
+import nodeStore.NodeTypes;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import exceptions.radareInput.BasicBlockWithoutAddress;
-import exceptions.radareInput.EdgeTargetNotFound;
-import nodeStore.NodeStore;
-import nodeStore.NodeTypes;
 import structures.BasicBlock;
 import structures.CFGEdgeType;
 import structures.Function;
+import exceptions.radareInput.BasicBlockWithoutAddress;
+import exceptions.radareInput.EdgeTargetNotFound;
 
 public class RadareFunctionCreator
 {
@@ -39,7 +40,8 @@ public class RadareFunctionCreator
 			try
 			{
 				createBasicBlock(function, block);
-			} catch (BasicBlockWithoutAddress e)
+			}
+			catch (BasicBlockWithoutAddress e)
 			{
 				System.err.println("Skipping basic block without address");
 				continue;
@@ -47,8 +49,8 @@ public class RadareFunctionCreator
 		}
 	}
 
-	private static void createBasicBlock(Function function,
-			JSONObject jsonBlock) throws BasicBlockWithoutAddress
+	private static void createBasicBlock(Function function, JSONObject jsonBlock)
+			throws BasicBlockWithoutAddress
 	{
 
 		Long address = JSONUtils.getLongFromObject(jsonBlock, "offset");
@@ -81,40 +83,39 @@ public class RadareFunctionCreator
 		int numberOfBlocks = blocks.length();
 		for (int i = 0; i < numberOfBlocks; i++)
 		{
-			JSONObject block = blocks.getJSONObject(i);
+			JSONObject jsonBlock = blocks.getJSONObject(i);
 			try
 			{
-				createEdgesForBlock(function, block);
-			} catch (EdgeTargetNotFound e)
+				createEdgesForBlock(function, jsonBlock);
+			}
+			catch (EdgeTargetNotFound e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// If target wasn't even given, we're fine.
+				if (!e.isTargetGiven())
+					continue;
+				// Otherwise, the target was given but we were unable to resolve
+				// it. Store target address, we might be able to resolve it
+				// later.
+				BasicBlock basicBlock = getBasicBlockForJSONBlock(jsonBlock);
+				function.addUnresolvedEdge(basicBlock.getAddress(), e.getAddress());
 			}
 		}
 	}
 
-	private static void createEdgesForBlock(Function function, JSONObject block)
-			throws EdgeTargetNotFound
+	private static void createEdgesForBlock(Function function,
+			JSONObject jsonBlock) throws EdgeTargetNotFound
 	{
-
-		Long blockAddr = JSONUtils.getLongFromObject(block, "offset");
-		assert(blockAddr != null);
-
 		int numberOfEdges = 2;
 
-		BasicBlock fromBlock = (BasicBlock) NodeStore
-				.getNodeForAddressAndType(blockAddr, NodeTypes.BASIC_BLOCK);
-
-		if (fromBlock == null)
-			throw new RuntimeException("From-node not in store.");
-
-		BasicBlock jumpBlock = getJumpTarget(block, "jump");
+		BasicBlock fromBlock = getBasicBlockForJSONBlock(jsonBlock);
+		BasicBlock jumpBlock = getJumpTarget(jsonBlock, "jump");
 		BasicBlock failBlock = null;
 
 		try
 		{
-			failBlock = getJumpTarget(block, "fail");
-		} catch (EdgeTargetNotFound ex)
+			failBlock = getJumpTarget(jsonBlock, "fail");
+		}
+		catch (EdgeTargetNotFound ex)
 		{
 			numberOfEdges = 1;
 		}
@@ -123,11 +124,25 @@ public class RadareFunctionCreator
 			function.addEdge(fromBlock, jumpBlock, CFGEdgeType.UNCONDITIONAL);
 		else
 		{
-			assert(failBlock != null);
+			assert (failBlock != null);
 			function.addEdge(fromBlock, jumpBlock, CFGEdgeType.TRUE);
 			function.addEdge(fromBlock, failBlock, CFGEdgeType.FALSE);
 		}
 
+	}
+
+	private static BasicBlock getBasicBlockForJSONBlock(JSONObject block)
+	{
+		Long blockAddr = JSONUtils.getLongFromObject(block, "offset");
+		assert (blockAddr != null);
+
+		BasicBlock fromBlock = (BasicBlock) NodeStore.getNodeForAddressAndType(
+				blockAddr, NodeTypes.BASIC_BLOCK);
+
+		if (fromBlock == null)
+			throw new RuntimeException("From-node not in store.");
+
+		return fromBlock;
 	}
 
 	private static BasicBlock getJumpTarget(JSONObject block, String type)

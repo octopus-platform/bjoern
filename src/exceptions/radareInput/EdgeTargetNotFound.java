@@ -2,12 +2,12 @@ package exceptions.radareInput;
 
 public class EdgeTargetNotFound extends Exception
 {
-	private boolean addressExists;
+	private boolean targetGiven;
 	private long address;
 
-	public EdgeTargetNotFound(boolean addrExists, long addr)
+	public EdgeTargetNotFound(boolean isTargetGiven, long addr)
 	{
-		addressExists = addrExists;
+		targetGiven = isTargetGiven;
 		address = addr;
 	}
 
@@ -16,9 +16,9 @@ public class EdgeTargetNotFound extends Exception
 		return address;
 	}
 
-	public boolean isAddressExists()
+	public boolean isTargetGiven()
 	{
-		return addressExists;
+		return targetGiven;
 	}
 
 	private static final long serialVersionUID = 5274284964401464074L;

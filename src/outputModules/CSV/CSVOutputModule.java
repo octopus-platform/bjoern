@@ -42,7 +42,7 @@ public class CSVOutputModule implements OutputModule
 	public void writeBasicBlock(BasicBlock block)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("addr", block.getAddr().toString());
+		properties.put("addr", block.getAddress().toString());
 		CSVWriter.addNode(block, properties);
 	}
 
