@@ -76,9 +76,8 @@ public class Radare
 
 	public JSONObject getJSONFunctionAt(Long addr)
 	{
-		// TODO/Bug: we need to handle addresses above 2**63
 
-		String jsonStr = rCore.cmd_str("agj " + addr.toString());
+		String jsonStr = rCore.cmd_str("agj " + Long.toUnsignedString(addr));
 
 		JSONArray jsonArray;
 		try
@@ -92,6 +91,7 @@ public class Radare
 
 		if (jsonArray.length() != 1)
 		{
+
 			System.err.println("Warning: invalid jsonArray for function: "
 					+ addr);
 			return null;
