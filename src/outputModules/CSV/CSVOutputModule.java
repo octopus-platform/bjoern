@@ -54,12 +54,28 @@ public class CSVOutputModule implements OutputModule
 		while (it.hasNext())
 		{
 			Instruction instr = it.next();
-			Map<String, Object> properties = new HashMap<String, Object>();
-			properties.put("addr", block.getAddress().toString());
-			properties.put("repr", instr.getStringRepr());
-			CSVWriter.addNode(instr, properties);
+			writeInstruction(block, instr);
+			writeEdgeFromBlockToInstruction(block, instr);
 		}
 
+	}
+
+	private void writeEdgeFromBlockToInstruction(BasicBlock block,
+			Instruction instr)
+	{
+		Map<String, Object> properties = new HashMap<String, Object>();
+
+		long srcId = CSVWriter.getIdForNode(block);
+		long dstId = CSVWriter.getIdForNode(instr);
+		CSVWriter.addEdge(srcId, dstId, properties, "IS_BB_OF");
+	}
+
+	private void writeInstruction(BasicBlock block, Instruction instr)
+	{
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("addr", block.getAddress().toString());
+		properties.put("repr", instr.getStringRepr());
+		CSVWriter.addNode(instr, properties);
 	}
 
 	private void writeNodeForBasicBlock(BasicBlock block)
