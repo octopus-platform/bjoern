@@ -1,9 +1,10 @@
 package testRadare2;
 
-import java.util.List;
-
 import inputModules.InputModule;
 import inputModules.radare.RadareInputModule;
+
+import java.util.List;
+
 import nodeStore.NodeStore;
 import outputModules.CSV.CSVOutputModule;
 import structures.Function;
@@ -20,7 +21,7 @@ public class Main
 		inputModule.initialize("/bin/ls");
 		outputModule.initialize();
 
-			List<Long> funcAddresses = inputModule.getFunctionAddresses();
+		List<Long> funcAddresses = inputModule.getFunctionAddresses();
 
 		outputFunctionContents(funcAddresses);
 
