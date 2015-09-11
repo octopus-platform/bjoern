@@ -24,8 +24,17 @@ public class RadareFunctionCreator
 
 	public static void initFromJSON(Function function, JSONObject jsonFunction)
 	{
+		initFunctionProperties(function, jsonFunction);
 		createBasicBlocks(function, jsonFunction);
 		createEdges(function, jsonFunction);
+	}
+
+	private static void initFunctionProperties(Function function,
+			JSONObject jsonFunction)
+	{
+		String name = JSONUtils.getStringFromObject(jsonFunction, "name");
+		if (name != null)
+			function.setName(name);
 	}
 
 	private static void createBasicBlocks(Function function,
@@ -97,7 +106,8 @@ public class RadareFunctionCreator
 				// it. Store target address, we might be able to resolve it
 				// later.
 				BasicBlock basicBlock = getBasicBlockForJSONBlock(jsonBlock);
-				function.addUnresolvedEdge(basicBlock.getAddress(), e.getAddress());
+				function.addUnresolvedEdge(basicBlock.getAddress(),
+						e.getAddress());
 			}
 		}
 	}

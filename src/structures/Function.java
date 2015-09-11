@@ -5,13 +5,23 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import nodeStore.Node;
+import nodeStore.NodeTypes;
+
 import org.apache.commons.lang3.tuple.Pair;
 
-public class Function
+public class Function extends Node
 {
+
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<CFGEdge> edges = new LinkedList<CFGEdge>();
 	List<Pair<Long, Long>> unresolvedEdges = new LinkedList<Pair<Long, Long>>();
+	private String name = "";
+
+	public Function()
+	{
+		setType(NodeTypes.FUNCTION);
+	}
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -49,4 +59,15 @@ public class Function
 		Pair<Long, Long> pair = Pair.of(from, to);
 		unresolvedEdges.add(pair);
 	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
 }

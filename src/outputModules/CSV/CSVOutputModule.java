@@ -28,8 +28,18 @@ public class CSVOutputModule implements OutputModule
 	public void writeFunction(Function function)
 	{
 		CSVWriter.reset();
+		writeFunctionBlock(function);
 		writeBasicBlocks(function);
 		writeCFGEdges(function);
+	}
+
+	private void writeFunctionBlock(Function function)
+	{
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("addr", function.getAddress().toString());
+		properties.put("type", function.getType());
+		properties.put("repr", function.getName());
+		CSVWriter.addNode(function, properties);
 	}
 
 	private void writeBasicBlocks(Function function)
@@ -77,6 +87,7 @@ public class CSVOutputModule implements OutputModule
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("addr", block.getAddress().toString());
+		properties.put("type", instr.getType());
 		properties.put("repr", instr.getStringRepr());
 		properties.put("childNum", String.format("%d", childNum));
 		CSVWriter.addNode(instr, properties);
@@ -86,6 +97,7 @@ public class CSVOutputModule implements OutputModule
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("addr", block.getAddress().toString());
+		properties.put("type", block.getType());
 		CSVWriter.addNode(block, properties);
 	}
 

@@ -15,7 +15,7 @@ public class CSVWriter
 {
 	final static String SEPARATOR = "\t";
 
-	final static String[] nodeProperties = { "addr", "childNum", "repr" };
+	final static String[] nodeProperties = { "addr", "type", "childNum", "repr" };
 
 	final static String[] edgeProperties = {};
 
