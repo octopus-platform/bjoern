@@ -37,8 +37,8 @@ public class Function extends Node
 	{
 		if (basicBlocks.get(addr) != null)
 		{
-			System.err
-					.println("Warning: CFG contains multiple basic blocks with the same address");
+			System.err.println(
+					"Warning: CFG contains multiple basic blocks with the same address");
 			return;
 		}
 

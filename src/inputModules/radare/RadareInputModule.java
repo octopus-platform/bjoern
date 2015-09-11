@@ -1,15 +1,14 @@
 package inputModules.radare;
 
-import inputModules.InputModule;
-
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 
-import structures.Function;
 import exceptions.radareInput.InvalidRadareFunction;
+import inputModules.InputModule;
+import structures.Function;
 
 public class RadareInputModule implements InputModule
 {
@@ -38,8 +37,7 @@ public class RadareInputModule implements InputModule
 		try
 		{
 			jsonFunction = radare.getJSONFunctionAt(addr);
-		}
-		catch (InvalidRadareFunction e)
+		} catch (InvalidRadareFunction e)
 		{
 			return null;
 		}

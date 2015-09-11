@@ -15,7 +15,8 @@ public class CSVWriter
 {
 	final static String SEPARATOR = "\t";
 
-	final static String[] nodeProperties = { "addr", "type", "childNum", "repr" };
+	final static String[] nodeProperties = { "addr", "type", "childNum",
+			"repr" };
 
 	final static String[] edgeProperties = {};
 
@@ -131,8 +132,7 @@ public class CSVWriter
 		try
 		{
 			return new PrintWriter(path);
-		}
-		catch (FileNotFoundException e)
+		} catch (FileNotFoundException e)
 		{
 			throw new RuntimeException("Cannot create file: " + path);
 		}

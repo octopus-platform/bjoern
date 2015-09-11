@@ -11,8 +11,7 @@ public class JSONUtils
 		{
 			Long val = block.getLong(key);
 			return val;
-		}
-		catch (JSONException ex)
+		} catch (JSONException ex)
 		{
 			return null;
 		}
@@ -24,8 +23,7 @@ public class JSONUtils
 		{
 			String val = jsonObj.getString(key);
 			return val;
-		}
-		catch (JSONException ex)
+		} catch (JSONException ex)
 		{
 			return null;
 		}

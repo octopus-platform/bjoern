@@ -1,16 +1,15 @@
 package inputModules.radare;
 
-import nodeStore.NodeStore;
-import nodeStore.NodeTypes;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import exceptions.radareInput.BasicBlockWithoutAddress;
+import exceptions.radareInput.EdgeTargetNotFound;
+import nodeStore.NodeStore;
+import nodeStore.NodeTypes;
 import structures.BasicBlock;
 import structures.CFGEdgeType;
 import structures.Function;
-import exceptions.radareInput.BasicBlockWithoutAddress;
-import exceptions.radareInput.EdgeTargetNotFound;
 
 public class RadareFunctionCreator
 {
@@ -49,8 +48,7 @@ public class RadareFunctionCreator
 			try
 			{
 				createBasicBlock(function, block);
-			}
-			catch (BasicBlockWithoutAddress e)
+			} catch (BasicBlockWithoutAddress e)
 			{
 				System.err.println("Skipping basic block without address");
 				continue;
@@ -58,8 +56,8 @@ public class RadareFunctionCreator
 		}
 	}
 
-	private static void createBasicBlock(Function function, JSONObject jsonBlock)
-			throws BasicBlockWithoutAddress
+	private static void createBasicBlock(Function function,
+			JSONObject jsonBlock) throws BasicBlockWithoutAddress
 	{
 
 		Long address = JSONUtils.getLongFromObject(jsonBlock, "offset");
@@ -96,8 +94,7 @@ public class RadareFunctionCreator
 			try
 			{
 				createEdgesForBlock(function, jsonBlock);
-			}
-			catch (EdgeTargetNotFound e)
+			} catch (EdgeTargetNotFound e)
 			{
 				// If target wasn't even given, we're fine.
 				if (!e.isTargetGiven())
@@ -124,8 +121,7 @@ public class RadareFunctionCreator
 		try
 		{
 			failBlock = getJumpTarget(jsonBlock, "fail");
-		}
-		catch (EdgeTargetNotFound ex)
+		} catch (EdgeTargetNotFound ex)
 		{
 			numberOfEdges = 1;
 		}
@@ -134,7 +130,7 @@ public class RadareFunctionCreator
 			function.addEdge(fromBlock, jumpBlock, CFGEdgeType.UNCONDITIONAL);
 		else
 		{
-			assert (failBlock != null);
+			assert(failBlock != null);
 			function.addEdge(fromBlock, jumpBlock, CFGEdgeType.TRUE);
 			function.addEdge(fromBlock, failBlock, CFGEdgeType.FALSE);
 		}
@@ -144,10 +140,10 @@ public class RadareFunctionCreator
 	private static BasicBlock getBasicBlockForJSONBlock(JSONObject block)
 	{
 		Long blockAddr = JSONUtils.getLongFromObject(block, "offset");
-		assert (blockAddr != null);
+		assert(blockAddr != null);
 
-		BasicBlock fromBlock = (BasicBlock) NodeStore.getNodeForAddressAndType(
-				blockAddr, NodeTypes.BASIC_BLOCK);
+		BasicBlock fromBlock = (BasicBlock) NodeStore
+				.getNodeForAddressAndType(blockAddr, NodeTypes.BASIC_BLOCK);
 
 		if (fromBlock == null)
 			throw new RuntimeException("From-node not in store.");

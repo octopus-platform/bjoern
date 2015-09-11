@@ -37,8 +37,7 @@ public class NodeStoreKey
 		{
 			if (other.type != null)
 				return false;
-		}
-		else if (!type.equals(other.type))
+		} else if (!type.equals(other.type))
 			return false;
 		return true;
 	}

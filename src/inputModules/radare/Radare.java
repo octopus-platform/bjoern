@@ -85,8 +85,7 @@ public class Radare
 		try
 		{
 			jsonArray = new JSONArray(jsonStr);
-		}
-		catch (JSONException ex)
+		} catch (JSONException ex)
 		{
 			return null;
 		}
