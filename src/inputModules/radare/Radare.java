@@ -16,8 +16,8 @@ import exceptions.radareInput.InvalidRadareFunction;
 
 public class Radare
 {
-	RCore rCore;
-	RAnal analysisResults;
+	static RCore rCore;
+	static RAnal analysisResults;
 
 	static
 	{
@@ -29,20 +29,20 @@ public class Radare
 		System.loadLibrary("jr_core");
 	}
 
-	public void loadBinary(String filename)
+	public static void loadBinary(String filename)
 	{
 		rCore = new RCore();
 		rCore.file_open(filename, 0, BigInteger.ZERO);
 		rCore.bin_load(null, BigInteger.ZERO);
 	}
 
-	public void analyzeBinary()
+	public static void analyzeBinary()
 	{
 		rCore.cmd0("aaa");
 		analysisResults = rCore.getAnal();
 	}
 
-	public List<BigInteger> getFunctionAddresses()
+	public static List<BigInteger> getFunctionAddresses()
 	{
 		if (analysisResults == null)
 			throw new RuntimeException("analyzeBinary must be called first");
@@ -52,7 +52,7 @@ public class Radare
 		return radareFunctionVectorToAddrList(functions);
 	}
 
-	private List<BigInteger> radareFunctionVectorToAddrList(
+	private static List<BigInteger> radareFunctionVectorToAddrList(
 			RAnalFunctionVector functions)
 	{
 		int numberOfFunctions = getNumberOfFunctions(functions);
@@ -67,7 +67,7 @@ public class Radare
 		return list;
 	}
 
-	private int getNumberOfFunctions(RAnalFunctionVector functions)
+	private static int getNumberOfFunctions(RAnalFunctionVector functions)
 	{
 		long numberOfFunctions = functions.size();
 		if (numberOfFunctions > Integer.MAX_VALUE)
@@ -76,7 +76,8 @@ public class Radare
 		return (int) numberOfFunctions;
 	}
 
-	public JSONObject getJSONFunctionAt(Long addr) throws InvalidRadareFunction
+	public static JSONObject getJSONFunctionAt(Long addr)
+			throws InvalidRadareFunction
 	{
 
 		String jsonStr = rCore.cmd_str("agj " + Long.toUnsignedString(addr));

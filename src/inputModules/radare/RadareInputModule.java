@@ -13,19 +13,17 @@ import structures.Function;
 public class RadareInputModule implements InputModule
 {
 
-	Radare radare = new Radare();
-
 	@Override
 	public void initialize(String filename)
 	{
-		radare.loadBinary(filename);
-		radare.analyzeBinary();
+		Radare.loadBinary(filename);
+		Radare.analyzeBinary();
 	}
 
 	@Override
 	public List<Long> getFunctionAddresses()
 	{
-		List<BigInteger> retval = radare.getFunctionAddresses();
+		List<BigInteger> retval = Radare.getFunctionAddresses();
 		return retval.stream().map(x -> x.longValue())
 				.collect(Collectors.toList());
 	}
@@ -36,7 +34,7 @@ public class RadareInputModule implements InputModule
 		JSONObject jsonFunction;
 		try
 		{
-			jsonFunction = radare.getJSONFunctionAt(addr);
+			jsonFunction = Radare.getJSONFunctionAt(addr);
 		} catch (InvalidRadareFunction e)
 		{
 			return null;
