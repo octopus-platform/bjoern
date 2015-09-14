@@ -35,6 +35,7 @@ public class Main
 		for (Function function : functions)
 		{
 			outputModule.writeFunctionInfo(function);
+			outputModule.writeReferencesToFunction(function);
 		}
 	}
 

@@ -13,6 +13,8 @@ public interface OutputModule
 
 	public void writeFunctionInfo(Function function);
 
+	public void writeReferencesToFunction(Function function);
+
 	public void writeFunctionContent(Function function);
 
 	public void writeBasicBlock(BasicBlock block);
