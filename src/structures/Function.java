@@ -1,21 +1,16 @@
 package structures;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import nodeStore.Node;
 import nodeStore.NodeTypes;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 public class Function extends Node
 {
 
-	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
-	List<CFGEdge> edges = new LinkedList<CFGEdge>();
-	List<Pair<Long, Long>> unresolvedEdges = new LinkedList<Pair<Long, Long>>();
+	FunctionContent content = new FunctionContent();
+
 	private String name = "";
 
 	public Function()
@@ -25,24 +20,27 @@ public class Function extends Node
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
-		return basicBlocks.values();
+		return content.getBasicBlocks();
 	}
 
 	public List<CFGEdge> getEdges()
 	{
-		return edges;
+		return content.getEdges();
 	}
 
 	public void registerBasicBlock(long addr, BasicBlock node)
 	{
-		if (basicBlocks.get(addr) != null)
+		BasicBlock block = content.getBasicBlockAtAddress(addr);
+
+		// TODO: throw exception instead
+		if (block != null)
 		{
 			System.err.println(
 					"Warning: CFG contains multiple basic blocks with the same address");
 			return;
 		}
 
-		basicBlocks.put(addr, node);
+		content.addBasicBlock(addr, node);
 	}
 
 	public void addEdge(BasicBlock from, BasicBlock to, String type)
@@ -51,13 +49,12 @@ public class Function extends Node
 		newEdge.setFrom(from);
 		newEdge.setTo(to);
 		newEdge.setType(type);
-		edges.add(newEdge);
+		content.addEdge(newEdge);
 	}
 
 	public void addUnresolvedEdge(Long from, Long to)
 	{
-		Pair<Long, Long> pair = Pair.of(from, to);
-		unresolvedEdges.add(pair);
+		content.addUnresolvedEdge(from, to);
 	}
 
 	public void setName(String name)

@@ -1,10 +1,9 @@
 package testRadare2;
 
-import inputModules.InputModule;
-import inputModules.radare.RadareInputModule;
-
 import java.util.List;
 
+import inputModules.InputModule;
+import inputModules.radare.RadareInputModule;
 import nodeStore.NodeStore;
 import outputModules.CSV.CSVOutputModule;
 import structures.Function;
