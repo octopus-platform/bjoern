@@ -22,6 +22,8 @@ public class CSVWriter
 
 	static PrintWriter nodeWriter;
 	static PrintWriter edgeWriter;
+	static PrintWriter unresolvedEdgeWriter;
+
 	static long lastNodeId = 0;
 
 	static Map<Node, Long> objectToId = new HashMap<Node, Long>();
@@ -59,8 +61,10 @@ public class CSVWriter
 	{
 		closeEdgeFile();
 		closeNodeFile();
+		closeUnresolvedEdgeFile();
 		openNodeFile(dirNameForFileNode);
 		openEdgeFile(dirNameForFileNode);
+		openUnresolvedEdgeFile(dirNameForFileNode);
 	}
 
 	public static void addNode(Node node, Map<String, Object> properties)
@@ -131,6 +135,18 @@ public class CSVWriter
 		writeEdgePropertyNames();
 	}
 
+	private static void openUnresolvedEdgeFile(String outDir)
+	{
+		String path = outDir + File.separator + "unresolvedEdges.csv";
+		unresolvedEdgeWriter = createWriter(path);
+		writeUnresolvedEdgePropertyNames();
+	}
+
+	private static void writeUnresolvedEdgePropertyNames()
+	{
+		// TODO Auto-generated method stub
+	}
+
 	private static PrintWriter createWriter(String path)
 	{
 		try
@@ -152,6 +168,12 @@ public class CSVWriter
 	{
 		if (edgeWriter != null)
 			edgeWriter.close();
+	}
+
+	private static void closeUnresolvedEdgeFile()
+	{
+		if (unresolvedEdgeWriter != null)
+			unresolvedEdgeWriter.close();
 	}
 
 }
