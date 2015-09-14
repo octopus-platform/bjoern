@@ -7,16 +7,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import nodeStore.Node;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class CSVWriter
 {
 	final static String SEPARATOR = "\t";
 
-	final static String[] nodeProperties = { "addr", "type", "childNum",
-			"repr" };
+	final static String[] nodeProperties = { "addr", "type", "childNum", "repr" };
 
 	final static String[] edgeProperties = {};
 	final static String[] unresolvedEdgeProperties = {};
@@ -110,10 +109,16 @@ public class CSVWriter
 		edgeWriter.write("\n");
 	}
 
-	public static void addUnresolvedEdge(String srcKey, long dstKey,
+	public static void addUnresolvedEdge(String srcKey, String dstKey,
 			Map<String, Object> properties, String edgeType)
 	{
-		// TODO
+		unresolvedEdgeWriter.print(srcKey);
+		unresolvedEdgeWriter.print(SEPARATOR);
+		unresolvedEdgeWriter.print(dstKey);
+		unresolvedEdgeWriter.print(SEPARATOR);
+		unresolvedEdgeWriter.print(edgeType);
+		// TODO: add properties
+		unresolvedEdgeWriter.print("\n");
 	}
 
 	private static void openNodeFile(String outDir)
@@ -164,7 +169,8 @@ public class CSVWriter
 		try
 		{
 			return new PrintWriter(path);
-		} catch (FileNotFoundException e)
+		}
+		catch (FileNotFoundException e)
 		{
 			throw new RuntimeException("Cannot create file: " + path);
 		}

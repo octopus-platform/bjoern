@@ -75,7 +75,9 @@ public class CSVOutputModule implements OutputModule
 			String sourceKey = edge.getSourceNode().getKey();
 			String destKey = edge.getDestNode().getKey();
 			String type = edge.getType();
-
+			Map<String, Object> properties = new HashMap<String, Object>();
+			// TODO: add edge properties.
+			CSVWriter.addUnresolvedEdge(sourceKey, destKey, properties, type);
 		}
 
 		UnresolvedEdgeStore.clearCache();

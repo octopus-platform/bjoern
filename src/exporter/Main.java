@@ -1,9 +1,10 @@
 package exporter;
 
-import java.util.List;
-
 import inputModules.InputModule;
 import inputModules.radare.RadareInputModule;
+
+import java.util.List;
+
 import nodeStore.NodeStore;
 import outputModules.CSV.CSVOutputModule;
 import structures.Function;
@@ -62,6 +63,7 @@ public class Main
 			return;
 
 		outputModule.writeFunctionContent(function);
+		outputModule.writeUnresolvedEdges();
 
 		// we clear the function content after writing it to free up some
 		// memory.
