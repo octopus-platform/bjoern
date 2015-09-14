@@ -14,31 +14,40 @@ public class Main
 	static InputModule inputModule = new RadareInputModule();
 	static CSVOutputModule outputModule = new CSVOutputModule();
 
+	static List<Function> functions;
+
 	public static void main(String[] args)
 	{
 
 		inputModule.initialize("/bin/ls");
 		outputModule.initialize();
 
-		List<Long> funcAddresses = inputModule.getFunctionAddresses();
-
-		outputFunctionContents(funcAddresses);
+		loadAndOutputFunctionInfo();
+		loadAndOutputFunctionContent();
 
 		outputModule.finish();
 	}
 
-	private static void outputFunctionContents(List<Long> funcAddresses)
+	private static void loadAndOutputFunctionInfo()
 	{
-		for (Long addr : funcAddresses)
-		{
-			NodeStore.clearCache();
-			processFunction(addr);
-		}
+		functions = inputModule.getFunctions();
+		// TODO: remove current rudimentary function import code, and
+		// reimplement a more thorough importer here.
 	}
 
-	private static void processFunction(Long addr)
+	private static void loadAndOutputFunctionContent()
 	{
-		Function function = inputModule.getFunctionAtAddress(addr);
+		for (Function function : functions)
+		{
+			NodeStore.clearCache();
+			inputModule.initializeFunctionContents(function);
+			processFunction(function);
+		}
+
+	}
+
+	private static void processFunction(Function function)
+	{
 		if (function == null)
 			return;
 		outputModule.writeFunction(function);

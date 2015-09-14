@@ -1,14 +1,15 @@
 package inputModules.radare;
 
-import java.math.BigInteger;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import exceptions.radareInput.InvalidRadareFunction;
 import inputModules.InputModule;
 import structures.Function;
+import structures.FunctionContent;
 
 public class RadareInputModule implements InputModule
 {
@@ -21,26 +22,40 @@ public class RadareInputModule implements InputModule
 	}
 
 	@Override
-	public List<Long> getFunctionAddresses()
+	public List<Function> getFunctions()
 	{
-		List<BigInteger> retval = Radare.getFunctionAddresses();
-		return retval.stream().map(x -> x.longValue())
-				.collect(Collectors.toList());
+		List<Function> retval = new LinkedList<Function>();
+		JSONArray jsonFunctions = Radare.getJSONFunctions();
+		int nFunctions = jsonFunctions.length();
+		for (int i = 0; i < nFunctions; i++)
+		{
+			JSONObject jsonFunction = jsonFunctions.getJSONObject(i);
+			Function function = RadareFunctionCreator
+					.createFromJSON(jsonFunction);
+			retval.add(function);
+		}
+
+		return retval;
 	}
 
 	@Override
-	public Function getFunctionAtAddress(Long addr)
+	public void initializeFunctionContents(Function function)
 	{
-		JSONObject jsonFunction;
+		Long address = function.getAddress();
+		JSONObject jsonFunctionContent;
+
 		try
 		{
-			jsonFunction = Radare.getJSONFunctionAt(addr);
+			jsonFunctionContent = Radare.getJSONFunctionContentAt(address);
 		} catch (InvalidRadareFunction e)
 		{
-			return null;
+			return;
 		}
 
-		Function function = RadareFunctionCreator.createFromJSON(jsonFunction);
-		return function;
+		FunctionContent content = RadareFunctionContentCreator
+				.createContentFromJSON(jsonFunctionContent);
+
+		function.setContent(content);
+
 	}
 }

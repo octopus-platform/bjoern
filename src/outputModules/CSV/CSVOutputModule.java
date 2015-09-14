@@ -44,7 +44,8 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeBasicBlocks(Function function)
 	{
-		Collection<BasicBlock> basicBlocks = function.getBasicBlocks();
+		Collection<BasicBlock> basicBlocks = function.getContent()
+				.getBasicBlocks();
 		for (BasicBlock block : basicBlocks)
 		{
 			writeBasicBlock(block);
@@ -103,7 +104,7 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeCFGEdges(Function function)
 	{
-		List<CFGEdge> edges = function.getEdges();
+		List<CFGEdge> edges = function.getContent().getEdges();
 		for (CFGEdge edge : edges)
 		{
 			BasicBlock from = edge.getFrom();

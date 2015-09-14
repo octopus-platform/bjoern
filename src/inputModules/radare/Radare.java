@@ -76,7 +76,7 @@ public class Radare
 		return (int) numberOfFunctions;
 	}
 
-	public static JSONObject getJSONFunctionAt(Long addr)
+	public static JSONObject getJSONFunctionContentAt(Long addr)
 			throws InvalidRadareFunction
 	{
 
@@ -95,5 +95,11 @@ public class Radare
 			throw new InvalidRadareFunction();
 
 		return jsonArray.getJSONObject(0);
+	}
+
+	public static JSONArray getJSONFunctions()
+	{
+		String str = rCore.cmd_str("aflj");
+		return new JSONArray(str);
 	}
 }

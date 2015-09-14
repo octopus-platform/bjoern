@@ -35,7 +35,7 @@ public class FunctionContent
 		basicBlocks.put(addr, node);
 	}
 
-	public void addEdge(CFGEdge newEdge)
+	public void addCFGEdge(CFGEdge newEdge)
 	{
 		edges.add(newEdge);
 	}
@@ -45,4 +45,29 @@ public class FunctionContent
 		Pair<Long, Long> pair = Pair.of(from, to);
 		unresolvedEdges.add(pair);
 	}
+
+	public void registerBasicBlock(long addr, BasicBlock node)
+	{
+		BasicBlock block = getBasicBlockAtAddress(addr);
+
+		// TODO: throw exception instead
+		if (block != null)
+		{
+			System.err.println(
+					"Warning: CFG contains multiple basic blocks with the same address");
+			return;
+		}
+
+		addBasicBlock(addr, node);
+	}
+
+	public void addEdge(BasicBlock from, BasicBlock to, String type)
+	{
+		CFGEdge newEdge = new CFGEdge();
+		newEdge.setFrom(from);
+		newEdge.setTo(to);
+		newEdge.setType(type);
+		addCFGEdge(newEdge);
+	}
+
 }

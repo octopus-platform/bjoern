@@ -8,7 +8,8 @@ public interface InputModule
 {
 	public void initialize(String filename);
 
-	public List<Long> getFunctionAddresses();
+	public List<Function> getFunctions();
 
-	public Function getFunctionAtAddress(Long addr);
+	public void initializeFunctionContents(Function function);
+
 }
