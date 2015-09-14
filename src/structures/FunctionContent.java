@@ -10,6 +10,7 @@ import nodeStore.NodeTypes;
 import structures.edges.DirectedEdge;
 import structures.edges.EdgeTypes;
 import structures.edges.ResolvedCFGEdge;
+import exceptions.nodeStore.DuplicateNode;
 
 public class FunctionContent
 {
@@ -70,13 +71,8 @@ public class FunctionContent
 	{
 		BasicBlock block = getBasicBlockAtAddress(addr);
 
-		// TODO: throw exception instead
 		if (block != null)
-		{
-			System.err
-					.println("Warning: CFG contains multiple basic blocks with the same address");
-			return;
-		}
+			throw new DuplicateNode();
 
 		addBasicBlock(addr, node);
 	}
