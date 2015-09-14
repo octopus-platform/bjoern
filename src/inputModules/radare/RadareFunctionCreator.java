@@ -5,8 +5,10 @@ import nodeStore.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import structures.BasicBlock;
 import structures.Function;
 import structures.edges.DirectedEdge;
+import structures.edges.EdgeTypes;
 
 public class RadareFunctionCreator
 {
@@ -31,22 +33,25 @@ public class RadareFunctionCreator
 		{
 			JSONObject callRef = callRefArray.getJSONObject(i);
 			long srcAddr = callRef.getLong("addr");
-			DirectedEdge newEdge = createEdge(dstAddr, srcAddr);
+			DirectedEdge newEdge = createCallEdge(dstAddr, srcAddr);
 			retval.addUnresolvedEdge(newEdge);
 		}
 
 	}
 
-	private static DirectedEdge createEdge(long dstAddr, long srcAddr)
+	private static DirectedEdge createCallEdge(long dstAddr, long srcAddr)
 	{
-		Node srcNode = new Node();
+		Node srcNode = new BasicBlock();
 		srcNode.setAddr(srcAddr);
-		Node dstNode = new Node();
+
+		Node dstNode = new BasicBlock();
 		dstNode.setAddr(dstAddr);
 
 		DirectedEdge newEdge = new DirectedEdge();
 		newEdge.setSourceNode(srcNode);
 		newEdge.setDestNode(dstNode);
+		newEdge.setType(EdgeTypes.CALL);
+
 		return newEdge;
 	}
 

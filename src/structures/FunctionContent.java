@@ -8,6 +8,7 @@ import java.util.List;
 import nodeStore.Node;
 import nodeStore.NodeTypes;
 import structures.edges.DirectedEdge;
+import structures.edges.EdgeTypes;
 import structures.edges.ResolvedCFGEdge;
 
 public class FunctionContent
@@ -43,7 +44,7 @@ public class FunctionContent
 		edges.add(newEdge);
 	}
 
-	public void addUnresolvedEdge(Long from, Long to)
+	public void addUnresolvedEdge(Long from, Long to, String type)
 	{
 		Node src = new Node();
 		src.setAddr(from);
@@ -56,6 +57,11 @@ public class FunctionContent
 		DirectedEdge edge = new DirectedEdge();
 		edge.setSourceNode(src);
 		edge.setDestNode(dst);
+
+		if (type.equals("jump"))
+			edge.setType(EdgeTypes.CFLOW_TRUE);
+		else
+			edge.setType(EdgeTypes.CFLOW_FALSE);
 
 		unresolvedEdges.add(edge);
 	}
