@@ -19,6 +19,7 @@ public class CSVWriter
 			"repr" };
 
 	final static String[] edgeProperties = {};
+	final static String[] unresolvedEdgeProperties = {};
 
 	static PrintWriter nodeWriter;
 	static PrintWriter edgeWriter;
@@ -50,6 +51,7 @@ public class CSVWriter
 	{
 		closeEdgeFile();
 		closeNodeFile();
+		closeUnresolvedEdgeFile();
 	}
 
 	static public Long getIdForNode(Node o)
@@ -62,6 +64,7 @@ public class CSVWriter
 		closeEdgeFile();
 		closeNodeFile();
 		closeUnresolvedEdgeFile();
+
 		openNodeFile(dirNameForFileNode);
 		openEdgeFile(dirNameForFileNode);
 		openUnresolvedEdgeFile(dirNameForFileNode);
@@ -107,6 +110,12 @@ public class CSVWriter
 		edgeWriter.write("\n");
 	}
 
+	public static void addUnresolvedEdge(String srcKey, long dstKey,
+			Map<String, Object> properties, String edgeType)
+	{
+		// TODO
+	}
+
 	private static void openNodeFile(String outDir)
 	{
 		String path = outDir + File.separator + "nodes.csv";
@@ -144,7 +153,10 @@ public class CSVWriter
 
 	private static void writeUnresolvedEdgePropertyNames()
 	{
-		// TODO Auto-generated method stub
+		String joined = "start" + SEPARATOR + "end" + SEPARATOR + "type"
+				+ SEPARATOR
+				+ StringUtils.join(unresolvedEdgeProperties, SEPARATOR);
+		unresolvedEdgeWriter.println(joined);
 	}
 
 	private static PrintWriter createWriter(String path)
@@ -174,6 +186,7 @@ public class CSVWriter
 	{
 		if (unresolvedEdgeWriter != null)
 			unresolvedEdgeWriter.close();
+
 	}
 
 }

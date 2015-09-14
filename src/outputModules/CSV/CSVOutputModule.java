@@ -10,8 +10,10 @@ import outputModules.OutputModule;
 import structures.BasicBlock;
 import structures.Function;
 import structures.Instruction;
+import structures.edges.DirectedEdge;
 import structures.edges.EdgeTypes;
 import structures.edges.ResolvedCFGEdge;
+import unresolvedEdgeStore.UnresolvedEdgeStore;
 
 public class CSVOutputModule implements OutputModule
 {
@@ -67,8 +69,16 @@ public class CSVOutputModule implements OutputModule
 	@Override
 	public void writeUnresolvedEdges()
 	{
-		// TODO Auto-generated method stub
+		List<DirectedEdge> edges = UnresolvedEdgeStore.getEdges();
+		for (DirectedEdge edge : edges)
+		{
+			String sourceKey = edge.getSourceNode().getKey();
+			String destKey = edge.getDestNode().getKey();
+			String type = edge.getType();
 
+		}
+
+		UnresolvedEdgeStore.clearCache();
 	}
 
 	private void writeInstructions(BasicBlock block)
