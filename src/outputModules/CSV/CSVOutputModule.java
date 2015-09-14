@@ -8,9 +8,10 @@ import java.util.Map;
 
 import outputModules.OutputModule;
 import structures.BasicBlock;
-import structures.CFGEdge;
 import structures.Function;
 import structures.Instruction;
+import structures.edges.EdgeTypes;
+import structures.edges.ResolvedCFGEdge;
 
 public class CSVOutputModule implements OutputModule
 {
@@ -63,6 +64,13 @@ public class CSVOutputModule implements OutputModule
 		writeInstructions(block);
 	}
 
+	@Override
+	public void writeUnresolvedEdges()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
 	private void writeInstructions(BasicBlock block)
 	{
 		Collection<Instruction> instructions = block.getInstructions();
@@ -85,7 +93,7 @@ public class CSVOutputModule implements OutputModule
 		Map<String, Object> properties = new HashMap<String, Object>();
 		long srcId = CSVWriter.getIdForNode(block);
 		long dstId = CSVWriter.getIdForNode(instr);
-		CSVWriter.addEdge(srcId, dstId, properties, "IS_BB_OF");
+		CSVWriter.addEdge(srcId, dstId, properties, EdgeTypes.IS_BB_OF);
 	}
 
 	private void writeInstruction(BasicBlock block, Instruction instr,
@@ -109,8 +117,8 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeCFGEdges(Function function)
 	{
-		List<CFGEdge> edges = function.getContent().getEdges();
-		for (CFGEdge edge : edges)
+		List<ResolvedCFGEdge> edges = function.getContent().getEdges();
+		for (ResolvedCFGEdge edge : edges)
 		{
 			BasicBlock from = edge.getFrom();
 			BasicBlock to = edge.getTo();

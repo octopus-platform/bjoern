@@ -5,22 +5,23 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import nodeStore.Node;
 import nodeStore.NodeTypes;
-import unresolvedEdgeStore.UnresolvedEdge;
+import structures.edges.DirectedEdge;
+import structures.edges.ResolvedCFGEdge;
 import unresolvedEdgeStore.UnresolvedEdgeStore;
-import unresolvedEdgeStore.UnresolvedNode;
 
 public class FunctionContent
 {
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
-	List<CFGEdge> edges = new LinkedList<CFGEdge>();
+	List<ResolvedCFGEdge> edges = new LinkedList<ResolvedCFGEdge>();
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
 		return basicBlocks.values();
 	}
 
-	public List<CFGEdge> getEdges()
+	public List<ResolvedCFGEdge> getEdges()
 	{
 		return edges;
 	}
@@ -37,16 +38,25 @@ public class FunctionContent
 		basicBlocks.put(addr, node);
 	}
 
-	public void addCFGEdge(CFGEdge newEdge)
+	public void addCFGEdge(ResolvedCFGEdge newEdge)
 	{
 		edges.add(newEdge);
 	}
 
 	public void addUnresolvedEdge(Long from, Long to)
 	{
-		UnresolvedNode src = new UnresolvedNode(from, NodeTypes.BASIC_BLOCK);
-		UnresolvedNode dst = new UnresolvedNode(to, NodeTypes.BASIC_BLOCK);
-		UnresolvedEdge edge = new UnresolvedEdge(src, dst);
+		Node src = new Node();
+		src.setAddr(from);
+		src.setType(NodeTypes.BASIC_BLOCK);
+
+		Node dst = new Node();
+		dst.setAddr(to);
+		dst.setType(NodeTypes.BASIC_BLOCK);
+
+		DirectedEdge edge = new DirectedEdge();
+		edge.setSourceNode(src);
+		edge.setDestNode(dst);
+
 		UnresolvedEdgeStore.add(edge);
 	}
 
@@ -67,7 +77,7 @@ public class FunctionContent
 
 	public void addEdge(BasicBlock from, BasicBlock to, String type)
 	{
-		CFGEdge newEdge = new CFGEdge();
+		ResolvedCFGEdge newEdge = new ResolvedCFGEdge();
 		newEdge.setFrom(from);
 		newEdge.setTo(to);
 		newEdge.setType(type);

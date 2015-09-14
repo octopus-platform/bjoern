@@ -39,4 +39,9 @@ public class Node
 		this.type = type;
 	}
 
+	public String getKey()
+	{
+		return getType() + "_" + getAddress().toString();
+	}
+
 }

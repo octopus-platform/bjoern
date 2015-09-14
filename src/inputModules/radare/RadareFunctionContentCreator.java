@@ -8,8 +8,8 @@ import exceptions.radareInput.EdgeTargetNotFound;
 import nodeStore.NodeStore;
 import nodeStore.NodeTypes;
 import structures.BasicBlock;
-import structures.CFGEdgeType;
 import structures.FunctionContent;
+import structures.edges.EdgeTypes;
 
 public class RadareFunctionContentCreator
 {
@@ -125,12 +125,12 @@ public class RadareFunctionContentCreator
 		}
 
 		if (numberOfEdges == 1)
-			content.addEdge(fromBlock, jumpBlock, CFGEdgeType.UNCONDITIONAL);
+			content.addEdge(fromBlock, jumpBlock, EdgeTypes.CFLOW);
 		else
 		{
 			assert(failBlock != null);
-			content.addEdge(fromBlock, jumpBlock, CFGEdgeType.TRUE);
-			content.addEdge(fromBlock, failBlock, CFGEdgeType.FALSE);
+			content.addEdge(fromBlock, jumpBlock, EdgeTypes.CFLOW_TRUE);
+			content.addEdge(fromBlock, failBlock, EdgeTypes.CFLOW_FALSE);
 		}
 
 	}
