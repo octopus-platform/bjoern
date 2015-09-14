@@ -9,7 +9,7 @@ public interface OutputModule
 
 	public void finish();
 
-	public void writeFunction(Function function);
+	public void writeFunctionContent(Function function);
 
 	public void writeBasicBlock(BasicBlock block);
 

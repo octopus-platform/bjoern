@@ -25,21 +25,20 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.finish();
 	}
 
-	public void writeFunction(Function function)
-	{
-		CSVWriter.reset();
-		writeFunctionBlock(function);
-		writeBasicBlocks(function);
-		writeCFGEdges(function);
-	}
-
-	private void writeFunctionBlock(Function function)
+	public void writeFunctionInfo(Function function)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("addr", function.getAddress().toString());
 		properties.put("type", function.getType());
 		properties.put("repr", function.getName());
 		CSVWriter.addNode(function, properties);
+	}
+
+	public void writeFunctionContent(Function function)
+	{
+		CSVWriter.reset();
+		writeBasicBlocks(function);
+		writeCFGEdges(function);
 	}
 
 	private void writeBasicBlocks(Function function)
@@ -117,4 +116,5 @@ public class CSVOutputModule implements OutputModule
 			CSVWriter.addEdge(srcId, dstId, properties, edgeType);
 		}
 	}
+
 }

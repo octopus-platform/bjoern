@@ -31,8 +31,10 @@ public class Main
 	private static void loadAndOutputFunctionInfo()
 	{
 		functions = inputModule.getFunctions();
-		// TODO: remove current rudimentary function import code, and
-		// reimplement a more thorough importer here.
+		for (Function function : functions)
+		{
+			outputModule.writeFunctionInfo(function);
+		}
 	}
 
 	private static void loadAndOutputFunctionContent()
@@ -50,7 +52,11 @@ public class Main
 	{
 		if (function == null)
 			return;
-		outputModule.writeFunction(function);
+		outputModule.writeFunctionContent(function);
+
+		// we clear the function content after writing it to free up some
+		// memory.
+		function.deleteContent();
 	}
 
 }

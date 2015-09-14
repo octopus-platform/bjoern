@@ -35,4 +35,9 @@ public class Function extends Node
 		this.content = content;
 	}
 
+	public void deleteContent()
+	{
+		content = null;
+	}
+
 }

@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import nodeStore.Node;
-
 import org.apache.commons.lang3.StringUtils;
+
+import nodeStore.Node;
 
 public class CSVWriter
 {
@@ -28,6 +28,11 @@ public class CSVWriter
 
 	public static void reset()
 	{
+		clearObjectCache();
+	}
+
+	private static void clearObjectCache()
+	{
 		for (Iterator<Map.Entry<Node, Long>> it = objectToId.entrySet()
 				.iterator(); it.hasNext();)
 		{
@@ -37,7 +42,6 @@ public class CSVWriter
 				it.remove();
 			}
 		}
-
 	}
 
 	public static void finish()
