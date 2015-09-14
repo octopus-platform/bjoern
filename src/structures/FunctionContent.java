@@ -7,11 +7,13 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import nodeStore.NodeTypes;
+
 public class FunctionContent
 {
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<CFGEdge> edges = new LinkedList<CFGEdge>();
-	List<Pair<Long, Long>> unresolvedEdges = new LinkedList<Pair<Long, Long>>();
+	List<UnresolvedEdge> unresolvedEdges = new LinkedList<UnresolvedEdge>();
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -43,7 +45,11 @@ public class FunctionContent
 	public void addUnresolvedEdge(Long from, Long to)
 	{
 		Pair<Long, Long> pair = Pair.of(from, to);
-		unresolvedEdges.add(pair);
+
+		UnresolvedNode src = new UnresolvedNode(from, NodeTypes.BASIC_BLOCK);
+		UnresolvedNode dst = new UnresolvedNode(to, NodeTypes.BASIC_BLOCK);
+		UnresolvedEdge edge = new UnresolvedEdge(src, dst);
+		unresolvedEdges.add(edge);
 	}
 
 	public void registerBasicBlock(long addr, BasicBlock node)
