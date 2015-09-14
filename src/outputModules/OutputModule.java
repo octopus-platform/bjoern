@@ -17,6 +17,6 @@ public interface OutputModule
 
 	public void writeBasicBlock(BasicBlock block);
 
-	public void writeUnresolvedEdges();
+	public void writeUnresolvedContentEdges(Function function);
 
 }

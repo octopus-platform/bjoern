@@ -9,11 +9,11 @@ import java.util.Map;
 import outputModules.OutputModule;
 import structures.BasicBlock;
 import structures.Function;
+import structures.FunctionContent;
 import structures.Instruction;
 import structures.edges.DirectedEdge;
 import structures.edges.EdgeTypes;
 import structures.edges.ResolvedCFGEdge;
-import unresolvedEdgeStore.UnresolvedEdgeStore;
 
 public class CSVOutputModule implements OutputModule
 {
@@ -67,9 +67,11 @@ public class CSVOutputModule implements OutputModule
 	}
 
 	@Override
-	public void writeUnresolvedEdges()
+	public void writeUnresolvedContentEdges(Function function)
 	{
-		List<DirectedEdge> edges = UnresolvedEdgeStore.getEdges();
+		FunctionContent content = function.getContent();
+
+		List<DirectedEdge> edges = content.getUnresolvedEdges();
 		for (DirectedEdge edge : edges)
 		{
 			String sourceKey = edge.getSourceNode().getKey();
@@ -80,7 +82,6 @@ public class CSVOutputModule implements OutputModule
 			CSVWriter.addUnresolvedEdge(sourceKey, destKey, properties, type);
 		}
 
-		UnresolvedEdgeStore.clearCache();
 	}
 
 	private void writeInstructions(BasicBlock block)

@@ -8,7 +8,6 @@ import java.util.List;
 import nodeStore.NodeStore;
 import outputModules.CSV.CSVOutputModule;
 import structures.Function;
-import unresolvedEdgeStore.UnresolvedEdgeStore;
 
 public class Main
 {
@@ -53,7 +52,6 @@ public class Main
 	private static void clearCaches()
 	{
 		NodeStore.clearCache();
-		UnresolvedEdgeStore.clearCache();
 		outputModule.clearCache();
 	}
 
@@ -63,7 +61,7 @@ public class Main
 			return;
 
 		outputModule.writeFunctionContent(function);
-		outputModule.writeUnresolvedEdges();
+		outputModule.writeUnresolvedContentEdges(function);
 
 		// we clear the function content after writing it to free up some
 		// memory.
