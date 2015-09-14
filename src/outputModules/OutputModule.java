@@ -7,6 +7,8 @@ public interface OutputModule
 {
 	public void initialize();
 
+	public void clearCache();
+
 	public void finish();
 
 	public void writeFunctionContent(Function function);

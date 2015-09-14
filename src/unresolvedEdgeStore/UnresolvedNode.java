@@ -1,4 +1,4 @@
-package structures;
+package unresolvedEdgeStore;
 
 import nodeStore.Node;
 

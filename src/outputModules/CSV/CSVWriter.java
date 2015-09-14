@@ -26,7 +26,7 @@ public class CSVWriter
 
 	static Map<Node, Long> objectToId = new HashMap<Node, Long>();
 
-	public static void reset()
+	public static void clear()
 	{
 		clearObjectCache();
 	}

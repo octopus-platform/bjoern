@@ -20,6 +20,12 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.changeOutputDir("/tmp");
 	}
 
+	@Override
+	public void clearCache()
+	{
+		CSVWriter.clear();
+	}
+
 	public void finish()
 	{
 		CSVWriter.finish();
@@ -37,7 +43,6 @@ public class CSVOutputModule implements OutputModule
 
 	public void writeFunctionContent(Function function)
 	{
-		CSVWriter.reset();
 		writeBasicBlocks(function);
 		writeCFGEdges(function);
 	}

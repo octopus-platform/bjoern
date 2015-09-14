@@ -5,15 +5,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import nodeStore.NodeTypes;
+import unresolvedEdgeStore.UnresolvedEdge;
+import unresolvedEdgeStore.UnresolvedEdgeStore;
+import unresolvedEdgeStore.UnresolvedNode;
 
 public class FunctionContent
 {
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<CFGEdge> edges = new LinkedList<CFGEdge>();
-	List<UnresolvedEdge> unresolvedEdges = new LinkedList<UnresolvedEdge>();
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -44,12 +44,10 @@ public class FunctionContent
 
 	public void addUnresolvedEdge(Long from, Long to)
 	{
-		Pair<Long, Long> pair = Pair.of(from, to);
-
 		UnresolvedNode src = new UnresolvedNode(from, NodeTypes.BASIC_BLOCK);
 		UnresolvedNode dst = new UnresolvedNode(to, NodeTypes.BASIC_BLOCK);
 		UnresolvedEdge edge = new UnresolvedEdge(src, dst);
-		unresolvedEdges.add(edge);
+		UnresolvedEdgeStore.add(edge);
 	}
 
 	public void registerBasicBlock(long addr, BasicBlock node)

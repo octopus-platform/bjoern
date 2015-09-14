@@ -1,4 +1,4 @@
-package testRadare2;
+package exporter;
 
 import java.util.List;
 
@@ -7,6 +7,7 @@ import inputModules.radare.RadareInputModule;
 import nodeStore.NodeStore;
 import outputModules.CSV.CSVOutputModule;
 import structures.Function;
+import unresolvedEdgeStore.UnresolvedEdgeStore;
 
 public class Main
 {
@@ -41,17 +42,25 @@ public class Main
 	{
 		for (Function function : functions)
 		{
-			NodeStore.clearCache();
+			clearCaches();
 			inputModule.initializeFunctionContents(function);
 			processFunction(function);
 		}
 
 	}
 
+	private static void clearCaches()
+	{
+		NodeStore.clearCache();
+		UnresolvedEdgeStore.clearCache();
+		outputModule.clearCache();
+	}
+
 	private static void processFunction(Function function)
 	{
 		if (function == null)
 			return;
+
 		outputModule.writeFunctionContent(function);
 
 		// we clear the function content after writing it to free up some

@@ -1,4 +1,4 @@
-package structures;
+package unresolvedEdgeStore;
 
 public class UnresolvedEdge
 {
