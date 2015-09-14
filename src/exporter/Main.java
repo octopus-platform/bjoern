@@ -43,30 +43,33 @@ public class Main
 	{
 		for (Function function : functions)
 		{
-			clearCaches();
-			inputModule.initializeFunctionContents(function);
 			processFunction(function);
 		}
 
+	}
+
+	private static void processFunction(Function function)
+	{
+
+		if (function == null)
+			return;
+
+		inputModule.initializeFunctionContents(function);
+
+		outputModule.writeFunctionContent(function);
+		outputModule.writeUnresolvedContentEdges(function);
+
+		// we clear the function content after writing it to free up some
+		// memory. In addition, we clear all references to nodes still present
+		// in caches.
+		function.deleteContent();
+		clearCaches();
 	}
 
 	private static void clearCaches()
 	{
 		NodeStore.clearCache();
 		outputModule.clearCache();
-	}
-
-	private static void processFunction(Function function)
-	{
-		if (function == null)
-			return;
-
-		outputModule.writeFunctionContent(function);
-		outputModule.writeUnresolvedContentEdges(function);
-
-		// we clear the function content after writing it to free up some
-		// memory.
-		function.deleteContent();
 	}
 
 }

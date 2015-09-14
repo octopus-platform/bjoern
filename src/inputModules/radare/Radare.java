@@ -1,15 +1,11 @@
 package inputModules.radare;
 
 import java.math.BigInteger;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.radare.radare2.RAnal;
-import org.radare.radare2.RAnalFunction;
-import org.radare.radare2.RAnalFunctionVector;
 import org.radare.radare2.RCore;
 
 import exceptions.radareInput.InvalidRadareFunction;
@@ -42,38 +38,10 @@ public class Radare
 		analysisResults = rCore.getAnal();
 	}
 
-	public static List<BigInteger> getFunctionAddresses()
+	public static JSONArray getJSONFunctions()
 	{
-		if (analysisResults == null)
-			throw new RuntimeException("analyzeBinary must be called first");
-
-		RAnalFunctionVector functions = analysisResults.get_fcns();
-
-		return radareFunctionVectorToAddrList(functions);
-	}
-
-	private static List<BigInteger> radareFunctionVectorToAddrList(
-			RAnalFunctionVector functions)
-	{
-		int numberOfFunctions = getNumberOfFunctions(functions);
-
-		List<BigInteger> list = new LinkedList<BigInteger>();
-		for (int i = 0; i < numberOfFunctions; i++)
-		{
-			RAnalFunction function = functions.get(i);
-			BigInteger addr = function.getAddr();
-			list.add(addr);
-		}
-		return list;
-	}
-
-	private static int getNumberOfFunctions(RAnalFunctionVector functions)
-	{
-		long numberOfFunctions = functions.size();
-		if (numberOfFunctions > Integer.MAX_VALUE)
-			throw new RuntimeException("Too many functions");
-
-		return (int) numberOfFunctions;
+		String str = rCore.cmd_str("aflj");
+		return new JSONArray(str);
 	}
 
 	public static JSONObject getJSONFunctionContentAt(Long addr)
@@ -86,7 +54,8 @@ public class Radare
 		try
 		{
 			jsonArray = new JSONArray(jsonStr);
-		} catch (JSONException ex)
+		}
+		catch (JSONException ex)
 		{
 			return null;
 		}
@@ -97,9 +66,10 @@ public class Radare
 		return jsonArray.getJSONObject(0);
 	}
 
-	public static JSONArray getJSONFunctions()
+	public static String getDisassemblyForFunctionAt(Long addr)
 	{
-		String str = rCore.cmd_str("aflj");
-		return new JSONArray(str);
+		String cmd = String.format("pdf @ %d", addr);
+		return rCore.cmd_str(cmd);
 	}
+
 }

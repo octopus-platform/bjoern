@@ -1,15 +1,16 @@
 package inputModules.radare;
 
+import inputModules.InputModule;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import exceptions.radareInput.InvalidRadareFunction;
-import inputModules.InputModule;
 import structures.Function;
 import structures.FunctionContent;
+import exceptions.radareInput.InvalidRadareFunction;
 
 public class RadareInputModule implements InputModule
 {
@@ -47,13 +48,16 @@ public class RadareInputModule implements InputModule
 		try
 		{
 			jsonFunctionContent = Radare.getJSONFunctionContentAt(address);
-		} catch (InvalidRadareFunction e)
+		}
+		catch (InvalidRadareFunction e)
 		{
 			return;
 		}
 
 		FunctionContent content = RadareFunctionContentCreator
 				.createContentFromJSON(jsonFunctionContent);
+
+		jsonFunctionContent = null;
 
 		function.setContent(content);
 
