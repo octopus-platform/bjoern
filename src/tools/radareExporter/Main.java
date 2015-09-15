@@ -1,4 +1,4 @@
-package exporter;
+package tools.radareExporter;
 
 import inputModules.InputModule;
 import inputModules.radare.RadareInputModule;

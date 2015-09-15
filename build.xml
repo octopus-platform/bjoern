@@ -12,6 +12,7 @@
     <pathelement location="${jar.dir}/commons-lang3-3.3.2.jar"/>
     <pathelement location="${jar.dir}/json-20141113.jar"/>
     <pathelement location="${jar.dir}/opencsv-3.5.jar"/>
+    <pathelement location="${jar.dir}/commons-cli-1.2.jar"/>
     <pathelement location="${jar.dir}/radare2.jar"/>
   </path>
 
@@ -35,7 +36,7 @@
 	 basedir="${build.dir}"
 	 includes="**/*.class">
       <manifest>
-	<attribute name="Main-Class" value="exporter.Main" />
+	<attribute name="Main-Class" value="tools.radareExporter.Main" />
       </manifest>
       <fileset dir="${build.dir}" includes="**/*.class" />
       <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
