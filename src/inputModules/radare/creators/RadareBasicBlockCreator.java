@@ -1,4 +1,4 @@
-package inputModules.radare;
+package inputModules.radare.creators;
 
 import nodeStore.NodeStore;
 

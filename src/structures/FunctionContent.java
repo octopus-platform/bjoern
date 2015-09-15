@@ -7,8 +7,7 @@ import java.util.List;
 
 import exceptions.nodeStore.DuplicateNode;
 import exceptions.radareInput.InvalidDisassembly;
-import inputModules.radare.DisassemblyParser;
-import inputModules.radare.ParsedDisassembly;
+import inputModules.radare.RadareDisassemblyParser;
 import nodeStore.Node;
 import nodeStore.NodeTypes;
 import structures.edges.DirectedEdge;
@@ -20,7 +19,7 @@ public class FunctionContent
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<ResolvedCFGEdge> edges = new LinkedList<ResolvedCFGEdge>();
 	List<DirectedEdge> unresolvedEdges = new LinkedList<DirectedEdge>();
-	private ParsedDisassembly parsedDisassembly = new ParsedDisassembly();
+	private Disassembly parsedDisassembly = new Disassembly();
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -97,7 +96,7 @@ public class FunctionContent
 
 	public void consumeDisassembly(String disassembly)
 	{
-		DisassemblyParser parser = new DisassemblyParser();
+		RadareDisassemblyParser parser = new RadareDisassemblyParser();
 		try
 		{
 			parsedDisassembly = parser.parse(disassembly);

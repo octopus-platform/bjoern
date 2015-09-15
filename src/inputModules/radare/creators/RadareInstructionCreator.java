@@ -1,7 +1,8 @@
-package inputModules.radare;
+package inputModules.radare.creators;
 
 import org.json.JSONObject;
 
+import inputModules.radare.JSONUtils;
 import structures.Instruction;
 
 public class RadareInstructionCreator

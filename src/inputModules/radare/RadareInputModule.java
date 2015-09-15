@@ -8,6 +8,8 @@ import org.json.JSONObject;
 
 import exceptions.radareInput.InvalidRadareFunction;
 import inputModules.InputModule;
+import inputModules.radare.creators.RadareFunctionContentCreator;
+import inputModules.radare.creators.RadareFunctionCreator;
 import structures.Function;
 import structures.FunctionContent;
 

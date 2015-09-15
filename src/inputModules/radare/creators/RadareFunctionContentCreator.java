@@ -1,4 +1,4 @@
-package inputModules.radare;
+package inputModules.radare.creators;
 
 import nodeStore.NodeStore;
 import nodeStore.NodeTypes;
@@ -11,6 +11,7 @@ import structures.FunctionContent;
 import structures.edges.EdgeTypes;
 import exceptions.radareInput.BasicBlockWithoutAddress;
 import exceptions.radareInput.EdgeTargetNotFound;
+import inputModules.radare.JSONUtils;
 
 public class RadareFunctionContentCreator
 {

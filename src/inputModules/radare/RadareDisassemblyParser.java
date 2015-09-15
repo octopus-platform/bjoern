@@ -4,8 +4,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import exceptions.radareInput.EmptyDisassembly;
+import structures.Disassembly;
+import structures.VariableOrArgument;
 
-public class DisassemblyParser
+public class RadareDisassemblyParser
 {
 
 	String lines[];
@@ -14,16 +16,16 @@ public class DisassemblyParser
 	static Pattern varAndArgPattern = Pattern
 			.compile("^; (var|arg) (\\w+?) (\\w+?)[ ]+?@ (.*)$");
 
-	public ParsedDisassembly parse(String disassembly) throws EmptyDisassembly
+	public Disassembly parse(String disassembly) throws EmptyDisassembly
 	{
-		ParsedDisassembly retval = new ParsedDisassembly();
+		Disassembly retval = new Disassembly();
 
 		initializeLines(disassembly);
 		parseLines(retval);
 		return retval;
 	}
 
-	private void parseLines(ParsedDisassembly retval)
+	private void parseLines(Disassembly retval)
 	{
 		String line;
 		while ((line = nextLine()) != null)
@@ -45,24 +47,28 @@ public class DisassemblyParser
 		return line.startsWith(";");
 	}
 
-	private void handleComment(ParsedDisassembly retval, String line)
+	private void handleComment(Disassembly retval, String line)
 	{
 		Matcher matcher = varAndArgPattern.matcher(line);
-		if (!matcher.matches())
+		if (matcher.matches())
 		{
-			handleVarOrArg(matcher);
+			handleVarOrArg(retval, matcher);
 		}
 	}
 
-	private void handleVarOrArg(Matcher matcher)
+	private void handleVarOrArg(Disassembly retval, Matcher matcher)
 	{
-		String varOrArg = matcher.group(1);
-		String varType = matcher.group(2);
-		String varName = matcher.group(3);
-		String regPlusOffset = matcher.group(4);
+		VariableOrArgument parsedVarOrArg = new VariableOrArgument();
+
+		parsedVarOrArg.setType(matcher.group(1));
+		parsedVarOrArg.setVarType(matcher.group(2));
+		parsedVarOrArg.setName(matcher.group(3));
+		parsedVarOrArg.setRegPlusOffset(matcher.group(4));
+
+		retval.addVarOrArg(parsedVarOrArg);
 	}
 
-	private void handleInstruction(ParsedDisassembly retval, String line)
+	private void handleInstruction(Disassembly retval, String line)
 	{
 		// TODO
 	}
