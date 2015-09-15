@@ -1,5 +1,6 @@
 package inputModules.radare;
 
+import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,9 @@ public class RadareDisassemblyParser
 
 	static Pattern varAndArgPattern = Pattern
 			.compile("^; (var|arg) (\\w+?) (\\w+?)[ ]+?@ (.*)$");
+
+	static Pattern instructionPattern = Pattern
+			.compile("0x(.*?)[ ]+?(.*?)( ;(.*))?$");
 
 	public Disassembly parse(String disassembly) throws EmptyDisassembly
 	{
@@ -70,7 +74,13 @@ public class RadareDisassemblyParser
 
 	private void handleInstruction(Disassembly retval, String line)
 	{
-		// TODO
+		Matcher matcher = instructionPattern.matcher(line);
+		if (!matcher.matches())
+			return;
+
+		Long addr = new BigInteger(matcher.group(1), 16).longValue();
+		String instruction = matcher.group(2);
+		String comment = matcher.group(3);
 	}
 
 	private String nextLine()
