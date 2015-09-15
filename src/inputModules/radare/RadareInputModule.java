@@ -44,10 +44,13 @@ public class RadareInputModule implements InputModule
 	{
 		Long address = function.getAddress();
 		JSONObject jsonFunctionContent;
+		String disassembly;
 
 		try
 		{
 			jsonFunctionContent = Radare.getJSONFunctionContentAt(address);
+			disassembly = Radare.getDisassemblyForFunctionAt(address);
+			// System.out.println(disassembly);
 		}
 		catch (InvalidRadareFunction e)
 		{

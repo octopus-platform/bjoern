@@ -34,6 +34,13 @@ public class Radare
 
 	public static void analyzeBinary()
 	{
+		rCore.cmd0("e scr.color = false");
+		rCore.cmd0("e asm.bytes = false");
+		rCore.cmd0("e asm.lines = false");
+		rCore.cmd0("e asm.fcnlines = false");
+		rCore.cmd0("e asm.xrefs = false");
+		rCore.cmd0("e asm.lbytes = false");
+
 		rCore.cmd0("aaa");
 		analysisResults = rCore.getAnal();
 	}
