@@ -75,8 +75,7 @@ public class Radare
 
 	public static String getDisassemblyForFunctionAt(Long addr)
 	{
-		String cmd = String.format("pdf @ %d", addr);
+		String cmd = String.format("pdf @" + Long.toUnsignedString(addr));
 		return rCore.cmd_str(cmd);
 	}
-
 }
