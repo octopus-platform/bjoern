@@ -1,16 +1,15 @@
 package inputModules.radare;
 
-import inputModules.InputModule;
-
 import java.util.LinkedList;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import exceptions.radareInput.InvalidRadareFunction;
+import inputModules.InputModule;
 import structures.Function;
 import structures.FunctionContent;
-import exceptions.radareInput.InvalidRadareFunction;
 
 public class RadareInputModule implements InputModule
 {
@@ -50,9 +49,7 @@ public class RadareInputModule implements InputModule
 		{
 			jsonFunctionContent = Radare.getJSONFunctionContentAt(address);
 			disassembly = Radare.getDisassemblyForFunctionAt(address);
-			// System.out.println(disassembly);
-		}
-		catch (InvalidRadareFunction e)
+		} catch (InvalidRadareFunction e)
 		{
 			return;
 		}
@@ -61,6 +58,8 @@ public class RadareInputModule implements InputModule
 				.createContentFromJSON(jsonFunctionContent);
 
 		jsonFunctionContent = null;
+
+		content.consumeDisassembly(disassembly);
 
 		function.setContent(content);
 

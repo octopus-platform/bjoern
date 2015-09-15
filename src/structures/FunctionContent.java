@@ -5,18 +5,22 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import exceptions.nodeStore.DuplicateNode;
+import exceptions.radareInput.InvalidDisassembly;
+import inputModules.radare.DisassemblyParser;
+import inputModules.radare.ParsedDisassembly;
 import nodeStore.Node;
 import nodeStore.NodeTypes;
 import structures.edges.DirectedEdge;
 import structures.edges.EdgeTypes;
 import structures.edges.ResolvedCFGEdge;
-import exceptions.nodeStore.DuplicateNode;
 
 public class FunctionContent
 {
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<ResolvedCFGEdge> edges = new LinkedList<ResolvedCFGEdge>();
 	List<DirectedEdge> unresolvedEdges = new LinkedList<DirectedEdge>();
+	private ParsedDisassembly parsedDisassembly = new ParsedDisassembly();
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -89,6 +93,18 @@ public class FunctionContent
 	public List<DirectedEdge> getUnresolvedEdges()
 	{
 		return unresolvedEdges;
+	}
+
+	public void consumeDisassembly(String disassembly)
+	{
+		DisassemblyParser parser = new DisassemblyParser();
+		try
+		{
+			parsedDisassembly = parser.parse(disassembly);
+		} catch (InvalidDisassembly e)
+		{
+			// TODO: might want to log this error.
+		}
 	}
 
 }

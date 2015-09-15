@@ -34,15 +34,20 @@ public class Radare
 
 	public static void analyzeBinary()
 	{
+		setRadareOptions();
+
+		rCore.cmd0("aaa");
+		analysisResults = rCore.getAnal();
+	}
+
+	private static void setRadareOptions()
+	{
 		rCore.cmd0("e scr.color = false");
 		rCore.cmd0("e asm.bytes = false");
 		rCore.cmd0("e asm.lines = false");
 		rCore.cmd0("e asm.fcnlines = false");
 		rCore.cmd0("e asm.xrefs = false");
 		rCore.cmd0("e asm.lbytes = false");
-
-		rCore.cmd0("aaa");
-		analysisResults = rCore.getAnal();
 	}
 
 	public static JSONArray getJSONFunctions()
@@ -61,8 +66,7 @@ public class Radare
 		try
 		{
 			jsonArray = new JSONArray(jsonStr);
-		}
-		catch (JSONException ex)
+		} catch (JSONException ex)
 		{
 			return null;
 		}
@@ -75,6 +79,8 @@ public class Radare
 
 	public static String getDisassemblyForFunctionAt(Long addr)
 	{
+		// It would be much nicer if we could obtain an array representing the
+		// disassembly as opposed to a single string.
 		String cmd = String.format("pdf @" + Long.toUnsignedString(addr));
 		return rCore.cmd_str(cmd);
 	}

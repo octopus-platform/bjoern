@@ -26,4 +26,9 @@ public class BasicBlock extends Node
 		return instructions.values();
 	}
 
+	public Instruction getInstructionAtAddress(long address)
+	{
+		return instructions.get(address);
+	}
+
 }
