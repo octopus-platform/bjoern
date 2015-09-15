@@ -90,7 +90,6 @@ public class RadareDisassemblyParser
 			disasmLine.setComment(comment.trim());
 
 		retval.addLine(disasmLine);
-
 	}
 
 	private String nextLine()

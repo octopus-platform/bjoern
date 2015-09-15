@@ -1,6 +1,8 @@
 package structures;
 
-public class VariableOrArgument
+import nodeStore.Node;
+
+public class VariableOrArgument extends Node
 {
 	private String type;
 	private String varType;

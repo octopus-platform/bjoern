@@ -21,11 +21,6 @@ public class FunctionContent
 	List<DirectedEdge> unresolvedEdges = new LinkedList<DirectedEdge>();
 	Disassembly disassembly = new Disassembly();
 
-	public DisassemblyLine getDisassemblyLineForAddr(long addr)
-	{
-		return disassembly.getLineForAddr(addr);
-	}
-
 	public Collection<BasicBlock> getBasicBlocks()
 	{
 		return basicBlocks.values();
@@ -39,6 +34,16 @@ public class FunctionContent
 	public BasicBlock getBasicBlockAtAddress(long addr)
 	{
 		return basicBlocks.get(addr);
+	}
+
+	public DisassemblyLine getDisassemblyLineForAddr(long addr)
+	{
+		return disassembly.getLineForAddr(addr);
+	}
+
+	public List<VariableOrArgument> getVariablesAndArguments()
+	{
+		return disassembly.getVariablesAndArguments();
 	}
 
 	public void addBasicBlock(long addr, BasicBlock node)

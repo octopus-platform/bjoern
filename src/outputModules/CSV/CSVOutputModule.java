@@ -6,12 +6,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import nodeStore.NodeTypes;
 import outputModules.OutputModule;
 import structures.BasicBlock;
 import structures.DisassemblyLine;
 import structures.Function;
 import structures.FunctionContent;
 import structures.Instruction;
+import structures.VariableOrArgument;
 import structures.edges.DirectedEdge;
 import structures.edges.EdgeTypes;
 import structures.edges.ResolvedCFGEdge;
@@ -51,10 +53,42 @@ public class CSVOutputModule implements OutputModule
 	{
 		setCurrentFunction(function);
 
-		writeBasicBlocks(function);
-		writeCFGEdges(function);
+		writeArgumentsAndVariables();
+		writeBasicBlocks();
+		writeCFGEdges();
 
 		setCurrentFunction(null);
+	}
+
+	private void writeArgumentsAndVariables()
+	{
+		FunctionContent content = currentFunction.getContent();
+		List<VariableOrArgument> varsAndArgs = content
+				.getVariablesAndArguments();
+
+		for (VariableOrArgument varOrArg : varsAndArgs)
+		{
+			createNodeForVarOrArg(varOrArg);
+		}
+
+	}
+
+	private void createNodeForVarOrArg(VariableOrArgument varOrArg)
+	{
+		Map<String, Object> properties = new HashMap<String, Object>();
+		String type = varOrArg.getType();
+		if (type.equals("var"))
+			properties.put("type", NodeTypes.LOCAL_VAR);
+		else
+			properties.put("type", NodeTypes.ARG);
+
+		properties.put("name", varOrArg.getVarName());
+		properties.put("repr", varOrArg.getVarType());
+		properties.put("code", varOrArg.getRegPlusOffset());
+
+		// TODO: Watchout: We have not set the address on VariableOrArgument
+		// nodes yet.
+		CSVWriter.addNode(varOrArg, properties);
 	}
 
 	private void setCurrentFunction(Function function)
@@ -62,8 +96,10 @@ public class CSVOutputModule implements OutputModule
 		currentFunction = function;
 	}
 
-	private void writeBasicBlocks(Function function)
+	private void writeBasicBlocks()
 	{
+		Function function = currentFunction;
+
 		Collection<BasicBlock> basicBlocks = function.getContent()
 				.getBasicBlocks();
 		for (BasicBlock block : basicBlocks)
@@ -141,8 +177,9 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.addNode(block, properties);
 	}
 
-	private void writeCFGEdges(Function function)
+	private void writeCFGEdges()
 	{
+		Function function = currentFunction;
 		List<ResolvedCFGEdge> edges = function.getContent().getEdges();
 		for (ResolvedCFGEdge edge : edges)
 		{
