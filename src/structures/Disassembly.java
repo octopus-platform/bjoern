@@ -20,4 +20,9 @@ public class Disassembly
 		addrToLine.put(disasmLine.getAddr(), disasmLine);
 	}
 
+	public DisassemblyLine getLineForAddr(long addr)
+	{
+		return addrToLine.get(addr);
+	}
+
 }

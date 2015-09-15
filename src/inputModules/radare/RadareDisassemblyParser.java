@@ -85,8 +85,9 @@ public class RadareDisassemblyParser
 
 		DisassemblyLine disasmLine = new DisassemblyLine();
 		disasmLine.setAddr(addr);
-		disasmLine.setInstruction(instruction);
-		disasmLine.setComment(comment);
+		disasmLine.setInstruction(instruction.trim());
+		if (comment != null)
+			disasmLine.setComment(comment.trim());
 
 		retval.addLine(disasmLine);
 

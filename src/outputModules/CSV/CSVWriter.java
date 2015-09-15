@@ -7,15 +7,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import nodeStore.Node;
-
 import org.apache.commons.lang3.StringUtils;
+
+import nodeStore.Node;
 
 public class CSVWriter
 {
 	final static String SEPARATOR = "\t";
 
-	final static String[] nodeProperties = { "addr", "type", "childNum", "repr" };
+	final static String[] nodeProperties = { "addr", "type", "childNum", "repr",
+			"code", "comment" };
 
 	final static String[] edgeProperties = {};
 	final static String[] unresolvedEdgeProperties = {};
@@ -169,8 +170,7 @@ public class CSVWriter
 		try
 		{
 			return new PrintWriter(path);
-		}
-		catch (FileNotFoundException e)
+		} catch (FileNotFoundException e)
 		{
 			throw new RuntimeException("Cannot create file: " + path);
 		}

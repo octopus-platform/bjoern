@@ -19,7 +19,12 @@ public class FunctionContent
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<ResolvedCFGEdge> edges = new LinkedList<ResolvedCFGEdge>();
 	List<DirectedEdge> unresolvedEdges = new LinkedList<DirectedEdge>();
-	private Disassembly parsedDisassembly = new Disassembly();
+	Disassembly disassembly = new Disassembly();
+
+	public DisassemblyLine getDisassemblyLineForAddr(long addr)
+	{
+		return disassembly.getLineForAddr(addr);
+	}
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -94,12 +99,12 @@ public class FunctionContent
 		return unresolvedEdges;
 	}
 
-	public void consumeDisassembly(String disassembly)
+	public void consumeDisassembly(String disassemblyStr)
 	{
 		RadareDisassemblyParser parser = new RadareDisassemblyParser();
 		try
 		{
-			parsedDisassembly = parser.parse(disassembly);
+			disassembly = parser.parse(disassemblyStr);
 		} catch (InvalidDisassembly e)
 		{
 			// TODO: might want to log this error.

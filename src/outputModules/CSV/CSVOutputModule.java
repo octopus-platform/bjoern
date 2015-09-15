@@ -8,6 +8,7 @@ import java.util.Map;
 
 import outputModules.OutputModule;
 import structures.BasicBlock;
+import structures.DisassemblyLine;
 import structures.Function;
 import structures.FunctionContent;
 import structures.Instruction;
@@ -17,6 +18,8 @@ import structures.edges.ResolvedCFGEdge;
 
 public class CSVOutputModule implements OutputModule
 {
+
+	Function currentFunction = null;
 
 	public void initialize()
 	{
@@ -46,8 +49,17 @@ public class CSVOutputModule implements OutputModule
 
 	public void writeFunctionContent(Function function)
 	{
+		setCurrentFunction(function);
+
 		writeBasicBlocks(function);
 		writeCFGEdges(function);
+
+		setCurrentFunction(null);
+	}
+
+	private void setCurrentFunction(Function function)
+	{
+		currentFunction = function;
 	}
 
 	private void writeBasicBlocks(Function function)
@@ -95,11 +107,30 @@ public class CSVOutputModule implements OutputModule
 			int childNum)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("addr", block.getAddress().toString());
+
+		Long instrAddress = instr.getAddress();
+
+		properties.put("addr", instrAddress.toString());
 		properties.put("type", instr.getType());
 		properties.put("repr", instr.getStringRepr());
 		properties.put("childNum", String.format("%d", childNum));
+
+		addDisassemblyProperties(properties, instrAddress);
+
 		CSVWriter.addNode(instr, properties);
+	}
+
+	private void addDisassemblyProperties(Map<String, Object> properties,
+			Long address)
+	{
+		FunctionContent content = currentFunction.getContent();
+		if (content == null)
+			return;
+		DisassemblyLine line = content.getDisassemblyLineForAddr(address);
+		if (line == null)
+			return;
+		properties.put("code", line.getInstruction());
+		properties.put("comment", line.getComment());
 	}
 
 	private void writeNodeForBasicBlock(BasicBlock block)
