@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project name="bjoern" default="jar" basedir=".">
+
+  <property environment="env"/>
+  <property name="src.dir" location="src" />
+  <property name="build.dir" location="bin" />
+  <property name="jar.dir" location="jar" />
+
+  <!-- Add jars to the classpath -->
+  <path id="bjoern.classpath">
+    <pathelement location="bin"/>
+    <pathelement location="${jar.dir}/commons-lang3-3.3.2.jar"/>
+    <pathelement location="${jar.dir}/json-20141113.jar"/>
+    <pathelement location="${jar.dir}/opencsv-3.5.jar"/>
+    <pathelement location="${jar.dir}/radare2.jar"/>
+  </path>
+
+  <target name="clean">
+    <delete dir="${build.dir}" />
+  </target>
+
+  <target name="makedir">
+    <mkdir dir="${build.dir}" />
+  </target>
+
+  <target name="compile">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
+	<src path="src"/>
+	<classpath refid="bjoern.classpath"/>
+    </javac>
+  </target>
+
+  <target name="jar" depends="clean,makedir,compile">
+    <jar destfile="${build.dir}/bjoern-radare.jar"
+	 basedir="${build.dir}"
+	 includes="**/*.class">
+      <manifest>
+	<attribute name="Main-Class" value="exporter.Main" />
+      </manifest>
+      <fileset dir="${build.dir}" includes="**/*.class" />
+      <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
+    </jar>
+  </target>
+
+</project>
