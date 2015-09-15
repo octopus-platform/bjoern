@@ -21,19 +21,25 @@ forks of radare2 compatible with bjoern-radare are mainted here:
 Installing radare2
 -------------------
 
-Instructions for installing radare2 and radare2-bindings can be found
-here:
+Bjoern-radare requires shared objects from radare2 and its bindings to
+be available in the `lib` directory. You can build these for your
+platform by following the instructions here:
 
 http://www.radare.org/r/down.html
 
 When building radare2-bindings, make sure that the compiler has access
 to Java 8's `jni.h` and `jni_md.h` by specifying CFLAGS accordingly.
 
+Alternatively, pre-built versions for Linux on AMD64 can be found
+here:
+
+http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/lib-linux-amd64.tar.gz
+
 Installating bjoern-radare
 ---------------------------
 
-Assuming that radare2 and its bindings are installed in /usr/local,
-and bjoern-radare is located in $BJOERN_RADARE, copy all files in 
+Assuming that you have installed radare2 manually into '/usr/local'
+and extracted bjoern-radare into `$BJOERN_RADARE`, copy all files in
 
     /usr/local/share/radare2/java/jni/lib
 
@@ -43,5 +49,14 @@ to the `$BJOERN_RADARE/lib` directory, and copy `radare2.jar` from
 
 to `$BJOERN_RADARE/jar`.
 
-TODO: Create an ant build file.
+Alternatively, on Linux AMD64, simply place lib-linux-amd64.tar.gz
+into `$BJOERN_RADARE` and extract it.
 
+Next, build bjoern-radare:
+
+    ant
+
+This will create an executable JAR in
+`$BJOERN_RADARE/bin/bjoern-radare.jar`
+
+You can run the jar using the script `bjoern-radare.sh`
