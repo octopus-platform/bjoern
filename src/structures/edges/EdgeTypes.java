@@ -7,5 +7,7 @@ public class EdgeTypes
 	public static final String CFLOW_FALSE = "CFLOW_FALSE";
 	public static final String IS_BB_OF = "IS_BB_OF";
 	public static final String CALL = "CALL";
+	public static final String IS_ARG_OF = "IS_ARG_OF";
+	public static final String IS_VAR_OF = "IS_VAR_OF";
 
 }

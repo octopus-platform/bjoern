@@ -18,6 +18,7 @@ public class Function extends Node
 	public Function()
 	{
 		setType(NodeTypes.FUNCTION);
+		setIsPermanent(true);
 	}
 
 	public FunctionContent getContent()

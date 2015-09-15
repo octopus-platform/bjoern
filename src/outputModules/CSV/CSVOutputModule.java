@@ -69,8 +69,20 @@ public class CSVOutputModule implements OutputModule
 		for (VariableOrArgument varOrArg : varsAndArgs)
 		{
 			createNodeForVarOrArg(varOrArg);
+			connectNodeToFunction(varOrArg);
 		}
 
+	}
+
+	private void connectNodeToFunction(VariableOrArgument varOrArg)
+	{
+		Function function = currentFunction;
+		Long srcId = CSVWriter.getIdForNode(varOrArg);
+		Long dstId = CSVWriter.getIdForNode(function);
+		if (varOrArg.getType().equals("var"))
+			CSVWriter.addEdge(srcId, dstId, null, EdgeTypes.IS_VAR_OF);
+		else
+			CSVWriter.addEdge(srcId, dstId, null, EdgeTypes.IS_ARG_OF);
 	}
 
 	private void createNodeForVarOrArg(VariableOrArgument varOrArg)
