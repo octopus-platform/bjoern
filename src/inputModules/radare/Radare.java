@@ -48,6 +48,7 @@ public class Radare
 		rCore.cmd0("e asm.fcnlines = false");
 		rCore.cmd0("e asm.xrefs = false");
 		rCore.cmd0("e asm.lbytes = false");
+		rCore.cmd0("e asm.indentspace = 0");
 	}
 
 	public static JSONArray getJSONFunctions()

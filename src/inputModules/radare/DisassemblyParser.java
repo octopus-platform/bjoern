@@ -1,5 +1,8 @@
 package inputModules.radare;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import exceptions.radareInput.EmptyDisassembly;
 
 public class DisassemblyParser
@@ -7,6 +10,9 @@ public class DisassemblyParser
 
 	String lines[];
 	int currentLine;
+
+	static Pattern varAndArgPattern = Pattern
+			.compile("^; (var|arg) (\\w+?) (\\w+?)[ ]+?@ (.*)$");
 
 	public ParsedDisassembly parse(String disassembly) throws EmptyDisassembly
 	{
@@ -41,7 +47,19 @@ public class DisassemblyParser
 
 	private void handleComment(ParsedDisassembly retval, String line)
 	{
-		// TODO
+		Matcher matcher = varAndArgPattern.matcher(line);
+		if (!matcher.matches())
+		{
+			handleVarOrArg(matcher);
+		}
+	}
+
+	private void handleVarOrArg(Matcher matcher)
+	{
+		String varOrArg = matcher.group(1);
+		String varType = matcher.group(2);
+		String varName = matcher.group(3);
+		String regPlusOffset = matcher.group(4);
 	}
 
 	private void handleInstruction(ParsedDisassembly retval, String line)
