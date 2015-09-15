@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import exceptions.radareInput.EmptyDisassembly;
 import structures.Disassembly;
+import structures.DisassemblyLine;
 import structures.VariableOrArgument;
 
 public class RadareDisassemblyParser
@@ -81,6 +82,14 @@ public class RadareDisassemblyParser
 		Long addr = new BigInteger(matcher.group(1), 16).longValue();
 		String instruction = matcher.group(2);
 		String comment = matcher.group(3);
+
+		DisassemblyLine disasmLine = new DisassemblyLine();
+		disasmLine.setAddr(addr);
+		disasmLine.setInstruction(instruction);
+		disasmLine.setComment(comment);
+
+		retval.addLine(disasmLine);
+
 	}
 
 	private String nextLine()
