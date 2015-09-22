@@ -23,9 +23,9 @@ public class CSVOutputModule implements OutputModule
 
 	Function currentFunction = null;
 
-	public void initialize()
+	public void initialize(String outputDir)
 	{
-		CSVWriter.changeOutputDir("/tmp");
+		CSVWriter.changeOutputDir(outputDir);
 	}
 
 	@Override

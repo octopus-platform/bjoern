@@ -1,5 +1,7 @@
 package tools.radareExporter;
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
 import tools.CommonCommandLineInterface;
@@ -8,6 +10,19 @@ public class CommandLineInterface extends CommonCommandLineInterface
 {
 
 	private String binaryFilename;
+	private String outputDir = ".";
+
+	@Override
+	protected void initializeOptions()
+	{
+		super.initializeOptions();
+
+		Option outputDirectory = OptionBuilder.withArgName("outdir").hasArg()
+				.withDescription("the directory the output will be written to")
+				.create("outdir");
+
+		options.addOption(outputDirectory);
+	}
 
 	public String getBinaryFilename()
 	{
@@ -16,10 +31,13 @@ public class CommandLineInterface extends CommonCommandLineInterface
 
 	public void parseCommandLine(String[] args) throws ParseException
 	{
-		if (args.length != 1)
+		if (args.length == 0)
 			throw new RuntimeException("Please supply a file to process");
 
 		cmd = parser.parse(options, args);
+
+		if (cmd.hasOption("outdir"))
+			outputDir = cmd.getOptionValue("outdir");
 
 		String[] arguments = cmd.getArgs();
 		binaryFilename = arguments[0];
@@ -28,6 +46,11 @@ public class CommandLineInterface extends CommonCommandLineInterface
 	public void printHelp()
 	{
 		formater.printHelp("exporter <filename>", options);
+	}
+
+	public String getOutputDir()
+	{
+		return outputDir;
 	}
 
 }

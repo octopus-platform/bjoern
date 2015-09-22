@@ -25,9 +25,10 @@ public class Main
 	{
 		parseCommandLine(args);
 		String binaryFilename = cmdLine.getBinaryFilename();
+		String outputDir = cmdLine.getOutputDir();
 
 		inputModule.initialize(binaryFilename);
-		outputModule.initialize();
+		outputModule.initialize(outputDir);
 
 		loadAndOutputFunctionInfo();
 		loadAndOutputFunctionContent();

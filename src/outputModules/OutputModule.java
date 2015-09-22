@@ -5,7 +5,7 @@ import structures.Function;
 
 public interface OutputModule
 {
-	public void initialize();
+	public void initialize(String outputDir);
 
 	public void clearCache();
 
