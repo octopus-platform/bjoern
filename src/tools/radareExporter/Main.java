@@ -6,12 +6,16 @@ import inputModules.radare.RadareInputModule;
 import java.util.List;
 
 import nodeStore.NodeStore;
+
+import org.apache.commons.cli.ParseException;
+
 import outputModules.CSV.CSVOutputModule;
 import structures.Function;
 
 public class Main
 {
 
+	static CommandLineInterface cmdLine = new CommandLineInterface();
 	static InputModule inputModule = new RadareInputModule();
 	static CSVOutputModule outputModule = new CSVOutputModule();
 
@@ -19,14 +23,35 @@ public class Main
 
 	public static void main(String[] args)
 	{
+		parseCommandLine(args);
+		String binaryFilename = cmdLine.getBinaryFilename();
 
-		inputModule.initialize("/bin/ls");
+		inputModule.initialize(binaryFilename);
 		outputModule.initialize();
 
 		loadAndOutputFunctionInfo();
 		loadAndOutputFunctionContent();
 
 		outputModule.finish();
+	}
+
+	private static void parseCommandLine(String[] args)
+	{
+		try
+		{
+			cmdLine.parseCommandLine(args);
+		}
+		catch (RuntimeException | ParseException e)
+		{
+			printHelpAndTerminate(e);
+		}
+	}
+
+	private static void printHelpAndTerminate(Exception e)
+	{
+		System.err.println(e.getMessage());
+		cmdLine.printHelp();
+		System.exit(0);
 	}
 
 	private static void loadAndOutputFunctionInfo()
