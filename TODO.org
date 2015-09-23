@@ -1,0 +1,11 @@
+* Connect to OrientDB
+
+** Connect R2 exporter to orientDB importer
+** Index creation
+
+* Extract/Write additional information
+
+** Obtain strings from R2
+** Obtain all cross references from R2
+** CSV Output for strings
+** Obtain esil-code using `e asm.esil=true` and `pdfj @funcAddr`
