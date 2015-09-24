@@ -15,17 +15,20 @@
     <pathelement location="${jar.dir}/commons-cli-1.2.jar"/>
     <pathelement location="${jar.dir}/radare2.jar"/>
 
-    <pathelement location="${jar.dir}/orientdb/blueprints-core-2.6.0.jar"/>
-    <pathelement location="${jar.dir}/orientdb/gremlin-java-2.6.0.jar"/>
-    <pathelement location="${jar.dir}/orientdb/jna-4.0.0.jar"/>
-    <pathelement location="${jar.dir}/orientdb/orientdb-client-2.1.2.jar"/>
-    <pathelement location="${jar.dir}/orientdb/orientdb-enterprise-2.1.2.jar"/>
-    <pathelement location="${jar.dir}/orientdb/pipes-2.6.0.jar"/>
-    <pathelement location="${jar.dir}/orientdb/gremlin-groovy-2.6.0.jar"/>
-    <pathelement location="${jar.dir}/orientdb/groovy-1.8.9.jar"/>
-    <pathelement location="${jar.dir}/orientdb/jna-platform-4.0.0.jar"/>
-    <pathelement location="${jar.dir}/orientdb/orientdb-core-2.1.2.jar"/>
-    <pathelement location="${jar.dir}/orientdb/orientdb-graphdb-2.1.2.jar"/>
+    <pathelement location="jar/orientdb/blueprints-core-2.6.0.jar"/>
+    <pathelement location="jar/orientdb/gremlin-groovy-2.6.0.jar"/>
+    <pathelement location="jar/orientdb/gremlin-java-2.6.0.jar"/>
+    <pathelement location="jar/orientdb/groovy-1.8.9.jar"/>
+    <pathelement location="jar/orientdb/jna-4.0.0.jar"/>
+    <pathelement location="jar/orientdb/jna-platform-4.0.0.jar"/>
+    <pathelement location="jar/orientdb/orientdb-client-2.1.2.jar"/>
+    <pathelement location="jar/orientdb/orientdb-core-2.1.2.jar"/>
+    <pathelement location="jar/orientdb/orientdb-enterprise-2.1.2.jar"/>
+    <pathelement location="jar/orientdb/orientdb-graphdb-2.1.2.jar"/>
+    <pathelement location="jar/orientdb/pipes-2.6.0.jar"/>
+    <pathelement location="jar/commons-cli-1.2.jar"/>
+    <pathelement location="jar/orientdb/concurrentlinkedhashmap-lru-1.4.1.jar"/>
+
   </path>
 
   <target name="clean">
@@ -58,9 +61,11 @@
   <target name="orientdbImporter" depends="compile">
     <jar destfile="${build.dir}/orientdbImporter.jar"
 	 basedir="${build.dir}"
-	 includes="**/*.class">
+	 includes="**/*.class"
+	 duplicate="preserve">
       <manifest>
 	<attribute name="Main-Class" value="tools.orientdbImporter.BatchImporter" />
+
       </manifest>
       <fileset dir="${build.dir}" includes="**/*.class" />
       <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
