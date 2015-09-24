@@ -55,4 +55,16 @@
     </jar>
   </target>
 
+  <target name="orientdbImporter" depends="compile">
+    <jar destfile="${build.dir}/orientdbImporter.jar"
+	 basedir="${build.dir}"
+	 includes="**/*.class">
+      <manifest>
+	<attribute name="Main-Class" value="tools.orientdbImporter.BatchImporter" />
+      </manifest>
+      <fileset dir="${build.dir}" includes="**/*.class" />
+      <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
+    </jar>
+  </target>
+
 </project>
