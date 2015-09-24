@@ -43,9 +43,9 @@ public class CSVOutputModule implements OutputModule
 	public void writeFunctionInfo(Function function)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("addr", function.getAddress().toString());
-		properties.put("type", function.getType());
-		properties.put("repr", function.getName());
+		properties.put(CSVFields.ADDR, function.getAddress().toString());
+		properties.put(CSVFields.TYPE, function.getType());
+		properties.put(CSVFields.REPR, function.getName());
 		CSVWriter.addNode(function, properties);
 	}
 
@@ -79,7 +79,7 @@ public class CSVOutputModule implements OutputModule
 		Function function = currentFunction;
 		Long srcId = CSVWriter.getIdForNode(varOrArg);
 		Long dstId = CSVWriter.getIdForNode(function);
-		if (varOrArg.getType().equals("var"))
+		if (varOrArg.getType().equals(CSVFields.VAR))
 			CSVWriter.addEdge(srcId, dstId, null, EdgeTypes.IS_VAR_OF);
 		else
 			CSVWriter.addEdge(srcId, dstId, null, EdgeTypes.IS_ARG_OF);
@@ -89,14 +89,14 @@ public class CSVOutputModule implements OutputModule
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		String type = varOrArg.getType();
-		if (type.equals("var"))
-			properties.put("type", NodeTypes.LOCAL_VAR);
+		if (type.equals(CSVFields.VAR))
+			properties.put(CSVFields.TYPE, NodeTypes.LOCAL_VAR);
 		else
-			properties.put("type", NodeTypes.ARG);
+			properties.put(CSVFields.TYPE, NodeTypes.ARG);
 
-		properties.put("name", varOrArg.getVarName());
-		properties.put("repr", varOrArg.getVarType());
-		properties.put("code", varOrArg.getRegPlusOffset());
+		properties.put(CSVFields.NAME, varOrArg.getVarName());
+		properties.put(CSVFields.REPR, varOrArg.getVarType());
+		properties.put(CSVFields.CODE, varOrArg.getRegPlusOffset());
 
 		// TODO: Watchout: We have not set the address on VariableOrArgument
 		// nodes yet.
@@ -158,10 +158,10 @@ public class CSVOutputModule implements OutputModule
 
 		Long instrAddress = instr.getAddress();
 
-		properties.put("addr", instrAddress.toString());
-		properties.put("type", instr.getType());
-		properties.put("repr", instr.getStringRepr());
-		properties.put("childNum", String.format("%d", childNum));
+		properties.put(CSVFields.ADDR, instrAddress.toString());
+		properties.put(CSVFields.TYPE, instr.getType());
+		properties.put(CSVFields.REPR, instr.getStringRepr());
+		properties.put(CSVFields.CHILD_NUM, String.format("%d", childNum));
 
 		addDisassemblyProperties(properties, instrAddress);
 
@@ -177,15 +177,15 @@ public class CSVOutputModule implements OutputModule
 		DisassemblyLine line = content.getDisassemblyLineForAddr(address);
 		if (line == null)
 			return;
-		properties.put("code", line.getInstruction());
-		properties.put("comment", line.getComment());
+		properties.put(CSVFields.CODE, line.getInstruction());
+		properties.put(CSVFields.COMMENT, line.getComment());
 	}
 
 	private void writeNodeForBasicBlock(BasicBlock block)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("addr", block.getAddress().toString());
-		properties.put("type", block.getType());
+		properties.put(CSVFields.ADDR, block.getAddress().toString());
+		properties.put(CSVFields.TYPE, block.getType());
 		CSVWriter.addNode(block, properties);
 	}
 

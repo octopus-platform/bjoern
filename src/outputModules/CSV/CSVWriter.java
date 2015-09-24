@@ -15,8 +15,9 @@ public class CSVWriter
 {
 	final static String SEPARATOR = "\t";
 
-	final static String[] nodeProperties = { "addr", "type", "childNum", "repr",
-			"code", "comment" };
+	final static String[] nodeProperties = { CSVFields.TYPE,
+			CSVFields.CHILD_NUM, CSVFields.REPR, CSVFields.CODE,
+			CSVFields.COMMENT };
 
 	final static String[] edgeProperties = {};
 	final static String[] unresolvedEdgeProperties = {};
@@ -136,7 +137,7 @@ public class CSVWriter
 
 	private static void writeNodePropertyNames()
 	{
-		String joined = "id" + SEPARATOR
+		String joined = CSVFields.ID + SEPARATOR
 				+ StringUtils.join(nodeProperties, SEPARATOR);
 		nodeWriter.println(joined);
 	}
