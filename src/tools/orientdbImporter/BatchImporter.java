@@ -9,11 +9,13 @@ import org.apache.commons.cli.ParseException;
 import com.opencsv.CSVReader;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
 
 public class BatchImporter
@@ -103,10 +105,15 @@ public class BatchImporter
 
 	private static void initializeVertexKeys(String[] row)
 	{
+		OrientVertexType vType = noTx.getVertexType("V");
+
 		VertexKeys = new String[row.length];
 		for (int i = 0; i < row.length; i++)
 		{
 			VertexKeys[i] = row[i];
+			vType.createProperty(VertexKeys[i], OType.STRING);
+			vType.createIndex("foo" + String.format("%d", i), "FULLTEXT", null,
+					null, "LUCENE", new String[] { VertexKeys[i] });
 		}
 	}
 

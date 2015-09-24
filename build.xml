@@ -25,9 +25,11 @@
     <pathelement location="jar/orientdb/orientdb-core-2.1.2.jar"/>
     <pathelement location="jar/orientdb/orientdb-enterprise-2.1.2.jar"/>
     <pathelement location="jar/orientdb/orientdb-graphdb-2.1.2.jar"/>
+    <pathelement location="jar/orientdb/orientdb-lucene-2.1.1-dist.jar"/>
     <pathelement location="jar/orientdb/pipes-2.6.0.jar"/>
     <pathelement location="jar/commons-cli-1.2.jar"/>
     <pathelement location="jar/orientdb/concurrentlinkedhashmap-lru-1.4.1.jar"/>
+
 
   </path>
 
