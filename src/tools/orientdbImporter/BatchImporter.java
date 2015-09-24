@@ -36,8 +36,7 @@ public class BatchImporter
 			processNodeFile();
 			processEdgeFile();
 			closeDatabase();
-		}
-		catch (IOException e)
+		} catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -71,8 +70,7 @@ public class BatchImporter
 		try
 		{
 			cmdLine.parseCommandLine(args);
-		}
-		catch (RuntimeException | ParseException e)
+		} catch (RuntimeException | ParseException e)
 		{
 			printHelpAndTerminate(e);
 		}

@@ -83,12 +83,17 @@ public class CSVWriter
 			nodeWriter.write(SEPARATOR);
 			String propValue = (String) properties.get(property);
 			if (propValue != null)
-				nodeWriter.write(propValue);
+				nodeWriter.write(espaceAndQuote(propValue));
 		}
 		nodeWriter.write("\n");
 		if (node != null)
 			objectToId.put(node, lastNodeId);
 		lastNodeId++;
+	}
+
+	private static String espaceAndQuote(String propValue)
+	{
+		return "\"" + propValue.replace("\"", "\\\"") + "\"";
 	}
 
 	public static void addEdge(long srcId, long dstId,
