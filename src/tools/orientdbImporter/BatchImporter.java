@@ -101,20 +101,29 @@ public class BatchImporter
 			throw new RuntimeException("Node file is empty");
 
 		initializeVertexKeys(row);
+		createPropertiesAndIndices();
 	}
 
 	private static void initializeVertexKeys(String[] row)
 	{
-		OrientVertexType vType = noTx.getVertexType("V");
-
 		VertexKeys = new String[row.length];
 		for (int i = 0; i < row.length; i++)
 		{
 			VertexKeys[i] = row[i];
-			vType.createProperty(VertexKeys[i], OType.STRING);
-			vType.createIndex("foo" + String.format("%d", i), "FULLTEXT", null,
-					null, "LUCENE", new String[] { VertexKeys[i] });
 		}
+	}
+
+	private static void createPropertiesAndIndices()
+	{
+		OrientVertexType vType = noTx.getVertexType("V");
+
+		for (String key : VertexKeys)
+		{
+			vType.createProperty(key, OType.STRING);
+			vType.createIndex("nodeIndex." + key, "FULLTEXT", null, null,
+					"LUCENE", new String[] { key });
+		}
+
 	}
 
 	private static void processNodeRow(String[] row)
