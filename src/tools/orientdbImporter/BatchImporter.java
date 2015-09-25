@@ -3,6 +3,8 @@ package tools.orientdbImporter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 
@@ -17,6 +19,8 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
+
+import outputModules.CSV.CSVFields;
 
 public class BatchImporter
 {
@@ -120,10 +124,22 @@ public class BatchImporter
 		for (String key : VertexKeys)
 		{
 			vType.createProperty(key, OType.STRING);
-			vType.createIndex("nodeIndex." + key, "FULLTEXT", null, null,
-					"LUCENE", new String[] { key });
 		}
 
+		List<String> keysToIndex = new LinkedList<String>();
+		for (String key : VertexKeys)
+		{
+			if (key.equals(CSVFields.ID))
+				continue;
+			keysToIndex.add(key);
+		}
+
+		String[] indexKeys = new String[keysToIndex.size()];
+		keysToIndex.sort(null);
+		keysToIndex.toArray(indexKeys);
+
+		vType.createIndex("nodeIndex.", "FULLTEXT", null, null, "LUCENE",
+				indexKeys);
 	}
 
 	private static void processNodeRow(String[] row)
