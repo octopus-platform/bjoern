@@ -29,9 +29,27 @@
     <pathelement location="${jar.dir}/orientdb/pipes-2.6.0.jar"/>
     <pathelement location="${jar.dir}/commons-cli-1.2.jar"/>
     <pathelement location="${jar.dir}/orientdb/concurrentlinkedhashmap-lru-1.4.1.jar"/>
-
-
   </path>
+
+  <pathconvert property="mf.classpath" pathsep=" ">
+    <path refid="bjoern.classpath" />
+    <flattenmapper/>
+  </pathconvert>
+
+  <echo>${mf.classpath}</echo>
+
+
+  <target name="jar" depends="clean,makedir,compile">
+    <jar destfile="${build.dir}/bjoern-radare.jar"
+	 basedir="${build.dir}"
+	 includes="**/*.class">
+      <manifest>
+	<attribute name="Main-Class" value="tools.radareExporter.Main" />
+      </manifest>
+      <fileset dir="${build.dir}" includes="**/*.class" />
+      <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
+    </jar>
+  </target>
 
   <target name="clean">
     <delete dir="${build.dir}" />
@@ -48,30 +66,31 @@
     </javac>
   </target>
 
-  <target name="jar" depends="clean,makedir,compile">
-    <jar destfile="${build.dir}/bjoern-radare.jar"
-	 basedir="${build.dir}"
-	 includes="**/*.class">
-      <manifest>
-	<attribute name="Main-Class" value="tools.radareExporter.Main" />
-      </manifest>
-      <fileset dir="${build.dir}" includes="**/*.class" />
-      <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
-    </jar>
-  </target>
-
   <target name="orientdbImporter" depends="compile">
+
+    <mkdir dir="tmp_"/>
+    <copy flatten="true" todir="tmp_" includeemptydirs="false">
+	<fileset dir="jar">
+	    <include name="**/*.jar" />
+	</fileset>
+    </copy>
+
     <jar destfile="${build.dir}/orientdbImporter.jar"
 	 basedir="${build.dir}"
 	 includes="**/*.class"
 	 duplicate="preserve">
       <manifest>
-	<attribute name="Main-Class" value="tools.orientdbImporter.BatchImporter" />
+	<attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+	<attribute name="Rsrc-Main-Class" value="tools.orientdbImporter.BatchImporter" />
+	<attribute name="Class-Path" value="."/>
+	<attribute name="Rsrc-Class-Path" value="./ ${mf.classpath}" />
 
       </manifest>
       <fileset dir="${build.dir}" includes="**/*.class" />
-      <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
+      <fileset dir="tmp_"/>
+      <zipfileset src="${jar.dir}/jar-in-jar-loader.zip"/>
     </jar>
+    <delete dir="tmp_" />
   </target>
 
 </project>
