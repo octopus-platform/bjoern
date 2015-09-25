@@ -1,7 +1,7 @@
 * Connect to OrientDB
 
 ** DONE Connect R2 exporter to orientDB importer
-** Index creation
+** DONE Index creation
 
 * Extract/Write additional information
 
