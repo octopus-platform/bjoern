@@ -64,6 +64,7 @@ and extract it in `$BJOERN_RADARE/jar`..
 Next, build bjoern-radare using ant:
 
 	ant
+	ant orientdbImporter
 
 This will create an executable JAR in `$BJOERN_RADARE/bin/bjoern-radare.jar`.
 
