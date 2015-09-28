@@ -39,7 +39,7 @@
   <echo>${mf.classpath}</echo>
 
 
-  <target name="jar" depends="clean,makedir,compile">
+  <target name="jar" depends="clean,makedir,compile,orientdbImporter">
     <jar destfile="${build.dir}/bjoern-radare.jar"
 	 basedir="${build.dir}"
 	 includes="**/*.class">
