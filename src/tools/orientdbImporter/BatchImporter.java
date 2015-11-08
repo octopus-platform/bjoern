@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 
+import outputModules.CSV.CSVFields;
+
 import com.opencsv.CSVReader;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
@@ -19,8 +21,6 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
-
-import outputModules.CSV.CSVFields;
 
 public class BatchImporter
 {
@@ -42,7 +42,8 @@ public class BatchImporter
 			processNodeFile();
 			processEdgeFile();
 			closeDatabase();
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -54,8 +55,13 @@ public class BatchImporter
 		OGlobalConfiguration.USE_WAL.setValue(false);
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
 
+		// Using 'remote' to insert into a running server
+		// is about 5 times slower than using plocal.
+
 		OrientGraphFactory factory = new OrientGraphFactory(
-				"plocal:/tmp/tempDB/", "admin", "admin");
+				"plocal:orientdb-community-2.1.5/databases/tempDB/",
+				// "remote://localhost/tempDB",
+				"root", "admin");
 		factory.declareIntent(new OIntentMassiveInsert());
 
 		noTx = factory.getNoTx();
@@ -76,7 +82,8 @@ public class BatchImporter
 		try
 		{
 			cmdLine.parseCommandLine(args);
-		} catch (RuntimeException | ParseException e)
+		}
+		catch (RuntimeException | ParseException e)
 		{
 			printHelpAndTerminate(e);
 		}
