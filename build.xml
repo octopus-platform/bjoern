@@ -79,4 +79,34 @@
     <delete dir="tmp_" />
   </target>
 
+
+    <target name="server" depends="compile">
+
+    <mkdir dir="tmp_"/>
+    <copy flatten="true" todir="tmp_" includeemptydirs="false">
+	<fileset dir="jar">
+	    <include name="**/*.jar" />
+	</fileset>
+    </copy>
+
+    <jar destfile="${build.dir}/server.jar"
+	 basedir="${build.dir}"
+	 includes="**/*.class"
+	 duplicate="preserve">
+      <manifest>
+	<attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+	<attribute name="Rsrc-Main-Class" value="tools.server.Main" />
+	<attribute name="Class-Path" value="."/>
+	<attribute name="Rsrc-Class-Path" value="./ ${mf.classpath}" />
+
+      </manifest>
+      <fileset dir="${build.dir}" includes="**/*.class" />
+      <fileset dir="tmp_"/>
+      <zipfileset src="${jar.dir}/jar-in-jar-loader.zip"/>
+    </jar>
+    <delete dir="tmp_" />
+  </target>
+
+
+
 </project>
