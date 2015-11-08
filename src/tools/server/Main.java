@@ -10,8 +10,7 @@ public class Main
 	public static void main(String[] args) throws Exception
 	{
 		OServer server = OServerMain.create();
-		server.startup(new File(
-				"orientdb-community-2.1.5/config/orientdb-server-config.xml"));
+		server.startup(new File("conf/orientdb-server-config.xml"));
 		server.activate();
 	}
 }
