@@ -19,15 +19,13 @@ public class ImportHandler extends OServerCommandAuthenticatedDbAbstract
 			throws Exception
 	{
 
-		String[] urlParts = checkSyntax(iRequest.url, 3,
-				"Syntax error: hello/<database>/<name>");
+		String[] urlParts = checkSyntax(iRequest.url, 2,
+				"Syntax error: importcode/<database>/<codedir>");
 
-		String name = urlParts[2];
-
-		String result = "Hello " + name;
+		String codeDir = urlParts[2];
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
-				OHttpUtils.CONTENT_TEXT_PLAIN, result);
+				OHttpUtils.CONTENT_TEXT_PLAIN, "");
 
 		return false;
 	}
