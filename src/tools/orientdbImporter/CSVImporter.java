@@ -15,7 +15,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
@@ -42,15 +41,9 @@ public class CSVImporter
 		OGlobalConfiguration.USE_WAL.setValue(false);
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
 
-		// Using 'remote' to insert into a running server
-		// is about 5 times slower than using plocal.
+		noTx = new OrientGraphNoTx(
+				"plocal:orientdb-community-2.1.5/databases/tempDB");
 
-		OrientGraphFactory factory = new OrientGraphFactory(
-				"plocal:orientdb-community-2.1.5/databases/tempDB/", "root",
-				"admin");
-		factory.declareIntent(new OIntentMassiveInsert());
-
-		noTx = factory.getNoTx();
 		noTx.declareIntent(new OIntentMassiveInsert());
 
 		batchGraph = BatchGraph.wrap(noTx, 1000);
