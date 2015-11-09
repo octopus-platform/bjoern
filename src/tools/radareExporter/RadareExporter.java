@@ -12,7 +12,7 @@ import org.apache.commons.cli.ParseException;
 import outputModules.CSV.CSVOutputModule;
 import structures.Function;
 
-public class Main
+public class RadareExporter
 {
 
 	static CommandLineInterface cmdLine = new CommandLineInterface();

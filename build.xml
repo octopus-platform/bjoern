@@ -30,7 +30,7 @@
 	 basedir="${build.dir}"
 	 includes="**/*.class">
       <manifest>
-	<attribute name="Main-Class" value="tools.radareExporter.Main" />
+	<attribute name="Main-Class" value="tools.radareExporter.RadareExporter" />
       </manifest>
       <fileset dir="${build.dir}" includes="**/*.class" />
       <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
