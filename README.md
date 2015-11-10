@@ -15,6 +15,7 @@ forks of radare2 compatible with bjoern-radare are mainted here:
 
 * Radare2: https://github.com/fabsx00/radare2-bindings
 * Radare2-bindings: https://github.com/fabsx00/radare2-bindings
+* Orientdb 2.1.5 Community Edition
 
 ## Installing radare2
 
@@ -33,7 +34,6 @@ here:
 http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/lib-linux-amd64.tar.gz
 
 ## Installating bjoern-radare
-
 
 Installation of bjoern-radare follows three steps: first, the native
 radare libaries are placed in the `lib` directory. Second, java
@@ -67,5 +67,9 @@ Next, build bjoern-radare using ant:
 	ant orientdbImporter
 
 This will create an executable JAR in `$BJOERN_RADARE/bin/bjoern-radare.jar`.
+
+### Installing orientdb
+
+Finally, place orientdb-community-2.1.5 into the `$BJOERN_RADARE` directory.
 
 You can run the jar using the script `bjoern-radare.sh`
