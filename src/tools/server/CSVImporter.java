@@ -1,4 +1,4 @@
-package tools.bjoernImport;
+package tools.server;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,7 +29,6 @@ public class CSVImporter
 	public void importCSVFiles(String nodeFile, String edgeFile)
 			throws IOException
 	{
-		// TODO Auto-generated method stub
 		openDatabase();
 		processNodeFile(nodeFile);
 		processEdgeFile(edgeFile);
