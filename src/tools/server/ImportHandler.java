@@ -1,6 +1,6 @@
 package tools.server;
 
-import tools.orientdbImporter.BatchImporter;
+import tools.bjoernImport.BjoernImport;
 import tools.radareExporter.RadareExporter;
 
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
@@ -28,7 +28,7 @@ public class ImportHandler extends OServerCommandAbstract
 		codeDir = codeDir.replace("|", "/");
 
 		RadareExporter.main(new String[] { codeDir });
-		BatchImporter.main(new String[] { "nodes.csv", "edges.csv" });
+		BjoernImport.main(new String[] { "nodes.csv", "edges.csv" });
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
 				OHttpUtils.CONTENT_TEXT_PLAIN, "");

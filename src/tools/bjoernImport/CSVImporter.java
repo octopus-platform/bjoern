@@ -1,4 +1,4 @@
-package tools.orientdbImporter;
+package tools.bjoernImport;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

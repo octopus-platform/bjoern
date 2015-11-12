@@ -1,10 +1,10 @@
-package tools.orientdbImporter;
+package tools.bjoernImport;
 
 import java.io.IOException;
 
 import org.apache.commons.cli.ParseException;
 
-public class BatchImporter
+public class BjoernImport
 {
 
 	static CommandLineInterface cmdLine = new CommandLineInterface();

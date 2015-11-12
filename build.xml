@@ -25,7 +25,7 @@
   <echo>${mf.classpath}</echo>
 
 
-  <target name="jar" depends="clean,makedir,compile,orientdbImporter">
+  <target name="jar" depends="clean,makedir,compile,bjoernImport,server">
     <jar destfile="${build.dir}/bjoern-radare.jar"
 	 basedir="${build.dir}"
 	 includes="**/*.class">
@@ -52,7 +52,7 @@
     </javac>
   </target>
 
-  <target name="orientdbImporter" depends="compile">
+  <target name="bjoernImport" depends="compile">
 
     <mkdir dir="tmp_"/>
     <copy flatten="true" todir="tmp_" includeemptydirs="false">
@@ -61,13 +61,13 @@
 	</fileset>
     </copy>
 
-    <jar destfile="${build.dir}/orientdbImporter.jar"
+    <jar destfile="${build.dir}/bjoernImport.jar"
 	 basedir="${build.dir}"
 	 includes="**/*.class"
 	 duplicate="preserve">
       <manifest>
 	<attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
-	<attribute name="Rsrc-Main-Class" value="tools.orientdbImporter.BatchImporter" />
+	<attribute name="Rsrc-Main-Class" value="tools.bjoernImport.BjoernImport" />
 	<attribute name="Class-Path" value="."/>
 	<attribute name="Rsrc-Class-Path" value="./ ${mf.classpath}" />
 

@@ -1,4 +1,4 @@
-package tools.orientdbImporter;
+package tools.bjoernImport;
 
 import org.apache.commons.cli.ParseException;
 
