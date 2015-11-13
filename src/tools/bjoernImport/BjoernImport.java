@@ -1,52 +1,60 @@
 package tools.bjoernImport;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.apache.commons.cli.ParseException;
 
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
-
-public class BjoernImport
-{
+public class BjoernImport {
 
 	static CommandLineInterface cmdLine = new CommandLineInterface();
-	private static OrientGraph graph;
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) throws MalformedURLException {
 		parseCommandLine(args);
-		connectToDatabase();
 		invokeImportPlugin();
-		closeDatabase();
 	}
 
-	private static void invokeImportPlugin()
-	{
+	private static void invokeImportPlugin() throws MalformedURLException {
 
-	}
+		String pathToBinary = cmdLine.getCodedir();
+		pathToBinary = pathToBinary.replace("/", "|");
 
-	private static void connectToDatabase()
-	{
-		graph = new OrientGraph("remote:127.0.0.1/tempDB");
-	}
+		try {
+			URL url = new URL("http://localhost:2480/importcode/"
+					+ pathToBinary);
+			HttpURLConnection connection;
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setReadTimeout(0);
 
-	private static void closeDatabase()
-	{
-		graph.shutdown();
-	}
+			BufferedReader rd = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+			String line;
+			while ((line = rd.readLine()) != null) {
+				System.out.println("Hello " + line);
+			}
+			rd.close();
 
-	private static void parseCommandLine(String[] args)
-	{
-		try
-		{
-			cmdLine.parseCommandLine(args);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		catch (RuntimeException | ParseException e)
-		{
+
+	}
+
+	private static void parseCommandLine(String[] args) {
+		try {
+			cmdLine.parseCommandLine(args);
+		} catch (RuntimeException | ParseException e) {
 			printHelpAndTerminate(e);
 		}
 	}
 
-	private static void printHelpAndTerminate(Exception e)
-	{
+	private static void printHelpAndTerminate(Exception e) {
 		System.err.println(e.getMessage());
 		cmdLine.printHelp();
 		System.exit(0);

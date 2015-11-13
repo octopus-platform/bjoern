@@ -1,8 +1,6 @@
 package tools.server;
 
-import tools.bjoernImport.BjoernImport;
-import tools.radareExporter.RadareExporter;
-
+import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -11,6 +9,8 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 
 public class ImportHandler extends OServerCommandAbstract
 {
+
+	private Thread importThread;
 
 	public ImportHandler(final OServerCommandConfiguration iConfiguration)
 	{
@@ -21,19 +21,29 @@ public class ImportHandler extends OServerCommandAbstract
 	public boolean execute(OHttpRequest iRequest, OHttpResponse iResponse)
 			throws Exception
 	{
-		String[] urlParts = checkSyntax(iRequest.url, 1,
-				"Syntax error: importcode/<codedir>");
+		OLogManager.instance().warn(this, "Importer called");
 
-		String codeDir = urlParts[1];
-		codeDir = codeDir.replace("|", "/");
+		String codedir = getCodedirFromUrl(iRequest);
 
-		RadareExporter.main(new String[] { codeDir });
-		BjoernImport.main(new String[] { "nodes.csv", "edges.csv" });
+		startImporterThread(codedir);
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
 				OHttpUtils.CONTENT_TEXT_PLAIN, "");
 
 		return false;
+	}
+
+	private String getCodedirFromUrl(OHttpRequest iRequest)
+	{
+		String[] urlParts = checkSyntax(iRequest.url, 1,
+				"Syntax error: importcode/<codedir>");
+		return urlParts[1];
+	}
+
+	private void startImporterThread(String codedir)
+	{
+		importThread = new Thread(new ImportRunnable(codedir));
+		importThread.start();
 	}
 
 	@Override

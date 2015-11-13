@@ -27,12 +27,15 @@ public class RadareExporter
 		String binaryFilename = cmdLine.getBinaryFilename();
 		String outputDir = cmdLine.getOutputDir();
 
+		export(binaryFilename, outputDir);
+	}
+
+	public static void export(String binaryFilename, String outputDir)
+	{
 		inputModule.initialize(binaryFilename);
 		outputModule.initialize(outputDir);
-
 		loadAndOutputFunctionInfo();
 		loadAndOutputFunctionContent();
-
 		outputModule.finish();
 	}
 
