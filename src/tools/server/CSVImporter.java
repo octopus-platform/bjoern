@@ -46,7 +46,6 @@ public class CSVImporter
 		noTx.declareIntent(new OIntentMassiveInsert());
 
 		batchGraph = BatchGraph.wrap(noTx, 1000);
-
 	}
 
 	private static void closeDatabase()

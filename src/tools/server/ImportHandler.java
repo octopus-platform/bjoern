@@ -24,11 +24,14 @@ public class ImportHandler extends OServerCommandAbstract
 		OLogManager.instance().warn(this, "Importer called");
 
 		String codedir = getCodedirFromUrl(iRequest);
-
+		OLogManager.instance().warn(this, "Request parsed");
 		startImporterThread(codedir);
+		OLogManager.instance().warn(this, "Thread started");
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
 				OHttpUtils.CONTENT_TEXT_PLAIN, "");
+
+		OLogManager.instance().warn(this, "Response sent.");
 
 		return false;
 	}
