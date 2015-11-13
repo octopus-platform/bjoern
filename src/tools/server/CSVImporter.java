@@ -41,7 +41,7 @@ public class CSVImporter
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
 
 		noTx = new OrientGraphNoTx(
-				"plocal:orientdb-community-2.1.5/databases/tempDB");
+				"plocal:orientdb-community-2.1.5/databases/bjoernDB");
 
 		noTx.declareIntent(new OIntentMassiveInsert());
 
