@@ -12,9 +12,9 @@ can be used. The syntax proposed in the orientdb documentation using
 the `AND` operator seems to not work.
 
 
-Object.metaClass.queryNodeIndex = { luceneQuery ->
-	import com.orientechnologies.orient.core.sql.OCommandSQL;
-	queryStr = 'SELECT * FROM V WHERE [childNum,code,comment,nodeType,repr] LUCENE "' + luceneQuery + '"'
-	query = new OCommandSQL(queryStr)
-	g.getRawGraph().command(query).execute().toList()._()
-}
+    Object.metaClass.queryNodeIndex = { luceneQuery ->
+    queryStr = 'SELECT * FROM V WHERE [childNum,code,comment,nodeType,repr] LUCENE "' + luceneQuery + '"';
+    query = new com.orientechnologies.orient.core.sql.OCommandSQL(queryStr);
+    g.getRawGraph().command(query).execute().toList()._().transform{ g.v(it.getIdentity()) }
+    }
+
