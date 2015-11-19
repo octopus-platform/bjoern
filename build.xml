@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="bjoern" default="jar" basedir=".">
+<project name="bjoern" default="all" basedir=".">
 
   <property environment="env"/>
   <property name="src.dir" location="src" />
@@ -8,13 +8,10 @@
 
   <!-- Add jars to the classpath -->
   <path id="bjoern.classpath">
-
     <pathelement location="bin"/>
-
     <fileset dir="${jar.dir}">
 	<include name="**/*.jar" />
     </fileset>
-
   </path>
 
   <pathconvert property="mf.classpath" pathsep=" ">
@@ -22,19 +19,16 @@
     <flattenmapper/>
   </pathconvert>
 
-  <echo>${mf.classpath}</echo>
+  <!-- default target: build everything -->
 
+  <target name="all" depends="clean,makedir,compile,jar">
+  </target>
 
-  <target name="jar" depends="clean,makedir,compile,bjoernImport,server">
-    <jar destfile="${build.dir}/bjoern-radare.jar"
-	 basedir="${build.dir}"
-	 includes="**/*.class">
-      <manifest>
-	<attribute name="Main-Class" value="tools.radareExporter.RadareExporter" />
-      </manifest>
-      <fileset dir="${build.dir}" includes="**/*.class" />
-      <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
-    </jar>
+  <target name="compile">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
+	<src path="src"/>
+	<classpath refid="bjoern.classpath"/>
+    </javac>
   </target>
 
   <target name="clean">
@@ -45,68 +39,13 @@
     <mkdir dir="${build.dir}" />
   </target>
 
-  <target name="compile">
-    <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
-	<src path="src"/>
-	<classpath refid="bjoern.classpath"/>
-    </javac>
-  </target>
-
-  <target name="bjoernImport" depends="compile">
-
-    <mkdir dir="tmp_"/>
-    <copy flatten="true" todir="tmp_" includeemptydirs="false">
-	<fileset dir="jar">
-	    <include name="**/*.jar" />
-	</fileset>
-    </copy>
-
-    <jar destfile="${build.dir}/bjoernImport.jar"
+  <target name="jar">
+    <jar destfile="${build.dir}/bjoern.jar"
 	 basedir="${build.dir}"
-	 includes="**/*.class"
-	 duplicate="preserve">
-      <manifest>
-	<attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
-	<attribute name="Rsrc-Main-Class" value="tools.bjoernImport.BjoernImport" />
-	<attribute name="Class-Path" value="."/>
-	<attribute name="Rsrc-Class-Path" value="./ ${mf.classpath}" />
-
-      </manifest>
+	 includes="**/*.class">
       <fileset dir="${build.dir}" includes="**/*.class" />
-      <fileset dir="tmp_"/>
-      <zipfileset src="${jar.dir}/jar-in-jar-loader.zip"/>
+      <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
     </jar>
-    <delete dir="tmp_" />
   </target>
-
-
-    <target name="server" depends="compile">
-
-    <mkdir dir="tmp_"/>
-    <copy flatten="true" todir="tmp_" includeemptydirs="false">
-	<fileset dir="jar">
-	    <include name="**/*.jar" />
-	</fileset>
-    </copy>
-
-    <jar destfile="${build.dir}/server.jar"
-	 basedir="${build.dir}"
-	 includes="**/*.class"
-	 duplicate="preserve">
-      <manifest>
-	<attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
-	<attribute name="Rsrc-Main-Class" value="tools.server.Main" />
-	<attribute name="Class-Path" value="."/>
-	<attribute name="Rsrc-Class-Path" value="./ ${mf.classpath}" />
-
-      </manifest>
-      <fileset dir="${build.dir}" includes="**/*.class" />
-      <fileset dir="tmp_"/>
-      <zipfileset src="${jar.dir}/jar-in-jar-loader.zip"/>
-    </jar>
-    <delete dir="tmp_" />
-  </target>
-
-
 
 </project>
