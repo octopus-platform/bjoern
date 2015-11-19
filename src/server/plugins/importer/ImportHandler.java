@@ -23,8 +23,8 @@ public class ImportHandler extends OServerCommandAbstract
 	{
 		OLogManager.instance().warn(this, "Importer called");
 
-		String codedir = getCodedirFromUrl(iRequest);
-		startImporterThread(codedir);
+		GraphFiles graphFiles = getCodedirFromUrl(iRequest);
+		startImporterThread(graphFiles);
 		OLogManager.instance().warn(this, "Import Thread started");
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
@@ -35,16 +35,16 @@ public class ImportHandler extends OServerCommandAbstract
 		return false;
 	}
 
-	private String getCodedirFromUrl(OHttpRequest iRequest)
+	private GraphFiles getCodedirFromUrl(OHttpRequest iRequest)
 	{
-		String[] urlParts = checkSyntax(iRequest.url, 1,
+		String[] urlParts = checkSyntax(iRequest.url, 2,
 				"Syntax error: importcode/<codedir>");
-		return urlParts[1];
+		return new GraphFiles(urlParts[1], urlParts[2]);
 	}
 
-	private void startImporterThread(String codedir)
+	private void startImporterThread(GraphFiles graphFiles)
 	{
-		importThread = new Thread(new ImportRunnable(codedir));
+		importThread = new Thread(new ImportRunnable(graphFiles));
 		importThread.start();
 	}
 

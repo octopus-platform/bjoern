@@ -2,30 +2,28 @@ package server.plugins.importer;
 
 import java.io.IOException;
 
-import exporters.radare.RadareExporter;
-
-
 public class ImportRunnable implements Runnable
 {
 
-	private String pathToBinary;
+	private final GraphFiles graphFiles;
 
-	public ImportRunnable(String codedir)
+	public ImportRunnable(GraphFiles graphFiles)
 	{
-		this.pathToBinary = codedir;
+		this.graphFiles = graphFiles;
 	}
 
 	@Override
 	public void run()
 	{
-		pathToBinary = pathToBinary.replace("|", "/");
 
-		RadareExporter.export(pathToBinary, ".");
 		CSVImporter csvImporter = new CSVImporter();
+
+		String nodeFilename = graphFiles.getNodeFilename();
+		String edgeFilename = graphFiles.getEdgeFilename();
 
 		try
 		{
-			csvImporter.importCSVFiles("nodes.csv", "edges.csv");
+			csvImporter.importCSVFiles(nodeFilename, edgeFilename);
 		}
 		catch (IOException e)
 		{
