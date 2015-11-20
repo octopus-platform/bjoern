@@ -7,6 +7,8 @@ import java.net.URL;
 
 import org.apache.commons.cli.ParseException;
 
+import exporters.radare.RadareExporter;
+
 // TODO: This code needs to be adapted to the changes introduced
 // by the new architecture.
 
@@ -18,19 +20,26 @@ public class BjoernImport
 	public static void main(String[] args) throws MalformedURLException
 	{
 		parseCommandLine(args);
+		invokeRadare2(args);
 		invokeImportPlugin();
+	}
+
+	private static void invokeRadare2(String[] args)
+	{
+		String pathToBinary = cmdLine.getCodedir();
+		RadareExporter.export(pathToBinary, ".");
 	}
 
 	private static void invokeImportPlugin() throws MalformedURLException
 	{
 
-		String pathToBinary = cmdLine.getCodedir();
-		pathToBinary = pathToBinary.replace("/", "|");
-
 		try
 		{
-			URL url = new URL("http://localhost:2480/importcode/"
-					+ pathToBinary);
+			String urlStr = String.format(
+					"http://localhost:2480/importcsv/%s/%s", "nodes.csv",
+					"edges.csv");
+
+			URL url = new URL(urlStr);
 			HttpURLConnection connection;
 			connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
