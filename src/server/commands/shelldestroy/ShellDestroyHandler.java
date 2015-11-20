@@ -23,7 +23,7 @@ public class ShellDestroyHandler extends OServerCommandAbstract
 	@Override
 	public String[] getNames()
 	{
-		return new String[] { "GET|shellcreate/*" };
+		return new String[] { "GET|shelldestroy/*" };
 	}
 
 }
