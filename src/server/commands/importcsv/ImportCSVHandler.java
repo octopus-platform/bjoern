@@ -22,7 +22,7 @@ public class ImportCSVHandler extends OServerCommandAbstract
 	{
 		OLogManager.instance().warn(this, "Importer called");
 
-		GraphFiles graphFiles = getCodedirFromUrl(iRequest);
+		GraphFiles graphFiles = getGraphFilesFromRequest(iRequest);
 		startImporterThread(graphFiles);
 		OLogManager.instance().warn(this, "Import Thread started");
 
@@ -34,7 +34,7 @@ public class ImportCSVHandler extends OServerCommandAbstract
 		return false;
 	}
 
-	private GraphFiles getCodedirFromUrl(OHttpRequest iRequest)
+	private GraphFiles getGraphFilesFromRequest(OHttpRequest iRequest)
 	{
 		String[] urlParts = checkSyntax(iRequest.url, 2,
 				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>");

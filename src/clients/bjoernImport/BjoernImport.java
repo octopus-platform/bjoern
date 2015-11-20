@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.commons.cli.ParseException;
 
@@ -35,9 +38,19 @@ public class BjoernImport
 
 		try
 		{
+			String workingDirectory = System.getProperty("user.dir");
+
+			Path nodePath = Paths.get(workingDirectory, "nodes.csv");
+			String nodeFilename = URLEncoder.encode(nodePath.toAbsolutePath()
+					.toString());
+
+			Path edgePath = Paths.get(workingDirectory, "edges.csv");
+			String edgeFilename = URLEncoder.encode(edgePath.toAbsolutePath()
+					.toString());
+
 			String urlStr = String.format(
-					"http://localhost:2480/importcsv/%s/%s", "nodes.csv",
-					"edges.csv");
+					"http://localhost:2480/importcsv/%s/%s/", nodeFilename,
+					edgeFilename);
 
 			URL url = new URL(urlStr);
 			HttpURLConnection connection;

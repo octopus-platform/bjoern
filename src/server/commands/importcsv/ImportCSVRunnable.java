@@ -2,6 +2,8 @@ package server.commands.importcsv;
 
 import java.io.IOException;
 
+import com.orientechnologies.common.log.OLogManager;
+
 public class ImportCSVRunnable implements Runnable
 {
 
@@ -20,6 +22,8 @@ public class ImportCSVRunnable implements Runnable
 
 		String nodeFilename = graphFiles.getNodeFilename();
 		String edgeFilename = graphFiles.getEdgeFilename();
+
+		OLogManager.instance().warn(this, nodeFilename);
 
 		try
 		{

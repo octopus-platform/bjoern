@@ -23,8 +23,7 @@ public class ShellCreateHandler extends OServerCommandAbstract
 	@Override
 	public String[] getNames()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new String[] { "GET|shellcreate/*" };
 	}
 
 }
