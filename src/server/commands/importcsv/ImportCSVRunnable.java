@@ -23,8 +23,6 @@ public class ImportCSVRunnable implements Runnable
 		String nodeFilename = graphFiles.getNodeFilename();
 		String edgeFilename = graphFiles.getEdgeFilename();
 
-		OLogManager.instance().warn(this, nodeFilename);
-
 		try
 		{
 			csvImporter.importCSVFiles(nodeFilename, edgeFilename);
@@ -34,6 +32,8 @@ public class ImportCSVRunnable implements Runnable
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		OLogManager.instance().warn(this, "Import finished");
 	}
 
 }
