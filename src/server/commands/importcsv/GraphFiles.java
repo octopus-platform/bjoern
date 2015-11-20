@@ -1,4 +1,4 @@
-package server.plugins.importer;
+package server.commands.importcsv;
 
 public class GraphFiles
 {

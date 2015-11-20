@@ -1,4 +1,4 @@
-package server.plugins.importer;
+package server.commands.importcsv;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
@@ -7,14 +7,13 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
 
-public class ImportHandler extends OServerCommandAbstract
+public class ImportCSVHandler extends OServerCommandAbstract
 {
 
 	private Thread importThread;
 
-	public ImportHandler(final OServerCommandConfiguration iConfiguration)
+	public ImportCSVHandler(final OServerCommandConfiguration iConfiguration)
 	{
-
 	}
 
 	@Override
@@ -38,20 +37,20 @@ public class ImportHandler extends OServerCommandAbstract
 	private GraphFiles getCodedirFromUrl(OHttpRequest iRequest)
 	{
 		String[] urlParts = checkSyntax(iRequest.url, 2,
-				"Syntax error: importcode/<codedir>");
+				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>");
 		return new GraphFiles(urlParts[1], urlParts[2]);
 	}
 
 	private void startImporterThread(GraphFiles graphFiles)
 	{
-		importThread = new Thread(new ImportRunnable(graphFiles));
+		importThread = new Thread(new ImportCSVRunnable(graphFiles));
 		importThread.start();
 	}
 
 	@Override
 	public String[] getNames()
 	{
-		return new String[] { "GET|importcode/*" };
+		return new String[] { "GET|importcsv/*" };
 	}
 
 }

@@ -7,6 +7,9 @@ import java.net.URL;
 
 import org.apache.commons.cli.ParseException;
 
+// TODO: This code needs to be adapted to the changes introduced
+// by the new architecture.
+
 public class BjoernImport
 {
 

@@ -1,4 +1,4 @@
-package server.plugins.importer;
+package server.commands.importcsv;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

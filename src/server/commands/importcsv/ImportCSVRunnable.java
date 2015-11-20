@@ -1,13 +1,13 @@
-package server.plugins.importer;
+package server.commands.importcsv;
 
 import java.io.IOException;
 
-public class ImportRunnable implements Runnable
+public class ImportCSVRunnable implements Runnable
 {
 
 	private final GraphFiles graphFiles;
 
-	public ImportRunnable(GraphFiles graphFiles)
+	public ImportCSVRunnable(GraphFiles graphFiles)
 	{
 		this.graphFiles = graphFiles;
 	}
