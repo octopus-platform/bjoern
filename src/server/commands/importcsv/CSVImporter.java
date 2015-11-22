@@ -22,10 +22,10 @@ import exporters.outputModules.CSV.CSVFields;
 
 public class CSVImporter
 {
-	static BatchGraph<?> batchGraph;
-	static String[] VertexKeys;
-	static String[] EdgeKeys;
-	private static OrientGraphNoTx noTx;
+	BatchGraph<?> batchGraph;
+	String[] VertexKeys;
+	String[] EdgeKeys;
+	private OrientGraphNoTx noTx;
 
 	public void importCSVFiles(String nodeFile, String edgeFile)
 			throws IOException
@@ -36,19 +36,18 @@ public class CSVImporter
 		closeDatabase();
 	}
 
-	private static void openDatabase()
+	private void openDatabase()
 	{
 		OGlobalConfiguration.USE_WAL.setValue(false);
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
 
 		noTx = new OrientGraphNoTx(Constants.PLOCAL_PATH_TO_DB);
-
 		noTx.declareIntent(new OIntentMassiveInsert());
 
 		batchGraph = BatchGraph.wrap(noTx, 1000);
 	}
 
-	private static void processNodeFile(String filename) throws IOException
+	private void processNodeFile(String filename) throws IOException
 	{
 
 		CSVReader csvReader = getCSVReaderForFile(filename);
@@ -63,8 +62,7 @@ public class CSVImporter
 
 	}
 
-	private static void processFirstNodeRow(CSVReader csvReader)
-			throws IOException
+	private void processFirstNodeRow(CSVReader csvReader) throws IOException
 	{
 		String[] row = csvReader.readNext();
 		if (row == null)
@@ -74,7 +72,7 @@ public class CSVImporter
 		createPropertiesAndIndices();
 	}
 
-	private static void initializeVertexKeys(String[] row)
+	private void initializeVertexKeys(String[] row)
 	{
 		VertexKeys = new String[row.length];
 		for (int i = 0; i < row.length; i++)
@@ -83,8 +81,9 @@ public class CSVImporter
 		}
 	}
 
-	private static void createPropertiesAndIndices()
+	private void createPropertiesAndIndices()
 	{
+
 		OrientVertexType vType = noTx.getVertexType("V");
 
 		for (String key : VertexKeys)
@@ -108,7 +107,7 @@ public class CSVImporter
 				indexKeys);
 	}
 
-	private static void processNodeRow(String[] row)
+	private void processNodeRow(String[] row)
 	{
 
 		// skip empty lines
@@ -128,7 +127,7 @@ public class CSVImporter
 
 	}
 
-	private static void processEdgeFile(String filename) throws IOException
+	private void processEdgeFile(String filename) throws IOException
 	{
 		CSVReader csvReader = getCSVReaderForFile(filename);
 		processFirstEdgeRow(csvReader);
@@ -141,8 +140,7 @@ public class CSVImporter
 
 	}
 
-	private static void processFirstEdgeRow(CSVReader csvReader)
-			throws IOException
+	private void processFirstEdgeRow(CSVReader csvReader) throws IOException
 	{
 		String[] row = csvReader.readNext();
 		if (row == null)
@@ -151,7 +149,7 @@ public class CSVImporter
 		initializeEdgeKeys(row);
 	}
 
-	private static void initializeEdgeKeys(String[] row)
+	private void initializeEdgeKeys(String[] row)
 	{
 		EdgeKeys = new String[row.length];
 		for (int i = 0; i < row.length; i++)
@@ -160,7 +158,7 @@ public class CSVImporter
 		}
 	}
 
-	private static void processEdgeRow(String[] row)
+	private void processEdgeRow(String[] row)
 	{
 
 		if (row.length < 3)
@@ -182,7 +180,7 @@ public class CSVImporter
 
 	}
 
-	private static CSVReader getCSVReaderForFile(String filename)
+	private CSVReader getCSVReaderForFile(String filename)
 			throws FileNotFoundException
 	{
 		CSVReader reader;
@@ -191,7 +189,7 @@ public class CSVImporter
 		return reader;
 	}
 
-	private static void closeDatabase()
+	private void closeDatabase()
 	{
 		batchGraph.shutdown();
 		noTx.shutdown();
