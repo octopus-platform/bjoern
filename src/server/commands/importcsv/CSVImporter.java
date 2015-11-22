@@ -9,6 +9,7 @@ import java.util.List;
 import server.commands.Constants;
 
 import com.opencsv.CSVReader;
+import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -25,6 +26,7 @@ public class CSVImporter
 	BatchGraph<?> batchGraph;
 	String[] VertexKeys;
 	String[] EdgeKeys;
+	private boolean isNewDatabase;
 	private OrientGraphNoTx noTx;
 
 	public void importCSVFiles(String nodeFile, String edgeFile)
@@ -36,15 +38,23 @@ public class CSVImporter
 		closeDatabase();
 	}
 
-	private void openDatabase()
+	private void openDatabase() throws IOException
 	{
 		OGlobalConfiguration.USE_WAL.setValue(false);
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
+
+		isNewDatabase = !databaseExists(Constants.DB_NAME);
 
 		noTx = new OrientGraphNoTx(Constants.PLOCAL_PATH_TO_DB);
 		noTx.declareIntent(new OIntentMassiveInsert());
 
 		batchGraph = BatchGraph.wrap(noTx, 1000);
+	}
+
+	private boolean databaseExists(String dbName) throws IOException
+	{
+		return new OServerAdmin("localhost/" + Constants.DB_NAME).connect(
+				Constants.DB_USERNAME, Constants.DB_PASSWORD).existsDatabase();
 	}
 
 	private void processNodeFile(String filename) throws IOException
@@ -83,6 +93,8 @@ public class CSVImporter
 
 	private void createPropertiesAndIndices()
 	{
+		if (!isNewDatabase)
+			return;
 
 		OrientVertexType vType = noTx.getVertexType("V");
 
