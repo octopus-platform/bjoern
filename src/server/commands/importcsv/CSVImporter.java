@@ -14,7 +14,6 @@ import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
@@ -23,7 +22,7 @@ import exporters.outputModules.CSV.CSVFields;
 
 public class CSVImporter
 {
-	static BatchGraph<OrientGraph> batchGraph;
+	static BatchGraph<?> batchGraph;
 	static String[] VertexKeys;
 	static String[] EdgeKeys;
 	private static OrientGraphNoTx noTx;
@@ -47,12 +46,6 @@ public class CSVImporter
 		noTx.declareIntent(new OIntentMassiveInsert());
 
 		batchGraph = BatchGraph.wrap(noTx, 1000);
-	}
-
-	private static void closeDatabase()
-	{
-		batchGraph.shutdown();
-		noTx.shutdown();
 	}
 
 	private static void processNodeFile(String filename) throws IOException
@@ -130,7 +123,8 @@ public class CSVImporter
 			properties[2 * (i - 1)] = VertexKeys[i];
 			properties[2 * (i - 1) + 1] = row[i];
 		}
-		batchGraph.addVertex(id, properties);
+		Object[] props = properties;
+		batchGraph.addVertex(id, props);
 
 	}
 
@@ -195,6 +189,12 @@ public class CSVImporter
 		FileReader fileReader = new FileReader(filename);
 		reader = new CSVReader(fileReader, '\t');
 		return reader;
+	}
+
+	private static void closeDatabase()
+	{
+		batchGraph.shutdown();
+		noTx.shutdown();
 	}
 
 }
