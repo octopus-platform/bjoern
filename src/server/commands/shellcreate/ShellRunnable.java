@@ -10,6 +10,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.codehaus.groovy.tools.shell.ExitNotification;
+
 import com.orientechnologies.common.log.OLogManager;
 
 public class ShellRunnable implements Runnable
@@ -55,13 +57,21 @@ public class ShellRunnable implements Runnable
 
 	private void processClients() throws IOException
 	{
-		// while (true)
-		// {
-		clientSocket = serverSocket.accept();
-		OLogManager.instance().warn(this, "Client accepted");
-		handleClient();
+		while (true)
+		{
+			clientSocket = serverSocket.accept();
+			System.out.println("Client accepted");
 
-		// }
+			try
+			{
+				handleClient();
+			}
+			catch (ExitNotification ex)
+			{
+				break;
+			}
+
+		}
 
 		serverSocket.close();
 	}
@@ -74,11 +84,9 @@ public class ShellRunnable implements Runnable
 		PrintWriter printWriter = new PrintWriter(outputStream);
 
 		String line;
-
 		while ((line = bReader.readLine()) != null)
 		{
 			Object evalResult = bjoernGremlinShell.execute(line);
-			System.out.println(evalResult);
 			printWriter.println(evalResult.toString());
 			printWriter.flush();
 		}

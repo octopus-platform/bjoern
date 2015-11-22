@@ -6,6 +6,7 @@ import server.commands.Constants;
 
 import com.tinkerpop.gremlin.Imports;
 import com.tinkerpop.gremlin.groovy.Gremlin;
+import com.tinkerpop.gremlin.groovy.console.NullResultHookClosure;
 
 public class BjoernGremlinShell
 {
@@ -13,9 +14,15 @@ public class BjoernGremlinShell
 
 	public BjoernGremlinShell()
 	{
+		silenceShell();
 		performInitialImports();
 		Gremlin.load();
 		openDatabaseConnection();
+	}
+
+	private void silenceShell()
+	{
+		groovysh.setResultHook(new NullResultHookClosure(groovysh));
 	}
 
 	private void performInitialImports()
@@ -32,14 +39,21 @@ public class BjoernGremlinShell
 
 	private void openDatabaseConnection()
 	{
-		String cmd = String.format("g = new OrientGraphNoTx(\"%s\")",
+		String cmd = String.format("g = new OrientGraphNoTx(\"%s\");",
 				Constants.PLOCAL_PATH_TO_DB);
 		groovysh.execute(cmd);
 	}
 
 	public Object execute(String line)
 	{
-		return groovysh.execute(line);
-	}
+		try
+		{
+			return groovysh.execute(line);
+		}
+		catch (Exception ex)
+		{
+			return ex.getMessage();
+		}
 
+	}
 }
