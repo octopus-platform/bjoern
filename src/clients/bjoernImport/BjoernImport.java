@@ -12,12 +12,10 @@ import org.apache.commons.cli.ParseException;
 
 import exporters.radare.RadareExporter;
 
-// TODO: This code needs to be adapted to the changes introduced
-// by the new architecture.
-
 public class BjoernImport
 {
 
+	private static final Object DB_NAME = "bjoernDB";
 	static CommandLineInterface cmdLine = new CommandLineInterface();
 
 	public static void main(String[] args) throws MalformedURLException
@@ -49,8 +47,8 @@ public class BjoernImport
 					.toString());
 
 			String urlStr = String.format(
-					"http://localhost:2480/importcsv/%s/%s/", nodeFilename,
-					edgeFilename);
+					"http://localhost:2480/importcsv/%s/%s/%s", nodeFilename,
+					edgeFilename, DB_NAME);
 
 			URL url = new URL(urlStr);
 			HttpURLConnection connection;

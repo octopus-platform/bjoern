@@ -28,6 +28,7 @@ public class CSVImporter
 	String[] EdgeKeys;
 	private boolean isNewDatabase;
 	private OrientGraphNoTx noTx;
+	private String dbName;
 
 	public void importCSVFiles(String nodeFile, String edgeFile)
 			throws IOException
@@ -43,9 +44,8 @@ public class CSVImporter
 		OGlobalConfiguration.USE_WAL.setValue(false);
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
 
-		isNewDatabase = !databaseExists(Constants.DB_NAME);
-
-		noTx = new OrientGraphNoTx(Constants.PLOCAL_PATH_TO_DB);
+		isNewDatabase = !databaseExists(dbName);
+		noTx = new OrientGraphNoTx(Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
 		noTx.declareIntent(new OIntentMassiveInsert());
 
 		batchGraph = BatchGraph.wrap(noTx, 1000);
@@ -53,7 +53,7 @@ public class CSVImporter
 
 	private boolean databaseExists(String dbName) throws IOException
 	{
-		return new OServerAdmin("localhost/" + Constants.DB_NAME).connect(
+		return new OServerAdmin("localhost/" + dbName).connect(
 				Constants.DB_USERNAME, Constants.DB_PASSWORD).existsDatabase();
 	}
 
@@ -205,6 +205,11 @@ public class CSVImporter
 	{
 		batchGraph.shutdown();
 		noTx.shutdown();
+	}
+
+	public void setDatabase(String dbName)
+	{
+		this.dbName = dbName;
 	}
 
 }

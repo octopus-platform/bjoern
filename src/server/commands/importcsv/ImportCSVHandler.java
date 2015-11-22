@@ -1,5 +1,7 @@
 package server.commands.importcsv;
 
+import server.DebugPrinter;
+
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -20,10 +22,11 @@ public class ImportCSVHandler extends OServerCommandAbstract
 	public boolean execute(OHttpRequest iRequest, OHttpResponse iResponse)
 			throws Exception
 	{
-		OLogManager.instance().warn(this, "Importer called");
+		DebugPrinter.print("Importer called", this);
 
-		GraphFiles graphFiles = getGraphFilesFromRequest(iRequest);
-		startImporterThread(graphFiles);
+		ImportJob importJob = getImportJobFromRequest(iRequest);
+
+		startImporterThread(importJob);
 		OLogManager.instance().warn(this, "Import Thread started");
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
@@ -34,14 +37,14 @@ public class ImportCSVHandler extends OServerCommandAbstract
 		return false;
 	}
 
-	private GraphFiles getGraphFilesFromRequest(OHttpRequest iRequest)
+	private ImportJob getImportJobFromRequest(OHttpRequest iRequest)
 	{
-		String[] urlParts = checkSyntax(iRequest.url, 2,
-				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>");
-		return new GraphFiles(urlParts[1], urlParts[2]);
+		String[] urlParts = checkSyntax(iRequest.url, 3,
+				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>/<dbName>");
+		return new ImportJob(urlParts[1], urlParts[2], urlParts[3]);
 	}
 
-	private void startImporterThread(GraphFiles graphFiles)
+	private void startImporterThread(ImportJob graphFiles)
 	{
 		importThread = new Thread(new ImportCSVRunnable(graphFiles));
 		importThread.start();

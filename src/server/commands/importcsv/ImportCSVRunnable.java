@@ -2,16 +2,16 @@ package server.commands.importcsv;
 
 import java.io.IOException;
 
-import com.orientechnologies.common.log.OLogManager;
+import server.DebugPrinter;
 
 public class ImportCSVRunnable implements Runnable
 {
 
-	private final GraphFiles graphFiles;
+	private final ImportJob importJob;
 
-	public ImportCSVRunnable(GraphFiles graphFiles)
+	public ImportCSVRunnable(ImportJob graphFiles)
 	{
-		this.graphFiles = graphFiles;
+		this.importJob = graphFiles;
 	}
 
 	@Override
@@ -20,20 +20,21 @@ public class ImportCSVRunnable implements Runnable
 
 		CSVImporter csvImporter = new CSVImporter();
 
-		String nodeFilename = graphFiles.getNodeFilename();
-		String edgeFilename = graphFiles.getEdgeFilename();
+		String nodeFilename = importJob.getNodeFilename();
+		String edgeFilename = importJob.getEdgeFilename();
+		String dbName = importJob.getDbName();
 
 		try
 		{
+			csvImporter.setDatabase(dbName);
 			csvImporter.importCSVFiles(nodeFilename, edgeFilename);
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		OLogManager.instance().warn(this, "Import finished");
+		DebugPrinter.print("Import finished", this);
 	}
 
 }
