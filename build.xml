@@ -5,6 +5,7 @@
   <property name="src.dir" location="src" />
   <property name="build.dir" location="bin" />
   <property name="jar.dir" location="jar" />
+  <property name="orientdb.dir" location="orientdb-community-2.1.5" />
 
   <!-- Add jars to the classpath -->
   <path id="bjoern.classpath">
@@ -46,6 +47,9 @@
       <fileset dir="${build.dir}" includes="**/*.class" />
       <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
     </jar>
+
+  <copy file="${build.dir}/bjoern.jar" todir="${orientdb.dir}/lib/"/>
+
   </target>
 
 </project>
