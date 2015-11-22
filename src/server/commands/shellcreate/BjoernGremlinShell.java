@@ -1,8 +1,12 @@
 package server.commands.shellcreate;
 
+import java.io.IOException;
+
 import org.codehaus.groovy.tools.shell.Groovysh;
 
 import server.commands.Constants;
+import server.fileWalker.OrderedWalker;
+import server.fileWalker.SourceFileWalker;
 
 import com.tinkerpop.gremlin.Imports;
 import com.tinkerpop.gremlin.groovy.Gremlin;
@@ -17,6 +21,7 @@ public class BjoernGremlinShell
 		silenceShell();
 		performInitialImports();
 		Gremlin.load();
+		loadQueryLibrary();
 		openDatabaseConnection();
 	}
 
@@ -35,6 +40,29 @@ public class BjoernGremlinShell
 		groovysh.execute("import com.tinkerpop.gremlin.Tokens.T");
 		groovysh.execute("import com.tinkerpop.gremlin.groovy.*");
 		groovysh.execute("import groovy.grape.Grape");
+	}
+
+	private void loadQueryLibrary()
+	{
+		try
+		{
+			loadRecursively(Constants.QUERY_LIB_DIR);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private void loadRecursively(String queryLibDir) throws IOException
+	{
+		SourceFileWalker walker = new OrderedWalker();
+		GroovyFileLoader listener = new GroovyFileLoader();
+		listener.setGroovyShell(groovysh);
+
+		walker.setFilenameFilter("*.groovy");
+		walker.addListener(listener);
+		walker.walk(new String[] { queryLibDir });
 	}
 
 	private void openDatabaseConnection()
