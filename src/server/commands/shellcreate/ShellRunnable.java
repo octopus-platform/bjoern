@@ -68,9 +68,9 @@ public class ShellRunnable implements Runnable
 			}
 			catch (ExitNotification ex)
 			{
+				clientSocket.close();
 				break;
 			}
-
 		}
 
 		serverSocket.close();

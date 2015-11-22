@@ -49,6 +49,7 @@
     </jar>
 
   <copy file="${build.dir}/bjoern.jar" todir="${orientdb.dir}/lib/"/>
+  <copy file="conf/orientdb-server-config.xml" todir="${orientdb.dir}/config/"/>
 
   </target>
 
