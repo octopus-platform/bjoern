@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Iterator;
 
 import org.codehaus.groovy.tools.shell.ExitNotification;
 
@@ -21,6 +22,8 @@ public class ShellRunnable implements Runnable
 	private ServerSocket serverSocket;
 	private BjoernGremlinShell bjoernGremlinShell;
 	private Socket clientSocket;
+	private PrintWriter clientWriter;
+	private BufferedReader clientReader;
 
 	@Override
 	public void run()
@@ -59,9 +62,7 @@ public class ShellRunnable implements Runnable
 	{
 		while (true)
 		{
-			clientSocket = serverSocket.accept();
-			System.out.println("Client accepted");
-
+			acceptNewClient();
 			try
 			{
 				handleClient();
@@ -76,19 +77,55 @@ public class ShellRunnable implements Runnable
 		serverSocket.close();
 	}
 
-	private void handleClient() throws IOException
+	private void acceptNewClient() throws IOException
+	{
+		clientSocket = serverSocket.accept();
+		initClientWriter();
+		initClientReader();
+
+		System.out.println("Client accepted");
+	}
+
+	private void initClientReader() throws IOException
 	{
 		InputStream in = clientSocket.getInputStream();
-		BufferedReader bReader = new BufferedReader(new InputStreamReader(in));
+		clientReader = new BufferedReader(new InputStreamReader(in));
+	}
+
+	private void initClientWriter() throws IOException
+	{
 		OutputStream outputStream = clientSocket.getOutputStream();
-		PrintWriter printWriter = new PrintWriter(outputStream);
+		clientWriter = new PrintWriter(outputStream);
+	}
+
+	private void handleClient() throws IOException
+	{
 
 		String line;
-		while ((line = bReader.readLine()) != null)
+		while ((line = clientReader.readLine()) != null)
 		{
 			Object evalResult = bjoernGremlinShell.execute(line);
-			printWriter.println(evalResult.toString());
-			printWriter.flush();
+			sendResultToClient(evalResult);
+		}
+	}
+
+	private void sendResultToClient(Object result)
+	{
+
+		if (result instanceof Iterable)
+		{
+			System.out.println("reached");
+			Iterator<?> it = ((Iterable<?>) result).iterator();
+			while (it.hasNext())
+			{
+				Object obj = it.next();
+				sendResultToClient(obj);
+			}
+		}
+		else
+		{
+			clientWriter.println(result.toString());
+			clientWriter.flush();
 		}
 	}
 }
