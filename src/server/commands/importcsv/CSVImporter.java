@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import server.commands.Constants;
+
 import com.opencsv.CSVReader;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
@@ -40,7 +42,7 @@ public class CSVImporter
 		OGlobalConfiguration.USE_WAL.setValue(false);
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
 
-		noTx = new OrientGraphNoTx("plocal:../databases/bjoernDB");
+		noTx = new OrientGraphNoTx(Constants.PLOCAL_PATH_TO_DB);
 
 		noTx.declareIntent(new OIntentMassiveInsert());
 
