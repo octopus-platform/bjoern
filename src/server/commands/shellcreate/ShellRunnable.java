@@ -111,11 +111,13 @@ public class ShellRunnable implements Runnable
 
 	private void sendResultToClient(Object result)
 	{
+		if (result == null)
+			return;
 
 		if (result instanceof Iterable)
 		{
-			System.out.println("reached");
-			Iterator<?> it = ((Iterable<?>) result).iterator();
+			Iterable<?> iterable = (Iterable<?>) result;
+			Iterator<?> it = iterable.iterator();
 			while (it.hasNext())
 			{
 				Object obj = it.next();
