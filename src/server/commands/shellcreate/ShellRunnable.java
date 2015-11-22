@@ -19,6 +19,7 @@ public class ShellRunnable implements Runnable
 {
 
 	private int port;
+	private String dbName;
 	private ServerSocket serverSocket;
 	private BjoernGremlinShell bjoernGremlinShell;
 	private Socket clientSocket;
@@ -47,9 +48,14 @@ public class ShellRunnable implements Runnable
 		this.port = port;
 	}
 
+	public void setDbName(String dbName)
+	{
+		this.dbName = dbName;
+	}
+
 	private void createGremlinShell() throws IOException
 	{
-		bjoernGremlinShell = new BjoernGremlinShell();
+		bjoernGremlinShell = new BjoernGremlinShell(dbName);
 	}
 
 	private void createLocalListeningSocket() throws IOException

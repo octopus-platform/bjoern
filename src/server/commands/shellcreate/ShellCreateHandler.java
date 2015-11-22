@@ -1,5 +1,7 @@
 package server.commands.shellcreate;
 
+import server.commands.Constants;
+
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -23,6 +25,7 @@ public class ShellCreateHandler extends OServerCommandAbstract
 	{
 		OLogManager.instance().warn(this, "shellcreate");
 
+		// TODO: CONTINUE HERE
 		startShellThread();
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
@@ -34,6 +37,7 @@ public class ShellCreateHandler extends OServerCommandAbstract
 	{
 		ShellRunnable runnable = new ShellRunnable();
 		runnable.setPort(lastPortNumber++);
+		runnable.setDbName(Constants.DB_NAME);
 		thread = new Thread(runnable);
 		thread.start();
 	}

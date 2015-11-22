@@ -16,13 +16,13 @@ public class BjoernGremlinShell
 {
 	Groovysh groovysh = new Groovysh();
 
-	public BjoernGremlinShell()
+	public BjoernGremlinShell(String dbName)
 	{
 		silenceShell();
 		performInitialImports();
 		Gremlin.load();
 		loadQueryLibrary();
-		openDatabaseConnection();
+		openDatabaseConnection(dbName);
 	}
 
 	private void silenceShell()
@@ -65,10 +65,10 @@ public class BjoernGremlinShell
 		walker.walk(new String[] { queryLibDir });
 	}
 
-	private void openDatabaseConnection()
+	private void openDatabaseConnection(String dbName)
 	{
 		String cmd = String.format("g = new OrientGraphNoTx(\"%s\");",
-				Constants.PLOCAL_PATH_TO_DB);
+				Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
 		groovysh.execute(cmd);
 	}
 
