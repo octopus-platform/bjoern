@@ -1,6 +1,6 @@
 package server.commands.shellcreate;
 
-import server.commands.Constants;
+import server.Constants;
 import server.components.gremlinShell.ShellRunnable;
 
 import com.orientechnologies.common.log.OLogManager;
@@ -41,7 +41,7 @@ public class ShellCreateHandler extends OServerCommandAbstract
 		String[] urlParts = checkSyntax(iRequest.url, 0,
 				"Syntax error: shellcreate/[dbName]");
 
-		if (urlParts.length >= 2)
+		if (urlParts.length >= 2 && !urlParts[1].equals(""))
 			return urlParts[1];
 		return Constants.DEFAULT_DB_NAME;
 	}

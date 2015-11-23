@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.codehaus.groovy.tools.shell.Groovysh;
 
-import server.commands.Constants;
+import server.Constants;
 import server.components.gremlinShell.fileWalker.OrderedWalker;
 import server.components.gremlinShell.fileWalker.SourceFileWalker;
 
@@ -74,6 +74,12 @@ public class BjoernGremlinShell
 
 	public Object execute(String line)
 	{
+		if (line.equals("reload"))
+		{
+			loadQueryLibrary();
+			return new String("");
+		}
+
 		try
 		{
 			return groovysh.execute(line);

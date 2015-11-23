@@ -4,7 +4,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
-import server.commands.Constants;
+import server.Constants;
 import exporters.CommonCommandLineInterface;
 
 public class CommandLineInterface extends CommonCommandLineInterface

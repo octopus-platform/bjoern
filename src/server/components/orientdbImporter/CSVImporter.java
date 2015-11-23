@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import server.commands.Constants;
+import server.Constants;
 
 import com.opencsv.CSVReader;
 import com.orientechnologies.orient.client.remote.OServerAdmin;

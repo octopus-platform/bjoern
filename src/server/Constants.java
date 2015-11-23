@@ -1,4 +1,4 @@
-package server.commands;
+package server;
 
 public class Constants
 {
