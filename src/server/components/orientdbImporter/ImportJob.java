@@ -1,4 +1,4 @@
-package server.commands.importcsv;
+package server.components.orientdbImporter;
 
 public class ImportJob
 {

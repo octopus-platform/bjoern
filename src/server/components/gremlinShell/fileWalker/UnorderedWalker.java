@@ -1,4 +1,4 @@
-package server.fileWalker;
+package server.components.gremlinShell.fileWalker;
 
 import java.io.IOException;
 import java.nio.file.Files;

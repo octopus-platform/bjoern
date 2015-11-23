@@ -1,4 +1,4 @@
-package server.commands.importcsv;
+package server.components.orientdbImporter;
 
 import java.io.IOException;
 
@@ -9,9 +9,9 @@ public class ImportCSVRunnable implements Runnable
 
 	private final ImportJob importJob;
 
-	public ImportCSVRunnable(ImportJob graphFiles)
+	public ImportCSVRunnable(ImportJob importJob)
 	{
-		this.importJob = graphFiles;
+		this.importJob = importJob;
 	}
 
 	@Override

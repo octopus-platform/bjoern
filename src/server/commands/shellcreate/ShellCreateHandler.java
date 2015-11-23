@@ -1,6 +1,7 @@
 package server.commands.shellcreate;
 
 import server.commands.Constants;
+import server.components.gremlinShell.ShellRunnable;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;

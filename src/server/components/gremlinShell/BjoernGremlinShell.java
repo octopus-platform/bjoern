@@ -1,12 +1,12 @@
-package server.commands.shellcreate;
+package server.components.gremlinShell;
 
 import java.io.IOException;
 
 import org.codehaus.groovy.tools.shell.Groovysh;
 
 import server.commands.Constants;
-import server.fileWalker.OrderedWalker;
-import server.fileWalker.SourceFileWalker;
+import server.components.gremlinShell.fileWalker.OrderedWalker;
+import server.components.gremlinShell.fileWalker.SourceFileWalker;
 
 import com.tinkerpop.gremlin.Imports;
 import com.tinkerpop.gremlin.groovy.Gremlin;

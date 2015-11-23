@@ -1,10 +1,10 @@
-package server.commands.shellcreate;
+package server.components.gremlinShell;
 
 import java.nio.file.Path;
 
 import org.codehaus.groovy.tools.shell.Groovysh;
 
-import server.fileWalker.SourceFileListener;
+import server.components.gremlinShell.fileWalker.SourceFileListener;
 
 public class GroovyFileLoader extends SourceFileListener
 {

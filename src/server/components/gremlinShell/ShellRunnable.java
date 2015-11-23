@@ -1,4 +1,4 @@
-package server.commands.shellcreate;
+package server.components.gremlinShell;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.Iterator;
 
 import org.codehaus.groovy.tools.shell.ExitNotification;
 
-import com.orientechnologies.common.log.OLogManager;
+import server.DebugPrinter;
 
 public class ShellRunnable implements Runnable
 {
@@ -40,7 +40,7 @@ public class ShellRunnable implements Runnable
 			e.printStackTrace();
 		}
 
-		OLogManager.instance().warn(this, "Shell closed");
+		DebugPrinter.print("Shell closed", this);
 	}
 
 	public void setPort(int port)

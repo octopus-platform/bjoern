@@ -1,6 +1,8 @@
 package server.commands.importcsv;
 
 import server.DebugPrinter;
+import server.components.orientdbImporter.ImportCSVRunnable;
+import server.components.orientdbImporter.ImportJob;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;

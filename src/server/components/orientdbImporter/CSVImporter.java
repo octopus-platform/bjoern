@@ -1,4 +1,4 @@
-package server.commands.importcsv;
+package server.components.orientdbImporter;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
