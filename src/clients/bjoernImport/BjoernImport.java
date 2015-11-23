@@ -15,7 +15,6 @@ import exporters.radare.RadareExporter;
 public class BjoernImport
 {
 
-	private static final Object DB_NAME = "bjoernDB";
 	static CommandLineInterface cmdLine = new CommandLineInterface();
 
 	public static void main(String[] args) throws MalformedURLException
@@ -46,9 +45,11 @@ public class BjoernImport
 			String edgeFilename = URLEncoder.encode(edgePath.toAbsolutePath()
 					.toString());
 
+			String dbName = URLEncoder.encode(cmdLine.getDbName());
+
 			String urlStr = String.format(
-					"http://localhost:2480/importcsv/%s/%s/%s", nodeFilename,
-					edgeFilename, DB_NAME);
+					"http://localhost:2480/importcsv/%s/%s/%s/", nodeFilename,
+					edgeFilename, dbName);
 
 			URL url = new URL(urlStr);
 			HttpURLConnection connection;
@@ -59,7 +60,6 @@ public class BjoernImport
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

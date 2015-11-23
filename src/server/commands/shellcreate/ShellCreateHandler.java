@@ -14,6 +14,7 @@ public class ShellCreateHandler extends OServerCommandAbstract
 
 	private Thread thread;
 	private static int lastPortNumber = 6000;
+	private String dbName;
 
 	public ShellCreateHandler(final OServerCommandConfiguration iConfiguration)
 	{
@@ -25,7 +26,8 @@ public class ShellCreateHandler extends OServerCommandAbstract
 	{
 		OLogManager.instance().warn(this, "shellcreate");
 
-		// TODO: CONTINUE HERE
+		dbName = getDbNameFromRequest(iRequest);
+
 		startShellThread();
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
@@ -33,11 +35,21 @@ public class ShellCreateHandler extends OServerCommandAbstract
 		return false;
 	}
 
+	private String getDbNameFromRequest(OHttpRequest iRequest)
+	{
+		String[] urlParts = checkSyntax(iRequest.url, 0,
+				"Syntax error: shellcreate/[dbName]");
+
+		if (urlParts.length >= 2)
+			return urlParts[1];
+		return Constants.DEFAULT_DB_NAME;
+	}
+
 	private void startShellThread()
 	{
 		ShellRunnable runnable = new ShellRunnable();
 		runnable.setPort(lastPortNumber++);
-		runnable.setDbName(Constants.DB_NAME);
+		runnable.setDbName(dbName);
 		thread = new Thread(runnable);
 		thread.start();
 	}
