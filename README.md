@@ -9,67 +9,52 @@ blocks, as well as data, code and call cross references.
 
 ## Dependencies
 
-Bjoern-radare is written for Java 8. Apart from that, only radare2 and
-its bindings are required. As radare2 is subject to rapid changes,
-forks of radare2 compatible with bjoern-radare are mainted here:
-
-* Radare2: https://github.com/fabsx00/radare2-bindings
-* Radare2-bindings: https://github.com/fabsx00/radare2-bindings
+* Java 8
+* Radare2: http://www.radare.org/r/down.html
 * Orientdb 2.1.5 Community Edition
 
-## Installing radare2
+## Installation
 
-Bjoern-radare requires shared objects from radare2 and its bindings to
-be available in the `lib` directory. You can build these for your
-platform by following the instructions here:
+First, clone the repository:
 
-http://www.radare.org/r/down.html
+	git clone https://github.com/fabsx00/bjoern-radare
+	cd bjoern-radare
 
-When building radare2-bindings, make sure that the compiler has access
-to Java 8's `jni.h` and `jni_md.h` by specifying CFLAGS accordingly.
+Next, install orientdb 2.1.5 community edition:
 
-Alternatively, pre-built versions for Linux on AMD64 can be found
-here:
+	wget http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz&os=linux
 
-http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/lib-linux-amd64.tar.gz
+on Linux, or
 
-## Installating bjoern-radare
+	wget http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz&os=mac
 
-Installation of bjoern-radare follows three steps: first, the native
-radare libaries are placed in the `lib` directory. Second, java
-archives (jars) are placed into the `jar` directory. Finally,
-bjoern-radare is built.
+on MacOSX.
 
-### Installing native libraries
+	tar xfz orientdb-community-2.1.5.tar.gz
 
-Assuming that you have installed radare2 manually into '/usr/local'
-and extracted bjoern-radare into `$BJOERN_RADARE`, copy all files in
+Finally, download and extract dependencies, and build:
 
-	/usr/local/share/radare2/java/jni/lib
-
-to the `$BJOERN_RADARE/lib` directory. Alternatively, on Linux AMD64,
-simply place lib-linux-amd64.tar.gz into `$BJOERN_RADARE` and extract
-it.
-
-### Installing required jars
-
-Proceed to obtain the tarball from:
-
-http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz
-
-and extract it in `$BJOERN_RADARE/jar`..
-
-### Building bjoern-radare
-
-Next, build bjoern-radare using ant:
+	wget http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz
+	tar xfz jars.tar.gz
 
 	ant
-	ant orientdbImporter
 
-This will create an executable JAR in `$BJOERN_RADARE/bin/bjoern-radare.jar`.
+## Usage
 
-### Installing orientdb
+Begin by starting the bjoern-server:
 
-Finally, place orientdb-community-2.1.5 into the `$BJOERN_RADARE` directory.
+	./bjoern-server.sh
 
-You can run the jar using the script `bjoern-radare.sh`
+Import some code
+
+	./bjoern-import.sh /bin/ls
+
+Ask for a gremlin-shell
+
+	curl http://localhost:2480/shellcreate/
+
+and connect to it:
+
+	nc localhost 6000
+
+You will find the database in `g`.
