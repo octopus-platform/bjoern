@@ -17,14 +17,14 @@ public class BjoernImport
 
 	static CommandLineInterface cmdLine = new CommandLineInterface();
 
-	public static void main(String[] args) throws MalformedURLException
+	public static void main(String[] args) throws IOException
 	{
 		parseCommandLine(args);
 		invokeRadare2(args);
 		invokeImportPlugin();
 	}
 
-	private static void invokeRadare2(String[] args)
+	private static void invokeRadare2(String[] args) throws IOException
 	{
 		String pathToBinary = cmdLine.getCodedir();
 		RadareExporter.export(pathToBinary, ".");

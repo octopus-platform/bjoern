@@ -1,2 +1,2 @@
 #!/bin/sh
-LD_LIBRARY_PATH=./lib/ java -Djava.library.path=lib -cp ./bin/bjoern.jar clients.bjoernImport.BjoernImport $@
+java -cp ./bin/bjoern.jar clients.bjoernImport.BjoernImport $@

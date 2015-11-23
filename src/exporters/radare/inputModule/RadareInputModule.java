@@ -1,5 +1,6 @@
 package exporters.radare.inputModule;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,14 +18,14 @@ public class RadareInputModule implements InputModule
 {
 
 	@Override
-	public void initialize(String filename)
+	public void initialize(String filename) throws IOException
 	{
 		Radare.loadBinary(filename);
 		Radare.analyzeBinary();
 	}
 
 	@Override
-	public List<Function> getFunctions()
+	public List<Function> getFunctions() throws IOException
 	{
 		List<Function> retval = new LinkedList<Function>();
 		JSONArray jsonFunctions = Radare.getJSONFunctions();
@@ -42,6 +43,7 @@ public class RadareInputModule implements InputModule
 
 	@Override
 	public void initializeFunctionContents(Function function)
+			throws IOException
 	{
 		Long address = function.getAddress();
 		JSONObject jsonFunctionContent;
@@ -51,7 +53,8 @@ public class RadareInputModule implements InputModule
 		{
 			jsonFunctionContent = Radare.getJSONFunctionContentAt(address);
 			disassembly = Radare.getDisassemblyForFunctionAt(address);
-		} catch (InvalidRadareFunction e)
+		}
+		catch (InvalidRadareFunction e)
 		{
 			return;
 		}
@@ -65,5 +68,18 @@ public class RadareInputModule implements InputModule
 
 		function.setContent(content);
 
+	}
+
+	@Override
+	public void finish()
+	{
+		try
+		{
+			Radare.shutdown();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

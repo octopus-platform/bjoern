@@ -1,73 +1,57 @@
 package exporters.radare.inputModule;
 
-import java.math.BigInteger;
+import java.io.IOException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.radare.radare2.RAnal;
-import org.radare.radare2.RCore;
 
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
 
 public class Radare
 {
-	static RCore rCore;
-	static RAnal analysisResults;
+	static R2Pipe r2Pipe;
 
-	static
+	public static void loadBinary(String filename) throws IOException
 	{
-		loadNativeLibraries();
+		r2Pipe = new R2Pipe(filename);
 	}
 
-	private static void loadNativeLibraries()
-	{
-		System.loadLibrary("jr_core");
-	}
-
-	public static void loadBinary(String filename)
-	{
-		rCore = new RCore();
-		rCore.file_open(filename, 0, BigInteger.ZERO);
-		rCore.bin_load(null, BigInteger.ZERO);
-	}
-
-	public static void analyzeBinary()
+	public static void analyzeBinary() throws IOException
 	{
 		setRadareOptions();
-
-		rCore.cmd0("aaa");
-		analysisResults = rCore.getAnal();
+		r2Pipe.cmd("aaa");
 	}
 
-	private static void setRadareOptions()
+	private static void setRadareOptions() throws IOException
 	{
-		rCore.cmd0("e scr.color = false");
-		rCore.cmd0("e asm.bytes = false");
-		rCore.cmd0("e asm.lines = false");
-		rCore.cmd0("e asm.fcnlines = false");
-		rCore.cmd0("e asm.xrefs = false");
-		rCore.cmd0("e asm.lbytes = false");
-		rCore.cmd0("e asm.indentspace = 0");
+		r2Pipe.cmd("e scr.color = false");
+		r2Pipe.cmd("e asm.bytes = false");
+		r2Pipe.cmd("e asm.lines = false");
+		r2Pipe.cmd("e asm.fcnlines = false");
+		r2Pipe.cmd("e asm.xrefs = false");
+		r2Pipe.cmd("e asm.lbytes = false");
+		r2Pipe.cmd("e asm.indentspace = 0");
 	}
 
-	public static JSONArray getJSONFunctions()
+	public static JSONArray getJSONFunctions() throws IOException
 	{
-		String str = rCore.cmd_str("aflj");
+		String str = r2Pipe.cmd("aflj");
 		return new JSONArray(str);
 	}
 
 	public static JSONObject getJSONFunctionContentAt(Long addr)
-			throws InvalidRadareFunction
+			throws InvalidRadareFunction, IOException
 	{
 
-		String jsonStr = rCore.cmd_str("agj " + Long.toUnsignedString(addr));
+		String jsonStr = r2Pipe.cmd("agj " + Long.toUnsignedString(addr));
 
 		JSONArray jsonArray;
 		try
 		{
 			jsonArray = new JSONArray(jsonStr);
-		} catch (JSONException ex)
+		}
+		catch (JSONException ex)
 		{
 			return null;
 		}
@@ -79,10 +63,17 @@ public class Radare
 	}
 
 	public static String getDisassemblyForFunctionAt(Long addr)
+			throws IOException
 	{
 		// It would be much nicer if we could obtain an array representing the
 		// disassembly as opposed to a single string.
 		String cmd = String.format("pdf @" + Long.toUnsignedString(addr));
-		return rCore.cmd_str(cmd);
+		return r2Pipe.cmd(cmd);
 	}
+
+	public static void shutdown() throws Exception
+	{
+		r2Pipe.quit();
+	}
+
 }

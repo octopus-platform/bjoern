@@ -1,8 +1,7 @@
 package exporters.radare;
 
-
+import java.io.IOException;
 import java.util.List;
-
 
 import org.apache.commons.cli.ParseException;
 
@@ -11,7 +10,6 @@ import exporters.nodeStore.NodeStore;
 import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.inputModule.RadareInputModule;
 import exporters.structures.Function;
-
 
 public class RadareExporter
 {
@@ -22,7 +20,7 @@ public class RadareExporter
 
 	static List<Function> functions;
 
-	public static void main(String[] args)
+	public static void main(String[] args) throws IOException
 	{
 		parseCommandLine(args);
 		String binaryFilename = cmdLine.getBinaryFilename();
@@ -32,12 +30,14 @@ public class RadareExporter
 	}
 
 	public static void export(String binaryFilename, String outputDir)
+			throws IOException
 	{
 		inputModule.initialize(binaryFilename);
 		outputModule.initialize(outputDir);
 		loadAndOutputFunctionInfo();
 		loadAndOutputFunctionContent();
 		outputModule.finish();
+		inputModule.finish();
 	}
 
 	private static void parseCommandLine(String[] args)
@@ -59,7 +59,7 @@ public class RadareExporter
 		System.exit(0);
 	}
 
-	private static void loadAndOutputFunctionInfo()
+	private static void loadAndOutputFunctionInfo() throws IOException
 	{
 		functions = inputModule.getFunctions();
 		for (Function function : functions)
@@ -69,7 +69,7 @@ public class RadareExporter
 		}
 	}
 
-	private static void loadAndOutputFunctionContent()
+	private static void loadAndOutputFunctionContent() throws IOException
 	{
 		for (Function function : functions)
 		{
@@ -78,7 +78,7 @@ public class RadareExporter
 
 	}
 
-	private static void processFunction(Function function)
+	private static void processFunction(Function function) throws IOException
 	{
 
 		if (function == null)
