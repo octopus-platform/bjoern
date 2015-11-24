@@ -18,12 +18,12 @@ import exporters.structures.edges.DirectedEdge;
 import exporters.structures.edges.EdgeTypes;
 import exporters.structures.edges.ResolvedCFGEdge;
 
-
 public class CSVOutputModule implements OutputModule
 {
 
 	Function currentFunction = null;
 
+	@Override
 	public void initialize(String outputDir)
 	{
 		CSVWriter.changeOutputDir(outputDir);
@@ -35,6 +35,7 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.clear();
 	}
 
+	@Override
 	public void finish()
 	{
 		CSVWriter.finish();
@@ -47,9 +48,12 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.ADDR, function.getAddress().toString());
 		properties.put(CSVFields.TYPE, function.getType());
 		properties.put(CSVFields.REPR, function.getName());
+		properties.put(CSVFields.KEY, function.getKey());
+
 		CSVWriter.addNode(function, properties);
 	}
 
+	@Override
 	public void writeFunctionContent(Function function)
 	{
 		setCurrentFunction(function);
@@ -121,6 +125,7 @@ public class CSVOutputModule implements OutputModule
 		}
 	}
 
+	@Override
 	public void writeBasicBlock(BasicBlock block)
 	{
 		writeNodeForBasicBlock(block);
@@ -163,6 +168,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.TYPE, instr.getType());
 		properties.put(CSVFields.REPR, instr.getStringRepr());
 		properties.put(CSVFields.CHILD_NUM, String.format("%d", childNum));
+		properties.put(CSVFields.KEY, instr.getKey());
 
 		addDisassemblyProperties(properties, instrAddress);
 
@@ -187,6 +193,7 @@ public class CSVOutputModule implements OutputModule
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(CSVFields.ADDR, block.getAddress().toString());
 		properties.put(CSVFields.TYPE, block.getType());
+		properties.put(CSVFields.KEY, block.getKey());
 		CSVWriter.addNode(block, properties);
 	}
 
