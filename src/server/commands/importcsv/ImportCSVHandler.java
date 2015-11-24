@@ -41,9 +41,17 @@ public class ImportCSVHandler extends OServerCommandAbstract
 
 	private ImportJob getImportJobFromRequest(OHttpRequest iRequest)
 	{
-		String[] urlParts = checkSyntax(iRequest.url, 3,
-				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>/<dbName>");
-		return new ImportJob(urlParts[1], urlParts[2], urlParts[3]);
+		String[] urlParts = checkSyntax(
+				iRequest.url,
+				4,
+				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>/<dbName>/[unedgeFilename]");
+
+		String unedgeFilename = "";
+		if (urlParts.length >= 5)
+			unedgeFilename = urlParts[4];
+
+		return new ImportJob(urlParts[1], urlParts[2], urlParts[3],
+				unedgeFilename);
 	}
 
 	private void startImporterThread(ImportJob graphFiles)
