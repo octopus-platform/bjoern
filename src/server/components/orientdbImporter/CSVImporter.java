@@ -30,12 +30,13 @@ public class CSVImporter
 	private OrientGraphNoTx noTx;
 	private String dbName;
 
-	public void importCSVFiles(String nodeFile, String edgeFile)
-			throws IOException
+	public void importCSVFiles(String nodeFile, String edgeFile,
+			String unedgeFile) throws IOException
 	{
 		openDatabase();
 		processNodeFile(nodeFile);
 		processEdgeFile(edgeFile);
+		processUnedgeFile(unedgeFile);
 		closeDatabase();
 	}
 
@@ -199,6 +200,11 @@ public class CSVImporter
 		FileReader fileReader = new FileReader(filename);
 		reader = new CSVReader(fileReader, '\t');
 		return reader;
+	}
+
+	private void processUnedgeFile(String unedgeFile)
+	{
+		// TODO Auto-generated method stub
 	}
 
 	private void closeDatabase()

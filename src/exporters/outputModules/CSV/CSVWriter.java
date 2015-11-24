@@ -165,8 +165,8 @@ public class CSVWriter
 
 	private static void writeUnresolvedEdgePropertyNames()
 	{
-		String joined = "start" + SEPARATOR + "end" + SEPARATOR + "type"
-				+ SEPARATOR
+		String joined = "nodeType_addr" + SEPARATOR + "nodeType_addr"
+				+ SEPARATOR + "type" + SEPARATOR
 				+ StringUtils.join(unresolvedEdgeProperties, SEPARATOR);
 		unresolvedEdgeWriter.println(joined);
 	}

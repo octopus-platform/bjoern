@@ -22,12 +22,14 @@ public class ImportCSVRunnable implements Runnable
 
 		String nodeFilename = importJob.getNodeFilename();
 		String edgeFilename = importJob.getEdgeFilename();
+		String unedgeFilename = importJob.getUnedgeFilename();
 		String dbName = importJob.getDbName();
 
 		try
 		{
 			csvImporter.setDatabase(dbName);
-			csvImporter.importCSVFiles(nodeFilename, edgeFilename);
+			csvImporter.importCSVFiles(nodeFilename, edgeFilename,
+					unedgeFilename);
 		}
 		catch (IOException e)
 		{
