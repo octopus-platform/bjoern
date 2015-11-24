@@ -58,3 +58,11 @@ and connect to it:
 	nc localhost 6000
 
 You will find the database in `g`.
+
+Alternatively, you can explore the database using OrientDB studio by
+pointing your browser to
+
+	http://127.0.0.1:2480/
+
+selecting the database `bjoernDB` and loging in with username `root`,
+password `admin`.
