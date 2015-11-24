@@ -11,12 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import exporters.nodeStore.Node;
 
-
 public class CSVWriter
 {
 	final static String SEPARATOR = "\t";
 
-	final static String[] nodeProperties = { CSVFields.TYPE,
+	final static String[] nodeProperties = { CSVFields.TYPE, CSVFields.ADDR,
 			CSVFields.CHILD_NUM, CSVFields.REPR, CSVFields.CODE,
 			CSVFields.COMMENT };
 
@@ -177,7 +176,8 @@ public class CSVWriter
 		try
 		{
 			return new PrintWriter(path);
-		} catch (FileNotFoundException e)
+		}
+		catch (FileNotFoundException e)
 		{
 			throw new RuntimeException("Cannot create file: " + path);
 		}
