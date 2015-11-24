@@ -11,7 +11,7 @@ import exporters.radare.StreamGobbler;
 
 class R2Pipe
 {
-	public final String R2_LOC = "/usr/local/bin/radare2";
+	public final String R2_LOC = "radare2";
 	private Process process;
 	private OutputStream stdin;
 	private InputStream stdout;
