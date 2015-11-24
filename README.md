@@ -22,11 +22,11 @@ First, clone the repository:
 
 Next, install orientdb 2.1.5 community edition:
 
-	wget http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz&os=linux
+	wget 'http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz&os=linux'
 
 on Linux, or
 
-	wget http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz&os=mac
+	wget 'http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz&os=mac'
 
 on MacOSX.
 
@@ -34,7 +34,7 @@ on MacOSX.
 
 Finally, download and extract dependencies, and build:
 
-	wget http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz
+	wget 'http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz'
 	tar xfz jars.tar.gz
 
 	ant
