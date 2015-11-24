@@ -32,7 +32,8 @@ public class ShellCreateHandler extends OServerCommandAbstract
 		startShellThread();
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
-				String.format("shell opened at: %d", lastPortNumber - 1), null);
+				String.format("shell opened at: %d\n", lastPortNumber - 1),
+				null);
 		return false;
 	}
 
