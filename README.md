@@ -64,5 +64,5 @@ pointing your browser to
 
 	http://127.0.0.1:2480/
 
-selecting the database `bjoernDB` and loging in with username `root`,
+selecting the database `bjoernDB` and logging in with username `root`,
 password `admin`.
