@@ -27,7 +27,7 @@ public class ImportCSVRunnable implements Runnable
 
 		try
 		{
-			csvImporter.setDatabase(dbName);
+			csvImporter.setDbName(dbName);
 			csvImporter.importCSVFiles(nodeFilename, edgeFilename,
 					unedgeFilename);
 		}

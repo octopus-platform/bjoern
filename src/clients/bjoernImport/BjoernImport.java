@@ -47,9 +47,13 @@ public class BjoernImport
 
 		String dbName = URLEncoder.encode(cmdLine.getDbName());
 
+		Path unedgePath = Paths.get(workingDirectory, "unresolvedEdges.csv");
+		String unedgeFilename = URLEncoder.encode(edgePath.toAbsolutePath()
+				.toString());
+
 		String urlStr = String.format(
-				"http://localhost:2480/importcsv/%s/%s/%s/", nodeFilename,
-				edgeFilename, dbName);
+				"http://localhost:2480/importcsv/%s/%s/%s/%s/", nodeFilename,
+				edgeFilename, dbName, unedgeFilename);
 
 		URL url = new URL(urlStr);
 		HttpURLConnection connection;
