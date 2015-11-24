@@ -25,7 +25,15 @@ class R2Pipe
 	private void spawnR2Process(String filename) throws IOException
 	{
 
-		process = Runtime.getRuntime().exec(R2_LOC + " -q0 " + filename);
+		try
+		{
+			process = Runtime.getRuntime().exec(R2_LOC + " -q0 " + filename);
+		}
+		catch (IOException e)
+		{
+			throw new IOException("Cannot find `radare2` on path.");
+		}
+
 		stdin = process.getOutputStream();
 		stdout = process.getInputStream();
 

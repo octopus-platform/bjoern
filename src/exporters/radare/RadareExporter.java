@@ -20,13 +20,25 @@ public class RadareExporter
 
 	static List<Function> functions;
 
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args)
 	{
 		parseCommandLine(args);
 		String binaryFilename = cmdLine.getBinaryFilename();
 		String outputDir = cmdLine.getOutputDir();
 
-		export(binaryFilename, outputDir);
+		tryToExport(binaryFilename, outputDir);
+	}
+
+	private static void tryToExport(String binaryFilename, String outputDir)
+	{
+		try
+		{
+			export(binaryFilename, outputDir);
+		}
+		catch (IOException e)
+		{
+			System.err.println(e.getMessage());
+		}
 	}
 
 	public static void export(String binaryFilename, String outputDir)
