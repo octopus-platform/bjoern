@@ -12,35 +12,36 @@ import exporters.radare.StreamGobbler;
 class R2Pipe
 {
 	public final String R2_LOC = "radare2";
-	private Process process;
+	private final Process process;
 	private OutputStream stdin;
 	private InputStream stdout;
 	private StreamGobbler errorGobbler;
 
 	public R2Pipe(String filename) throws IOException
 	{
-		spawnR2Process(filename);
+		process = spawnR2Process(filename);
+		connectProcessPipes();
+		readUpToZeroByte();
 	}
 
-	private void spawnR2Process(String filename) throws IOException
+	private void connectProcessPipes()
 	{
+		stdin = process.getOutputStream();
+		stdout = process.getInputStream();
+		errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
+		errorGobbler.start();
+	}
 
+	private Process spawnR2Process(String filename) throws IOException
+	{
 		try
 		{
-			process = Runtime.getRuntime().exec(R2_LOC + " -q0 " + filename);
+			return Runtime.getRuntime().exec(R2_LOC + " -q0 " + filename);
 		}
 		catch (IOException e)
 		{
 			throw new IOException("Cannot find `radare2` on path.");
 		}
-
-		stdin = process.getOutputStream();
-		stdout = process.getInputStream();
-
-		errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
-		errorGobbler.start();
-
-		readUpToZeroByte();
 	}
 
 	public String cmd(String cmd) throws IOException
