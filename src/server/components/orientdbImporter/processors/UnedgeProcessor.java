@@ -15,17 +15,18 @@ public class UnedgeProcessor extends CSVFileProcessor
 	}
 
 	@Override
-	protected void processFirstRow(CSVReader csvReader) throws IOException
+	protected void processFirstRow(CSVReader csvReader, String[] row)
+			throws IOException
 	{
-		// TODO Auto-generated method stub
+		String[] keys = rowToKeys(row);
 
 	}
 
 	@Override
 	protected void processRow(String[] row)
 	{
-		// TODO Auto-generated method stub
-
+		if (row.length < 3)
+			return;
 	}
 
 }

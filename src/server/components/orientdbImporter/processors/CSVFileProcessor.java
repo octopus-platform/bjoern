@@ -21,16 +21,19 @@ public abstract class CSVFileProcessor
 	{
 		CSVReader csvReader = getCSVReaderForFile(filename);
 
-		processFirstRow(csvReader);
+		String[] row = csvReader.readNext();
+		if (row == null)
+			throw new RuntimeException("File must contain at least one line");
 
-		String[] row;
+		processFirstRow(csvReader, row);
+
 		while ((row = csvReader.readNext()) != null)
 		{
 			processRow(row);
 		}
 	}
 
-	protected abstract void processFirstRow(CSVReader csvReader)
+	protected abstract void processFirstRow(CSVReader csvReader, String[] row)
 			throws IOException;
 
 	protected abstract void processRow(String[] row);
@@ -42,6 +45,16 @@ public abstract class CSVFileProcessor
 		FileReader fileReader = new FileReader(filename);
 		reader = new CSVReader(fileReader, '\t');
 		return reader;
+	}
+
+	protected String[] rowToKeys(String[] row)
+	{
+		String[] keys = new String[row.length];
+		for (int i = 0; i < row.length; i++)
+		{
+			keys[i] = row[i];
+		}
+		return keys;
 	}
 
 }

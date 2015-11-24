@@ -21,11 +21,9 @@ public class NodeProcessor extends CSVFileProcessor
 	}
 
 	@Override
-	protected void processFirstRow(CSVReader csvReader) throws IOException
+	protected void processFirstRow(CSVReader csvReader, String[] row)
+			throws IOException
 	{
-		String[] row = csvReader.readNext();
-		if (row == null)
-			throw new RuntimeException("Node file is empty");
 
 		initializeVertexKeys(row);
 		createPropertiesAndIndices();
@@ -34,12 +32,8 @@ public class NodeProcessor extends CSVFileProcessor
 
 	private void initializeVertexKeys(String[] row)
 	{
-		importer.setVertexKeys(new String[row.length]);
-
-		for (int i = 0; i < row.length; i++)
-		{
-			importer.getVertexKeys()[i] = row[i];
-		}
+		String[] keys = rowToKeys(row);
+		importer.setVertexKeys(keys);
 	}
 
 	private void createPropertiesAndIndices()

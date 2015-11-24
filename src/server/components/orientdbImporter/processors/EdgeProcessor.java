@@ -18,22 +18,16 @@ public class EdgeProcessor extends CSVFileProcessor
 	}
 
 	@Override
-	protected void processFirstRow(CSVReader csvReader) throws IOException
+	protected void processFirstRow(CSVReader csvReader, String[] row)
+			throws IOException
 	{
-		String[] row = csvReader.readNext();
-		if (row == null)
-			throw new RuntimeException("Edge file is empty");
-
 		initializeEdgeKeys(row);
 	}
 
 	private void initializeEdgeKeys(String[] row)
 	{
-		importer.setEdgeKeys(new String[row.length]);
-		for (int i = 0; i < row.length; i++)
-		{
-			importer.getEdgeKeys()[i] = row[i];
-		}
+		String[] keys = rowToKeys(row);
+		importer.setEdgeKeys(keys);
 	}
 
 	@Override
