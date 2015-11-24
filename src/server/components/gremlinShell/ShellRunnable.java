@@ -112,6 +112,7 @@ public class ShellRunnable implements Runnable
 		{
 			Object evalResult = bjoernGremlinShell.execute(line);
 			sendResultToClient(evalResult);
+			sendResultToClient("\0");
 		}
 	}
 
