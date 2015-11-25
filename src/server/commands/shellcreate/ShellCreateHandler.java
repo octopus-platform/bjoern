@@ -13,7 +13,6 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 public class ShellCreateHandler extends OServerCommandAbstract
 {
 
-	private Thread thread;
 	private static int lastPortNumber = 6000;
 	private String dbName;
 
@@ -52,7 +51,7 @@ public class ShellCreateHandler extends OServerCommandAbstract
 		ShellRunnable runnable = new ShellRunnable();
 		runnable.setPort(lastPortNumber++);
 		runnable.setDbName(dbName);
-		thread = new Thread(runnable);
+		Thread thread = new Thread(runnable);
 		thread.start();
 	}
 

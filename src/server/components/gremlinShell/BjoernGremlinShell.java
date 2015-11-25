@@ -67,7 +67,7 @@ public class BjoernGremlinShell
 
 	private void openDatabaseConnection(String dbName)
 	{
-		String cmd = String.format("g = new OrientGraphNoTx(\"%s\");",
+		String cmd = String.format("g = new OrientGraphNoTx( \"%s\");",
 				Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
 		groovysh.execute(cmd);
 	}

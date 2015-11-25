@@ -39,9 +39,9 @@ public class CSVImporter
 
 		isNewDatabase = !databaseExists(dbName);
 		noTx = new OrientGraphNoTx(Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
-		getNoTx().declareIntent(new OIntentMassiveInsert());
+		noTx.declareIntent(new OIntentMassiveInsert());
 
-		batchGraph = BatchGraph.wrap(getNoTx(), 1000);
+		batchGraph = BatchGraph.wrap(noTx, 1000);
 	}
 
 	private void processNodeFile(String filename) throws IOException
@@ -68,7 +68,7 @@ public class CSVImporter
 	private void closeDatabase()
 	{
 		batchGraph.shutdown();
-		getNoTx().shutdown();
+		noTx.shutdown();
 	}
 
 	// Getters and setters...
