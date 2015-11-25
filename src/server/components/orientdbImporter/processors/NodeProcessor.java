@@ -9,6 +9,7 @@ import server.components.orientdbImporter.CSVImporter;
 import com.opencsv.CSVReader;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
+import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
 
 import exporters.outputModules.CSV.CSVFields;
 
@@ -38,6 +39,7 @@ public class NodeProcessor extends CSVFileProcessor
 
 	private void createPropertiesAndIndices()
 	{
+
 		if (!importer.isNewDatabase())
 			return;
 
@@ -80,7 +82,7 @@ public class NodeProcessor extends CSVFileProcessor
 			properties[2 * (i - 1) + 1] = row[i];
 		}
 		Object[] props = properties;
-		importer.getBatchGraph().addVertex(id, props);
+		BatchGraph<?> batchGraph = (BatchGraph<?>) importer.getGraph();
+		batchGraph.addVertex(id, props);
 	}
-
 }

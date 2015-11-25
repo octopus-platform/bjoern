@@ -6,8 +6,8 @@ import server.components.orientdbImporter.CSVImporter;
 
 import com.opencsv.CSVReader;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
 
 public class EdgeProcessor extends CSVFileProcessor
 {
@@ -40,17 +40,22 @@ public class EdgeProcessor extends CSVFileProcessor
 		String dstId = row[1];
 		String label = row[2];
 
-		BatchGraph<?> batchGraph = importer.getBatchGraph();
+		Graph graph = importer.getGraph();
 
-		Vertex outVertex = batchGraph.getVertex(srcId);
-		Vertex inVertex = batchGraph.getVertex(dstId);
+		Vertex outVertex = lookupVertex(srcId, graph);
+		Vertex inVertex = lookupVertex(dstId, graph);
 
-		Edge edge = batchGraph.addEdge(0, outVertex, inVertex, label);
+		Edge edge = graph.addEdge(0, outVertex, inVertex, label);
 
 		for (int i = 3; i < row.length; i++)
 		{
 			edge.setProperty(importer.getEdgeKeys()[i], row[i]);
 		}
+	}
+
+	protected Vertex lookupVertex(String id, Graph batchGraph)
+	{
+		return batchGraph.getVertex(id);
 	}
 
 }

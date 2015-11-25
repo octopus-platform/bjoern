@@ -3,84 +3,61 @@ package server.components.orientdbImporter;
 import java.io.IOException;
 
 import server.Constants;
-import server.components.orientdbImporter.processors.EdgeProcessor;
-import server.components.orientdbImporter.processors.NodeProcessor;
-import server.components.orientdbImporter.processors.UnedgeProcessor;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
 
-public class CSVImporter
+public abstract class CSVImporter
 {
-	private BatchGraph<?> batchGraph;
-	private String[] VertexKeys;
-	private String[] EdgeKeys;
-	private boolean isNewDatabase;
-	private OrientGraphNoTx noTx;
-	private String dbName;
+	protected String dbName;
+	protected Graph graph;
+	protected OrientGraphNoTx noTx;
 
-	public void importCSVFiles(String nodeFile, String edgeFile,
-			String unedgeFile) throws IOException
+	protected String[] VertexKeys;
+	protected String[] EdgeKeys;
+
+	protected boolean isNewDatabase;
+
+	public void importCSVFiles(String nodeFile, String edgeFile)
+			throws IOException
 	{
 		openDatabase();
 		processNodeFile(nodeFile);
 		processEdgeFile(edgeFile);
-		processUnedgeFile(unedgeFile);
 		closeDatabase();
 	}
 
-	private void openDatabase() throws IOException
+	protected abstract void processNodeFile(String nodeFile) throws IOException;
+
+	protected abstract void processEdgeFile(String edgeFile) throws IOException;
+
+	protected abstract void openDatabase() throws IOException;
+
+	protected void closeDatabase()
+	{
+		graph.shutdown();
+		noTx.shutdown();
+	}
+
+	protected void openNoTxForMassiveInsert()
 	{
 		OGlobalConfiguration.USE_WAL.setValue(false);
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
 
-		isNewDatabase = !databaseExists(dbName);
 		noTx = new OrientGraphNoTx(Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
 		noTx.declareIntent(new OIntentMassiveInsert());
-
-		batchGraph = BatchGraph.wrap(noTx, 1000);
 	}
-
-	private void processNodeFile(String filename) throws IOException
-	{
-		(new NodeProcessor(this)).process(filename);
-	}
-
-	private void processEdgeFile(String filename) throws IOException
-	{
-		(new EdgeProcessor(this)).process(filename);
-	}
-
-	private void processUnedgeFile(String filename) throws IOException
-	{
-		(new UnedgeProcessor(this)).process(filename);
-	}
-
-	private boolean databaseExists(String dbName) throws IOException
-	{
-		return new OServerAdmin("localhost/" + dbName).connect(
-				Constants.DB_USERNAME, Constants.DB_PASSWORD).existsDatabase();
-	}
-
-	private void closeDatabase()
-	{
-		batchGraph.shutdown();
-		noTx.shutdown();
-	}
-
-	// Getters and setters...
 
 	public void setDbName(String dbName)
 	{
 		this.dbName = dbName;
 	}
 
-	public boolean isNewDatabase()
+	public Graph getGraph()
 	{
-		return isNewDatabase;
+		return graph;
 	}
 
 	public String[] getVertexKeys()
@@ -103,14 +80,14 @@ public class CSVImporter
 		EdgeKeys = edgeKeys;
 	}
 
+	public boolean isNewDatabase()
+	{
+		return isNewDatabase;
+	}
+
 	public OrientGraphNoTx getNoTx()
 	{
 		return noTx;
-	}
-
-	public BatchGraph<?> getBatchGraph()
-	{
-		return batchGraph;
 	}
 
 }

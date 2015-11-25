@@ -1,12 +1,13 @@
 package server.components.orientdbImporter.processors;
 
-import java.io.IOException;
-
+import server.Constants;
 import server.components.orientdbImporter.CSVImporter;
 
-import com.opencsv.CSVReader;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Vertex;
 
-public class UnedgeProcessor extends CSVFileProcessor
+public class UnedgeProcessor extends EdgeProcessor
 {
 
 	public UnedgeProcessor(CSVImporter importer)
@@ -15,18 +16,18 @@ public class UnedgeProcessor extends CSVFileProcessor
 	}
 
 	@Override
-	protected void processFirstRow(CSVReader csvReader, String[] row)
-			throws IOException
+	protected Vertex lookupVertex(String id, Graph graph)
 	{
-		String[] keys = rowToKeys(row);
 
+		String fmt = "SELECT * FROM V WHERE %s LUCENE \"%s\"";
+		String luceneQuery = "n";
+		String queryStr = String.format(fmt, Constants.INDEX_NAME, luceneQuery);
+		System.out.println(queryStr);
+		OCommandSQL query = new com.orientechnologies.orient.core.sql.OCommandSQL(
+				queryStr);
+		Object result = importer.getNoTx().command(query).execute();
+		System.out.println(result);
+
+		return null;
 	}
-
-	@Override
-	protected void processRow(String[] row)
-	{
-		if (row.length < 3)
-			return;
-	}
-
 }
