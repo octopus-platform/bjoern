@@ -48,7 +48,7 @@ public class BjoernImport
 		String dbName = URLEncoder.encode(cmdLine.getDbName());
 
 		Path unedgePath = Paths.get(workingDirectory, "unresolvedEdges.csv");
-		String unedgeFilename = URLEncoder.encode(edgePath.toAbsolutePath()
+		String unedgeFilename = URLEncoder.encode(unedgePath.toAbsolutePath()
 				.toString());
 
 		String urlStr = String.format(
