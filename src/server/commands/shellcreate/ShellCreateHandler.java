@@ -13,7 +13,6 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 public class ShellCreateHandler extends OServerCommandAbstract
 {
 
-	private static int lastPortNumber = 6000;
 	private String dbName;
 
 	public ShellCreateHandler(final OServerCommandConfiguration iConfiguration)
@@ -30,9 +29,8 @@ public class ShellCreateHandler extends OServerCommandAbstract
 
 		startShellThread();
 
-		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
-				String.format("shell opened at: %d\n", lastPortNumber - 1),
-				null);
+		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, String.format(
+				"shell opened for %s. Try listshell next\n", dbName), null);
 		return false;
 	}
 
@@ -49,7 +47,6 @@ public class ShellCreateHandler extends OServerCommandAbstract
 	private void startShellThread()
 	{
 		ShellRunnable runnable = new ShellRunnable();
-		runnable.setPort(lastPortNumber++);
 		runnable.setDbName(dbName);
 		Thread thread = new Thread(runnable);
 		thread.start();

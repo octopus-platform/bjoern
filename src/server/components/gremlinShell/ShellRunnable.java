@@ -14,11 +14,11 @@ import java.util.Iterator;
 import org.codehaus.groovy.tools.shell.ExitNotification;
 
 import server.DebugPrinter;
+import server.components.shellmanager.ShellManager;
 
 public class ShellRunnable implements Runnable
 {
 
-	private int port;
 	private String dbName;
 	private ServerSocket serverSocket;
 	private BjoernGremlinShell bjoernGremlinShell;
@@ -43,11 +43,6 @@ public class ShellRunnable implements Runnable
 		DebugPrinter.print("Shell closed", this);
 	}
 
-	public void setPort(int port)
-	{
-		this.port = port;
-	}
-
 	public void setDbName(String dbName)
 	{
 		this.dbName = dbName;
@@ -55,13 +50,15 @@ public class ShellRunnable implements Runnable
 
 	private void createGremlinShell() throws IOException
 	{
-		bjoernGremlinShell = new BjoernGremlinShell(dbName);
+		int port = ShellManager.createNewShell(dbName);
+		bjoernGremlinShell = ShellManager.getShellForPort(port);
 	}
 
 	private void createLocalListeningSocket() throws IOException
 	{
 		InetAddress bindAddr = InetAddress.getLoopbackAddress();
-		serverSocket = new ServerSocket(port, 10, bindAddr);
+		serverSocket = new ServerSocket(bjoernGremlinShell.getPort(), 10,
+				bindAddr);
 	}
 
 	private void processClients() throws IOException
@@ -75,6 +72,7 @@ public class ShellRunnable implements Runnable
 			}
 			catch (ExitNotification ex)
 			{
+				ShellManager.destroyShell(bjoernGremlinShell.getPort());
 				clientSocket.close();
 				break;
 			}

@@ -15,8 +15,15 @@ import com.tinkerpop.gremlin.groovy.console.NullResultHookClosure;
 public class BjoernGremlinShell
 {
 	Groovysh groovysh = new Groovysh();
+	private int port;
+	private final String dbName;
 
 	public BjoernGremlinShell(String dbName)
+	{
+		this.dbName = dbName;
+	}
+
+	public void initShell()
 	{
 		silenceShell();
 		performInitialImports();
@@ -91,5 +98,20 @@ public class BjoernGremlinShell
 			return ex.getMessage();
 		}
 
+	}
+
+	public int getPort()
+	{
+		return port;
+	}
+
+	public void setPort(int port)
+	{
+		this.port = port;
+	}
+
+	public String getDbName()
+	{
+		return dbName;
 	}
 }
