@@ -21,7 +21,6 @@ public class UnedgeProcessor extends EdgeProcessor
 	@Override
 	protected Vertex lookupVertex(String id, Graph graph)
 	{
-		System.out.println(id);
 
 		String fmt = "SELECT * FROM V WHERE %s LUCENE \"%s\"";
 		String luceneQuery = "key:" + id;

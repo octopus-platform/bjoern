@@ -32,7 +32,6 @@ public class ImportCSVRunnable implements Runnable
 			csvBatchImporter.importCSVFiles(nodeFilename, edgeFilename);
 
 			csvLookupImporter.setDbName(dbName);
-			System.out.println(unedgeFilename);
 			csvLookupImporter.importCSVFiles(null, unedgeFilename);
 		}
 		catch (IOException e)

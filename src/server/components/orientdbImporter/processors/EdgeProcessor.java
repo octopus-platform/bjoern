@@ -45,6 +45,19 @@ public class EdgeProcessor extends CSVFileProcessor
 		Vertex outVertex = lookupVertex(srcId, graph);
 		Vertex inVertex = lookupVertex(dstId, graph);
 
+		if (outVertex == null)
+		{
+			System.err.println("Warning: cannot resolve source node: " + srcId);
+			return;
+		}
+
+		if (inVertex == null)
+		{
+			System.err.println("Warning: cannot resolve destination node: "
+					+ dstId);
+			return;
+		}
+
 		Edge edge = graph.addEdge(0, outVertex, inVertex, label);
 
 		for (int i = 3; i < row.length; i++)
