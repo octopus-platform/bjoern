@@ -67,6 +67,8 @@ public class BjoernGremlinShell
 
 	private void openDatabaseConnection(String dbName)
 	{
+		// TODO: We should check whether the database exists
+
 		String cmd = String.format("g = new OrientGraphNoTx( \"%s\");",
 				Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
 		groovysh.execute(cmd);
