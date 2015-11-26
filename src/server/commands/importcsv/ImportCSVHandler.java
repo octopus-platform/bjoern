@@ -44,14 +44,14 @@ public class ImportCSVHandler extends OServerCommandAbstract
 		String[] urlParts = checkSyntax(
 				iRequest.url,
 				4,
-				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>/<dbName>/[unedgeFilename]");
+				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>/<dbName>/[keyedEdgeFilename]");
 
-		String unedgeFilename = "";
+		String keyedEdgeFilename = "";
 		if (urlParts.length >= 5)
-			unedgeFilename = urlParts[4];
+			keyedEdgeFilename = urlParts[4];
 
 		return new ImportJob(urlParts[1], urlParts[2], urlParts[3],
-				unedgeFilename);
+				keyedEdgeFilename);
 	}
 
 	private void startImporterThread(ImportJob graphFiles)

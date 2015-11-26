@@ -19,11 +19,11 @@ public class ImportCSVRunnable implements Runnable
 	{
 
 		CSVBatchImporter csvBatchImporter = new CSVBatchImporter();
-		CSVLookupImporter csvLookupImporter = new CSVLookupImporter();
+		CSVKeyedEdgeImporter csvKeyedEdgeImporter = new CSVKeyedEdgeImporter();
 
 		String nodeFilename = importJob.getNodeFilename();
 		String edgeFilename = importJob.getEdgeFilename();
-		String unedgeFilename = importJob.getUnedgeFilename();
+		String keyedEdgeFilename = importJob.getKeyedEdgeFilename();
 		String dbName = importJob.getDbName();
 
 		try
@@ -31,8 +31,8 @@ public class ImportCSVRunnable implements Runnable
 			csvBatchImporter.setDbName(dbName);
 			csvBatchImporter.importCSVFiles(nodeFilename, edgeFilename);
 
-			csvLookupImporter.setDbName(dbName);
-			csvLookupImporter.importCSVFiles(null, unedgeFilename);
+			csvKeyedEdgeImporter.setDbName(dbName);
+			csvKeyedEdgeImporter.importCSVFiles(null, keyedEdgeFilename);
 		}
 		catch (IOException e)
 		{

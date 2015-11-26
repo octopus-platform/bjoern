@@ -1,4 +1,4 @@
-package exporters.radare;
+package exporters.radare.inputModule;
 
 // Adapted from:
 // http://www.javaworld.com/article/2071275/core-java/when-runtime-exec---won-t.html

@@ -35,7 +35,7 @@ public class RadareFunctionCreator
 			JSONObject callRef = callRefArray.getJSONObject(i);
 			long srcAddr = callRef.getLong("addr");
 			DirectedEdge newEdge = createCallEdge(dstAddr, srcAddr);
-			retval.addUnresolvedEdge(newEdge);
+			retval.addKeyedEdge(newEdge);
 		}
 
 	}

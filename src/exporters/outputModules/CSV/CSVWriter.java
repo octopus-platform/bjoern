@@ -20,11 +20,11 @@ public class CSVWriter
 			CSVFields.CODE, CSVFields.COMMENT };
 
 	final static String[] edgeProperties = {};
-	final static String[] unresolvedEdgeProperties = {};
+	final static String[] keyedEdgeProperties = {};
 
 	static PrintWriter nodeWriter;
 	static PrintWriter edgeWriter;
-	static PrintWriter unresolvedEdgeWriter;
+	static PrintWriter keyedEdgeWriter;
 
 	static long lastNodeId = 0;
 
@@ -119,13 +119,13 @@ public class CSVWriter
 	public static void addUnresolvedEdge(String srcKey, String dstKey,
 			Map<String, Object> properties, String edgeType)
 	{
-		unresolvedEdgeWriter.print(srcKey);
-		unresolvedEdgeWriter.print(SEPARATOR);
-		unresolvedEdgeWriter.print(dstKey);
-		unresolvedEdgeWriter.print(SEPARATOR);
-		unresolvedEdgeWriter.print(edgeType);
+		keyedEdgeWriter.print(srcKey);
+		keyedEdgeWriter.print(SEPARATOR);
+		keyedEdgeWriter.print(dstKey);
+		keyedEdgeWriter.print(SEPARATOR);
+		keyedEdgeWriter.print(edgeType);
 		// TODO: add properties
-		unresolvedEdgeWriter.print("\n");
+		keyedEdgeWriter.print("\n");
 	}
 
 	private static void openNodeFile(String outDir)
@@ -158,17 +158,17 @@ public class CSVWriter
 
 	private static void openUnresolvedEdgeFile(String outDir)
 	{
-		String path = outDir + File.separator + "unresolvedEdges.csv";
-		unresolvedEdgeWriter = createWriter(path);
-		writeUnresolvedEdgePropertyNames();
+		String path = outDir + File.separator + "keyedEdges.csv";
+		keyedEdgeWriter = createWriter(path);
+		writeKeyedEdgePropertyNames();
 	}
 
-	private static void writeUnresolvedEdgePropertyNames()
+	private static void writeKeyedEdgePropertyNames()
 	{
 		String joined = "nodeType_addr" + SEPARATOR + "nodeType_addr"
 				+ SEPARATOR + "type" + SEPARATOR
-				+ StringUtils.join(unresolvedEdgeProperties, SEPARATOR);
-		unresolvedEdgeWriter.println(joined);
+				+ StringUtils.join(keyedEdgeProperties, SEPARATOR);
+		keyedEdgeWriter.println(joined);
 	}
 
 	private static PrintWriter createWriter(String path)
@@ -197,8 +197,8 @@ public class CSVWriter
 
 	private static void closeUnresolvedEdgeFile()
 	{
-		if (unresolvedEdgeWriter != null)
-			unresolvedEdgeWriter.close();
+		if (keyedEdgeWriter != null)
+			keyedEdgeWriter.close();
 
 	}
 

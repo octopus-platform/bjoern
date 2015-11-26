@@ -10,10 +10,10 @@ import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientDynaElementIterable;
 
-public class UnedgeProcessor extends EdgeProcessor
+public class KeyedEdgeProcessor extends EdgeProcessor
 {
 
-	public UnedgeProcessor(CSVImporter importer)
+	public KeyedEdgeProcessor(CSVImporter importer)
 	{
 		super(importer);
 	}

@@ -2,9 +2,9 @@ package server.components.orientdbImporter;
 
 import java.io.IOException;
 
-import server.components.orientdbImporter.processors.UnedgeProcessor;
+import server.components.orientdbImporter.processors.KeyedEdgeProcessor;
 
-public class CSVLookupImporter extends CSVImporter
+public class CSVKeyedEdgeImporter extends CSVImporter
 {
 
 	@Override
@@ -26,7 +26,7 @@ public class CSVLookupImporter extends CSVImporter
 	{
 		if (filename == null)
 			return;
-		(new UnedgeProcessor(this)).process(filename);
+		(new KeyedEdgeProcessor(this)).process(filename);
 	}
 
 }

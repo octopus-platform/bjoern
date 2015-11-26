@@ -4,15 +4,15 @@ public class ImportJob
 {
 	private final String nodeFilename;
 	private final String edgeFilename;
-	private final String unedgeFilename;
+	private final String keyedEdgeFilename;
 	private final String dbName;
 
 	public ImportJob(String nodeFilename, String edgeFilename, String dbName,
-			String unedgeFilename)
+			String keyedEdgeFilename)
 	{
 		this.nodeFilename = nodeFilename;
 		this.edgeFilename = edgeFilename;
-		this.unedgeFilename = unedgeFilename;
+		this.keyedEdgeFilename = keyedEdgeFilename;
 		this.dbName = dbName;
 	}
 
@@ -26,9 +26,9 @@ public class ImportJob
 		return edgeFilename;
 	}
 
-	public String getUnedgeFilename()
+	public String getKeyedEdgeFilename()
 	{
-		return unedgeFilename;
+		return keyedEdgeFilename;
 	}
 
 	public String getDbName()

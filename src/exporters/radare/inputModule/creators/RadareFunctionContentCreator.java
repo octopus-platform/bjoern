@@ -1,6 +1,5 @@
 package exporters.radare.inputModule.creators;
 
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -102,7 +101,7 @@ public class RadareFunctionContentCreator
 				if (!e.isTargetGiven())
 					continue;
 				// Otherwise, the target was given but we were unable to resolve
-				// it. Store this edge as an unresolved edge.
+				// it. Store this edge as a keyed edge.
 
 				BasicBlock basicBlock = getBasicBlockForJSONBlock(jsonBlock);
 				content.addUnresolvedEdge(basicBlock.getAddress(),

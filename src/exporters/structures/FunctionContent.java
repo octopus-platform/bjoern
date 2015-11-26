@@ -17,7 +17,7 @@ public class FunctionContent
 {
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<ResolvedCFGEdge> edges = new LinkedList<ResolvedCFGEdge>();
-	List<DirectedEdge> unresolvedEdges = new LinkedList<DirectedEdge>();
+	List<DirectedEdge> keyedEdges = new LinkedList<DirectedEdge>();
 	Disassembly disassembly = new Disassembly();
 
 	public Collection<BasicBlock> getBasicBlocks()
@@ -76,7 +76,7 @@ public class FunctionContent
 		else
 			edge.setType(EdgeTypes.CFLOW_FALSE);
 
-		unresolvedEdges.add(edge);
+		keyedEdges.add(edge);
 	}
 
 	public void registerBasicBlock(long addr, BasicBlock node)
@@ -100,7 +100,7 @@ public class FunctionContent
 
 	public List<DirectedEdge> getUnresolvedEdges()
 	{
-		return unresolvedEdges;
+		return keyedEdges;
 	}
 
 	public void consumeDisassembly(String disassemblyStr)
