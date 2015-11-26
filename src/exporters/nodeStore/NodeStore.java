@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import exporters.nodeStore.exceptions.DuplicateNode;
-
 /**
  * Keeps track of nodes for different addresses, ensuring loosely that each node
  * is associated with exactly one address.
@@ -23,11 +21,9 @@ public class NodeStore
 	/**
 	 * Associate `node` with (address,type) pair. Raises an exception if a node
 	 * is already registered for this pair.
-	 * 
-	 * @throws DuplicateNode
 	 */
 
-	public static void addNode(Node node) throws DuplicateNode
+	public static void addNode(Node node)
 	{
 		if (node == null)
 			return;
@@ -35,7 +31,7 @@ public class NodeStore
 		NodeStoreKey key = new NodeStoreKey(node.getAddress(), node.getType());
 
 		if (addrToNode.get(key) != null)
-			throw new DuplicateNode();
+			throw new RuntimeException("Duplicate node");
 
 		addrToNode.put(key, node);
 	}

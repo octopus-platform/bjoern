@@ -7,7 +7,6 @@ import java.util.List;
 
 import exporters.nodeStore.Node;
 import exporters.nodeStore.NodeTypes;
-import exporters.nodeStore.exceptions.DuplicateNode;
 import exporters.radare.inputModule.RadareDisassemblyParser;
 import exporters.radare.inputModule.exceptions.InvalidDisassembly;
 import exporters.structures.edges.DirectedEdge;
@@ -85,7 +84,7 @@ public class FunctionContent
 		BasicBlock block = getBasicBlockAtAddress(addr);
 
 		if (block != null)
-			throw new DuplicateNode();
+			throw new RuntimeException("Duplicate Node");
 
 		addBasicBlock(addr, node);
 	}
@@ -110,7 +109,8 @@ public class FunctionContent
 		try
 		{
 			disassembly = parser.parse(disassemblyStr);
-		} catch (InvalidDisassembly e)
+		}
+		catch (InvalidDisassembly e)
 		{
 			// TODO: might want to log this error.
 		}

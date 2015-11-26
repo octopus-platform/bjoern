@@ -7,7 +7,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import exporters.inputModules.InputModule;
+import exporters.InputModule;
 import exporters.radare.inputModule.creators.RadareFunctionContentCreator;
 import exporters.radare.inputModule.creators.RadareFunctionCreator;
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;

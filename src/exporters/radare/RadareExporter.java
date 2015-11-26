@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 
-import exporters.inputModules.InputModule;
+import exporters.InputModule;
 import exporters.nodeStore.NodeStore;
 import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.inputModule.RadareInputModule;
