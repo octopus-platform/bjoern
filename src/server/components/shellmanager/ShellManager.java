@@ -4,10 +4,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import server.components.gremlinShell.BjoernGremlinShell;
 
 public class ShellManager
 {
+	private static final Logger logger = LoggerFactory
+			.getLogger(ShellManager.class);
+
 	private static final int MAX_SHELLS = 1024;
 	private static final int FIRST_PORT = 6000;
 
@@ -16,6 +22,7 @@ public class ShellManager
 
 	static
 	{
+		logger.info("Initializing ShellManager");
 		shells = new BjoernGremlinShell[MAX_SHELLS];
 	}
 

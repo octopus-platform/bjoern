@@ -7,9 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class R2Pipe
 {
+	private static final Logger logger = LoggerFactory.getLogger(R2Pipe.class);
+
 	public final String R2_LOC = "radare2";
 	private final Process process;
 	private OutputStream stdin;
@@ -45,6 +49,8 @@ class R2Pipe
 
 	public String cmd(String cmd) throws IOException
 	{
+		logger.info("r2 command: {}", cmd);
+
 		cmd += "\n";
 
 		stdin.write((cmd).getBytes());

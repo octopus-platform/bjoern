@@ -15,6 +15,7 @@ import exporters.structures.Function;
 
 public class RadareExporter
 {
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(RadareExporter.class);
 

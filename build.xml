@@ -45,6 +45,7 @@
 	 basedir="${build.dir}"
 	 includes="**/*.class">
       <fileset dir="${build.dir}" includes="**/*.class" />
+      <fileset file="conf/logback*"/>
       <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
     </jar>
 
