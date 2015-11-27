@@ -66,19 +66,8 @@ public class ShellRunnable implements Runnable
 		while (true)
 		{
 			acceptNewClient();
-			try
-			{
-				handleClient();
-			}
-			catch (ExitNotification ex)
-			{
-				ShellManager.destroyShell(bjoernGremlinShell.getPort());
-				clientSocket.close();
-				break;
-			}
+			handleClient();
 		}
-
-		serverSocket.close();
 	}
 
 	private void acceptNewClient() throws IOException
@@ -108,9 +97,6 @@ public class ShellRunnable implements Runnable
 		String line;
 		while ((line = clientReader.readLine()) != null)
 		{
-			if (line.equals("exit")) {
-				throw new ExitNotification(0);
-			}
 			Object evalResult = bjoernGremlinShell.execute(line);
 			sendResultToClient(evalResult);
 			sendResultToClient("\0");
