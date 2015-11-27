@@ -39,7 +39,7 @@ public class BjoernGremlinShell
 
 	public void initShell()
 	{
-		this.shell = new GroovyShell();
+		this.shell = new GroovyShell(new BjoernCompilerConfiguration());
 		loadQueryLibrary();
 		openDatabaseConnection(dbName);
 	}
