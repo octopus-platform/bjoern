@@ -11,18 +11,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Iterator;
 
-import server.DebugPrinter;
 import server.components.shellmanager.ShellManager;
 
 public class ShellRunnable implements Runnable
 {
-
 	private String dbName;
 	private ServerSocket serverSocket;
 	private BjoernGremlinShell bjoernGremlinShell;
 	private Socket clientSocket;
 	private PrintWriter clientWriter;
 	private BufferedReader clientReader;
+
+	private boolean listen = true;
 
 	@Override
 	public void run()
@@ -37,8 +37,6 @@ public class ShellRunnable implements Runnable
 		{
 			e.printStackTrace();
 		}
-
-		DebugPrinter.print("Shell closed", this);
 	}
 
 	public void setDbName(String dbName)
@@ -61,11 +59,13 @@ public class ShellRunnable implements Runnable
 
 	private void processClients() throws IOException
 	{
-		while (true)
+		while (listen)
 		{
 			acceptNewClient();
 			handleClient();
 		}
+		ShellManager.destroyShell(bjoernGremlinShell.getPort());
+		serverSocket.close();
 	}
 
 	private void acceptNewClient() throws IOException
@@ -73,8 +73,6 @@ public class ShellRunnable implements Runnable
 		clientSocket = serverSocket.accept();
 		initClientWriter();
 		initClientReader();
-
-		System.out.println("Client accepted");
 	}
 
 	private void initClientReader() throws IOException
@@ -95,16 +93,25 @@ public class ShellRunnable implements Runnable
 		String line;
 		while ((line = clientReader.readLine()) != null)
 		{
-			Object evalResult;
-			try
+			if (line.equals("quit"))
 			{
-				evalResult = bjoernGremlinShell.execute(line);
-				sendResultToClient(evalResult);
-			} catch (Exception ex)
+				listen = false;
+				sendResultToClient("bye");
+				sendResultToClient("\0");
+				break;
+			} else
 			{
-				sendResultToClient(ex.getMessage());
+				Object evalResult;
+				try
+				{
+					evalResult = bjoernGremlinShell.execute(line);
+					sendResultToClient(evalResult);
+				} catch (Exception ex)
+				{
+					sendResultToClient(ex.getMessage());
+				}
+				sendResultToClient("\0");
 			}
-			sendResultToClient("\0");
 		}
 		clientSocket.close();
 	}
