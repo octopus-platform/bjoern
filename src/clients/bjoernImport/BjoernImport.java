@@ -28,7 +28,6 @@ public class BjoernImport
 	private static void invokeRadare2(String[] args) throws IOException
 	{
 		String pathToBinary = cmdLine.getCodedir();
-		System.out.println("Running radare on " + pathToBinary);
 		RadareExporter.export(pathToBinary, ".");
 	}
 
