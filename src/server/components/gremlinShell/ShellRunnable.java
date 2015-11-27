@@ -108,6 +108,9 @@ public class ShellRunnable implements Runnable
 		String line;
 		while ((line = clientReader.readLine()) != null)
 		{
+			if (line.equals("exit")) {
+				throw new ExitNotification(0);
+			}
 			Object evalResult = bjoernGremlinShell.execute(line);
 			sendResultToClient(evalResult);
 			sendResultToClient("\0");

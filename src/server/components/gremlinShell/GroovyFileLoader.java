@@ -1,26 +1,38 @@
 package server.components.gremlinShell;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
-import org.codehaus.groovy.tools.shell.Groovysh;
+import org.codehaus.groovy.control.CompilationFailedException;
 
+import groovy.lang.GroovyShell;
 import server.components.gremlinShell.fileWalker.SourceFileListener;
 
 public class GroovyFileLoader extends SourceFileListener
 {
 
-	private Groovysh groovysh;
+	private GroovyShell groovyShell;
 
-	public void setGroovyShell(Groovysh groovysh)
+	public void setGroovyShell(GroovyShell groovysh)
 	{
-		this.groovysh = groovysh;
+		this.groovyShell = groovysh;
 	}
 
 	@Override
 	public void visitFile(Path filename)
 	{
-		String cmd = String.format("load %s", filename);
-		groovysh.execute(cmd);
+		try
+		{
+			groovyShell.evaluate(filename.toFile());
+		} catch (CompilationFailedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

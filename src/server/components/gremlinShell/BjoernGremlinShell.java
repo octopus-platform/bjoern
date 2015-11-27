@@ -1,20 +1,34 @@
 package server.components.gremlinShell;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.codehaus.groovy.tools.shell.Groovysh;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+import com.tinkerpop.gremlin.Imports;
+import com.tinkerpop.gremlin.groovy.Gremlin;
 
+import groovy.lang.GroovyShell;
 import server.Constants;
 import server.components.gremlinShell.fileWalker.OrderedWalker;
 import server.components.gremlinShell.fileWalker.SourceFileWalker;
 
-import com.tinkerpop.gremlin.Imports;
-import com.tinkerpop.gremlin.groovy.Gremlin;
-import com.tinkerpop.gremlin.groovy.console.NullResultHookClosure;
-
 public class BjoernGremlinShell
 {
-	Groovysh groovysh = new Groovysh();
+
+	private static final List<String> imports = new ArrayList<String>();
+
+	static
+	{
+		imports.addAll(Imports.getImports());
+		imports.add("com.tinkerpop.gremlin.Tokens.T");
+		imports.add("com.tinkerpop.gremlin.groovy.*");
+		imports.add("groovy.grape.Grape");
+
+		Gremlin.load();
+	}
+
+	private GroovyShell shell;
 	private int port;
 	private final String dbName;
 
@@ -25,28 +39,9 @@ public class BjoernGremlinShell
 
 	public void initShell()
 	{
-		silenceShell();
-		performInitialImports();
-		Gremlin.load();
+		this.shell = new GroovyShell();
 		loadQueryLibrary();
 		openDatabaseConnection(dbName);
-	}
-
-	private void silenceShell()
-	{
-		groovysh.setResultHook(new NullResultHookClosure(groovysh));
-	}
-
-	private void performInitialImports()
-	{
-
-		for (String imps : Imports.getImports())
-		{
-			groovysh.execute("import " + imps);
-		}
-		groovysh.execute("import com.tinkerpop.gremlin.Tokens.T");
-		groovysh.execute("import com.tinkerpop.gremlin.groovy.*");
-		groovysh.execute("import groovy.grape.Grape");
 	}
 
 	private void loadQueryLibrary()
@@ -54,8 +49,7 @@ public class BjoernGremlinShell
 		try
 		{
 			loadRecursively(Constants.QUERY_LIB_DIR);
-		}
-		catch (IOException e)
+		} catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -65,7 +59,7 @@ public class BjoernGremlinShell
 	{
 		SourceFileWalker walker = new OrderedWalker();
 		GroovyFileLoader listener = new GroovyFileLoader();
-		listener.setGroovyShell(groovysh);
+		listener.setGroovyShell(shell);
 
 		walker.setFilenameFilter("*.groovy");
 		walker.addListener(listener);
@@ -76,13 +70,26 @@ public class BjoernGremlinShell
 	{
 		// TODO: We should check whether the database exists
 
-		String cmd = String.format("g = new OrientGraphNoTx( \"%s\");",
+		OrientGraphNoTx g = new OrientGraphNoTx(
 				Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
-		groovysh.execute(cmd);
+		this.shell.setVariable("g", g);
+	}
+
+	private static String importStatements()
+	{
+		StringBuilder importStatements = new StringBuilder();
+		for (String imp : imports)
+		{
+			importStatements.append("import ");
+			importStatements.append(imp);
+			importStatements.append('\n');
+		}
+		return importStatements.toString();
 	}
 
 	public Object execute(String line)
 	{
+
 		if (line.equals("reload"))
 		{
 			loadQueryLibrary();
@@ -91,9 +98,9 @@ public class BjoernGremlinShell
 
 		try
 		{
-			return groovysh.execute(line);
-		}
-		catch (Exception ex)
+			String script = importStatements() + "\n" + line;
+			return shell.evaluate(script);
+		} catch (Exception ex)
 		{
 			return ex.getMessage();
 		}
