@@ -11,8 +11,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Iterator;
 
-import org.codehaus.groovy.tools.shell.ExitNotification;
-
 import server.DebugPrinter;
 import server.components.shellmanager.ShellManager;
 
