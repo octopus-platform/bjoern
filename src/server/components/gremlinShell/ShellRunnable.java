@@ -115,6 +115,7 @@ public class ShellRunnable implements Runnable
 			sendResultToClient(evalResult);
 			sendResultToClient("\0");
 		}
+		clientSocket.close();
 	}
 
 	private void sendResultToClient(Object result)
