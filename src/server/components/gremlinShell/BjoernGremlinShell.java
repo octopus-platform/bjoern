@@ -1,11 +1,8 @@
 package server.components.gremlinShell;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.gremlin.Imports;
 import com.tinkerpop.gremlin.groovy.Gremlin;
 
 import groovy.lang.GroovyShell;
@@ -16,21 +13,14 @@ import server.components.gremlinShell.fileWalker.SourceFileWalker;
 public class BjoernGremlinShell
 {
 
-	private static final List<String> imports = new ArrayList<String>();
-
-	static
-	{
-		imports.addAll(Imports.getImports());
-		imports.add("com.tinkerpop.gremlin.Tokens.T");
-		imports.add("com.tinkerpop.gremlin.groovy.*");
-		imports.add("groovy.grape.Grape");
-
-		Gremlin.load();
-	}
-
 	private GroovyShell shell;
 	private int port;
 	private final String dbName;
+
+	static
+	{
+		Gremlin.load();
+	}
 
 	public BjoernGremlinShell(String dbName)
 	{
@@ -75,18 +65,6 @@ public class BjoernGremlinShell
 		this.shell.setVariable("g", g);
 	}
 
-	private static String importStatements()
-	{
-		StringBuilder importStatements = new StringBuilder();
-		for (String imp : imports)
-		{
-			importStatements.append("import ");
-			importStatements.append(imp);
-			importStatements.append('\n');
-		}
-		return importStatements.toString();
-	}
-
 	public Object execute(String line)
 	{
 		if (line.equals("reload"))
@@ -97,8 +75,7 @@ public class BjoernGremlinShell
 
 		try
 		{
-			String script = importStatements() + "\n" + line;
-			return shell.evaluate(script);
+			return shell.evaluate(line);
 		} catch (Exception ex)
 		{
 			return String.format("[%s] %s", ex.getClass().getSimpleName(),
