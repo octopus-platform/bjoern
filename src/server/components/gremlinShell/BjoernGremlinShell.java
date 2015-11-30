@@ -89,7 +89,6 @@ public class BjoernGremlinShell
 
 	public Object execute(String line)
 	{
-
 		if (line.equals("reload"))
 		{
 			loadQueryLibrary();
@@ -102,9 +101,9 @@ public class BjoernGremlinShell
 			return shell.evaluate(script);
 		} catch (Exception ex)
 		{
-			return ex.getMessage();
+			return String.format("[%s] %s", ex.getClass().getSimpleName(),
+					ex.getMessage());
 		}
-
 	}
 
 	public int getPort()
