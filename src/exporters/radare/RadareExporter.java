@@ -11,6 +11,7 @@ import exporters.InputModule;
 import exporters.nodeStore.NodeStore;
 import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.inputModule.RadareInputModule;
+import exporters.structures.Flag;
 import exporters.structures.Function;
 
 public class RadareExporter
@@ -54,6 +55,7 @@ public class RadareExporter
 
 		inputModule.initialize(binaryFilename);
 		outputModule.initialize(outputDir);
+		loadAndOutputFlags();
 		loadAndOutputFunctionInfo();
 		loadAndOutputFunctionContent();
 		outputModule.finish();
@@ -77,6 +79,15 @@ public class RadareExporter
 		System.err.println(e.getMessage());
 		cmdLine.printHelp();
 		System.exit(0);
+	}
+
+	private static void loadAndOutputFlags() throws IOException
+	{
+		List<Flag> flags = inputModule.getFlags();
+		for (Flag flag : flags)
+		{
+			outputModule.writeFlag(flag);
+		}
 	}
 
 	private static void loadAndOutputFunctionInfo() throws IOException

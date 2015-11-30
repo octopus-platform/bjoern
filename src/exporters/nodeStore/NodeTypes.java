@@ -7,4 +7,5 @@ public class NodeTypes
 	public static final String FUNCTION = "Func";
 	public static final Object LOCAL_VAR = "Local";
 	public static final Object ARG = "Arg";
+	public static final String FLAG = "Flag";
 }

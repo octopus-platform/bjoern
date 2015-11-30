@@ -49,23 +49,39 @@ class R2Pipe
 
 	public String cmd(String cmd) throws IOException
 	{
-		logger.info("r2 command: {}", cmd);
+		cmdNoResponse(cmd);
+		return readUpToZeroByte();
+	}
 
+	public void cmdNoResponse(String cmd) throws IOException
+	{
+		logger.info("r2 command: {}", cmd);
 		cmd += "\n";
 
 		stdin.write((cmd).getBytes());
 		stdin.flush();
-
-		return readUpToZeroByte();
 	}
 
-	private String readUpToZeroByte() throws IOException
+	public String readUpToZeroByte() throws IOException
 	{
 		StringBuffer sb = new StringBuffer();
 		byte[] b = new byte[1];
 		while (stdout.read(b) == 1)
 		{
 			if (b[0] == '\0')
+				break;
+			sb.append((char) b[0]);
+		}
+		return sb.toString();
+	}
+
+	public String readNextLine() throws IOException
+	{
+		StringBuffer sb = new StringBuffer();
+		byte[] b = new byte[1];
+		while (stdout.read(b) == 1)
+		{
+			if (b[0] == '\n' || b[0] == '\0')
 				break;
 			sb.append((char) b[0]);
 		}

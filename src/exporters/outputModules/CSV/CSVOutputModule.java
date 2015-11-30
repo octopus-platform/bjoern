@@ -10,6 +10,7 @@ import exporters.nodeStore.NodeTypes;
 import exporters.outputModules.OutputModule;
 import exporters.structures.BasicBlock;
 import exporters.structures.DisassemblyLine;
+import exporters.structures.Flag;
 import exporters.structures.Function;
 import exporters.structures.FunctionContent;
 import exporters.structures.Instruction;
@@ -39,6 +40,16 @@ public class CSVOutputModule implements OutputModule
 	public void finish()
 	{
 		CSVWriter.finish();
+	}
+
+	@Override
+	public void writeFlag(Flag flag)
+	{
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put(CSVFields.CODE, flag.getValue());
+		properties.put(CSVFields.KEY, flag.getKey());
+		// Skipping length-field for now, let's see if we need it.
+		CSVWriter.addNode(flag, properties);
 	}
 
 	@Override

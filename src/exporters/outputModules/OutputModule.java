@@ -1,6 +1,7 @@
 package exporters.outputModules;
 
 import exporters.structures.BasicBlock;
+import exporters.structures.Flag;
 import exporters.structures.Function;
 
 public interface OutputModule
@@ -20,5 +21,7 @@ public interface OutputModule
 	public void writeBasicBlock(BasicBlock block);
 
 	public void writeUnresolvedContentEdges(Function function);
+
+	public void writeFlag(Flag flag);
 
 }

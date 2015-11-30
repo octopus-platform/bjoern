@@ -11,6 +11,7 @@ import exporters.InputModule;
 import exporters.radare.inputModule.creators.RadareFunctionContentCreator;
 import exporters.radare.inputModule.creators.RadareFunctionCreator;
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
+import exporters.structures.Flag;
 import exporters.structures.Function;
 import exporters.structures.FunctionContent;
 
@@ -38,6 +39,19 @@ public class RadareInputModule implements InputModule
 			retval.add(function);
 		}
 
+		return retval;
+	}
+
+	@Override
+	public List<Flag> getFlags() throws IOException
+	{
+		List<Flag> retval = new LinkedList<Flag>();
+		Radare.askForFlags();
+		Flag flag;
+		while ((flag = Radare.getNextFlag()) != null)
+		{
+			retval.add(flag);
+		}
 		return retval;
 	}
 
@@ -82,4 +96,5 @@ public class RadareInputModule implements InputModule
 			e.printStackTrace();
 		}
 	}
+
 }

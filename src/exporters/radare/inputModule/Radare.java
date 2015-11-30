@@ -5,12 +5,17 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
+import exporters.structures.Flag;
 
 public class Radare
 {
 	static R2Pipe r2Pipe;
+
+	private static final Logger logger = LoggerFactory.getLogger(Radare.class);
 
 	public static void loadBinary(String filename) throws IOException
 	{
@@ -76,4 +81,38 @@ public class Radare
 		r2Pipe.quit();
 	}
 
+	public static void askForFlags() throws IOException
+	{
+		r2Pipe.cmdNoResponse("f");
+	}
+
+	public static Flag getNextFlag() throws IOException
+	{
+		String nextLine = r2Pipe.readNextLine();
+		if (nextLine.length() == 0 || nextLine.endsWith("\0"))
+			return null;
+		return createFlagFromLine(nextLine);
+	}
+
+	private static Flag createFlagFromLine(String nextLine)
+	{
+		Flag flag = new Flag();
+
+		String[] parts = nextLine.split(" ");
+		if (parts.length != 3)
+		{
+			logger.info("Returning empty flag for line: {}", nextLine);
+			return flag;
+		}
+
+		long addr = Long.decode(parts[0]);
+		int length = Integer.parseInt(parts[1]);
+		String value = parts[2];
+
+		flag.setAddr(addr);
+		flag.setLength(length);
+		flag.setValue(value);
+
+		return flag;
+	}
 }

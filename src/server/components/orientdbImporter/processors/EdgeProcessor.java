@@ -2,6 +2,9 @@ package server.components.orientdbImporter.processors;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import server.components.orientdbImporter.CSVImporter;
 
 import com.opencsv.CSVReader;
@@ -11,6 +14,8 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class EdgeProcessor extends CSVFileProcessor
 {
+	private static final Logger logger = LoggerFactory
+			.getLogger(EdgeProcessor.class);
 
 	public EdgeProcessor(CSVImporter importer)
 	{
@@ -47,14 +52,15 @@ public class EdgeProcessor extends CSVFileProcessor
 
 		if (outVertex == null)
 		{
-			System.err.println("Warning: cannot resolve source node: " + srcId);
+			logger.info("Cannot resolve source node {} for {} -> {}", srcId,
+					srcId, dstId);
 			return;
 		}
 
 		if (inVertex == null)
 		{
-			System.err.println("Warning: cannot resolve destination node: "
-					+ dstId);
+			logger.info("Cannot resolve destination node {} for {} -> {}",
+					dstId, srcId, dstId);
 			return;
 		}
 
