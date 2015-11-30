@@ -1,14 +1,10 @@
 package server.components.gremlinShell;
 
-import java.io.IOException;
-
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.gremlin.groovy.Gremlin;
 
 import groovy.lang.GroovyShell;
 import server.Constants;
-import server.components.gremlinShell.fileWalker.OrderedWalker;
-import server.components.gremlinShell.fileWalker.SourceFileWalker;
 
 public class BjoernGremlinShell
 {
@@ -30,30 +26,7 @@ public class BjoernGremlinShell
 	public void initShell()
 	{
 		this.shell = new GroovyShell(new BjoernCompilerConfiguration());
-		loadQueryLibrary();
 		openDatabaseConnection(dbName);
-	}
-
-	private void loadQueryLibrary()
-	{
-		try
-		{
-			loadRecursively(Constants.QUERY_LIB_DIR);
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	private void loadRecursively(String queryLibDir) throws IOException
-	{
-		SourceFileWalker walker = new OrderedWalker();
-		GroovyFileLoader listener = new GroovyFileLoader();
-		listener.setGroovyShell(shell);
-
-		walker.setFilenameFilter("*.groovy");
-		walker.addListener(listener);
-		walker.walk(new String[] { queryLibDir });
 	}
 
 	private void openDatabaseConnection(String dbName)
@@ -67,12 +40,6 @@ public class BjoernGremlinShell
 
 	public Object execute(String line)
 	{
-		if (line.equals("reload"))
-		{
-			loadQueryLibrary();
-			return new String("");
-		}
-
 		try
 		{
 			return shell.evaluate(line);
