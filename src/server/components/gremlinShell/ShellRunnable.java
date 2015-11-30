@@ -1,6 +1,5 @@
 package server.components.gremlinShell;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,7 +19,7 @@ public class ShellRunnable implements Runnable
 	private BjoernGremlinShell bjoernGremlinShell;
 	private Socket clientSocket;
 	private PrintWriter clientWriter;
-	private BufferedReader clientReader;
+	private InputStreamReader clientReader;
 
 	private boolean listen = true;
 
@@ -78,7 +77,7 @@ public class ShellRunnable implements Runnable
 	private void initClientReader() throws IOException
 	{
 		InputStream in = clientSocket.getInputStream();
-		clientReader = new BufferedReader(new InputStreamReader(in));
+		clientReader = new InputStreamReader(in);
 	}
 
 	private void initClientWriter() throws IOException
@@ -90,27 +89,40 @@ public class ShellRunnable implements Runnable
 	private void handleClient() throws IOException
 	{
 
-		String line;
-		while ((line = clientReader.readLine()) != null)
+		StringBuilder builder = new StringBuilder();
+		int c;
+		while ((c = clientReader.read()) != -1)
 		{
-			if (line.equals("quit"))
+			if (c == '\0')
 			{
-				listen = false;
-				sendResultToClient("bye");
-				sendResultToClient("\0");
-				break;
+				// Messages end with "...\n\0\n".
+				// Skip the last newline and remove the other.
+				clientReader.skip(1);
+				builder.setLength(builder.length() - 1);
+				String message = builder.toString();
+				builder.setLength(0);
+				if (message.equals("quit"))
+				{
+					listen = false;
+					sendResultToClient("bye");
+					sendResultToClient("\0");
+					break;
+				} else
+				{
+					Object evalResult;
+					try
+					{
+						evalResult = bjoernGremlinShell.execute(message);
+						sendResultToClient(evalResult);
+					} catch (Exception ex)
+					{
+						sendResultToClient(ex.getMessage());
+					}
+					sendResultToClient("\0");
+				}
 			} else
 			{
-				Object evalResult;
-				try
-				{
-					evalResult = bjoernGremlinShell.execute(line);
-					sendResultToClient(evalResult);
-				} catch (Exception ex)
-				{
-					sendResultToClient(ex.getMessage());
-				}
-				sendResultToClient("\0");
+				builder.append((char) c);
 			}
 		}
 		clientSocket.close();
