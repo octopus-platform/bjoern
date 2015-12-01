@@ -57,7 +57,12 @@ and connect to it:
 
 	nc localhost 6000
 
-You will find the database in `g`.
+You will find the database in `g`. Commands are terminated with the
+sequence `\n\x00\n`. For example
+
+	perl -e 'print "g.getVertices().count()\n\x00\n"' | nc localhost 6000
+
+will return the number of vertices in the database.
 
 Alternatively, you can explore the database using OrientDB studio by
 pointing your browser to
