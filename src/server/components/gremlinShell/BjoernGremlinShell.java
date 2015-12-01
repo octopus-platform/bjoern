@@ -1,10 +1,10 @@
 package server.components.gremlinShell;
 
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.gremlin.groovy.Gremlin;
-
 import groovy.lang.GroovyShell;
 import server.Constants;
+
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+import com.tinkerpop.gremlin.groovy.Gremlin;
 
 public class BjoernGremlinShell
 {
@@ -38,12 +38,13 @@ public class BjoernGremlinShell
 		this.shell.setVariable("g", g);
 	}
 
-	public Object execute(String line)
+	public Object execute(String code)
 	{
 		try
 		{
-			return shell.evaluate(line);
-		} catch (Exception ex)
+			return shell.evaluate(code);
+		}
+		catch (Exception ex)
 		{
 			return String.format("[%s] %s", ex.getClass().getSimpleName(),
 					ex.getMessage());
@@ -63,5 +64,10 @@ public class BjoernGremlinShell
 	public String getDbName()
 	{
 		return dbName;
+	}
+
+	public GroovyShell getShell()
+	{
+		return shell;
 	}
 }
