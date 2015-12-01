@@ -30,7 +30,7 @@ public class ShellCreateHandler extends OServerCommandAbstract
 		startShellThread();
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, String.format(
-				"shell opened for %s. Try listshell next\n", dbName), null);
+				"shell opened for %s. Try listshells next\n", dbName), null);
 		return false;
 	}
 
