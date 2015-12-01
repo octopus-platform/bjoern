@@ -9,12 +9,18 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import server.components.gremlinShell.io.BjoernClientReader;
 import server.components.gremlinShell.io.BjoernClientWriter;
 import server.components.shellmanager.ShellManager;
 
 public class ShellRunnable implements Runnable
 {
+	private static final Logger logger = LoggerFactory
+			.getLogger(ShellRunnable.class);
+
 	private String dbName;
 	private ServerSocket serverSocket;
 	private BjoernGremlinShell bjoernGremlinShell;
@@ -22,17 +28,19 @@ public class ShellRunnable implements Runnable
 	private BjoernClientWriter clientWriter;
 	private BjoernClientReader clientReader;
 
-	private boolean listen = true;
+	private boolean listening = true;
 
 	@Override
 	public void run()
 	{
+		createGremlinShell();
+
 		try
 		{
-			createGremlinShell();
 			createLocalListeningSocket();
 			processClients();
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -43,7 +51,7 @@ public class ShellRunnable implements Runnable
 		this.dbName = dbName;
 	}
 
-	private void createGremlinShell() throws IOException
+	private void createGremlinShell()
 	{
 		int port = ShellManager.createNewShell(dbName);
 		bjoernGremlinShell = ShellManager.getShellForPort(port);
@@ -58,10 +66,20 @@ public class ShellRunnable implements Runnable
 
 	private void processClients() throws IOException
 	{
-		while (listen)
+		while (listening)
 		{
-			acceptNewClient();
-			handleClient();
+			try
+			{
+				acceptNewClient();
+				handleClient();
+			}
+			catch (IOException e)
+			{
+				logger.warn("IOException when handling client: {}",
+						e.getMessage());
+				continue;
+			}
+
 		}
 		ShellManager.destroyShell(bjoernGremlinShell.getPort());
 		serverSocket.close();
@@ -94,17 +112,19 @@ public class ShellRunnable implements Runnable
 		{
 			if (message.equals("quit"))
 			{
-				listen = false;
+				listening = false;
 				clientWriter.writeMessage("bye");
 				break;
-			} else
+			}
+			else
 			{
 				Object evalResult;
 				try
 				{
 					evalResult = bjoernGremlinShell.execute(message);
 					clientWriter.writeResult(evalResult);
-				} catch (Exception ex)
+				}
+				catch (Exception ex)
 				{
 					clientWriter.writeMessage(ex.getMessage());
 				}
