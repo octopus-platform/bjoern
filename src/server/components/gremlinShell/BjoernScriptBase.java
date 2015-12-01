@@ -1,10 +1,10 @@
 package server.components.gremlinShell;
 
+import groovy.lang.Script;
+
 import java.util.Set;
 
 import com.tinkerpop.gremlin.groovy.Gremlin;
-
-import groovy.lang.Script;
 
 public abstract class BjoernScriptBase extends Script
 {
@@ -21,7 +21,7 @@ public abstract class BjoernScriptBase extends Script
 		return steps;
 	}
 
-	public Set listVariables()
+	public Set<?> listVariables()
 	{
 		return getBinding().getVariables().keySet();
 	}
