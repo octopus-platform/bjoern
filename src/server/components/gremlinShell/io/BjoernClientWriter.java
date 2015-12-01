@@ -12,36 +12,50 @@ public class BjoernClientWriter extends BufferedWriter
 		super(out);
 	}
 
+	private void writeLine(String line) throws IOException
+	{
+		if (line != null)
+		{
+			this.write(line);
+			this.newLine();
+		}
+	}
+
+	private void writeEndOfMessage() throws IOException
+	{
+		write("\0");
+		newLine();
+	}
+
 	public void writeMessage(String message) throws IOException
 	{
-		this.write(message);
-		this.newLine();
-		this.write("\0");
-		this.newLine();
-		this.flush();
+		writeLine(message);
+		writeEndOfMessage();
+		flush();
 	}
 
 	public void writeResult(Object result) throws IOException
 	{
 		if (result == null)
 		{
-			write("\0");
-			newLine();
+			writeEndOfMessage();
+			this.flush();
 		} else if (result instanceof Iterable)
 		{
 			Iterable<?> iterable = (Iterable<?>) result;
 			for (Object obj : iterable)
 			{
-				write(obj.toString());
-				newLine();
+				if (obj != null)
+				{
+					writeLine(obj.toString());
+				}
 			}
-			write("\0");
-			newLine();
+			writeEndOfMessage();
+			this.flush();
 		} else
 		{
 			writeMessage(result.toString());
 		}
-		this.flush();
 	}
 
 }
