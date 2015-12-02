@@ -12,24 +12,14 @@ public class BjoernClientWriter extends BufferedWriter
 		super(out);
 	}
 
-	private void writeLine(String line) throws IOException
-	{
-		if (line != null)
-		{
-			this.write(line);
-			this.newLine();
-		}
-	}
-
 	private void writeEndOfMessage() throws IOException
 	{
 		write("\0");
-		newLine();
 	}
 
 	public void writeMessage(String message) throws IOException
 	{
-		writeLine(message);
+		write(message);
 		writeEndOfMessage();
 		flush();
 	}
@@ -38,20 +28,21 @@ public class BjoernClientWriter extends BufferedWriter
 	{
 		if (result == null)
 		{
-			writeEndOfMessage();
-			this.flush();
+			writeMessage("");
 		} else if (result instanceof Iterable)
 		{
+			StringBuilder sBuilder = new StringBuilder();
 			Iterable<?> iterable = (Iterable<?>) result;
 			for (Object obj : iterable)
 			{
 				if (obj != null)
 				{
-					writeLine(obj.toString());
+					sBuilder.append(obj.toString());
+					sBuilder.append("\n");
 				}
 			}
-			writeEndOfMessage();
-			this.flush();
+			sBuilder.deleteCharAt(sBuilder.length() - 1);
+			writeMessage(sBuilder.toString());
 		} else
 		{
 			writeMessage(result.toString());

@@ -30,12 +30,9 @@ public class BjoernClientReader extends Reader
 		int c;
 		while ((c = in.read()) != -1)
 		{
+			// Messages end with "...\0" (NUL byte)
 			if (c == '\0')
 			{
-				// Messages end with "...\n\0\n".
-				// Skip the last newline and remove the other.
-				in.skip(1);
-				builder.setLength(builder.length() - 1);
 				String message = builder.toString();
 				return message;
 			} else
