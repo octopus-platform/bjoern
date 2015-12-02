@@ -11,11 +11,11 @@ System Requirements and Dependencies
 - **OrientDB 2.1.5 Community Edition.** The bjoern-server is based on
   OrientDB version *2.1.5* and has not been tested with any other
   version. You can download the correct version
-  `here<http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz>`_ .
+  `here <http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz>`_ .
 
 **A dependency tarball** You can download a tarball that bundles all
 dependencies
-`here<http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz>`_ .
+`here <http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz>`_ .
 
 Step-by-step Instructions
 ---------------------------
