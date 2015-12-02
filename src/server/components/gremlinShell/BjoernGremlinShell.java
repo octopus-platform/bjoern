@@ -23,10 +23,18 @@ public class BjoernGremlinShell
 		this.dbName = dbName;
 	}
 
+	private void registerMethodMissingHandler()
+	{
+		String cmd = "GremlinGroovyPipeline.metaClass.methodMissing =";
+		cmd += "{String name, args -> Gremlin.compose(delegate, \"$name\"(args))}";
+		execute(cmd);
+	}
+
 	public void initShell()
 	{
 		this.shell = new GroovyShell(new BjoernCompilerConfiguration());
 		openDatabaseConnection(dbName);
+		registerMethodMissingHandler();
 	}
 
 	private void openDatabaseConnection(String dbName)
