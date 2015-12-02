@@ -8,6 +8,9 @@ System Requirements and Dependencies
   not build with Java 7. It has been tested with OpenJDK 8 but should
   also work with Oracle's JVM.
 
+- **Radare2** The reversing framework radare2 is used to dissect and
+  analyze files containing binary code.
+
 - **OrientDB 2.1.5 Community Edition.** The bjoern-server is based on
   OrientDB version *2.1.5* and has not been tested with any other
   version. You can download the correct version
@@ -17,8 +20,8 @@ System Requirements and Dependencies
 dependencies
 `here <http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz>`_ .
 
-Step-by-step Instructions
----------------------------
+Building bjoern (step-by-step)
+------------------------------
 
 First, clone the repository and enter the bjoern-radare directory.
 
@@ -48,3 +51,10 @@ Finally, download and extract dependencies, and build:
 	wget 'http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz'
 	tar xfz jars.tar.gz
 	ant
+
+Installing radare2
+------------------
+
+Please follow the instructions `here
+<http://www.radare.org/r/down.html>`_ to install radare2, and make
+sure the programs `radare2` and `r2` are in the path.

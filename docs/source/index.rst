@@ -9,6 +9,11 @@ Contents:
 	:maxdepth: 2
 
 	installation
+	firststeps
+	architecture
+	querying
+	plugins
+
 ..
    Indices and tables
    ==================
