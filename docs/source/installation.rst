@@ -4,19 +4,18 @@ Installation
 System Requirements and Dependencies
 -------------------------------------
 
-- **A Java Virtual Machine 1.8** Bjoern is written in Java 8 and does
-not build with Java 7. It has been tested with OpenJDK 8 but should
-also work with Oracle's JVM.
+- **A Java Virtual Machine 1.8.** Bjoern is written in Java 8 and does
+  not build with Java 7. It has been tested with OpenJDK 8 but should
+  also work with Oracle's JVM.
 
-- **OrientDB 2.1.5 Community Edition** The bjoern-server is based on
+- **OrientDB 2.1.5 Community Edition.** The bjoern-server is based on
   OrientDB version *2.1.5* and has not been tested with any other
-  version. You can download the correct version `here
-<http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz>`_.
+  version. You can download the correct version
+  `here<http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz>`_ .
 
 **A dependency tarball** You can download a tarball that bundles all
-dependencies here:
-
-`here<http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz>`
+dependencies
+`here<http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz>`_ .
 
 Step-by-step Instructions
 ---------------------------
