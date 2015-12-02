@@ -1,6 +1,8 @@
 package server.commands.importcsv;
 
-import server.DebugPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import server.components.orientdbImporter.ImportCSVRunnable;
 import server.components.orientdbImporter.ImportJob;
 
@@ -14,6 +16,9 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 public class ImportCSVHandler extends OServerCommandAbstract
 {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(ImportCSVHandler.class);
+
 	private Thread importThread;
 
 	public ImportCSVHandler(final OServerCommandConfiguration iConfiguration)
@@ -24,7 +29,7 @@ public class ImportCSVHandler extends OServerCommandAbstract
 	public boolean execute(OHttpRequest iRequest, OHttpResponse iResponse)
 			throws Exception
 	{
-		DebugPrinter.print("Importer called", this);
+		logger.info("Importer called");
 
 		ImportJob importJob = getImportJobFromRequest(iRequest);
 

@@ -2,10 +2,14 @@ package server.components.orientdbImporter;
 
 import java.io.IOException;
 
-import server.DebugPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImportCSVRunnable implements Runnable
 {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(ImportCSVRunnable.class);
 
 	private final ImportJob importJob;
 
@@ -39,7 +43,7 @@ public class ImportCSVRunnable implements Runnable
 			e.printStackTrace();
 		}
 
-		DebugPrinter.print("Import finished", this);
+		logger.info("Import finished");
 	}
 
 }
