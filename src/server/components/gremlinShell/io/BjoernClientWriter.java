@@ -41,7 +41,10 @@ public class BjoernClientWriter extends BufferedWriter
 					sBuilder.append("\n");
 				}
 			}
-			sBuilder.deleteCharAt(sBuilder.length() - 1);
+			if (sBuilder.length() > 0)
+			{
+				sBuilder.deleteCharAt(sBuilder.length() - 1);
+			}
 			writeMessage(sBuilder.toString());
 		} else
 		{
