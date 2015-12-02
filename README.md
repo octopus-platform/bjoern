@@ -58,9 +58,9 @@ and connect to it:
 	nc localhost 6000
 
 You will find the database in `g`. Commands are terminated with the
-sequence `\n\x00\n`. For example
+`\x00` character. For example
 
-	perl -e 'print "g.getVertices().count()\n\x00\n"' | nc localhost 6000
+	perl -e 'print "g.getVertices().count()\x00"' | nc localhost 6000
 
 will return the number of vertices in the database.
 
