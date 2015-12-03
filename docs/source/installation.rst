@@ -16,6 +16,10 @@ System Requirements and Dependencies
   version. You can download the correct version
   `here <http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz>`_ .
 
+- **Bjoern-shell [Optional. ]** The bjoern-shell is a convenient tool
+  to query the database contents and develop new query-primitives
+  (so-called steps) that can be re-used in subsequent queries.
+
 **A dependency tarball** You can download a tarball that bundles all
 dependencies
 `here <http://user.informatik.uni-goettingen.de/~fyamagu/bjoern-radare/jars.tar.gz>`_ .
@@ -58,3 +62,13 @@ Installing radare2
 Please follow the instructions `here
 <http://www.radare.org/r/down.html>`_ to install radare2, and make
 sure the programs `radare2` and `r2` are in the path.
+
+Installing the bjoern-shell
+---------------------------
+
+.. code-block:: none
+
+	git clone https://github.com/a0x77n/bjoern-shell
+	cd bjoern-shell
+	python3 setup.py install
+	bjosh
