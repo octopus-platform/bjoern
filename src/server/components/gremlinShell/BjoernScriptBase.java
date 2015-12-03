@@ -26,4 +26,8 @@ public abstract class BjoernScriptBase extends Script
 		return getBinding().getVariables().keySet();
 	}
 
+	public void removeVariable(String variable)
+	{
+		getBinding().getVariables().remove(variable);
+	}
 }
