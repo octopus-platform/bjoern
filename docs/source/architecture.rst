@@ -1,5 +1,8 @@
 Architecture
-------------
+============
+
+Overview
+--------
 
 Bjoern currently consists of the following components.
 
@@ -24,8 +27,17 @@ Bjoern currently consists of the following components.
   database with low overhead. Multiple users can spawn shells on the
   server side to work on the database in parallel.
 
+- **Querylib.** Querylib is a library of Gremlin/Groovy utility
+  functions that can be chained to build powerful queries. The library
+  is automatically loaded on shell creation, making the all utility
+  functions accessible by default. The library can be modified or
+  extended at runtime without requiring a restart of the server.
+
 - **Bjoern Shell.** The bjoern-shell (bjosh) accesses server shells
   created by the shell plugin via TCP. It provides a working
   environment with convenient features like code completion, reverse
   search, and in-shell documentation. It also features an awesome
   banner.
+
+Interfaces
+----------
