@@ -47,9 +47,14 @@ on Linux, or
 
 	wget 'http://orientdb.com/download.php?email=unknown@unknown.com&file=orientdb-community-2.1.5.tar.gz&os=mac'
 
-on MacOSX.
+on MacOSX. Unpack the tarball directly in the bjoern directory:
 
-Finally, download and extract dependencies, and build:
+.. code-block:: none
+
+	tar xfz orientdb-community-2.1.5.tar.gz
+
+
+Finally, download and extract jar-dependencies, and build:
 
 .. code-block:: none
 
