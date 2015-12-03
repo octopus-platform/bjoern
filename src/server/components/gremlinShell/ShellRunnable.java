@@ -12,9 +12,6 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import server.Constants;
-import server.components.gremlinShell.fileWalker.OrderedWalker;
-import server.components.gremlinShell.fileWalker.SourceFileWalker;
 import server.components.gremlinShell.io.BjoernClientReader;
 import server.components.gremlinShell.io.BjoernClientWriter;
 import server.components.shellmanager.ShellManager;
@@ -42,7 +39,6 @@ public class ShellRunnable implements Runnable
 	public void run()
 	{
 		createGremlinShell();
-		loadStandardQueryLibrary();
 
 		try
 		{
@@ -59,29 +55,6 @@ public class ShellRunnable implements Runnable
 	{
 		int port = ShellManager.createNewShell(dbName);
 		bjoernGremlinShell = ShellManager.getShellForPort(port);
-	}
-
-	private void loadStandardQueryLibrary()
-	{
-		try
-		{
-			loadRecursively(Constants.QUERY_LIB_DIR);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	private void loadRecursively(String queryLibDir) throws IOException
-	{
-		SourceFileWalker walker = new OrderedWalker();
-		GroovyFileLoader listener = new GroovyFileLoader();
-		listener.setGroovyShell(bjoernGremlinShell.getShell());
-
-		walker.setFilenameFilter("*.groovy");
-		walker.addListener(listener);
-		walker.walk(new String[] { queryLibDir });
 	}
 
 	private void createLocalListeningSocket() throws IOException
