@@ -8,8 +8,9 @@ System Requirements and Dependencies
   not build with Java 7. It has been tested with OpenJDK 8 but should
   also work with Oracle's JVM.
 
-- **Radare2** The reversing framework radare2 is used to dissect and
-  analyze files containing binary code.
+- **Radare2** The primitives provided by the radare2 reverse
+  engineering framework are employed to dissect and analyze binary
+  files to obtain graph-based program representations from them.
 
 - **OrientDB 2.1.5 Community Edition.** The bjoern-server is based on
   OrientDB version *2.1.5* and has not been tested with any other
