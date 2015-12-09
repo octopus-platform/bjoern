@@ -16,8 +16,8 @@ public class CSVWriter
 	final static String SEPARATOR = "\t";
 
 	final static String[] nodeProperties = { CSVFields.KEY, CSVFields.TYPE,
-			CSVFields.ADDR, CSVFields.CHILD_NUM, CSVFields.REPR,
-			CSVFields.CODE, CSVFields.COMMENT };
+			CSVFields.ADDR, CSVFields.CHILD_NUM, CSVFields.FUNCTION_ID,
+			CSVFields.REPR, CSVFields.CODE, CSVFields.COMMENT };
 
 	final static String[] edgeProperties = {};
 	final static String[] keyedEdgeProperties = {};

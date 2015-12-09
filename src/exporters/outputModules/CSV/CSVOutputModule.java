@@ -181,6 +181,9 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.CHILD_NUM, String.format("%d", childNum));
 		properties.put(CSVFields.KEY, instr.getKey());
 
+		Long funcId = CSVWriter.getIdForNode(currentFunction);
+		properties.put(CSVFields.FUNCTION_ID, funcId.toString());
+
 		addDisassemblyProperties(properties, instrAddress);
 
 		CSVWriter.addNode(instr, properties);
@@ -205,6 +208,10 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.ADDR, block.getAddress().toString());
 		properties.put(CSVFields.TYPE, block.getType());
 		properties.put(CSVFields.KEY, block.getKey());
+
+		Long funcId = CSVWriter.getIdForNode(currentFunction);
+		properties.put(CSVFields.FUNCTION_ID, funcId.toString());
+
 		CSVWriter.addNode(block, properties);
 	}
 
