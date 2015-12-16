@@ -2,15 +2,12 @@ package server.commands.dumpcfg;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,16 +20,14 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestExc
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
 import server.Constants;
+import server.components.graphs.CFGCreator;
 
 public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 {
@@ -77,78 +72,33 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		g = new OrientGraphFactory(
 				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName).getNoTx();
 
+		CFGCreator cfgCreator = new CFGCreator(g);
+
 		for (Vertex functionNode : getFunctionNodes())
 		{
 			String id = functionNode.getId().toString();
 			Long functionId = Long.parseLong(id.split(":")[1]);
-			dumpCFG(functionId);
+			try
+			{
+				Path path = getOutputDestination(functionId);
+				Files.createDirectories(path.getParent());
+				Graph cfg = cfgCreator.createCFG(functionId);
+				logger.info("Writing control flow graph of function "
+						+ functionId + " to file " + path.toString());
+				dumpGraph(cfg, path);
+			} catch (FileAlreadyExistsException e)
+			{
+				logger.warn("Skipping function " + functionId
+						+ ". File exists: " + e.getMessage());
+			} catch (IOException e)
+			{
+				logger.warn("Skipping function " + functionId + ". IO Error: "
+						+ e.getMessage());
+			}
 		}
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "OK\n", null);
 		return false;
-	}
-
-	private void dumpCFG(Long functionId) throws IOException
-	{
-		try
-		{
-			Path path = getOutputDestination(functionId);
-			Files.createDirectories(path.getParent());
-			Graph cfg = fetchCFG(functionId);
-			dumpGraph(cfg, path);
-			logger.info("Writing control flow graph of function " + functionId
-					+ " to file " + path.toString());
-		} catch (IOException e)
-		{
-			logger.warn("Skipping function " + functionId + ". File exists.");
-		}
-	}
-
-	protected Graph fetchCFG(Long functionId)
-	{
-
-		Iterable<Vertex> vertices = getVerticesOfFunction(functionId);
-
-		Iterable<Edge> edges = getInducedEdges(vertices,
-				vertex -> vertex.getEdges(Direction.OUT),
-				edge -> (edge.getLabel().equals("CFLOW_ALWAYS")
-						|| edge.getLabel().equals("CFLOW_TRUE")
-						|| edge.getLabel().equals("CFLOW_FALSE")
-						|| edge.getLabel().equals("IS_BB_OF"))
-						&& edge.getVertex(Direction.IN)
-								.getProperty("functionId")
-								.equals(functionId.toString()));
-
-		return createGraph(vertices, edges);
-	}
-
-	protected Graph createGraph(Iterable<Vertex> vertices, Iterable<Edge> edges)
-	{
-		Graph sg = new TinkerGraph();
-		for (Vertex vertex : vertices)
-		{
-			Vertex v = sg.addVertex(vertex.getId());
-			for (String property : vertex.getPropertyKeys())
-			{
-				v.setProperty(property, vertex.getProperty(property));
-			}
-		}
-		for (Edge edge : edges)
-		{
-			Vertex outVertex = sg
-					.getVertex(edge.getVertex(Direction.OUT).getId());
-			Vertex inVertex = sg
-					.getVertex(edge.getVertex(Direction.IN).getId());
-			Edge e = sg.addEdge(edge.getId(), outVertex, inVertex,
-					edge.getLabel());
-			for (String property : edge.getPropertyKeys())
-			{
-				e.setProperty(property, edge.getProperty(property));
-			}
-		}
-
-		return sg;
-
 	}
 
 	protected void dumpGraph(Graph graph, Path path) throws IOException
@@ -156,39 +106,6 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		OutputStream out = Files.newOutputStream(path, openOptions);
 		GraphMLWriter.outputGraph(graph, out);
 		out.close();
-	}
-
-	protected Iterable<Vertex> getVerticesOfFunction(Long functionId)
-	{
-		String fmt = "SELECT * FROM V WHERE %s LUCENE \"%s\"";
-		String luceneQuery = "functionId:" + functionId;
-		String queryStr = String.format(fmt, Constants.INDEX_NAME, luceneQuery);
-
-		OCommandSQL query = new OCommandSQL(queryStr);
-		List<Vertex> vertices = new LinkedList<Vertex>();
-		Iterable<Vertex> result = g.command(query).execute();
-		for (Vertex obj : result)
-		{
-			vertices.add(obj);
-		}
-		return vertices;
-	}
-
-	protected Iterable<Edge> getInducedEdges(Iterable<Vertex> vertices,
-			Function<Vertex, Iterable<Edge>> f, Predicate<Edge> p)
-	{
-		List<Edge> edges = new LinkedList<Edge>();
-		for (Vertex vertex : vertices)
-		{
-			for (Edge edge : f.apply(vertex))
-			{
-				if (p.test(edge))
-				{
-					edges.add(edge);
-				}
-			}
-		}
-		return edges;
 	}
 
 	protected Iterable<Vertex> getFunctionNodes()
