@@ -102,16 +102,14 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 				@Override
 				public void run()
 				{
-
-					String id = functionNode.getId().toString();
-					Long functionId = Long.parseLong(id.split(":")[1]);
 					OrientGraphNoTx g = factory.getNoTx();
+					Object functionId = functionNode.getId();
 					try
 					{
 						Path path = getOutputDestination(functionId);
 						Files.createDirectories(path.getParent());
 						CFGCreator cfgCreator = new CFGCreator(g);
-						Graph cfg = cfgCreator.createCFG(functionId);
+						Graph cfg = cfgCreator.createCFG(functionNode);
 						dumpGraph(cfg, path);
 						logger.info("Writing control flow graph of function "
 								+ functionId + " to file " + path.toString()
@@ -176,7 +174,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		return urlParts;
 	}
 
-	private Path getOutputDestination(long functionId)
+	private Path getOutputDestination(Object functionId)
 	{
 		String filename = databaseName + "-cfg" + functionId + ".graphml";
 		Path dest = Paths.get(baseDir.toString(), filename);

@@ -23,8 +23,10 @@ public class CFGCreator
 		this.g = graph;
 	}
 
-	public Graph createCFG(Long functionId)
+	public Graph createCFG(Vertex functionNode)
 	{
+		String id = functionNode.getId().toString();
+		Long functionId = Long.parseLong(id.split(":")[1]);
 		Graph sg = new TinkerGraph();
 		Iterable<Vertex> basicBlocks = getBasicBlocksOfFunction(functionId);
 		// Connect basic blocks with instructions
