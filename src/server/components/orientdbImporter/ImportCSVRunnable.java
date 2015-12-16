@@ -43,7 +43,7 @@ public class ImportCSVRunnable implements Runnable
 			e.printStackTrace();
 		}
 
-		logger.info("Import finished");
+		logger.warn("Import finished");
 	}
 
 }
