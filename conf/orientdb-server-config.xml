@@ -117,6 +117,8 @@
 							<entry name="dest" value="../../dump" />
 							<!-- Do not overwrite existing files -->
 							<entry name="force" value="false" />
+							<!-- Number of threads -->
+							<entry name="threads" value="2" />
 						</parameters>
 					</command>
 

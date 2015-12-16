@@ -8,10 +8,14 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -35,10 +39,12 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 	private static final Logger logger = LoggerFactory
 			.getLogger(OServerCommandGetDumpCFG.class);
 
-	private OrientGraphNoTx g;
 	private Path baseDir = Paths.get(Constants.FALLBACK_DATA_DIR);
 	private OpenOption[] openOptions = { StandardOpenOption.CREATE_NEW };
 	private String databaseName;
+	private int nThreads = 1;
+	OrientGraphFactory factory;
+	private OrientGraphNoTx g;
 
 	public OServerCommandGetDumpCFG(
 			final OServerCommandConfiguration iConfiguration)
@@ -58,6 +64,18 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 							StandardOpenOption.WRITE };
 				}
 				break;
+			case "threads":
+				try
+				{
+					nThreads = Integer.parseInt(par.value);
+				} finally
+				{
+					if (nThreads < 1)
+					{
+						nThreads = 1;
+					}
+				}
+				break;
 			}
 		}
 	}
@@ -68,36 +86,64 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 	{
 		String[] urlParts = checkSyntax(iRequest.url);
 		databaseName = urlParts[1];
+		factory = new OrientGraphFactory(
+				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName);
+		factory.setupPool(1, 10);
 
-		g = new OrientGraphFactory(
-				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName).getNoTx();
+		ExecutorService executor = Executors.newFixedThreadPool(nThreads);
 
-		CFGCreator cfgCreator = new CFGCreator(g);
+		g = factory.getNoTx();
 
 		for (Vertex functionNode : getFunctionNodes())
 		{
-			String id = functionNode.getId().toString();
-			Long functionId = Long.parseLong(id.split(":")[1]);
-			try
+			executor.execute(new Runnable()
 			{
-				Path path = getOutputDestination(functionId);
-				Files.createDirectories(path.getParent());
-				Graph cfg = cfgCreator.createCFG(functionId);
-				logger.info("Writing control flow graph of function "
-						+ functionId + " to file " + path.toString());
-				dumpGraph(cfg, path);
-			} catch (FileAlreadyExistsException e)
-			{
-				logger.warn("Skipping function " + functionId
-						+ ". File exists: " + e.getMessage());
-			} catch (IOException e)
-			{
-				logger.warn("Skipping function " + functionId + ". IO Error: "
-						+ e.getMessage());
-			}
+
+				@Override
+				public void run()
+				{
+
+					String id = functionNode.getId().toString();
+					Long functionId = Long.parseLong(id.split(":")[1]);
+					OrientGraphNoTx g = factory.getNoTx();
+					try
+					{
+						Path path = getOutputDestination(functionId);
+						Files.createDirectories(path.getParent());
+						CFGCreator cfgCreator = new CFGCreator(g);
+						Graph cfg = cfgCreator.createCFG(functionId);
+						dumpGraph(cfg, path);
+						logger.info("Writing control flow graph of function "
+								+ functionId + " to file " + path.toString()
+								+ ".");
+					} catch (FileAlreadyExistsException e)
+					{
+						logger.warn("Skipping function " + functionId
+								+ ". File exists: " + e.getMessage());
+					} catch (IOException e)
+					{
+						logger.error("Skipping function " + functionId
+								+ ". IO Exception: " + e.getMessage());
+					} catch (ODatabaseException e)
+					{
+						logger.error(e.getMessage());
+					} finally
+					{
+						g.shutdown();
+					}
+				}
+			});
 		}
 
-		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "OK\n", null);
+		factory.close();
+
+		executor.shutdown();
+		while (!executor.isTerminated())
+		{
+			executor.awaitTermination(60, TimeUnit.SECONDS);
+		}
+		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
+				baseDir.toString() + "\n", null);
 		return false;
 	}
 
