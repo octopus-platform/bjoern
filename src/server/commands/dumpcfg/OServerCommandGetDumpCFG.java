@@ -43,6 +43,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 	private OrientGraphNoTx g;
 	private Path baseDir = Paths.get(Constants.FALLBACK_DATA_DIR);
 	private OpenOption[] openOptions = { StandardOpenOption.CREATE_NEW };
+	private String databaseName;
 
 	public OServerCommandGetDumpCFG(
 			final OServerCommandConfiguration iConfiguration)
@@ -71,7 +72,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 			throws Exception
 	{
 		String[] urlParts = checkSyntax(iRequest.url);
-		String databaseName = urlParts[1];
+		databaseName = urlParts[1];
 
 		g = new OrientGraphFactory(
 				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName).getNoTx();
@@ -213,7 +214,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 
 	private Path getOutputDestination(long functionId)
 	{
-		String filename = "cfg" + functionId + ".graphml";
+		String filename = databaseName + "-cfg" + functionId + ".graphml";
 		Path dest = Paths.get(baseDir.toString(), filename);
 		return dest.toAbsolutePath().normalize();
 	}
