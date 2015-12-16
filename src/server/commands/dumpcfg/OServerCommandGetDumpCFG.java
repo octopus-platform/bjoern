@@ -26,6 +26,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
@@ -44,7 +45,6 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 	private String databaseName;
 	private int nThreads = 1;
 	OrientGraphFactory factory;
-	private OrientGraphNoTx g;
 
 	public OServerCommandGetDumpCFG(
 			final OServerCommandConfiguration iConfiguration)
@@ -92,9 +92,9 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 
 		ExecutorService executor = Executors.newFixedThreadPool(nThreads);
 
-		g = factory.getNoTx();
+		OrientGraphNoTx g = factory.getNoTx();
 
-		for (Vertex functionNode : getFunctionNodes())
+		for (Vertex functionNode : getFunctionNodes(g))
 		{
 			executor.execute(new Runnable()
 			{
@@ -135,6 +135,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 			});
 		}
 
+		g.shutdown();
 		factory.close();
 
 		executor.shutdown();
@@ -154,7 +155,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		out.close();
 	}
 
-	protected Iterable<Vertex> getFunctionNodes()
+	protected static Iterable<Vertex> getFunctionNodes(OrientBaseGraph g)
 	{
 		String fmt = "SELECT * FROM V WHERE %s LUCENE \"nodeType:Func\"";
 		String queryStr = String.format(fmt, Constants.INDEX_NAME);
