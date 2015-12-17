@@ -1,8 +1,6 @@
 package server.commands.dumpcfg;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -15,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -24,59 +21,79 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestExc
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
 import server.Constants;
-import server.components.graphs.CFGCreator;
+import server.components.graphs.CFGDumpRunnable;
 
 public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 {
-	private static final String[] NAMES = { "GET|dumpcfg/*" };
 	private static final Logger logger = LoggerFactory
 			.getLogger(OServerCommandGetDumpCFG.class);
+	private static final String[] NAMES = { "GET|dumpcfg/*" };
+	private static final int N_THREADS = 1;
 
 	private Path baseDir = Paths.get(Constants.FALLBACK_DATA_DIR);
 	private OpenOption[] openOptions = { StandardOpenOption.CREATE_NEW };
-	private String databaseName;
-	private int nThreads = 1;
-	OrientGraphFactory factory;
+	private int nThreads = N_THREADS;
 
 	public OServerCommandGetDumpCFG(
-			final OServerCommandConfiguration iConfiguration)
+			final OServerCommandConfiguration iConfiguration) throws IOException
+	{
+		readCommandParameter(iConfiguration);
+	}
+
+	private void readCommandParameter(
+			OServerCommandConfiguration iConfiguration)
 	{
 		for (OServerEntryConfiguration par : iConfiguration.parameters)
 		{
 			switch (par.name)
 			{
 			case "dest":
-				baseDir = Paths.get(par.value).toAbsolutePath().normalize();
+				readDestParameter(par);
 				break;
 			case "force":
-				if (Boolean.parseBoolean(par.value))
-				{
-					openOptions = new OpenOption[] { StandardOpenOption.CREATE,
-							StandardOpenOption.TRUNCATE_EXISTING,
-							StandardOpenOption.WRITE };
-				}
+				readForceParameter(par);
 				break;
 			case "threads":
-				try
-				{
-					nThreads = Integer.parseInt(par.value);
-				} finally
-				{
-					if (nThreads < 1)
-					{
-						nThreads = 1;
-					}
-				}
+				readThreadsParameter(par);
 				break;
 			}
+		}
+	}
+
+	private void readThreadsParameter(OServerEntryConfiguration par)
+	{
+		try
+		{
+			nThreads = Integer.parseInt(par.value);
+		} catch (NumberFormatException e)
+		{
+			logger.error(
+					"Invalid parameter value: Not an integer " + par.value);
+		}
+		if (nThreads < 1)
+		{
+			nThreads = N_THREADS;
+		}
+	}
+
+	private void readDestParameter(OServerEntryConfiguration parameter)
+	{
+		baseDir = Paths.get(parameter.value).toAbsolutePath().normalize();
+	}
+
+	private void readForceParameter(OServerEntryConfiguration parameter)
+	{
+		if (Boolean.parseBoolean(parameter.value))
+		{
+			openOptions = new OpenOption[] { StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING,
+					StandardOpenOption.WRITE };
 		}
 	}
 
@@ -84,59 +101,28 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 	public boolean execute(OHttpRequest iRequest, OHttpResponse iResponse)
 			throws Exception
 	{
+		Files.createDirectories(baseDir);
 		String[] urlParts = checkSyntax(iRequest.url);
-		databaseName = urlParts[1];
-		factory = new OrientGraphFactory(
-				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName);
-		factory.setupPool(1, 10);
-
+		String databaseName = urlParts[1];
+		OrientGraphFactory factory = new OrientGraphFactory(
+				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName).setupPool(1,
+						10);
 		ExecutorService executor = Executors.newFixedThreadPool(nThreads);
-
 		OrientGraphNoTx g = factory.getNoTx();
 
 		for (Vertex functionNode : getFunctionNodes(g))
 		{
-			executor.execute(new Runnable()
-			{
+			CFGDumpRunnable runnable = new CFGDumpRunnable(factory,
+					functionNode, baseDir, openOptions);
 
-				@Override
-				public void run()
-				{
-					OrientGraphNoTx g = factory.getNoTx();
-					Object functionId = functionNode.getId();
-					try
-					{
-						Path path = getOutputDestination(functionId);
-						Files.createDirectories(path.getParent());
-						CFGCreator cfgCreator = new CFGCreator(g);
-						Graph cfg = cfgCreator.createCFG(functionNode);
-						dumpGraph(cfg, path);
-						logger.info("Writing control flow graph of function "
-								+ functionId + " to file " + path.toString()
-								+ ".");
-					} catch (FileAlreadyExistsException e)
-					{
-						logger.warn("Skipping function " + functionId
-								+ ". File exists: " + e.getMessage());
-					} catch (IOException e)
-					{
-						logger.error("Skipping function " + functionId
-								+ ". IO Exception: " + e.getMessage());
-					} catch (ODatabaseException e)
-					{
-						logger.error(e.getMessage());
-					} finally
-					{
-						g.shutdown();
-					}
-				}
-			});
+			executor.execute(runnable);
 		}
 
 		g.shutdown();
 		factory.close();
-
 		executor.shutdown();
+
+		// Wait until all work is done.
 		while (!executor.isTerminated())
 		{
 			executor.awaitTermination(60, TimeUnit.SECONDS);
@@ -144,13 +130,6 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
 				baseDir.toString() + "\n", null);
 		return false;
-	}
-
-	protected void dumpGraph(Graph graph, Path path) throws IOException
-	{
-		OutputStream out = Files.newOutputStream(path, openOptions);
-		GraphMLWriter.outputGraph(graph, out);
-		out.close();
 	}
 
 	protected static Iterable<Vertex> getFunctionNodes(OrientBaseGraph g)
@@ -172,13 +151,6 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 			throw new OHttpRequestException(syntax);
 		}
 		return urlParts;
-	}
-
-	private Path getOutputDestination(Object functionId)
-	{
-		String filename = databaseName + "-cfg" + functionId + ".graphml";
-		Path dest = Paths.get(baseDir.toString(), filename);
-		return dest.toAbsolutePath().normalize();
 	}
 
 	@Override
