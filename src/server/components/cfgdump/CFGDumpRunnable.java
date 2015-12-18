@@ -1,4 +1,4 @@
-package server.components.graphs;
+package server.components.cfgdump;
 
 import java.io.IOException;
 import java.io.OutputStream;

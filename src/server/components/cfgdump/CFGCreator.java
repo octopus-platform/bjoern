@@ -1,4 +1,4 @@
-package server.components.graphs;
+package server.components.cfgdump;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;

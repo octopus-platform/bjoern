@@ -21,7 +21,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import server.Constants;
-import server.components.graphs.CFGDumpService;
+import server.components.cfgdump.CFGDumpService;
 
 public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 {
@@ -101,8 +101,8 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		OrientGraphNoTx g = new OrientGraphNoTx(
 				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName);
 
-		CFGDumpService service = new CFGDumpService(databaseName, baseDir, openOptions,
-				nThreads);
+		CFGDumpService service = new CFGDumpService(databaseName, baseDir,
+				openOptions, nThreads);
 		for (Vertex functionNode : getFunctionNodes(g))
 		{
 			service.dumpCFG(functionNode);
