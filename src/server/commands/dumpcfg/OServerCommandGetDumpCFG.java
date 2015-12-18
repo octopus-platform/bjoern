@@ -1,19 +1,14 @@
 package server.commands.dumpcfg;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -23,11 +18,10 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import server.Constants;
-import server.components.graphs.CFGDumpRunnable;
+import server.components.graphs.CFGDumpService;
 
 public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 {
@@ -103,34 +97,24 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 	{
 		String[] urlParts = checkSyntax(iRequest.url);
 		String databaseName = urlParts[1];
-		Path targetDirectory = Paths.get(baseDir.toString(), databaseName,
-				"cfg");
-		Files.createDirectories(targetDirectory);
-		OrientGraphFactory factory = new OrientGraphFactory(
-				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName).setupPool(1,
-						10);
-		ExecutorService executor = Executors.newFixedThreadPool(nThreads);
-		OrientGraphNoTx g = factory.getNoTx();
 
+		OrientGraphNoTx g = new OrientGraphNoTx(
+				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName);
+
+		CFGDumpService service = new CFGDumpService(databaseName, baseDir, openOptions,
+				nThreads);
 		for (Vertex functionNode : getFunctionNodes(g))
 		{
-			CFGDumpRunnable runnable = new CFGDumpRunnable(factory,
-					functionNode, targetDirectory, openOptions);
-
-			executor.execute(runnable);
+			service.dumpCFG(functionNode);
 		}
-
 		g.shutdown();
-		factory.close();
-		executor.shutdown();
 
 		// Wait until all work is done.
-		while (!executor.isTerminated())
-		{
-			executor.awaitTermination(60, TimeUnit.SECONDS);
-		}
+		service.shutDown();
+		service.awaitTermination();
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
 				baseDir.toString() + "\n", null);
+
 		return false;
 	}
 
