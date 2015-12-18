@@ -136,12 +136,8 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 
 	protected static Iterable<Vertex> getFunctionNodes(OrientBaseGraph g)
 	{
-		String fmt = "SELECT * FROM V WHERE %s LUCENE \"nodeType:Func\"";
-		String queryStr = String.format(fmt, Constants.INDEX_NAME);
-
-		OCommandSQL query = new OCommandSQL(queryStr);
-		Iterable<Vertex> result = g.command(query).execute();
-		return result;
+		return g.getVertices("V", Constants.INDEX_KEYS,
+				new String[] { "nodeType:Func" });
 	}
 
 	protected String[] checkSyntax(String url)

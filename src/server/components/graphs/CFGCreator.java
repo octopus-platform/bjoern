@@ -1,9 +1,5 @@
 package server.components.graphs;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -75,12 +71,7 @@ public class CFGCreator
 
 	protected Iterable<Vertex> getBasicBlocksOfFunction(Long functionId)
 	{
-		String fmt = "SELECT * FROM V WHERE %s LUCENE \"(%s)\"";
-		String luceneQuery = "functionId:" + functionId + " AND  nodeType:BB";
-		String queryStr = String.format(fmt, Constants.INDEX_NAME, luceneQuery);
-
-		OCommandSQL query = new OCommandSQL(queryStr);
-		Iterable<Vertex> result = g.command(query).execute();
-		return result;
+		return g.getVertices("V", Constants.INDEX_KEYS,
+				new String[] { "functionId:" + functionId, "nodeType:BB" });
 	}
 }

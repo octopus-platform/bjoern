@@ -12,6 +12,8 @@ public class Constants
 	public static final String DB_USERNAME = "root";
 	public static final String DB_PASSWORD = "admin";
 
-	public static final String INDEX_NAME = "[addr,childNum,code,comment,esil,functionId,key,nodeType,repr]";
+	public static final String INDEX_NAME = "[addr,childNum,code,comment,esil,key,nodeType,repr]";
 	public static final int MAX_NODES_FOR_KEY = 128;
+	public static final String[] INDEX_KEYS = { "addr", "childNum", "code",
+			"comment", "esil", "key", "nodeType", "repr" };
 }
