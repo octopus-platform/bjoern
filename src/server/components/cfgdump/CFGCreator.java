@@ -1,5 +1,7 @@
 package server.components.cfgdump;
 
+import java.util.LinkedList;
+
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -36,7 +38,7 @@ public class CFGCreator
 			for (Edge edge : bb.getEdges(Direction.OUT, "IS_BB_OF"))
 			{
 				Vertex instr = edge.getVertex(Direction.IN);
-				Vertex w = sg.addVertex(instr);
+				Vertex w = sg.addVertex(instr.getId());
 				for (String property : instr.getPropertyKeys())
 				{
 					w.setProperty(property, instr.getProperty(property));
@@ -55,7 +57,7 @@ public class CFGCreator
 					"CFLOW_TRUE", "CFLOW_FALSE"))
 			{
 				Vertex v = sg.getVertex(bb.getId());
-				Vertex w = sg.getVertex(edge.getVertex(Direction.IN));
+				Vertex w = sg.getVertex(edge.getVertex(Direction.IN).getId());
 				if (w != null)
 				{
 					Edge e = sg.addEdge(edge.getId(), v, w, edge.getLabel());
@@ -71,7 +73,7 @@ public class CFGCreator
 
 	protected Iterable<Vertex> getBasicBlocksOfFunction(Long functionId)
 	{
-		return g.getVertices("V", Constants.INDEX_KEYS,
-				new String[] { "functionId:" + functionId, "nodeType:BB" });
+		return g.getVertices("V", Constants.INDEX_KEYS, new String[] {
+				"(functionId:" + functionId + " AND nodeType:BB)" });
 	}
 }
