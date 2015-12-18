@@ -101,9 +101,11 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 	public boolean execute(OHttpRequest iRequest, OHttpResponse iResponse)
 			throws Exception
 	{
-		Files.createDirectories(baseDir);
 		String[] urlParts = checkSyntax(iRequest.url);
 		String databaseName = urlParts[1];
+		Path targetDirectory = Paths.get(baseDir.toString(), databaseName,
+				"cfg");
+		Files.createDirectories(targetDirectory);
 		OrientGraphFactory factory = new OrientGraphFactory(
 				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName).setupPool(1,
 						10);
@@ -113,7 +115,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		for (Vertex functionNode : getFunctionNodes(g))
 		{
 			CFGDumpRunnable runnable = new CFGDumpRunnable(factory,
-					functionNode, baseDir, openOptions);
+					functionNode, targetDirectory, openOptions);
 
 			executor.execute(runnable);
 		}

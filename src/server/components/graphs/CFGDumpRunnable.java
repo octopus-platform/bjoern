@@ -45,7 +45,7 @@ public class CFGDumpRunnable implements Runnable
 		{
 			CFGCreator cfgCreator = new CFGCreator(graph);
 			Graph cfg = cfgCreator.createCFG(functionNode);
-			Path targetFile = getTargetFile(functionId);
+			Path targetFile = getTargetFile(functionId.toString());
 			dumpGraph(cfg, targetFile);
 			logger.info("Writing control flow graph of function " + functionId
 					+ " to file " + targetDirectory + ".");
@@ -65,10 +65,9 @@ public class CFGDumpRunnable implements Runnable
 		}
 	}
 
-	private Path getTargetFile(Object functionId)
+	private Path getTargetFile(String function)
 	{
-		String databaseName = factory.getDatabase().getName();
-		String filename = databaseName + "-cfg" + functionId + ".graphml";
+		String filename = function + ".graphml";
 		Path dest = Paths.get(targetDirectory.toString(), filename);
 		return dest.toAbsolutePath().normalize();
 	}
