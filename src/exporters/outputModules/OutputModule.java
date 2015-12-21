@@ -8,8 +8,6 @@ public interface OutputModule
 {
 	public void initialize(String outputDir);
 
-	public void clearCache();
-
 	public void finish();
 
 	public void writeFunctionInfo(Function function);

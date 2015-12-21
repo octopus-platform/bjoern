@@ -3,8 +3,6 @@ package exporters.outputModules.CSV;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,38 +24,11 @@ public class CSVWriter
 	static PrintWriter edgeWriter;
 	static PrintWriter keyedEdgeWriter;
 
-	static long lastNodeId = 0;
-
-	static Map<Node, Long> objectToId = new HashMap<Node, Long>();
-
-	public static void clear()
-	{
-		clearObjectCache();
-	}
-
-	private static void clearObjectCache()
-	{
-		for (Iterator<Map.Entry<Node, Long>> it = objectToId.entrySet()
-				.iterator(); it.hasNext();)
-		{
-			Map.Entry<Node, Long> entry = it.next();
-			if (!entry.getKey().isPermanent())
-			{
-				it.remove();
-			}
-		}
-	}
-
 	public static void finish()
 	{
 		closeEdgeFile();
 		closeNodeFile();
 		closeUnresolvedEdgeFile();
-	}
-
-	static public Long getIdForNode(Node o)
-	{
-		return objectToId.get(o);
 	}
 
 	public static void changeOutputDir(String dirNameForFileNode)
@@ -73,11 +44,6 @@ public class CSVWriter
 
 	public static void addNode(Node node, Map<String, Object> properties)
 	{
-		// If the node has already been written, don't to anything
-		Long id = objectToId.get(node);
-		if (id != null)
-			return;
-
 		String sep = "";
 		for (String property : nodeProperties)
 		{
@@ -88,9 +54,6 @@ public class CSVWriter
 			sep = SEPARATOR;
 		}
 		nodeWriter.write("\n");
-		if (node != null)
-			objectToId.put(node, lastNodeId);
-		lastNodeId++;
 	}
 
 	private static String espaceAndQuote(String propValue)

@@ -130,7 +130,6 @@ public class RadareExporter
 	private static void clearCaches()
 	{
 		NodeStore.clearCache();
-		outputModule.clearCache();
 	}
 
 }

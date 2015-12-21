@@ -31,12 +31,6 @@ public class CSVOutputModule implements OutputModule
 	}
 
 	@Override
-	public void clearCache()
-	{
-		CSVWriter.clear();
-	}
-
-	@Override
 	public void finish()
 	{
 		CSVWriter.finish();
