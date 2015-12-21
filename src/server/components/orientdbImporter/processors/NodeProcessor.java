@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import server.Constants;
 import server.components.orientdbImporter.CSVImporter;
 
 import com.opencsv.CSVReader;
@@ -82,7 +83,33 @@ public class NodeProcessor extends CSVFileProcessor
 			properties[2 * (i - 1) + 1] = row[i];
 		}
 		Object[] props = properties;
+		createNodeInGraph(id, props);
+	}
+
+	private void createNodeInGraph(String id, Object[] props)
+	{
+		doCreateNodeInGraph(id, props, 0);
+	}
+
+	private void doCreateNodeInGraph(String baseId, Object[] props, int num)
+	{
 		BatchGraph<?> batchGraph = (BatchGraph<?>) importer.getGraph();
-		batchGraph.addVertex(id, props);
+
+		if(num == Constants.MAX_NODES_FOR_KEY)
+			throw new RuntimeException("Too many nodes with the same key");
+
+		// The first node gets the baseId, all others will
+		// obtain an additional "_$number"
+		String completeId;
+		if(num == 0)
+			completeId = baseId;
+		else
+			completeId = String.format("%s_%d", baseId, num);
+
+		try {
+			batchGraph.addVertex(baseId, props);
+		} catch (IllegalArgumentException e) {
+			doCreateNodeInGraph(baseId, props, num + 1);
+		}
 	}
 }
