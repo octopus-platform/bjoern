@@ -98,7 +98,7 @@ public class CSVWriter
 		return "\"" + propValue.replace("\"", "\\\"") + "\"";
 	}
 
-	public static void addEdge(long srcId, long dstId,
+	public static void addEdge(String srcId, String dstId,
 			Map<String, Object> properties, String edgeType)
 	{
 		edgeWriter.print(srcId);

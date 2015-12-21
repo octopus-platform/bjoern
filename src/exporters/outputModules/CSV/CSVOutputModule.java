@@ -95,8 +95,10 @@ public class CSVOutputModule implements OutputModule
 	private void connectNodeToFunction(VariableOrArgument varOrArg)
 	{
 		Function function = currentFunction;
-		Long srcId = CSVWriter.getIdForNode(varOrArg);
-		Long dstId = CSVWriter.getIdForNode(function);
+
+		String srcId = varOrArg.getKey();
+		String dstId = function.getKey();
+
 		if (varOrArg.getType().equals(CSVFields.VAR))
 			CSVWriter.addEdge(srcId, dstId, null, EdgeTypes.IS_VAR_OF);
 		else
@@ -166,8 +168,10 @@ public class CSVOutputModule implements OutputModule
 			Instruction instr)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
-		long srcId = CSVWriter.getIdForNode(block);
-		long dstId = CSVWriter.getIdForNode(instr);
+
+		String srcId = block.getKey();
+		String dstId = instr.getKey();
+
 		CSVWriter.addEdge(srcId, dstId, properties, EdgeTypes.IS_BB_OF);
 	}
 
@@ -227,8 +231,9 @@ public class CSVOutputModule implements OutputModule
 			BasicBlock from = edge.getFrom();
 			BasicBlock to = edge.getTo();
 
-			long srcId = CSVWriter.getIdForNode(from);
-			long dstId = CSVWriter.getIdForNode(to);
+			String srcId = from.getKey();
+			String dstId = to.getKey();
+
 			Map<String, Object> properties = new HashMap<String, Object>();
 			String edgeType = edge.getType();
 			CSVWriter.addEdge(srcId, dstId, properties, edgeType);
