@@ -7,11 +7,18 @@ import java.util.List;
 public class Disassembly
 {
 
+	private final long funcAddress;
 	List<VariableOrArgument> varsAndArgs = new LinkedList<VariableOrArgument>();
 	HashMap<Long, DisassemblyLine> addrToLine = new HashMap<Long, DisassemblyLine>();
 
+	public Disassembly(long funcAddress)
+	{
+		this.funcAddress = funcAddress;
+	}
+
 	public void addVarOrArg(VariableOrArgument parsedVarOrArg)
 	{
+		parsedVarOrArg.setAddr(funcAddress);
 		varsAndArgs.add(parsedVarOrArg);
 	}
 

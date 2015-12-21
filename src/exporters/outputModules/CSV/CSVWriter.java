@@ -78,13 +78,14 @@ public class CSVWriter
 		if (id != null)
 			return;
 
-		nodeWriter.write((new Long(lastNodeId)).toString());
+		String sep = "";
 		for (String property : nodeProperties)
 		{
-			nodeWriter.write(SEPARATOR);
+			nodeWriter.write(sep);
 			String propValue = (String) properties.get(property);
 			if (propValue != null)
 				nodeWriter.write(espaceAndQuote(propValue));
+			sep = SEPARATOR;
 		}
 		nodeWriter.write("\n");
 		if (node != null)
@@ -137,8 +138,7 @@ public class CSVWriter
 
 	private static void writeNodePropertyNames()
 	{
-		String joined = CSVFields.ID + SEPARATOR
-				+ StringUtils.join(nodeProperties, SEPARATOR);
+		String joined = StringUtils.join(nodeProperties, SEPARATOR);
 		nodeWriter.println(joined);
 	}
 

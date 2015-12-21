@@ -48,6 +48,8 @@ public class CSVOutputModule implements OutputModule
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(CSVFields.CODE, flag.getValue());
 		properties.put(CSVFields.KEY, flag.getKey());
+		properties.put(CSVFields.TYPE, flag.getType());
+		properties.put(CSVFields.ADDR, flag.getAddress().toString());
 		// Skipping length-field for now, let's see if we need it.
 		CSVWriter.addNode(flag, properties);
 	}
@@ -110,12 +112,13 @@ public class CSVOutputModule implements OutputModule
 		else
 			properties.put(CSVFields.TYPE, NodeTypes.ARG);
 
+		properties.put(CSVFields.KEY, varOrArg.getKey());
+		properties.put(CSVFields.TYPE, varOrArg.getType());
+		properties.put(CSVFields.ADDR, varOrArg.getAddress().toString());
 		properties.put(CSVFields.NAME, varOrArg.getVarName());
 		properties.put(CSVFields.REPR, varOrArg.getVarType());
 		properties.put(CSVFields.CODE, varOrArg.getRegPlusOffset());
 
-		// TODO: Watchout: We have not set the address on VariableOrArgument
-		// nodes yet.
 		CSVWriter.addNode(varOrArg, properties);
 	}
 

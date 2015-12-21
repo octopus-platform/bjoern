@@ -74,7 +74,7 @@ public class RadareInputModule implements InputModule
 		}
 
 		FunctionContent content = RadareFunctionContentCreator
-				.createContentFromJSON(jsonFunctionContent);
+				.createContentFromJSON(jsonFunctionContent, address);
 
 		jsonFunctionContent = null;
 

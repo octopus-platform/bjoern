@@ -11,15 +11,17 @@ import exporters.structures.edges.DirectedEdge;
 public class Function extends Node
 {
 
-	FunctionContent content = new FunctionContent();
+	FunctionContent content;
 	List<DirectedEdge> keyedEdges = new LinkedList<DirectedEdge>();
 
 	private String name = "";
 
-	public Function()
+	public Function(long addr)
 	{
+		content = new FunctionContent(addr);
 		setType(NodeTypes.FUNCTION);
 		setIsPermanent(true);
+		setAddr(addr);
 	}
 
 	public FunctionContent getContent()

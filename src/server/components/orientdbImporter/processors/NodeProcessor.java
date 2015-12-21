@@ -54,8 +54,6 @@ public class NodeProcessor extends CSVFileProcessor
 		List<String> keysToIndex = new LinkedList<String>();
 		for (String key : importer.getVertexKeys())
 		{
-			if (key.equals(CSVFields.ID))
-				continue;
 			keysToIndex.add(key);
 		}
 
@@ -96,7 +94,7 @@ public class NodeProcessor extends CSVFileProcessor
 		BatchGraph<?> batchGraph = (BatchGraph<?>) importer.getGraph();
 
 		if(num == Constants.MAX_NODES_FOR_KEY)
-			throw new RuntimeException("Too many nodes with the same key");
+			throw new RuntimeException("Too many nodes with the same key: " + baseId);
 
 		// The first node gets the baseId, all others will
 		// obtain an additional "_$number"
@@ -107,7 +105,7 @@ public class NodeProcessor extends CSVFileProcessor
 			completeId = String.format("%s_%d", baseId, num);
 
 		try {
-			batchGraph.addVertex(baseId, props);
+			batchGraph.addVertex(completeId, props);
 		} catch (IllegalArgumentException e) {
 			doCreateNodeInGraph(baseId, props, num + 1);
 		}

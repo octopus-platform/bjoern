@@ -16,7 +16,7 @@ public class RadareFunctionCreator
 
 	public static Function createFromJSON(JSONObject jsonFunction)
 	{
-		Function retval = new Function();
+		Function retval = new Function(jsonFunction.getLong("offset"));
 
 		initFunctionInfo(jsonFunction, retval);
 		initReferences(jsonFunction, retval);

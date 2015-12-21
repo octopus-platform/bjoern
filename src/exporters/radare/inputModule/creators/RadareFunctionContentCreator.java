@@ -16,9 +16,9 @@ public class RadareFunctionContentCreator
 {
 
 	public static FunctionContent createContentFromJSON(
-			JSONObject jsonFunctionContent)
+			JSONObject jsonFunctionContent, Long address)
 	{
-		FunctionContent content = new FunctionContent();
+		FunctionContent content = new FunctionContent(address);
 
 		initFunctionProperties(content, jsonFunctionContent);
 		createBasicBlocks(content, jsonFunctionContent);

@@ -15,10 +15,16 @@ import exporters.structures.edges.ResolvedCFGEdge;
 
 public class FunctionContent
 {
+	private final long functionAddr;
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<ResolvedCFGEdge> edges = new LinkedList<ResolvedCFGEdge>();
 	List<DirectedEdge> keyedEdges = new LinkedList<DirectedEdge>();
-	Disassembly disassembly = new Disassembly();
+	Disassembly disassembly = new Disassembly(0);
+
+	public FunctionContent(long functionAddr)
+	{
+		this.functionAddr = functionAddr;
+	}
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -108,7 +114,7 @@ public class FunctionContent
 		RadareDisassemblyParser parser = new RadareDisassemblyParser();
 		try
 		{
-			disassembly = parser.parse(disassemblyStr);
+			disassembly = parser.parse(disassemblyStr, functionAddr);
 		}
 		catch (InvalidDisassembly e)
 		{

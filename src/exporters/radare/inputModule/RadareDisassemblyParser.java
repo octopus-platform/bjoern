@@ -21,9 +21,9 @@ public class RadareDisassemblyParser
 	static Pattern instructionPattern = Pattern
 			.compile("0x(.*?)[ ]+?(.*?)( ;(.*))?$");
 
-	public Disassembly parse(String disassembly) throws EmptyDisassembly
+	public Disassembly parse(String disassembly, long functionAddr) throws EmptyDisassembly
 	{
-		Disassembly retval = new Disassembly();
+		Disassembly retval = new Disassembly(functionAddr);
 
 		initializeLines(disassembly);
 		parseLines(retval);

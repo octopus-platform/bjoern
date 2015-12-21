@@ -11,7 +11,6 @@ public class CSVFields
 	public static final String ADDR = "addr";
 	public static final String CHILD_NUM = "childNum";
 	public static final String COMMENT = "comment";
-	public static final String ID = "nodeId";
 
 	public static final Object VAR = "var";
 	public static final String FUNCTION_ID = "functionId";
