@@ -1,5 +1,10 @@
 package exporters;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.CommandLineInterface;
 
@@ -17,6 +22,36 @@ public abstract class Exporter
 	protected CSVOutputModule outputModule;
 	protected CommandLineInterface cmdLine;
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(Exporter.class);
+
 	public abstract void run(String[] args);
+
+	public void tryToExport(String binaryFilename, String outputDir)
+	{
+		try
+		{
+			export(binaryFilename, outputDir);
+		}
+		catch (IOException e)
+		{
+			System.err.println(e.getMessage());
+		}
+	}
+
+	public void export(String binaryFilename, String outputDir)
+			throws IOException
+	{
+
+		logger.info("Exporting: {}", binaryFilename);
+
+		inputModule.initialize(binaryFilename);
+		outputModule.initialize(outputDir);
+		loadAndOutput();
+		outputModule.finish();
+		inputModule.finish();
+	}
+
+	protected abstract void loadAndOutput() throws IOException;
 
 }

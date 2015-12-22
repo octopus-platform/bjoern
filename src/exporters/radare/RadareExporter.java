@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.cli.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import exporters.Exporter;
 import exporters.nodeStore.NodeStore;
@@ -16,8 +14,6 @@ import exporters.structures.Function;
 
 public class RadareExporter extends Exporter
 {
-	private static final Logger logger = LoggerFactory
-			.getLogger(RadareExporter.class);
 
 	List<Function> functions;
 
@@ -58,31 +54,12 @@ public class RadareExporter extends Exporter
 		System.exit(0);
 	}
 
-	private void tryToExport(String binaryFilename, String outputDir)
+	@Override
+	protected void loadAndOutput() throws IOException
 	{
-		try
-		{
-			export(binaryFilename, outputDir);
-		}
-		catch (IOException e)
-		{
-			System.err.println(e.getMessage());
-		}
-	}
-
-	public void export(String binaryFilename, String outputDir)
-			throws IOException
-	{
-
-		logger.info("Exporting: {}", binaryFilename);
-
-		inputModule.initialize(binaryFilename);
-		outputModule.initialize(outputDir);
 		loadAndOutputFlags();
 		loadAndOutputFunctionInfo();
 		loadAndOutputFunctionContent();
-		outputModule.finish();
-		inputModule.finish();
 	}
 
 	private void loadAndOutputFlags() throws IOException
