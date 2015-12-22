@@ -28,7 +28,7 @@ public class BjoernImport
 	private static void invokeRadare2(String[] args) throws IOException
 	{
 		String pathToBinary = cmdLine.getCodedir();
-		RadareExporter.export(pathToBinary, ".");
+		(new RadareExporter()).export(pathToBinary, ".");
 	}
 
 	private static void invokeImportPlugin() throws MalformedURLException

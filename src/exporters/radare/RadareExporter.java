@@ -7,27 +7,24 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import exporters.InputModule;
+import exporters.Exporter;
 import exporters.nodeStore.NodeStore;
 import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.inputModule.RadareInputModule;
 import exporters.structures.Flag;
 import exporters.structures.Function;
 
-public class RadareExporter
+public class RadareExporter extends Exporter
 {
-
 	private static final Logger logger = LoggerFactory
 			.getLogger(RadareExporter.class);
 
-	static CommandLineInterface cmdLine = new CommandLineInterface();
-	static InputModule inputModule = new RadareInputModule();
-	static CSVOutputModule outputModule = new CSVOutputModule();
+	List<Function> functions;
 
-	static List<Function> functions;
-
-	public static void main(String[] args)
+	@Override
+	public void run(String[] args)
 	{
+		initialize();
 		parseCommandLine(args);
 		String binaryFilename = cmdLine.getBinaryFilename();
 		String outputDir = cmdLine.getOutputDir();
@@ -35,7 +32,33 @@ public class RadareExporter
 		tryToExport(binaryFilename, outputDir);
 	}
 
-	private static void tryToExport(String binaryFilename, String outputDir)
+	private void initialize()
+	{
+		cmdLine = new CommandLineInterface();
+		inputModule = new RadareInputModule();
+		outputModule = new CSVOutputModule();
+	}
+
+	private void parseCommandLine(String[] args)
+	{
+		try
+		{
+			cmdLine.parseCommandLine(args);
+		}
+		catch (RuntimeException | ParseException e)
+		{
+			printHelpAndTerminate(e);
+		}
+	}
+
+	private void printHelpAndTerminate(Exception e)
+	{
+		System.err.println(e.getMessage());
+		cmdLine.printHelp();
+		System.exit(0);
+	}
+
+	private void tryToExport(String binaryFilename, String outputDir)
 	{
 		try
 		{
@@ -47,7 +70,7 @@ public class RadareExporter
 		}
 	}
 
-	public static void export(String binaryFilename, String outputDir)
+	public void export(String binaryFilename, String outputDir)
 			throws IOException
 	{
 
@@ -62,26 +85,7 @@ public class RadareExporter
 		inputModule.finish();
 	}
 
-	private static void parseCommandLine(String[] args)
-	{
-		try
-		{
-			cmdLine.parseCommandLine(args);
-		}
-		catch (RuntimeException | ParseException e)
-		{
-			printHelpAndTerminate(e);
-		}
-	}
-
-	private static void printHelpAndTerminate(Exception e)
-	{
-		System.err.println(e.getMessage());
-		cmdLine.printHelp();
-		System.exit(0);
-	}
-
-	private static void loadAndOutputFlags() throws IOException
+	private void loadAndOutputFlags() throws IOException
 	{
 		List<Flag> flags = inputModule.getFlags();
 		for (Flag flag : flags)
@@ -90,7 +94,7 @@ public class RadareExporter
 		}
 	}
 
-	private static void loadAndOutputFunctionInfo() throws IOException
+	private void loadAndOutputFunctionInfo() throws IOException
 	{
 		functions = inputModule.getFunctions();
 		for (Function function : functions)
@@ -100,7 +104,7 @@ public class RadareExporter
 		}
 	}
 
-	private static void loadAndOutputFunctionContent() throws IOException
+	private void loadAndOutputFunctionContent() throws IOException
 	{
 		for (Function function : functions)
 		{
@@ -109,7 +113,7 @@ public class RadareExporter
 
 	}
 
-	private static void processFunction(Function function) throws IOException
+	private void processFunction(Function function) throws IOException
 	{
 
 		if (function == null)
@@ -127,7 +131,7 @@ public class RadareExporter
 		clearCaches();
 	}
 
-	private static void clearCaches()
+	private void clearCaches()
 	{
 		NodeStore.clearCache();
 	}
