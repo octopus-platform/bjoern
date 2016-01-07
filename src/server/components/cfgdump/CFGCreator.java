@@ -1,7 +1,5 @@
 package server.components.cfgdump;
 
-import java.util.LinkedList;
-
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -25,61 +23,43 @@ public class CFGCreator
 	{
 		String id = functionNode.getId().toString();
 		Long functionId = Long.parseLong(id.split(":")[1]);
-		Graph sg = new TinkerGraph();
-		Vertex func = sg.addVertex(functionNode.getId());
-		for (String property : functionNode.getPropertyKeys())
-		{
-			func.setProperty(property, functionNode.getProperty(property));
-		}
+		CFGGraphWrapper sg = new CFGGraphWrapper(new TinkerGraph());
+		sg.addVertex(functionNode);
 		Iterable<Vertex> basicBlocks = getBasicBlocksOfFunction(functionId);
 		// Connect basic blocks with instructions
 		for (Vertex bb : basicBlocks)
 		{
-			Vertex v = sg.addVertex(bb.getId());
-			for (String property : bb.getPropertyKeys())
-			{
-				v.setProperty(property, bb.getProperty(property));
-			}
+			sg.addVertex(bb);
 			for (Edge edge : bb.getEdges(Direction.OUT, "IS_BB_OF"))
 			{
 				Vertex instr = edge.getVertex(Direction.IN);
-				Vertex w = sg.addVertex(instr.getId());
-				for (String property : instr.getPropertyKeys())
-				{
-					w.setProperty(property, instr.getProperty(property));
-				}
-				Edge e = sg.addEdge(edge.getId(), v, w, edge.getLabel());
-				for (String property : edge.getPropertyKeys())
-				{
-					e.setProperty(property, edge.getProperty(property));
-				}
+				sg.addVertex(instr);
+				sg.addEdge(edge);
 			}
 		}
 		// Connect basic blocks with each other
 		for (Vertex bb : basicBlocks)
 		{
-			Vertex v = sg.getVertex(bb.getId());
 			for (Edge edge : bb.getEdges(Direction.OUT, "CFLOW_ALWAYS",
 					"CFLOW_TRUE", "CFLOW_FALSE"))
 			{
-				Vertex w = sg.getVertex(edge.getVertex(Direction.IN).getId());
-				if (w != null)
+				Vertex head = edge.getVertex(Direction.IN);
+				if (sg.contains(head))
 				{
-					Edge e = sg.addEdge(edge.getId(), v, w, edge.getLabel());
-					for (String property : edge.getPropertyKeys())
-					{
-						e.setProperty(property, edge.getProperty(property));
-					}
+					sg.addEdge(edge);
 				}
 			}
-			// Connect function node with first basic block
-			if (v.getProperty("addr").equals(func.getProperty("addr")))
+			// Add edge from function node to first basic block
+			if (bb.getProperty("addr").equals(functionNode.getProperty("addr")))
 			{
-				Edge e = sg.addEdge("", func, v, "IS_FUNCTION_OF");
+				Graph graph = sg.getGraph();
+				Vertex v = graph.getVertex(functionNode.getId());
+				Vertex w = graph.getVertex(bb.getId());
+				graph.addEdge(id, v, w, "START");
 			}
 
 		}
-		return sg;
+		return sg.getGraph();
 	}
 
 	protected Iterable<Vertex> getBasicBlocksOfFunction(Long functionId)
