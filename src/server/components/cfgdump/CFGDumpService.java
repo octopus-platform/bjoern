@@ -30,7 +30,7 @@ public class CFGDumpService
 						10);
 		this.openOptions = openOptions;
 		this.executor = Executors.newFixedThreadPool(nThreads);
-		this.targetDirectory = Paths.get(dest.toString(), databaseName, "cfg");
+		this.targetDirectory = Paths.get(dest.toString(), "cfg", databaseName);
 		Files.createDirectories(targetDirectory);
 	}
 
