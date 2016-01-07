@@ -26,6 +26,11 @@ public class CFGCreator
 		String id = functionNode.getId().toString();
 		Long functionId = Long.parseLong(id.split(":")[1]);
 		Graph sg = new TinkerGraph();
+		Vertex func = sg.addVertex(functionNode.getId());
+		for (String property : functionNode.getPropertyKeys())
+		{
+			func.setProperty(property, functionNode.getProperty(property));
+		}
 		Iterable<Vertex> basicBlocks = getBasicBlocksOfFunction(functionId);
 		// Connect basic blocks with instructions
 		for (Vertex bb : basicBlocks)
@@ -53,10 +58,10 @@ public class CFGCreator
 		// Connect basic blocks with each other
 		for (Vertex bb : basicBlocks)
 		{
+			Vertex v = sg.getVertex(bb.getId());
 			for (Edge edge : bb.getEdges(Direction.OUT, "CFLOW_ALWAYS",
 					"CFLOW_TRUE", "CFLOW_FALSE"))
 			{
-				Vertex v = sg.getVertex(bb.getId());
 				Vertex w = sg.getVertex(edge.getVertex(Direction.IN).getId());
 				if (w != null)
 				{
@@ -67,6 +72,12 @@ public class CFGCreator
 					}
 				}
 			}
+			// Connect function node with first basic block
+			if (v.getProperty("addr").equals(func.getProperty("addr")))
+			{
+				Edge e = sg.addEdge("", func, v, "IS_FUNCTION_OF");
+			}
+
 		}
 		return sg;
 	}
