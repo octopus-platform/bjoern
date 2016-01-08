@@ -49,7 +49,8 @@ public class CFGDumpRunnable implements Runnable
 		{
 			CFGCreator cfgCreator = new CFGCreator(graph);
 			Graph cfg = cfgCreator.createCFG(functionNode);
-			Path targetFile = getTargetFile(functionId.toString());
+			Path targetFile = getTargetFile(
+					functionId.toString().split(":")[1]);
 			dumpGraph(cfg, targetFile);
 			logger.info("Writing control flow graph of function " + functionId
 					+ " to file " + targetFile + ".");
