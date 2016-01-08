@@ -2,7 +2,6 @@ package server.components.cfgdump;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
@@ -18,17 +17,15 @@ public class CFGDumpService
 {
 
 	private OrientGraphFactory factory;
-	private OpenOption[] openOptions;
 	private ExecutorService executor;
 	private Path targetDirectory;
 
-	public CFGDumpService(String databaseName, Path dest,
-			OpenOption[] openOptions, int nThreads) throws IOException
+	public CFGDumpService(String databaseName, Path dest, int nThreads)
+			throws IOException
 	{
 		this.factory = new OrientGraphFactory(
 				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName).setupPool(1,
 						10);
-		this.openOptions = openOptions;
 		this.executor = Executors.newFixedThreadPool(nThreads);
 		this.targetDirectory = Paths.get(dest.toString(), "cfg", databaseName);
 		Files.createDirectories(targetDirectory);
@@ -37,7 +34,7 @@ public class CFGDumpService
 	public void dumpCFG(Vertex functionNode)
 	{
 		CFGDumpRunnable runnable = new CFGDumpRunnable(factory, functionNode,
-				targetDirectory, openOptions);
+				targetDirectory);
 
 		executor.execute(runnable);
 	}

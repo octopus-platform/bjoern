@@ -1,10 +1,8 @@
 package server.commands.dumpcfg;
 
 import java.io.IOException;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +29,6 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 	private static final int N_THREADS = 1;
 
 	private Path baseDir = Paths.get(Constants.FALLBACK_DATA_DIR);
-	private OpenOption[] openOptions = { StandardOpenOption.CREATE_NEW };
 	private int nThreads = N_THREADS;
 
 	public OServerCommandGetDumpCFG(
@@ -49,9 +46,6 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 			{
 			case "dest":
 				readDestParameter(par);
-				break;
-			case "force":
-				readForceParameter(par);
 				break;
 			case "threads":
 				readThreadsParameter(par);
@@ -81,16 +75,6 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		baseDir = Paths.get(parameter.value).toAbsolutePath().normalize();
 	}
 
-	private void readForceParameter(OServerEntryConfiguration parameter)
-	{
-		if (Boolean.parseBoolean(parameter.value))
-		{
-			openOptions = new OpenOption[] { StandardOpenOption.CREATE,
-					StandardOpenOption.TRUNCATE_EXISTING,
-					StandardOpenOption.WRITE };
-		}
-	}
-
 	@Override
 	public boolean execute(OHttpRequest iRequest, OHttpResponse iResponse)
 			throws Exception
@@ -101,8 +85,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		OrientGraphNoTx g = new OrientGraphNoTx(
 				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName);
 
-		CFGDumpService service = new CFGDumpService(databaseName, baseDir,
-				openOptions, nThreads);
+		CFGDumpService service = new CFGDumpService(databaseName, baseDir, nThreads);
 		for (Vertex functionNode : getFunctionNodes(g))
 		{
 			service.dumpCFG(functionNode);

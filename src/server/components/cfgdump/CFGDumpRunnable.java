@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,15 +25,13 @@ public class CFGDumpRunnable implements Runnable
 	private Vertex functionNode;
 	private OrientGraphFactory factory;
 	private Path targetDirectory;
-	private OpenOption[] openOptions;
 
 	public CFGDumpRunnable(OrientGraphFactory factory, Vertex functionNode,
-			Path dir, OpenOption[] openOptions)
+			Path dir)
 	{
 		this.factory = factory;
 		this.functionNode = functionNode;
 		this.targetDirectory = dir;
-		this.openOptions = openOptions;
 	}
 
 	@Override
@@ -74,7 +72,8 @@ public class CFGDumpRunnable implements Runnable
 
 	private void dumpGraph(Graph graph, Path path) throws IOException
 	{
-		OutputStream out = Files.newOutputStream(path, openOptions);
+		OutputStream out = Files.newOutputStream(path,
+				StandardOpenOption.CREATE_NEW);
 		GraphMLWriter.outputGraph(graph, out);
 		out.close();
 	}
