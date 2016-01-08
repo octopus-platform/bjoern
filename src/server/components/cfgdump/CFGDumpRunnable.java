@@ -15,6 +15,7 @@ import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
 public class CFGDumpRunnable implements Runnable
@@ -22,16 +23,21 @@ public class CFGDumpRunnable implements Runnable
 	private static final Logger logger = LoggerFactory
 			.getLogger(CFGDumpRunnable.class);
 
+	public static final String GRAPHML_FORMAT = "graphml";
+	public static final String GML_FORMAT = "gml";
+
 	private Vertex functionNode;
 	private OrientGraphFactory factory;
 	private Path targetDirectory;
+	private String format;
 
 	public CFGDumpRunnable(OrientGraphFactory factory, Vertex functionNode,
-			Path dir)
+			Path dir, String format)
 	{
 		this.factory = factory;
 		this.functionNode = functionNode;
 		this.targetDirectory = dir;
+		this.format = format;
 	}
 
 	@Override
@@ -46,7 +52,7 @@ public class CFGDumpRunnable implements Runnable
 			Path targetFile = getTargetFile(functionId.toString());
 			dumpGraph(cfg, targetFile);
 			logger.info("Writing control flow graph of function " + functionId
-					+ " to file " + targetDirectory + ".");
+					+ " to file " + targetFile + ".");
 
 		} catch (FileAlreadyExistsException e)
 		{
@@ -65,7 +71,7 @@ public class CFGDumpRunnable implements Runnable
 
 	private Path getTargetFile(String function)
 	{
-		String filename = function + ".graphml";
+		String filename = function + "." + this.format;
 		Path dest = Paths.get(targetDirectory.toString(), filename);
 		return dest.toAbsolutePath().normalize();
 	}
@@ -74,7 +80,15 @@ public class CFGDumpRunnable implements Runnable
 	{
 		OutputStream out = Files.newOutputStream(path,
 				StandardOpenOption.CREATE_NEW);
-		GraphMLWriter.outputGraph(graph, out);
+		switch (format)
+		{
+		case GML_FORMAT:
+			GMLWriter.outputGraph(graph, out);
+			break;
+		case GRAPHML_FORMAT:
+			GraphMLWriter.outputGraph(graph, out);
+			break;
+		}
 		out.close();
 	}
 

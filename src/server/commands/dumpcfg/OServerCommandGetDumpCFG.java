@@ -19,6 +19,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import server.Constants;
+import server.components.cfgdump.CFGDumpRunnable;
 import server.components.cfgdump.CFGDumpService;
 
 public class OServerCommandGetDumpCFG extends OServerCommandAbstract
@@ -30,6 +31,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 
 	private Path baseDir = Paths.get(Constants.FALLBACK_DATA_DIR);
 	private int nThreads = N_THREADS;
+	private String format = CFGDumpRunnable.GRAPHML_FORMAT;
 
 	public OServerCommandGetDumpCFG(
 			final OServerCommandConfiguration iConfiguration) throws IOException
@@ -49,6 +51,9 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 				break;
 			case "threads":
 				readThreadsParameter(par);
+				break;
+			case "format":
+				readFormatParameter(par);
 				break;
 			}
 		}
@@ -75,6 +80,24 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		baseDir = Paths.get(parameter.value).toAbsolutePath().normalize();
 	}
 
+	private void readFormatParameter(OServerEntryConfiguration par)
+	{
+		switch (par.value)
+		{
+		case "graphml":
+		case "GRAPHML":
+			format = CFGDumpRunnable.GRAPHML_FORMAT;
+			break;
+		case "gml":
+		case "GML":
+			format = CFGDumpRunnable.GML_FORMAT;
+			break;
+		default:
+			logger.error(
+					"Invalid parameter value: Unknown format " + par.value);
+		}
+	}
+
 	@Override
 	public boolean execute(OHttpRequest iRequest, OHttpResponse iResponse)
 			throws Exception
@@ -85,7 +108,8 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		OrientGraphNoTx g = new OrientGraphNoTx(
 				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName);
 
-		CFGDumpService service = new CFGDumpService(databaseName, baseDir, nThreads);
+		CFGDumpService service = new CFGDumpService(databaseName, baseDir,
+				nThreads, format);
 		for (Vertex functionNode : getFunctionNodes(g))
 		{
 			service.dumpCFG(functionNode);

@@ -116,7 +116,9 @@
 							<!-- Dump CFGs into this folder -->
 							<entry name="dest" value="../../dump" />
 							<!-- Number of threads -->
-							<entry name="threads" value="2" />
+							<entry name="threads" value="4" />
+							<!-- Output format (graphml/gml) -->
+							<entry name="format" value="graphml" />
 						</parameters>
 					</command>
 

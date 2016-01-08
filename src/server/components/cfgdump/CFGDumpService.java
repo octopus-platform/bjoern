@@ -19,22 +19,24 @@ public class CFGDumpService
 	private OrientGraphFactory factory;
 	private ExecutorService executor;
 	private Path targetDirectory;
+	private String format;
 
-	public CFGDumpService(String databaseName, Path dest, int nThreads)
-			throws IOException
+	public CFGDumpService(String databaseName, Path dest, int nThreads,
+			String format) throws IOException
 	{
 		this.factory = new OrientGraphFactory(
 				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName).setupPool(1,
 						10);
 		this.executor = Executors.newFixedThreadPool(nThreads);
 		this.targetDirectory = Paths.get(dest.toString(), "cfg", databaseName);
+		this.format = format;
 		Files.createDirectories(targetDirectory);
 	}
 
 	public void dumpCFG(Vertex functionNode)
 	{
 		CFGDumpRunnable runnable = new CFGDumpRunnable(factory, functionNode,
-				targetDirectory);
+				targetDirectory, format);
 
 		executor.execute(runnable);
 	}
