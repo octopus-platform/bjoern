@@ -3,8 +3,6 @@ package exporters.radare;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.cli.ParseException;
-
 import exporters.Exporter;
 import exporters.nodeStore.NodeStore;
 import exporters.outputModules.CSV.CSVOutputModule;
@@ -12,46 +10,28 @@ import exporters.radare.inputModule.RadareInputModule;
 import exporters.structures.Flag;
 import exporters.structures.Function;
 
+/**
+ * The Radare exporter uses the disassembly framework radare2
+ * to extract graph representations of code from binaries.
+ *
+ * In its current version, it simply executes "analyze all"
+ * on the binary and writes out the resulting information
+ * in CSV format. In the future, we would like to process
+ * radare2 project files instead, so that any edits users have
+ * made to the disassembly can be accounted for.
+ * */
+
 public class RadareExporter extends Exporter
 {
 
 	List<Function> functions;
 
 	@Override
-	public void run(String[] args)
-	{
-		initialize();
-		parseCommandLine(args);
-		String binaryFilename = cmdLine.getBinaryFilename();
-		String outputDir = cmdLine.getOutputDir();
-
-		tryToExport(binaryFilename, outputDir);
-	}
-
-	private void initialize()
+	protected void initialize()
 	{
 		cmdLine = new CommandLineInterface();
 		inputModule = new RadareInputModule();
 		outputModule = new CSVOutputModule();
-	}
-
-	private void parseCommandLine(String[] args)
-	{
-		try
-		{
-			cmdLine.parseCommandLine(args);
-		}
-		catch (RuntimeException | ParseException e)
-		{
-			printHelpAndTerminate(e);
-		}
-	}
-
-	private void printHelpAndTerminate(Exception e)
-	{
-		System.err.println(e.getMessage());
-		cmdLine.printHelp();
-		System.exit(0);
 	}
 
 	@Override

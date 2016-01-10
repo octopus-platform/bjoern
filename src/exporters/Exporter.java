@@ -2,6 +2,7 @@ package exporters;
 
 import java.io.IOException;
 
+import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,9 @@ import exporters.radare.CommandLineInterface;
 
 public abstract class Exporter
 {
+	protected abstract void initialize();
+	protected abstract void loadAndOutput() throws IOException;
+
 	protected InputModule inputModule;
 	protected CSVOutputModule outputModule;
 	protected CommandLineInterface cmdLine;
@@ -25,7 +29,35 @@ public abstract class Exporter
 	private static final Logger logger = LoggerFactory
 			.getLogger(Exporter.class);
 
-	public abstract void run(String[] args);
+	public void run(String[] args)
+	{
+		initialize();
+		parseCommandLine(args);
+		String binaryFilename = cmdLine.getBinaryFilename();
+		String outputDir = cmdLine.getOutputDir();
+
+		tryToExport(binaryFilename, outputDir);
+	}
+
+	protected void parseCommandLine(String[] args)
+	{
+		try
+		{
+			cmdLine.parseCommandLine(args);
+		}
+		catch (RuntimeException | ParseException e)
+		{
+			printHelpAndTerminate(e);
+		}
+	}
+
+	private void printHelpAndTerminate(Exception e)
+	{
+		System.err.println(e.getMessage());
+		cmdLine.printHelp();
+		System.exit(0);
+	}
+
 
 	public void tryToExport(String binaryFilename, String outputDir)
 	{
@@ -51,7 +83,5 @@ public abstract class Exporter
 		outputModule.finish();
 		inputModule.finish();
 	}
-
-	protected abstract void loadAndOutput() throws IOException;
 
 }
