@@ -1,8 +1,10 @@
-package exporters.structures;
+package exporters.structures.interpretations;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import exporters.structures.annotations.VariableOrArgument;
 
 public class Disassembly
 {

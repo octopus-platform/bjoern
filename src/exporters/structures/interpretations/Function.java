@@ -1,4 +1,4 @@
-package exporters.structures;
+package exporters.structures.interpretations;
 
 import java.util.LinkedList;
 import java.util.List;

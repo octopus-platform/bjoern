@@ -3,7 +3,7 @@ package exporters.radare.inputModule.creators;
 import org.json.JSONObject;
 
 import exporters.radare.inputModule.JSONUtils;
-import exporters.structures.Instruction;
+import exporters.structures.interpretations.Instruction;
 
 
 public class RadareInstructionCreator

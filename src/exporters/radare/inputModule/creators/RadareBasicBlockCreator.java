@@ -5,8 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import exporters.nodeStore.NodeStore;
-import exporters.structures.BasicBlock;
-import exporters.structures.Instruction;
+import exporters.structures.interpretations.BasicBlock;
+import exporters.structures.interpretations.Instruction;
 
 
 public class RadareBasicBlockCreator

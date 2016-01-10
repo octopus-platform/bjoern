@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
-import exporters.structures.Flag;
+import exporters.structures.annotations.Flag;
 
 public class Radare
 {

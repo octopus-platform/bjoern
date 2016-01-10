@@ -1,8 +1,8 @@
 package exporters.outputModules;
 
-import exporters.structures.BasicBlock;
-import exporters.structures.Flag;
-import exporters.structures.Function;
+import exporters.structures.annotations.Flag;
+import exporters.structures.interpretations.BasicBlock;
+import exporters.structures.interpretations.Function;
 
 public interface OutputModule
 {

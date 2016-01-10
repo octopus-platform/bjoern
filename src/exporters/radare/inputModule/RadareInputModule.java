@@ -11,9 +11,9 @@ import exporters.InputModule;
 import exporters.radare.inputModule.creators.RadareFunctionContentCreator;
 import exporters.radare.inputModule.creators.RadareFunctionCreator;
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
-import exporters.structures.Flag;
-import exporters.structures.Function;
-import exporters.structures.FunctionContent;
+import exporters.structures.annotations.Flag;
+import exporters.structures.interpretations.Function;
+import exporters.structures.interpretations.FunctionContent;
 
 public class RadareInputModule implements InputModule
 {

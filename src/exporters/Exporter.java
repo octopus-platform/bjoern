@@ -20,7 +20,7 @@ import exporters.radare.CommandLineInterface;
 public abstract class Exporter
 {
 	protected abstract void initialize();
-	protected abstract void loadAndOutput() throws IOException;
+	protected abstract void export() throws IOException;
 
 	protected InputModule inputModule;
 	protected CSVOutputModule outputModule;
@@ -79,7 +79,7 @@ public abstract class Exporter
 
 		inputModule.initialize(binaryFilename);
 		outputModule.initialize(outputDir);
-		loadAndOutput();
+		export();
 		outputModule.finish();
 		inputModule.finish();
 	}

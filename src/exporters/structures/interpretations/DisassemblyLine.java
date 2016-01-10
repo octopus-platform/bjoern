@@ -1,4 +1,4 @@
-package exporters.structures;
+package exporters.structures.interpretations;
 
 public class DisassemblyLine
 {

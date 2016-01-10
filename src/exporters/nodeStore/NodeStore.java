@@ -42,8 +42,6 @@ public class NodeStore
 				.iterator(); it.hasNext();)
 		{
 			Map.Entry<NodeStoreKey, Node> entry = it.next();
-			Node node = entry.getValue();
-
 			it.remove();
 		}
 	}

@@ -7,8 +7,8 @@ import exporters.Exporter;
 import exporters.nodeStore.NodeStore;
 import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.inputModule.RadareInputModule;
-import exporters.structures.Flag;
-import exporters.structures.Function;
+import exporters.structures.annotations.Flag;
+import exporters.structures.interpretations.Function;
 
 /**
  * The Radare exporter uses the disassembly framework radare2
@@ -35,7 +35,7 @@ public class RadareExporter extends Exporter
 	}
 
 	@Override
-	protected void loadAndOutput() throws IOException
+	protected void export() throws IOException
 	{
 		loadAndOutputFlags();
 		loadAndOutputFunctionInfo();

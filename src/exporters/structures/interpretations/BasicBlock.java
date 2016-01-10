@@ -1,4 +1,4 @@
-package exporters.structures;
+package exporters.structures.interpretations;
 
 import java.util.Collection;
 import java.util.HashMap;

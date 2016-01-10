@@ -5,9 +5,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import exporters.radare.inputModule.exceptions.EmptyDisassembly;
-import exporters.structures.Disassembly;
-import exporters.structures.DisassemblyLine;
-import exporters.structures.VariableOrArgument;
+import exporters.structures.annotations.VariableOrArgument;
+import exporters.structures.interpretations.Disassembly;
+import exporters.structures.interpretations.DisassemblyLine;
 
 public class RadareDisassemblyParser
 {

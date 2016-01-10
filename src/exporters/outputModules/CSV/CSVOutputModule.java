@@ -9,15 +9,15 @@ import java.util.Map;
 import exporters.nodeStore.Node;
 import exporters.nodeStore.NodeTypes;
 import exporters.outputModules.OutputModule;
-import exporters.structures.BasicBlock;
-import exporters.structures.DisassemblyLine;
-import exporters.structures.Flag;
-import exporters.structures.Function;
-import exporters.structures.FunctionContent;
-import exporters.structures.Instruction;
-import exporters.structures.VariableOrArgument;
+import exporters.structures.annotations.Flag;
+import exporters.structures.annotations.VariableOrArgument;
 import exporters.structures.edges.DirectedEdge;
 import exporters.structures.edges.EdgeTypes;
+import exporters.structures.interpretations.BasicBlock;
+import exporters.structures.interpretations.DisassemblyLine;
+import exporters.structures.interpretations.Function;
+import exporters.structures.interpretations.FunctionContent;
+import exporters.structures.interpretations.Instruction;
 
 public class CSVOutputModule implements OutputModule
 {

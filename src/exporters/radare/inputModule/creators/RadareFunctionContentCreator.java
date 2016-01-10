@@ -8,9 +8,9 @@ import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.JSONUtils;
 import exporters.radare.inputModule.exceptions.BasicBlockWithoutAddress;
 import exporters.radare.inputModule.exceptions.EdgeTargetNotFound;
-import exporters.structures.BasicBlock;
-import exporters.structures.FunctionContent;
 import exporters.structures.edges.EdgeTypes;
+import exporters.structures.interpretations.BasicBlock;
+import exporters.structures.interpretations.FunctionContent;
 
 public class RadareFunctionContentCreator
 {

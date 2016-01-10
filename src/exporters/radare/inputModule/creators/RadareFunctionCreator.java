@@ -5,10 +5,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import exporters.nodeStore.Node;
-import exporters.structures.BasicBlock;
-import exporters.structures.Function;
 import exporters.structures.edges.DirectedEdge;
 import exporters.structures.edges.EdgeTypes;
+import exporters.structures.interpretations.BasicBlock;
+import exporters.structures.interpretations.Function;
 
 
 public class RadareFunctionCreator

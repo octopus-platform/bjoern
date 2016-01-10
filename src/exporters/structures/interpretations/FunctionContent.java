@@ -1,4 +1,4 @@
-package exporters.structures;
+package exporters.structures.interpretations;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import exporters.nodeStore.Node;
 import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.RadareDisassemblyParser;
 import exporters.radare.inputModule.exceptions.InvalidDisassembly;
+import exporters.structures.annotations.VariableOrArgument;
 import exporters.structures.edges.DirectedEdge;
 import exporters.structures.edges.EdgeTypes;
 

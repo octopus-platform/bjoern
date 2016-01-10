@@ -1,4 +1,4 @@
-package exporters.structures;
+package exporters.structures.interpretations;
 
 import exporters.nodeStore.Node;
 import exporters.nodeStore.NodeTypes;

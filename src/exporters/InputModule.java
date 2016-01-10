@@ -3,8 +3,8 @@ package exporters;
 import java.io.IOException;
 import java.util.List;
 
-import exporters.structures.Flag;
-import exporters.structures.Function;
+import exporters.structures.annotations.Flag;
+import exporters.structures.interpretations.Function;
 
 public interface InputModule
 {
