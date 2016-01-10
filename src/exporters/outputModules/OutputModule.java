@@ -10,7 +10,7 @@ public interface OutputModule
 
 	public void finish();
 
-	public void writeFunctionInfo(Function function);
+	public void writeFunctionNodes(Function function);
 
 	public void writeReferencesToFunction(Function function);
 

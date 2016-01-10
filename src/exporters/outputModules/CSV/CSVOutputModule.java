@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import exporters.nodeStore.Node;
 import exporters.nodeStore.NodeTypes;
 import exporters.outputModules.OutputModule;
 import exporters.structures.BasicBlock;
@@ -17,7 +18,6 @@ import exporters.structures.Instruction;
 import exporters.structures.VariableOrArgument;
 import exporters.structures.edges.DirectedEdge;
 import exporters.structures.edges.EdgeTypes;
-import exporters.structures.edges.ResolvedCFGEdge;
 
 public class CSVOutputModule implements OutputModule
 {
@@ -49,7 +49,7 @@ public class CSVOutputModule implements OutputModule
 	}
 
 	@Override
-	public void writeFunctionInfo(Function function)
+	public void writeFunctionNodes(Function function)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(CSVFields.ADDR, function.getAddress().toString());
@@ -219,11 +219,11 @@ public class CSVOutputModule implements OutputModule
 	private void writeCFGEdges()
 	{
 		Function function = currentFunction;
-		List<ResolvedCFGEdge> edges = function.getContent().getEdges();
-		for (ResolvedCFGEdge edge : edges)
+		List<DirectedEdge> edges = function.getContent().getEdges();
+		for (DirectedEdge edge : edges)
 		{
-			BasicBlock from = edge.getFrom();
-			BasicBlock to = edge.getTo();
+			Node from = edge.getSourceNode();
+			Node to = edge.getDestNode();
 
 			String srcId = from.getKey();
 			String dstId = to.getKey();

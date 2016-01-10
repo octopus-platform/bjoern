@@ -56,7 +56,7 @@ public class RadareExporter extends Exporter
 		functions = inputModule.getFunctions();
 		for (Function function : functions)
 		{
-			outputModule.writeFunctionInfo(function);
+			outputModule.writeFunctionNodes(function);
 			outputModule.writeReferencesToFunction(function);
 		}
 	}
