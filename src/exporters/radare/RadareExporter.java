@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import exporters.Exporter;
-import exporters.nodeStore.NodeStore;
 import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.inputModule.RadareInputModule;
 import exporters.structures.annotations.Flag;
@@ -77,20 +76,12 @@ public class RadareExporter extends Exporter
 			return;
 
 		inputModule.initializeFunctionContents(function);
-
 		outputModule.writeFunctionContent(function);
-		outputModule.writeUnresolvedContentEdges(function);
 
 		// we clear the function content after writing it to free up some
 		// memory. In addition, we clear all references to nodes still present
 		// in caches.
 		function.deleteContent();
-		clearCaches();
-	}
-
-	private void clearCaches()
-	{
-		NodeStore.clearCache();
 	}
 
 }

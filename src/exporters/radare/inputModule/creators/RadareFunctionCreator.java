@@ -4,10 +4,9 @@ package exporters.radare.inputModule.creators;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import exporters.nodeStore.Node;
+import exporters.nodeStore.NodeKey;
 import exporters.structures.edges.DirectedEdge;
 import exporters.structures.edges.EdgeTypes;
-import exporters.structures.interpretations.BasicBlock;
 import exporters.structures.interpretations.Function;
 
 
@@ -35,22 +34,20 @@ public class RadareFunctionCreator
 			JSONObject callRef = callRefArray.getJSONObject(i);
 			long srcAddr = callRef.getLong("addr");
 			DirectedEdge newEdge = createCallEdge(dstAddr, srcAddr);
-			retval.addKeyedEdge(newEdge);
+			retval.addEdge(newEdge);
 		}
 
 	}
 
 	private static DirectedEdge createCallEdge(long dstAddr, long srcAddr)
 	{
-		Node srcNode = new BasicBlock();
-		srcNode.setAddr(srcAddr);
-
-		Node dstNode = new BasicBlock();
-		dstNode.setAddr(dstAddr);
 
 		DirectedEdge newEdge = new DirectedEdge();
-		newEdge.setSourceNode(srcNode);
-		newEdge.setDestNode(dstNode);
+
+		NodeKey dstKey = new NodeKey(srcAddr);
+		NodeKey srcKey = new NodeKey(dstAddr);
+		newEdge.setSourceKey(srcKey);
+		newEdge.setDestKey(dstKey);
 		newEdge.setType(EdgeTypes.CALL);
 
 		return newEdge;

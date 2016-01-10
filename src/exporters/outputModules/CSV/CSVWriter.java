@@ -18,28 +18,22 @@ public class CSVWriter
 			CSVFields.REPR, CSVFields.CODE, CSVFields.COMMENT };
 
 	final static String[] edgeProperties = {};
-	final static String[] keyedEdgeProperties = {};
 
 	static PrintWriter nodeWriter;
 	static PrintWriter edgeWriter;
-	static PrintWriter keyedEdgeWriter;
 
 	public static void finish()
 	{
 		closeEdgeFile();
 		closeNodeFile();
-		closeUnresolvedEdgeFile();
 	}
 
 	public static void changeOutputDir(String dirNameForFileNode)
 	{
-		closeEdgeFile();
-		closeNodeFile();
-		closeUnresolvedEdgeFile();
+		finish();
 
 		openNodeFile(dirNameForFileNode);
 		openEdgeFile(dirNameForFileNode);
-		openUnresolvedEdgeFile(dirNameForFileNode);
 	}
 
 	public static void addNode(Node node, Map<String, Object> properties)
@@ -61,35 +55,17 @@ public class CSVWriter
 		return "\"" + propValue.replace("\"", "\\\"") + "\"";
 	}
 
-	public static void addEdge(String srcId, String dstId,
+
+	public static void addEdge(String srcKey, String dstKey,
 			Map<String, Object> properties, String edgeType)
 	{
-		edgeWriter.print(srcId);
+		edgeWriter.print(srcKey);
 		edgeWriter.print(SEPARATOR);
-		edgeWriter.print(dstId);
+		edgeWriter.print(dstKey);
 		edgeWriter.print(SEPARATOR);
 		edgeWriter.print(edgeType);
-
-		for (String property : edgeProperties)
-		{
-			edgeWriter.write(SEPARATOR);
-			String propValue = (String) properties.get(property);
-			if (propValue != null)
-				edgeWriter.write(propValue);
-		}
-		edgeWriter.write("\n");
-	}
-
-	public static void addUnresolvedEdge(String srcKey, String dstKey,
-			Map<String, Object> properties, String edgeType)
-	{
-		keyedEdgeWriter.print(srcKey);
-		keyedEdgeWriter.print(SEPARATOR);
-		keyedEdgeWriter.print(dstKey);
-		keyedEdgeWriter.print(SEPARATOR);
-		keyedEdgeWriter.print(edgeType);
 		// TODO: add properties
-		keyedEdgeWriter.print("\n");
+		edgeWriter.print("\n");
 	}
 
 	private static void openNodeFile(String outDir)
@@ -105,13 +81,6 @@ public class CSVWriter
 		nodeWriter.println(joined);
 	}
 
-	private static void writeEdgePropertyNames()
-	{
-		String joined = "start" + SEPARATOR + "end" + SEPARATOR + "type"
-				+ SEPARATOR + StringUtils.join(edgeProperties, SEPARATOR);
-		edgeWriter.println(joined);
-	}
-
 	private static void openEdgeFile(String outDir)
 	{
 		String path = outDir + File.separator + "edges.csv";
@@ -119,19 +88,12 @@ public class CSVWriter
 		writeEdgePropertyNames();
 	}
 
-	private static void openUnresolvedEdgeFile(String outDir)
-	{
-		String path = outDir + File.separator + "keyedEdges.csv";
-		keyedEdgeWriter = createWriter(path);
-		writeKeyedEdgePropertyNames();
-	}
-
-	private static void writeKeyedEdgePropertyNames()
+	private static void writeEdgePropertyNames()
 	{
 		String joined = "nodeType_addr" + SEPARATOR + "nodeType_addr"
 				+ SEPARATOR + "type" + SEPARATOR
-				+ StringUtils.join(keyedEdgeProperties, SEPARATOR);
-		keyedEdgeWriter.println(joined);
+				+ StringUtils.join(edgeProperties, SEPARATOR);
+		edgeWriter.println(joined);
 	}
 
 	private static PrintWriter createWriter(String path)
@@ -156,12 +118,6 @@ public class CSVWriter
 	{
 		if (edgeWriter != null)
 			edgeWriter.close();
-	}
-
-	private static void closeUnresolvedEdgeFile()
-	{
-		if (keyedEdgeWriter != null)
-			keyedEdgeWriter.close();
 
 	}
 

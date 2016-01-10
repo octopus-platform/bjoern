@@ -4,7 +4,6 @@ package exporters.radare.inputModule.creators;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import exporters.nodeStore.NodeStore;
 import exporters.structures.interpretations.BasicBlock;
 import exporters.structures.interpretations.Instruction;
 
@@ -39,7 +38,6 @@ public class RadareBasicBlockCreator
 			JSONObject jsonInstr = instructionsJSON.getJSONObject(i);
 			Instruction instr = RadareInstructionCreator
 					.createFromJSON(jsonInstr);
-			NodeStore.addNode(instr);
 			node.addInstruction(instr);
 		}
 	}

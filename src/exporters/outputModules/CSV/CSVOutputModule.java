@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import exporters.nodeStore.Node;
+import exporters.nodeStore.NodeKey;
 import exporters.nodeStore.NodeTypes;
 import exporters.outputModules.OutputModule;
 import exporters.structures.annotations.Flag;
@@ -68,8 +68,22 @@ public class CSVOutputModule implements OutputModule
 		writeArgumentsAndVariables();
 		writeBasicBlocks();
 		writeCFGEdges();
+		writeOtherEdges(function);
 
 		setCurrentFunction(null);
+	}
+
+	private void writeOtherEdges(Function function)
+	{
+
+		FunctionContent content = function.getContent();
+
+		List<DirectedEdge> edges = content.getUnresolvedEdges();
+		for (DirectedEdge edge : edges)
+		{
+			writeEdge(edge);
+		}
+
 	}
 
 	private void writeArgumentsAndVariables()
@@ -222,11 +236,11 @@ public class CSVOutputModule implements OutputModule
 		List<DirectedEdge> edges = function.getContent().getEdges();
 		for (DirectedEdge edge : edges)
 		{
-			Node from = edge.getSourceNode();
-			Node to = edge.getDestNode();
 
-			String srcId = from.getKey();
-			String dstId = to.getKey();
+			NodeKey from = edge.getSourceKey();
+			NodeKey to = edge.getDestKey();
+			String srcId = from.toString();
+			String dstId = to.toString();
 
 			Map<String, Object> properties = new HashMap<String, Object>();
 			String edgeType = edge.getType();
@@ -235,36 +249,24 @@ public class CSVOutputModule implements OutputModule
 	}
 
 	@Override
-	public void writeUnresolvedContentEdges(Function function)
-	{
-		FunctionContent content = function.getContent();
-
-		List<DirectedEdge> edges = content.getUnresolvedEdges();
-		for (DirectedEdge edge : edges)
-		{
-			writeUnresolvedEdge(edge);
-		}
-
-	}
-
-	@Override
 	public void writeReferencesToFunction(Function function)
 	{
-		List<DirectedEdge> edges = function.getUnresolvedEdges();
+		List<DirectedEdge> edges = function.getEdges();
 		for (DirectedEdge edge : edges)
 		{
-			writeUnresolvedEdge(edge);
+			writeEdge(edge);
 		}
 	}
 
-	private void writeUnresolvedEdge(DirectedEdge edge)
+	private void writeEdge(DirectedEdge edge)
 	{
-		String sourceKey = edge.getSourceNode().getKey();
-		String destKey = edge.getDestNode().getKey();
+
+		String sourceKey = edge.getSourceKey().toString();
+		String destKey = edge.getDestKey().toString();
 		String type = edge.getType();
 		Map<String, Object> properties = new HashMap<String, Object>();
 		// TODO: add edge properties.
-		CSVWriter.addUnresolvedEdge(sourceKey, destKey, properties, type);
+		CSVWriter.addEdge(sourceKey, destKey, properties, type);
 	}
 
 }

@@ -28,6 +28,14 @@ public class Node
 		this.type = type;
 	}
 
+	public NodeKey createKey()
+	{
+		NodeKey key = new NodeKey();
+		key.setType(getType());
+		key.setAddress(getAddress());
+		return key;
+	}
+
 	public String getKey()
 	{
 		return getType() + "_" + getAddress().toString();

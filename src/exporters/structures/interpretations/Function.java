@@ -12,7 +12,7 @@ public class Function extends Node
 {
 
 	FunctionContent content;
-	List<DirectedEdge> keyedEdges = new LinkedList<DirectedEdge>();
+	List<DirectedEdge> edges = new LinkedList<DirectedEdge>();
 
 	private String name = "";
 
@@ -43,19 +43,19 @@ public class Function extends Node
 		this.content = content;
 	}
 
-	public void addKeyedEdge(DirectedEdge edge)
+	public void addEdge(DirectedEdge edge)
 	{
-		keyedEdges.add(edge);
+		edges.add(edge);
 	}
 
-	public List<DirectedEdge> getUnresolvedEdges()
+	public List<DirectedEdge> getEdges()
 	{
-		return keyedEdges;
+		return edges;
 	}
 
 	public void deleteEdges()
 	{
-		keyedEdges = null;
+		edges = null;
 	}
 
 	public void deleteContent()

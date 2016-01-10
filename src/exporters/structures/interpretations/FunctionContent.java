@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import exporters.nodeStore.Node;
+import exporters.nodeStore.NodeKey;
 import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.RadareDisassemblyParser;
 import exporters.radare.inputModule.exceptions.InvalidDisassembly;
@@ -63,27 +63,6 @@ public class FunctionContent
 		edges.add(newEdge);
 	}
 
-	public void addUnresolvedEdge(Long from, Long to, String type)
-	{
-		Node src = new Node();
-		src.setAddr(from);
-		src.setType(NodeTypes.BASIC_BLOCK);
-
-		Node dst = new Node();
-		dst.setAddr(to);
-		dst.setType(NodeTypes.BASIC_BLOCK);
-
-		DirectedEdge edge = new DirectedEdge();
-		edge.setSourceNode(src);
-		edge.setDestNode(dst);
-
-		if (type.equals("jump"))
-			edge.setType(EdgeTypes.CFLOW_TRUE);
-		else
-			edge.setType(EdgeTypes.CFLOW_FALSE);
-
-		keyedEdges.add(edge);
-	}
 
 	public void registerBasicBlock(long addr, BasicBlock node)
 	{
@@ -99,8 +78,8 @@ public class FunctionContent
 	{
 		DirectedEdge newEdge = new DirectedEdge();
 
-		newEdge.setSourceNode(from);
-		newEdge.setDestNode(to);
+		newEdge.setSourceKey(from.createKey());
+		newEdge.setDestKey(to.createKey());
 		addCFGEdge(newEdge);
 	}
 
@@ -121,5 +100,24 @@ public class FunctionContent
 			// TODO: might want to log this error.
 		}
 	}
+
+	public void addUnresolvedEdge(Long from, Long to, String type) {
+
+		DirectedEdge edge = new DirectedEdge();
+
+		NodeKey srcKey = new NodeKey(from, NodeTypes.BASIC_BLOCK);
+		NodeKey dstKey = new NodeKey(to, NodeTypes.BASIC_BLOCK);
+
+		edge.setSourceKey(srcKey);
+		edge.setDestKey(dstKey);
+
+		if (type.equals("jump"))
+			edge.setType(EdgeTypes.CFLOW_TRUE);
+		else
+			edge.setType(EdgeTypes.CFLOW_FALSE);
+
+		keyedEdges.add(edge);
+	}
+
 
 }

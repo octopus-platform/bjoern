@@ -1,31 +1,33 @@
 package exporters.structures.edges;
 
-import exporters.nodeStore.Node;
+import exporters.nodeStore.NodeKey;
 
 public class DirectedEdge
 {
-	Node sourceNode;
-	Node destNode;
+	NodeKey sourceKey;
+	NodeKey destKey;
+
+
 	String type;
 
-	public Node getSourceNode()
+	public NodeKey getSourceKey()
 	{
-		return sourceNode;
+		return sourceKey;
 	}
 
-	public void setSourceNode(Node sourceNode)
+	public void setSourceKey(NodeKey sourceKey)
 	{
-		this.sourceNode = sourceNode;
+		this.sourceKey = sourceKey;
 	}
 
-	public Node getDestNode()
+	public NodeKey getDestKey()
 	{
-		return destNode;
+		return destKey;
 	}
 
-	public void setDestNode(Node destNode)
+	public void setDestKey(NodeKey destKey)
 	{
-		this.destNode = destNode;
+		this.destKey = destKey;
 	}
 
 	public String getType()
