@@ -3,15 +3,15 @@ package server.commands.importcsv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import server.components.orientdbImporter.ImportCSVRunnable;
-import server.components.orientdbImporter.ImportJob;
-
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
+
+import server.components.orientdbImporter.ImportCSVRunnable;
+import server.components.orientdbImporter.ImportJob;
 
 public class ImportCSVHandler extends OServerCommandAbstract
 {
@@ -49,14 +49,9 @@ public class ImportCSVHandler extends OServerCommandAbstract
 		String[] urlParts = checkSyntax(
 				iRequest.url,
 				4,
-				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>/<dbName>/[keyedEdgeFilename]");
+				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>/<dbName>/");
 
-		String keyedEdgeFilename = "";
-		if (urlParts.length >= 5)
-			keyedEdgeFilename = urlParts[4];
-
-		return new ImportJob(urlParts[1], urlParts[2], urlParts[3],
-				keyedEdgeFilename);
+		return new ImportJob(urlParts[1], urlParts[2], urlParts[3]);
 	}
 
 	private void startImporterThread(ImportJob graphFiles)

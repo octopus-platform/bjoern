@@ -29,9 +29,14 @@ public abstract class Exporter
 	private static final Logger logger = LoggerFactory
 			.getLogger(Exporter.class);
 
-	public void run(String[] args)
+	public Exporter()
 	{
 		initialize();
+	}
+
+	public void run(String[] args)
+	{
+
 		parseCommandLine(args);
 		String binaryFilename = cmdLine.getBinaryFilename();
 		String outputDir = cmdLine.getOutputDir();

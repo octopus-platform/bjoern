@@ -23,20 +23,16 @@ public class ImportCSVRunnable implements Runnable
 	{
 
 		CSVBatchImporter csvBatchImporter = new CSVBatchImporter();
-		CSVKeyedEdgeImporter csvKeyedEdgeImporter = new CSVKeyedEdgeImporter();
 
 		String nodeFilename = importJob.getNodeFilename();
 		String edgeFilename = importJob.getEdgeFilename();
-		String keyedEdgeFilename = importJob.getKeyedEdgeFilename();
+
 		String dbName = importJob.getDbName();
 
 		try
 		{
 			csvBatchImporter.setDbName(dbName);
 			csvBatchImporter.importCSVFiles(nodeFilename, edgeFilename);
-
-			csvKeyedEdgeImporter.setDbName(dbName);
-			csvKeyedEdgeImporter.importCSVFiles(null, keyedEdgeFilename);
 		}
 		catch (IOException e)
 		{
