@@ -15,7 +15,7 @@ public class NodeStore
 
 	public static void clearCache()
 	{
-		removeAllButPermanentNodes();
+		removeAllNodes();
 	}
 
 	/**
@@ -36,17 +36,13 @@ public class NodeStore
 		addrToNode.put(key, node);
 	}
 
-	private static void removeAllButPermanentNodes()
+	private static void removeAllNodes()
 	{
 		for (Iterator<Map.Entry<NodeStoreKey, Node>> it = addrToNode.entrySet()
 				.iterator(); it.hasNext();)
 		{
 			Map.Entry<NodeStoreKey, Node> entry = it.next();
 			Node node = entry.getValue();
-
-			// skip permanent nodes
-			if (node.isPermanent())
-				continue;
 
 			it.remove();
 		}

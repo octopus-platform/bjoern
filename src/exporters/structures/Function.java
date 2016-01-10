@@ -20,7 +20,6 @@ public class Function extends Node
 	{
 		content = new FunctionContent(addr);
 		setType(NodeTypes.FUNCTION);
-		setIsPermanent(true);
 		setAddr(addr);
 	}
 
