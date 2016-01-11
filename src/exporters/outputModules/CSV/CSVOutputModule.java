@@ -169,6 +169,7 @@ public class CSVOutputModule implements OutputModule
 	{
 		createRootNodeForNode(block);
 		writeNodeForBasicBlock(block);
+		addEdgeFromRootNode(block);
 		writeInstructions(block);
 	}
 
@@ -183,6 +184,7 @@ public class CSVOutputModule implements OutputModule
 			Instruction instr = it.next();
 			createRootNodeForNode(instr);
 			writeInstruction(block, instr, childNum);
+			addEdgeFromRootNode(instr);
 			writeEdgeFromBlockToInstruction(block, instr);
 			childNum++;
 		}
@@ -273,6 +275,8 @@ public class CSVOutputModule implements OutputModule
 		{
 			writeEdge(edge);
 		}
+
+		addEdgeFromRootNode(function);
 	}
 
 	private void writeEdge(DirectedEdge edge)
@@ -289,8 +293,13 @@ public class CSVOutputModule implements OutputModule
 	@Override
 	public void writeReferenceToFlag(Flag flag)
 	{
-		NodeKey srcKey = flag.createEpsilonKey();
-		NodeKey destKey = flag.createKey();
+		addEdgeFromRootNode(flag);
+	}
+
+	private void addEdgeFromRootNode(Node node)
+	{
+		NodeKey srcKey = node.createEpsilonKey();
+		NodeKey destKey = node.createKey();
 
 		DirectedEdge newEdge = new DirectedEdge();
 		newEdge.setSourceKey(srcKey);
