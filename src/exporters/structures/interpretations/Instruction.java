@@ -6,6 +6,7 @@ import exporters.nodeStore.NodeTypes;
 public class Instruction extends Node
 {
 	private String stringRepr;
+	private String bytes;
 
 	public Instruction()
 	{
@@ -20,6 +21,16 @@ public class Instruction extends Node
 	public void setStringRepr(String stringRepr)
 	{
 		this.stringRepr = stringRepr;
+	}
+
+	public Object getBytes()
+	{
+		return this.bytes;
+	}
+
+	public void setBytes(String bytes)
+	{
+		this.bytes = bytes;
 	}
 
 }

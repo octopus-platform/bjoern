@@ -227,6 +227,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.REPR, instr.getStringRepr());
 		properties.put(CSVFields.CHILD_NUM, String.format("%d", childNum));
 		properties.put(CSVFields.KEY, instr.getKey());
+		properties.put(CSVFields.CODE, instr.getBytes());
 
 		String funcId = currentFunction.getKey();
 		properties.put(CSVFields.FUNCTION_ID, funcId);
@@ -245,7 +246,7 @@ public class CSVOutputModule implements OutputModule
 		DisassemblyLine line = content.getDisassemblyLineForAddr(address);
 		if (line == null)
 			return;
-		properties.put(CSVFields.CODE, line.getInstruction());
+
 		properties.put(CSVFields.COMMENT, line.getComment());
 	}
 
