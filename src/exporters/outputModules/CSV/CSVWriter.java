@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import exporters.nodeStore.Node;
-import exporters.structures.annotations.Flag;
 
 public class CSVWriter
 {
@@ -126,7 +125,7 @@ public class CSVWriter
 
 	}
 
-	public static void addNoReplaceNode(Flag flag, Map<String, Object> properties)
+	public static void addNoReplaceNode(Node node, Map<String, Object> properties)
 	{
 		nodeWriter.write(CSVCommands.ADD_NO_REPLACE);
 		writeNodeProperties(properties);

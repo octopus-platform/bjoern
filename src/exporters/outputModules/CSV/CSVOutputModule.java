@@ -48,7 +48,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.TYPE, flag.getType());
 		properties.put(CSVFields.ADDR, flag.getAddress().toString());
 		// Skipping length-field for now, let's see if we need it.
-		CSVWriter.addNoReplaceNode(flag, properties);
+		CSVWriter.addNode(flag, properties);
 	}
 
 	private void createRootNodeForNode(Node node)
@@ -58,7 +58,7 @@ public class CSVOutputModule implements OutputModule
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(CSVFields.KEY, rootNode.getKey());
 		properties.put(CSVFields.ADDR, rootNode.getAddress().toString());
-		CSVWriter.addNode(rootNode, properties);
+		CSVWriter.addNoReplaceNode(rootNode, properties);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.REPR, function.getName());
 		properties.put(CSVFields.KEY, function.getKey());
 
-		CSVWriter.addNode(function, properties);
+		CSVWriter.addNoReplaceNode(function, properties);
 	}
 
 	@Override
