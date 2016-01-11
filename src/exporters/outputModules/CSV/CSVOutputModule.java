@@ -269,4 +269,17 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.addEdge(sourceKey, destKey, properties, type);
 	}
 
+	@Override
+	public void writeReferenceToFlag(Flag flag)
+	{
+		NodeKey srcKey = flag.createEpsilonKey();
+		NodeKey destKey = flag.createKey();
+
+		DirectedEdge newEdge = new DirectedEdge();
+		newEdge.setSourceKey(srcKey);
+		newEdge.setDestKey(destKey);
+
+		writeEdge(newEdge);
+	}
+
 }

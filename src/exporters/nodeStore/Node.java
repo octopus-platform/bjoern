@@ -36,6 +36,13 @@ public class Node
 		return key;
 	}
 
+	public NodeKey createEpsilonKey()
+	{
+		NodeKey key = new NodeKey();
+		key.setAddress(getAddress());
+		return key;
+	}
+
 	public String getKey()
 	{
 		return getType() + "_" + getAddress().toString();

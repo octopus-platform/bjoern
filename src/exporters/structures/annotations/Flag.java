@@ -3,6 +3,13 @@ package exporters.structures.annotations;
 import exporters.nodeStore.Node;
 import exporters.nodeStore.NodeTypes;
 
+/**
+ * A flag is a concept from radare2.
+ * It's essentially an annotation attached to an address.
+ * It has a fixed value and a length, that is, the flag
+ * is associated with a sub string of the binary.
+ * */
+
 public class Flag extends Node
 {
 	private String value;

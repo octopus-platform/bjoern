@@ -20,4 +20,6 @@ public interface OutputModule
 
 	public void writeFlag(Flag flag);
 
+	public void writeReferenceToFlag(Flag flag);
+
 }
