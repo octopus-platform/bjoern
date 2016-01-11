@@ -7,6 +7,7 @@ import exporters.Exporter;
 import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.inputModule.RadareInputModule;
 import exporters.structures.annotations.Flag;
+import exporters.structures.edges.DirectedEdge;
 import exporters.structures.interpretations.Function;
 
 /**
@@ -39,6 +40,24 @@ public class RadareExporter extends Exporter
 		loadAndOutputFlags();
 		loadAndOutputFunctionInfo();
 		loadAndOutputFunctionContent();
+		loadAndOutputCrossReferences();
+	}
+
+	private void loadAndOutputCrossReferences()
+	{
+		List<DirectedEdge> xrefs;
+		try {
+			xrefs = inputModule.getCrossReferences();
+			for(DirectedEdge xref: xrefs)
+			{
+				outputModule.writeCrossReference(xref);
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	private void loadAndOutputFlags() throws IOException

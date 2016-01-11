@@ -318,4 +318,9 @@ public class CSVOutputModule implements OutputModule
 		writeEdge(newEdge);
 	}
 
+	public void writeCrossReference(DirectedEdge xref)
+	{
+		writeEdge(xref);
+	}
+
 }

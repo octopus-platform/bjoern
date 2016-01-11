@@ -12,6 +12,7 @@ import exporters.radare.inputModule.creators.RadareFunctionContentCreator;
 import exporters.radare.inputModule.creators.RadareFunctionCreator;
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
 import exporters.structures.annotations.Flag;
+import exporters.structures.edges.DirectedEdge;
 import exporters.structures.interpretations.Function;
 import exporters.structures.interpretations.FunctionContent;
 
@@ -95,6 +96,20 @@ public class RadareInputModule implements InputModule
 		{
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public List<DirectedEdge> getCrossReferences() throws IOException
+	{
+		List<DirectedEdge> retval = new LinkedList<DirectedEdge>();
+		Radare.askForCrossReferences();
+		List<DirectedEdge> edges;
+
+		while ((edges = Radare.getNextCrossReferences()) != null)
+		{
+			retval.addAll(edges);
+		}
+		return retval;
 	}
 
 }

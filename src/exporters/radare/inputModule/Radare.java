@@ -1,6 +1,8 @@
 package exporters.radare.inputModule;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,8 +10,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import exporters.nodeStore.NodeKey;
+import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
 import exporters.structures.annotations.Flag;
+import exporters.structures.edges.DirectedEdge;
+import exporters.structures.edges.EdgeTypes;
 
 public class Radare
 {
@@ -94,14 +100,14 @@ public class Radare
 		return createFlagFromLine(nextLine);
 	}
 
-	private static Flag createFlagFromLine(String nextLine)
+	private static Flag createFlagFromLine(String line)
 	{
 		Flag flag = new Flag();
 
-		String[] parts = nextLine.split(" ");
+		String[] parts = line.split(" ");
 		if (parts.length != 3)
 		{
-			logger.info("Returning empty flag for line: {}", nextLine);
+			logger.info("Returning empty flag for line: {}", line);
 			return flag;
 		}
 
@@ -115,4 +121,69 @@ public class Radare
 
 		return flag;
 	}
+
+	public static void askForCrossReferences() throws IOException
+	{
+		r2Pipe.cmdNoResponse("ax");
+		// skip first line
+		r2Pipe.readNextLine();
+	}
+
+	public static List<DirectedEdge> getNextCrossReferences() throws IOException
+	{
+		while(true){
+			String nextLine = r2Pipe.readNextLine();
+			if (nextLine.length() == 0 || nextLine.endsWith("\0"))
+				return null;
+			List<DirectedEdge> newXrefs = createXrefsFromLine(nextLine);
+
+			if(newXrefs == null)
+				continue;
+
+			return newXrefs;
+		}
+	}
+
+	private static List<DirectedEdge> createXrefsFromLine(String line)
+	{
+
+		String[] parts = line.split("=");
+		int lastDotPosition = parts[0].lastIndexOf(".");
+		String type = parts[0].substring(0, lastDotPosition);
+
+		// TODO: handle other types of edges here
+		// ref.data.mem
+		// xref.data.mem
+		// ref.code.call
+		// xref.code.call
+		// ref.code.jmp
+		// xref.code.jmp
+
+		if(!type.equals("ref.code.call"))
+			return null;
+
+		String destList = parts[1];
+		String[] destinations = destList.split(",");
+		Long sourceId = Long.decode(parts[0].substring(lastDotPosition + 1));
+
+		LinkedList<DirectedEdge> retval = new LinkedList<DirectedEdge>();
+		for(String dest : destinations)
+		{
+			Long destId = Long.decode(dest);
+			DirectedEdge edge = createCallEdge(destId, sourceId);
+			retval.add(edge);
+		}
+		return retval;
+
+	}
+
+	private static DirectedEdge createCallEdge(Long dest, Long source)
+	{
+		DirectedEdge edge = new DirectedEdge();
+		edge.setType(EdgeTypes.CALL);
+		edge.setSourceKey(new NodeKey(source, NodeTypes.INSTRUCTION));
+		edge.setDestKey(new NodeKey(dest));
+		return edge;
+	}
+
 }

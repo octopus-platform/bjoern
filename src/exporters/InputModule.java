@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import exporters.structures.annotations.Flag;
+import exporters.structures.edges.DirectedEdge;
 import exporters.structures.interpretations.Function;
 
 public interface InputModule
@@ -18,5 +19,7 @@ public interface InputModule
 			throws IOException;
 
 	public void finish();
+
+	public List<DirectedEdge> getCrossReferences() throws IOException;
 
 }
