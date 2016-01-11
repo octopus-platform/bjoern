@@ -1,6 +1,7 @@
 package server.components.orientdbImporter.processors;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class NodeProcessor extends CSVFileProcessor
 	private void initializeVertexKeys(String[] row)
 	{
 		String[] keys = rowToKeys(row);
+		// remove first key, it's the command
+		keys = Arrays.copyOfRange(keys, 1, keys.length);
+
 		importer.setVertexKeys(keys);
 	}
 
@@ -46,6 +50,7 @@ public class NodeProcessor extends CSVFileProcessor
 			return;
 
 		OrientVertexType vType = importer.getNoTx().getVertexType("V");
+
 
 		for (String key : importer.getVertexKeys())
 		{
@@ -81,7 +86,9 @@ public class NodeProcessor extends CSVFileProcessor
 		String[] properties = new String[2 * (row.length -1)];
 		for (int i = 1; i < row.length; i++)
 		{
-			properties[2 *(i-1)] = importer.getVertexKeys()[i];
+			// We subtract 1 here when accessing vertex keys because
+			// the first key (command) is discarded.
+			properties[2 *(i-1)] = importer.getVertexKeys()[i - 1];
 			properties[2 *(i-1) + 1] = row[i];
 		}
 		Object[] props = properties;
