@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import exporters.nodeStore.Node;
 import exporters.nodeStore.NodeKey;
 import exporters.nodeStore.NodeTypes;
 import exporters.outputModules.OutputModule;
@@ -39,13 +40,25 @@ public class CSVOutputModule implements OutputModule
 	@Override
 	public void writeFlag(Flag flag)
 	{
+		createRootNodeForNode(flag);
+
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(CSVFields.CODE, flag.getValue());
 		properties.put(CSVFields.KEY, flag.getKey());
 		properties.put(CSVFields.TYPE, flag.getType());
 		properties.put(CSVFields.ADDR, flag.getAddress().toString());
 		// Skipping length-field for now, let's see if we need it.
-		CSVWriter.addNode(flag, properties);
+		CSVWriter.addNoReplaceNode(flag, properties);
+	}
+
+	private void createRootNodeForNode(Flag flag)
+	{
+		Node node = new Node();
+		node.setAddr(flag.getAddress());
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put(CSVFields.KEY, node.getKey());
+		properties.put(CSVFields.ADDR, node.getAddress().toString());
+		CSVWriter.addNode(node, properties);
 	}
 
 	@Override

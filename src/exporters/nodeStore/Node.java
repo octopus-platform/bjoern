@@ -6,7 +6,7 @@ public class Node
 	public static final Long INVALID_ADDRESS = Long.MAX_VALUE;
 
 	private long address;
-	private String type;
+	private String type = "";
 
 	public void setAddr(long addr)
 	{
