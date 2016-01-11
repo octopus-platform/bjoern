@@ -47,7 +47,7 @@ public class RadareExporter extends Exporter
 		for (Flag flag : flags)
 		{
 			outputModule.writeFlag(flag);
-			outputModule.writeReferenceToFlag(flag);
+			outputModule.attachFlagsToRootNodes(flag);
 		}
 	}
 

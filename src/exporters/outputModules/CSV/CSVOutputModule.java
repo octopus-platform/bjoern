@@ -109,6 +109,7 @@ public class CSVOutputModule implements OutputModule
 
 		for (VariableOrArgument varOrArg : varsAndArgs)
 		{
+			createRootNodeForNode(varOrArg);
 			createNodeForVarOrArg(varOrArg);
 			connectNodeToFunction(varOrArg);
 		}
@@ -182,7 +183,7 @@ public class CSVOutputModule implements OutputModule
 	{
 		createRootNodeForNode(block);
 		writeNodeForBasicBlock(block);
-		addEdgeFromRootNode(block);
+		addEdgeFromRootNode(block, EdgeTypes.INTERPRETATION);
 		writeInstructions(block);
 	}
 
@@ -197,7 +198,7 @@ public class CSVOutputModule implements OutputModule
 			Instruction instr = it.next();
 			createRootNodeForNode(instr);
 			writeInstruction(block, instr, childNum);
-			addEdgeFromRootNode(instr);
+			addEdgeFromRootNode(instr, EdgeTypes.INTERPRETATION);
 			writeEdgeFromBlockToInstruction(block, instr);
 			childNum++;
 		}
@@ -284,13 +285,7 @@ public class CSVOutputModule implements OutputModule
 	@Override
 	public void writeReferencesToFunction(Function function)
 	{
-		List<DirectedEdge> edges = function.getEdges();
-		for (DirectedEdge edge : edges)
-		{
-			writeEdge(edge);
-		}
-
-		addEdgeFromRootNode(function);
+		addEdgeFromRootNode(function, EdgeTypes.INTERPRETATION);
 	}
 
 	private void writeEdge(DirectedEdge edge)
@@ -305,12 +300,12 @@ public class CSVOutputModule implements OutputModule
 	}
 
 	@Override
-	public void writeReferenceToFlag(Flag flag)
+	public void attachFlagsToRootNodes(Flag flag)
 	{
-		addEdgeFromRootNode(flag);
+		addEdgeFromRootNode(flag, EdgeTypes.ANNOTATION);
 	}
 
-	private void addEdgeFromRootNode(Node node)
+	private void addEdgeFromRootNode(Node node, String type)
 	{
 		NodeKey srcKey = node.createEpsilonKey();
 		NodeKey destKey = node.createKey();
@@ -318,6 +313,7 @@ public class CSVOutputModule implements OutputModule
 		DirectedEdge newEdge = new DirectedEdge();
 		newEdge.setSourceKey(srcKey);
 		newEdge.setDestKey(destKey);
+		newEdge.setType(type);
 
 		writeEdge(newEdge);
 	}

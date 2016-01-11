@@ -1,7 +1,6 @@
 package exporters.radare.inputModule.creators;
 
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import exporters.nodeStore.NodeKey;
@@ -19,26 +18,10 @@ public class RadareFunctionCreator
 		Function retval = new Function(jsonFunction.getLong("offset"));
 
 		initFunctionInfo(jsonFunction, retval);
-		initReferences(jsonFunction, retval);
 
 		return retval;
 	}
 
-	private static void initReferences(JSONObject jsonFunction, Function retval)
-	{
-		long dstAddr = retval.getAddress();
-
-		JSONArray callRefArray = jsonFunction.getJSONArray("callrefs");
-		int nCallRefs = callRefArray.length();
-		for (int i = 0; i < nCallRefs; i++)
-		{
-			JSONObject callRef = callRefArray.getJSONObject(i);
-			long srcAddr = callRef.getLong("addr");
-			DirectedEdge newEdge = createCallEdge(dstAddr, srcAddr);
-			retval.addEdge(newEdge);
-		}
-
-	}
 
 	private static DirectedEdge createCallEdge(long dstAddr, long srcAddr)
 	{
