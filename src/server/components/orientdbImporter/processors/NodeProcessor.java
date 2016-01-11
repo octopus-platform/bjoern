@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import server.Constants;
-import server.components.orientdbImporter.CSVImporter;
-
 import com.opencsv.CSVReader;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
 
-import exporters.outputModules.CSV.CSVFields;
+import server.Constants;
+import server.components.orientdbImporter.CSVImporter;
 
 public class NodeProcessor extends CSVFileProcessor
 {
@@ -74,11 +74,11 @@ public class NodeProcessor extends CSVFileProcessor
 
 		String id = row[0];
 
-		String[] properties = new String[2 * (row.length - 1)];
-		for (int i = 1; i < row.length; i++)
+		String[] properties = new String[2 * row.length];
+		for (int i = 0; i < row.length; i++)
 		{
-			properties[2 * (i - 1)] = importer.getVertexKeys()[i];
-			properties[2 * (i - 1) + 1] = row[i];
+			properties[2 *i] = importer.getVertexKeys()[i];
+			properties[2 *i + 1] = row[i];
 		}
 		Object[] props = properties;
 		createNodeInGraph(id, props);
@@ -97,17 +97,44 @@ public class NodeProcessor extends CSVFileProcessor
 			throw new RuntimeException("Too many nodes with the same key: " + baseId);
 
 		// The first node gets the baseId, all others will
-		// obtain an additional "_$number"
+		// obtain an additional "_$number" and will be connected to
+		// the last alternative.
+
+		String completeId = createCompleteId(baseId, num);
+
+		try {
+			batchGraph.addVertex(completeId, props);
+
+			if(num != 0){
+				linkToPreviousNode(baseId, num);
+			}
+
+		} catch (IllegalArgumentException e) {
+			doCreateNodeInGraph(baseId, props, num + 1);
+		}
+	}
+
+	private String createCompleteId(String baseId, int num)
+	{
 		String completeId;
 		if(num == 0)
 			completeId = baseId;
 		else
 			completeId = String.format("%s_%d", baseId, num);
-
-		try {
-			batchGraph.addVertex(completeId, props);
-		} catch (IllegalArgumentException e) {
-			doCreateNodeInGraph(baseId, props, num + 1);
-		}
+		return completeId;
 	}
+
+	private void linkToPreviousNode(String baseId, int num)
+	{
+		String previousId = createCompleteId(baseId, num -1);
+		String thisId = createCompleteId(baseId, num);
+
+		Graph graph = importer.getGraph();
+
+		Vertex fromNode = graph.getVertex(previousId);
+		Vertex toNode = graph.getVertex(thisId);
+
+		graph.addEdge(0, fromNode, toNode, "foo");
+	}
+
 }
