@@ -161,7 +161,20 @@ public class CSVOutputModule implements OutputModule
 		for (BasicBlock block : basicBlocks)
 		{
 			writeBasicBlock(block);
+			writeEdgeFromFunctionToBasicBlock(function, block);
 		}
+	}
+
+	private void writeEdgeFromFunctionToBasicBlock(Function function, BasicBlock block)
+	{
+
+		Map<String, Object> properties = new HashMap<String, Object>();
+
+		String srcId = function.getKey();
+		String dstId = block.getKey();
+
+		CSVWriter.addEdge(srcId, dstId, properties, EdgeTypes.IS_FUNCTION_OF);
+
 	}
 
 	@Override
