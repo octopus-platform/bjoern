@@ -51,19 +51,21 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.addNoReplaceNode(flag, properties);
 	}
 
-	private void createRootNodeForNode(Flag flag)
+	private void createRootNodeForNode(Node node)
 	{
-		Node node = new Node();
-		node.setAddr(flag.getAddress());
+		Node rootNode = new Node();
+		rootNode.setAddr(node.getAddress());
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(CSVFields.KEY, node.getKey());
-		properties.put(CSVFields.ADDR, node.getAddress().toString());
-		CSVWriter.addNode(node, properties);
+		properties.put(CSVFields.KEY, rootNode.getKey());
+		properties.put(CSVFields.ADDR, rootNode.getAddress().toString());
+		CSVWriter.addNode(rootNode, properties);
 	}
 
 	@Override
 	public void writeFunctionNodes(Function function)
 	{
+		createRootNodeForNode(function);
+
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(CSVFields.ADDR, function.getAddress().toString());
 		properties.put(CSVFields.TYPE, function.getType());
@@ -165,6 +167,7 @@ public class CSVOutputModule implements OutputModule
 	@Override
 	public void writeBasicBlock(BasicBlock block)
 	{
+		createRootNodeForNode(block);
 		writeNodeForBasicBlock(block);
 		writeInstructions(block);
 	}
@@ -178,6 +181,7 @@ public class CSVOutputModule implements OutputModule
 		while (it.hasNext())
 		{
 			Instruction instr = it.next();
+			createRootNodeForNode(instr);
 			writeInstruction(block, instr, childNum);
 			writeEdgeFromBlockToInstruction(block, instr);
 			childNum++;
