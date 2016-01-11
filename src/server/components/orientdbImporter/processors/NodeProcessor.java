@@ -11,6 +11,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
 
+import exporters.outputModules.CSV.CSVCommands;
 import server.Constants;
 import server.components.orientdbImporter.CSVImporter;
 
@@ -72,24 +73,32 @@ public class NodeProcessor extends CSVFileProcessor
 		if (row.length < 1)
 			return;
 
-		String id = row[0];
+		String command = row[0];
+		String id = row[1];
 
-		String[] properties = new String[2 * row.length];
-		for (int i = 0; i < row.length; i++)
+		// TODO: handling of different commands
+
+		String[] properties = new String[2 * (row.length -1)];
+		for (int i = 1; i < row.length; i++)
 		{
-			properties[2 *i] = importer.getVertexKeys()[i];
-			properties[2 *i + 1] = row[i];
+			properties[2 *(i-1)] = importer.getVertexKeys()[i];
+			properties[2 *(i-1) + 1] = row[i];
 		}
 		Object[] props = properties;
-		createNodeInGraph(id, props);
+
+		if(command.equals(CSVCommands.ADD))
+			addNodeToGraph(id, props);
+		else if(command.equals(CSVCommands.ADD_NO_REPLACE))
+			addNodeToGraphNoReplace(id, props);
+
 	}
 
-	private void createNodeInGraph(String id, Object[] props)
+	private void addNodeToGraph(String id, Object[] props)
 	{
-		doCreateNodeInGraph(id, props, 0);
+		doAddNodeToGraph(id, props, 0);
 	}
 
-	private void doCreateNodeInGraph(String baseId, Object[] props, int num)
+	private void doAddNodeToGraph(String baseId, Object[] props, int num)
 	{
 		BatchGraph<?> batchGraph = (BatchGraph<?>) importer.getGraph();
 
@@ -110,7 +119,7 @@ public class NodeProcessor extends CSVFileProcessor
 			}
 
 		} catch (IllegalArgumentException e) {
-			doCreateNodeInGraph(baseId, props, num + 1);
+			doAddNodeToGraph(baseId, props, num + 1);
 		}
 	}
 
@@ -135,6 +144,18 @@ public class NodeProcessor extends CSVFileProcessor
 		Vertex toNode = graph.getVertex(thisId);
 
 		graph.addEdge(0, fromNode, toNode, "foo");
+	}
+
+	private void addNodeToGraphNoReplace(String id, Object[] props)
+	{
+		String completeId = createCompleteId(id, 0);
+		BatchGraph<?> batchGraph = (BatchGraph<?>) importer.getGraph();
+
+		try{
+			batchGraph.addVertex(completeId, props);
+		}catch (IllegalArgumentException e) {
+			return;
+		}
 	}
 
 }

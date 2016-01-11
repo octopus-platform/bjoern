@@ -38,14 +38,17 @@ public class CSVWriter
 
 	public static void addNode(Node node, Map<String, Object> properties)
 	{
-		String sep = "";
+
+
+		nodeWriter.write(CSVCommands.ADD);
+
+
 		for (String property : nodeProperties)
 		{
-			nodeWriter.write(sep);
+			nodeWriter.write(SEPARATOR);
 			String propValue = (String) properties.get(property);
 			if (propValue != null)
 				nodeWriter.write(espaceAndQuote(propValue));
-			sep = SEPARATOR;
 		}
 		nodeWriter.write("\n");
 	}
@@ -72,6 +75,7 @@ public class CSVWriter
 	{
 		String path = outDir + File.separator + "nodes.csv";
 		nodeWriter = createWriter(path);
+		nodeWriter.write("command" + SEPARATOR);
 		writeNodePropertyNames();
 	}
 
