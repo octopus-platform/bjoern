@@ -1,11 +1,13 @@
 package clients.bjoernImport;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -22,20 +24,24 @@ public class BjoernImport
 		invokeImportPlugin();
 	}
 
-	private static void invokeImportPlugin() throws MalformedURLException
+	private static void invokeImportPlugin()
+			throws MalformedURLException, UnsupportedEncodingException
 	{
 
 		String workingDirectory = System.getProperty("user.dir");
 
 		Path nodePath = Paths.get(workingDirectory, "nodes.csv");
-		String nodeFilename = URLEncoder
-				.encode(nodePath.toAbsolutePath().toString());
+		String nodeFilename = URLEncoder.encode(
+				nodePath.toAbsolutePath().toString(),
+				StandardCharsets.UTF_8.toString());
 
 		Path edgePath = Paths.get(workingDirectory, "edges.csv");
-		String edgeFilename = URLEncoder
-				.encode(edgePath.toAbsolutePath().toString());
+		String edgeFilename = URLEncoder.encode(
+				edgePath.toAbsolutePath().toString(),
+				StandardCharsets.UTF_8.toString());
 
-		String dbName = URLEncoder.encode(cmdLine.getDbName());
+		String dbName = URLEncoder.encode(cmdLine.getDbName(),
+				StandardCharsets.UTF_8.toString());
 
 		String urlStr = String.format(
 				"http://localhost:2480/importcsv/%s/%s/%s/", nodeFilename,
