@@ -20,6 +20,7 @@ import exporters.radare.CommandLineInterface;
 public abstract class Exporter
 {
 	protected abstract void initialize();
+
 	protected abstract void export() throws IOException;
 
 	protected InputModule inputModule;
@@ -49,8 +50,7 @@ public abstract class Exporter
 		try
 		{
 			cmdLine.parseCommandLine(args);
-		}
-		catch (RuntimeException | ParseException e)
+		} catch (RuntimeException | ParseException e)
 		{
 			printHelpAndTerminate(e);
 		}
@@ -63,16 +63,20 @@ public abstract class Exporter
 		System.exit(1);
 	}
 
+	private void printExceptionAndTerminate(IOException e)
+	{
+		System.err.println(e.getMessage());
+		System.exit(1);
+	}
 
 	public void tryToExport(String binaryFilename, String outputDir)
 	{
 		try
 		{
 			export(binaryFilename, outputDir);
-		}
-		catch (IOException e)
+		} catch (IOException e)
 		{
-			System.err.println(e.getMessage());
+			printExceptionAndTerminate(e);
 		}
 	}
 
