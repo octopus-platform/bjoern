@@ -3,6 +3,7 @@ package exporters.radare.inputModule.creators;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import exporters.nodeStore.NodeKey;
 import exporters.nodeStore.NodeStore;
 import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.JSONUtils;
@@ -104,8 +105,8 @@ public class RadareFunctionContentCreator
 				// it. Store this edge as a keyed edge.
 
 				BasicBlock basicBlock = getBasicBlockForJSONBlock(jsonBlock);
-				content.addUnresolvedEdge(basicBlock.getAddress(),
-						e.getAddress(), e.getType());
+				content.addEdge(basicBlock.createKey(), new NodeKey(e.getAddress(),
+						NodeTypes.BASIC_BLOCK), e.getType());
 			}
 		}
 	}
@@ -129,12 +130,12 @@ public class RadareFunctionContentCreator
 		}
 
 		if (numberOfEdges == 1)
-			content.addEdge(fromBlock, jumpBlock, EdgeTypes.CFLOW);
+			content.addEdge(fromBlock.createKey(), jumpBlock.createKey() , EdgeTypes.CFLOW);
 		else
 		{
 			assert (failBlock != null);
-			content.addEdge(fromBlock, jumpBlock, EdgeTypes.CFLOW_TRUE);
-			content.addEdge(fromBlock, failBlock, EdgeTypes.CFLOW_FALSE);
+			content.addEdge(fromBlock.createKey(), jumpBlock.createKey(), EdgeTypes.CFLOW_TRUE);
+			content.addEdge(fromBlock.createKey(), failBlock.createKey(), EdgeTypes.CFLOW_FALSE);
 		}
 
 	}

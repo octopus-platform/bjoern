@@ -6,19 +6,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import exporters.nodeStore.NodeKey;
-import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.RadareDisassemblyParser;
 import exporters.radare.inputModule.exceptions.InvalidDisassembly;
 import exporters.structures.annotations.VariableOrArgument;
 import exporters.structures.edges.DirectedEdge;
-import exporters.structures.edges.EdgeTypes;
 
 public class FunctionContent
 {
 	private final long functionAddr;
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<DirectedEdge> edges = new LinkedList<DirectedEdge>();
-	List<DirectedEdge> keyedEdges = new LinkedList<DirectedEdge>();
 	Disassembly disassembly = new Disassembly(0);
 
 	public FunctionContent(long functionAddr)
@@ -58,12 +55,6 @@ public class FunctionContent
 		basicBlocks.put(addr, node);
 	}
 
-	public void addCFGEdge(DirectedEdge newEdge)
-	{
-		edges.add(newEdge);
-	}
-
-
 	public void registerBasicBlock(long addr, BasicBlock node)
 	{
 		BasicBlock block = getBasicBlockAtAddress(addr);
@@ -74,19 +65,17 @@ public class FunctionContent
 		addBasicBlock(addr, node);
 	}
 
-	public void addEdge(BasicBlock from, BasicBlock to, String type)
+	public void addEdge(NodeKey sourceKey, NodeKey destKey, String type)
 	{
 		DirectedEdge newEdge = new DirectedEdge();
 
-		newEdge.setSourceKey(from.createKey());
-		newEdge.setDestKey(to.createKey());
-		addCFGEdge(newEdge);
+		newEdge.setSourceKey(sourceKey);
+		newEdge.setDestKey(destKey);
+		newEdge.setType(type);
+		edges.add(newEdge);
+
 	}
 
-	public List<DirectedEdge> getUnresolvedEdges()
-	{
-		return keyedEdges;
-	}
 
 	public void consumeDisassembly(String disassemblyStr)
 	{
@@ -100,24 +89,5 @@ public class FunctionContent
 			// TODO: might want to log this error.
 		}
 	}
-
-	public void addUnresolvedEdge(Long from, Long to, String type) {
-
-		DirectedEdge edge = new DirectedEdge();
-
-		NodeKey srcKey = new NodeKey(from, NodeTypes.BASIC_BLOCK);
-		NodeKey dstKey = new NodeKey(to, NodeTypes.BASIC_BLOCK);
-
-		edge.setSourceKey(srcKey);
-		edge.setDestKey(dstKey);
-
-		if (type.equals("jump"))
-			edge.setType(EdgeTypes.CFLOW_TRUE);
-		else
-			edge.setType(EdgeTypes.CFLOW_FALSE);
-
-		keyedEdges.add(edge);
-	}
-
 
 }

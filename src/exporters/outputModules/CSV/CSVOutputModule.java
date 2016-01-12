@@ -93,7 +93,7 @@ public class CSVOutputModule implements OutputModule
 
 		FunctionContent content = function.getContent();
 
-		List<DirectedEdge> edges = content.getUnresolvedEdges();
+		List<DirectedEdge> edges = content.getEdges();
 		for (DirectedEdge edge : edges)
 		{
 			writeEdge(edge);
