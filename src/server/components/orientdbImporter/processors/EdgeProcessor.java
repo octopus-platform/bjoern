@@ -5,12 +5,12 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import server.components.orientdbImporter.CSVImporter;
-
 import com.opencsv.CSVReader;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+
+import server.components.orientdbImporter.CSVImporter;
 
 public class EdgeProcessor extends CSVFileProcessor
 {

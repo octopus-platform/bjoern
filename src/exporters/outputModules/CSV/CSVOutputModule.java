@@ -83,22 +83,8 @@ public class CSVOutputModule implements OutputModule
 		writeArgumentsAndVariables();
 		writeBasicBlocks();
 		writeCFGEdges();
-		writeOtherEdges(function);
 
 		setCurrentFunction(null);
-	}
-
-	private void writeOtherEdges(Function function)
-	{
-
-		FunctionContent content = function.getContent();
-
-		List<DirectedEdge> edges = content.getEdges();
-		for (DirectedEdge edge : edges)
-		{
-			writeEdge(edge);
-		}
-
 	}
 
 	private void writeArgumentsAndVariables()
