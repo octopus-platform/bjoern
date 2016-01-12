@@ -7,8 +7,6 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 
-import server.Constants;
-
 public class CFGCreator
 {
 
@@ -21,11 +19,10 @@ public class CFGCreator
 
 	public Graph createCFG(Vertex functionNode)
 	{
-		String id = functionNode.getId().toString();
-		Long functionId = Long.parseLong(id.split(":")[1]);
 		CFGGraphWrapper sg = new CFGGraphWrapper(new TinkerGraph());
 		sg.addVertex(functionNode);
-		Iterable<Vertex> basicBlocks = getBasicBlocksOfFunction(functionId);
+		Iterable<Vertex> basicBlocks = functionNode.getVertices(Direction.OUT,
+				"IS_FUNC_OF");
 		// Connect basic blocks with instructions
 		for (Vertex bb : basicBlocks)
 		{
@@ -55,16 +52,10 @@ public class CFGCreator
 				Graph graph = sg.getGraph();
 				Vertex v = graph.getVertex(functionNode.getId());
 				Vertex w = graph.getVertex(bb.getId());
-				graph.addEdge(id, v, w, "START");
+				graph.addEdge("", v, w, "START");
 			}
 
 		}
 		return sg.getGraph();
-	}
-
-	protected Iterable<Vertex> getBasicBlocksOfFunction(Long functionId)
-	{
-		return g.getVertices("V", Constants.INDEX_KEYS, new String[] {
-				"(functionId:" + functionId + " AND nodeType:BB)" });
 	}
 }
