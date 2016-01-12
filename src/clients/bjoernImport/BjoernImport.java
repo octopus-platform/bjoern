@@ -11,8 +11,6 @@ import java.nio.file.Paths;
 
 import org.apache.commons.cli.ParseException;
 
-import exporters.radare.RadareExporter;
-
 public class BjoernImport
 {
 
@@ -21,14 +19,7 @@ public class BjoernImport
 	public static void main(String[] args) throws IOException
 	{
 		parseCommandLine(args);
-		invokeRadare2(args);
 		invokeImportPlugin();
-	}
-
-	private static void invokeRadare2(String[] args) throws IOException
-	{
-		String pathToBinary = cmdLine.getCodedir();
-		(new RadareExporter()).export(pathToBinary, ".");
 	}
 
 	private static void invokeImportPlugin() throws MalformedURLException
@@ -37,12 +28,12 @@ public class BjoernImport
 		String workingDirectory = System.getProperty("user.dir");
 
 		Path nodePath = Paths.get(workingDirectory, "nodes.csv");
-		String nodeFilename = URLEncoder.encode(nodePath.toAbsolutePath()
-				.toString());
+		String nodeFilename = URLEncoder
+				.encode(nodePath.toAbsolutePath().toString());
 
 		Path edgePath = Paths.get(workingDirectory, "edges.csv");
-		String edgeFilename = URLEncoder.encode(edgePath.toAbsolutePath()
-				.toString());
+		String edgeFilename = URLEncoder
+				.encode(edgePath.toAbsolutePath().toString());
 
 		String dbName = URLEncoder.encode(cmdLine.getDbName());
 
@@ -59,19 +50,16 @@ public class BjoernImport
 			connection.setRequestMethod("GET");
 			connection.setReadTimeout(0);
 			connection.getInputStream();
-		}
-		catch (ConnectException ex)
+		} catch (ConnectException ex)
 		{
-			System.out
-					.println("You need to start the bjoern-server (bjoern-server.sh).");
-		}
-		catch (IOException ex)
+			System.out.println(
+					"You need to start the bjoern-server (bjoern-server.sh).");
+		} catch (IOException ex)
 		{
 			if (ex.getMessage().contains("405"))
-				System.err
-						.println("Cannot invoke server plugin."
-								+ " Try copying `conf/orientdb-server-config.xml "
-								+ "to orientdb-2.1.5-community/config/ and restart the server.`");
+				System.err.println("Cannot invoke server plugin."
+						+ " Try copying `conf/orientdb-server-config.xml "
+						+ "to orientdb-2.1.5-community/config/ and restart the server.`");
 		}
 
 	}
@@ -81,8 +69,7 @@ public class BjoernImport
 		try
 		{
 			cmdLine.parseCommandLine(args);
-		}
-		catch (RuntimeException | ParseException e)
+		} catch (RuntimeException | ParseException e)
 		{
 			printHelpAndTerminate(e);
 		}
