@@ -60,7 +60,7 @@ public abstract class Exporter
 	{
 		System.err.println(e.getMessage());
 		cmdLine.printHelp();
-		System.exit(0);
+		System.exit(1);
 	}
 
 
