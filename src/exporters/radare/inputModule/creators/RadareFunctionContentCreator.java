@@ -8,7 +8,6 @@ import exporters.nodeStore.NodeStore;
 import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.JSONUtils;
 import exporters.radare.inputModule.exceptions.BasicBlockWithoutAddress;
-import exporters.radare.inputModule.exceptions.EdgeTargetNotFound;
 import exporters.structures.edges.EdgeTypes;
 import exporters.structures.interpretations.BasicBlock;
 import exporters.structures.interpretations.FunctionContent;
@@ -92,50 +91,29 @@ public class RadareFunctionContentCreator
 		for (int i = 0; i < numberOfBlocks; i++)
 		{
 			JSONObject jsonBlock = blocks.getJSONObject(i);
-			try
-			{
-				createEdgesForBlock(content, jsonBlock);
-			}
-			catch (EdgeTargetNotFound e)
-			{
-				// If target wasn't even given, we're fine.
-				if (!e.isTargetGiven())
-					continue;
-				// Otherwise, the target was given but we were unable to resolve
-				// it. Store this edge as a keyed edge.
-
-				BasicBlock basicBlock = getBasicBlockForJSONBlock(jsonBlock);
-				content.addEdge(basicBlock.createKey(), new NodeKey(e.getAddress(),
-						NodeTypes.BASIC_BLOCK), e.getType());
-			}
+			createEdgesForBlock(content, jsonBlock);
 		}
 	}
 
 	private static void createEdgesForBlock(FunctionContent content,
-			JSONObject jsonBlock) throws EdgeTargetNotFound
+			JSONObject jsonBlock)
 	{
-		int numberOfEdges = 2;
 
-		BasicBlock fromBlock = getBasicBlockForJSONBlock(jsonBlock);
-		BasicBlock jumpBlock = getJumpTarget(jsonBlock, "jump");
-		BasicBlock failBlock = null;
 
-		try
-		{
-			failBlock = getJumpTarget(jsonBlock, "fail");
-		}
-		catch (EdgeTargetNotFound ex)
-		{
-			numberOfEdges = 1;
-		}
+		NodeKey fromBlockKey = getBasicBlockForJSONBlock(jsonBlock).createKey();
+		NodeKey jumpBlockKey = getJumpTargetKey(jsonBlock, "jump");
+		NodeKey failBlockKey = getJumpTargetKey(jsonBlock, "fail");
 
-		if (numberOfEdges == 1)
-			content.addEdge(fromBlock.createKey(), jumpBlock.createKey() , EdgeTypes.CFLOW);
+		if(jumpBlockKey == null)
+			return;
+
+
+		if (failBlockKey == null)
+			content.addEdge(fromBlockKey, jumpBlockKey , EdgeTypes.CFLOW);
 		else
 		{
-			assert (failBlock != null);
-			content.addEdge(fromBlock.createKey(), jumpBlock.createKey(), EdgeTypes.CFLOW_TRUE);
-			content.addEdge(fromBlock.createKey(), failBlock.createKey(), EdgeTypes.CFLOW_FALSE);
+			content.addEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW_TRUE);
+			content.addEdge(fromBlockKey, failBlockKey, EdgeTypes.CFLOW_FALSE);
 		}
 
 	}
@@ -154,19 +132,13 @@ public class RadareFunctionContentCreator
 		return fromBlock;
 	}
 
-	private static BasicBlock getJumpTarget(JSONObject block, String type)
-			throws EdgeTargetNotFound
+	private static NodeKey getJumpTargetKey(JSONObject block, String type)
 	{
 		Long toAddr = JSONUtils.getLongFromObject(block, type);
 		if (toAddr == null)
-			throw new EdgeTargetNotFound(false, 0, type);
+			return null;
 
-		BasicBlock to = (BasicBlock) NodeStore.getNodeForAddressAndType(toAddr,
-				NodeTypes.BASIC_BLOCK);
-		if (to == null)
-			throw new EdgeTargetNotFound(true, toAddr, type);
-
-		return to;
+		return new NodeKey(toAddr, NodeTypes.BASIC_BLOCK);
 	}
 
 }
