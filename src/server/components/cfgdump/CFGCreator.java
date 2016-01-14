@@ -1,5 +1,8 @@
 package server.components.cfgdump;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -9,6 +12,9 @@ import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 
 public class CFGCreator
 {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(CFGCreator.class);
 
 	protected OrientGraphNoTx g;
 
@@ -34,7 +40,6 @@ public class CFGCreator
 				cfg.addVertex(instr);
 				cfg.addEdge(isBBOfEdge);
 			}
-
 		}
 
 		// Add control flow edges
@@ -47,7 +52,7 @@ public class CFGCreator
 			}
 		}
 
-		// Add addr node
+		// Add address node
 		for (Vertex addr : func.getVertices(Direction.IN, "INTERPRETABLE_AS"))
 		{
 			cfg.addVertex(addr);
