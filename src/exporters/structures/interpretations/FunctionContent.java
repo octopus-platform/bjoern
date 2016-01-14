@@ -16,7 +16,7 @@ public class FunctionContent
 	private final long functionAddr;
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<DirectedEdge> edges = new LinkedList<DirectedEdge>();
-	Disassembly disassembly = new Disassembly(0);
+	DisassembledFunction disassembly = new DisassembledFunction();
 
 	public FunctionContent(long functionAddr)
 	{
@@ -82,7 +82,8 @@ public class FunctionContent
 		RadareDisassemblyParser parser = new RadareDisassemblyParser();
 		try
 		{
-			disassembly = parser.parse(disassemblyStr, functionAddr);
+			disassembly = parser.parseFunction(disassemblyStr);
+			disassembly.setFuncAddress(functionAddr);
 		}
 		catch (InvalidDisassembly e)
 		{

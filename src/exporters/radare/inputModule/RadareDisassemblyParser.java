@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import exporters.radare.inputModule.exceptions.EmptyDisassembly;
 import exporters.structures.annotations.VariableOrArgument;
-import exporters.structures.interpretations.Disassembly;
+import exporters.structures.interpretations.DisassembledFunction;
 import exporters.structures.interpretations.DisassemblyLine;
 
 public class RadareDisassemblyParser
@@ -21,24 +21,74 @@ public class RadareDisassemblyParser
 	static Pattern instructionPattern = Pattern
 			.compile("0x(.*?)[ ]+?(.*?)( ;(.*))?$");
 
-	public Disassembly parse(String disassembly, long functionAddr) throws EmptyDisassembly
+	/**
+	 * Receives a disassembly for a function obtained via `pdf`,
+	 * along with the corresponding start address of the function.
+	 * */
+
+	public DisassembledFunction parseFunction(String disassembly) throws EmptyDisassembly
 	{
-		Disassembly retval = new Disassembly(functionAddr);
+		DisassembledFunction retval = new DisassembledFunction();
 
 		initializeLines(disassembly);
 		parseLines(retval);
 		return retval;
 	}
 
-	private void parseLines(Disassembly retval)
+	public VariableOrArgument parseVarOrArg(Matcher matcher)
+	{
+		VariableOrArgument parsedVarOrArg = new VariableOrArgument();
+
+		parsedVarOrArg.setType(matcher.group(1));
+		parsedVarOrArg.setVarType(matcher.group(2));
+		parsedVarOrArg.setName(matcher.group(3));
+		parsedVarOrArg.setRegPlusOffset(matcher.group(4));
+
+		return parsedVarOrArg;
+	}
+
+	/**
+	 * Parses a single line of the disassembly output, which
+	 * is expected to be of the format
+	 * Address	Instruction	Comment
+	 * */
+
+	public DisassemblyLine parseInstruction(String line)
+	{
+		Matcher matcher = instructionPattern.matcher(line);
+		if (!matcher.matches())
+			return null;
+
+		Long addr = new BigInteger(matcher.group(1), 16).longValue();
+		String instruction = matcher.group(2);
+		String comment = matcher.group(3);
+
+		DisassemblyLine disasmLine = new DisassemblyLine();
+		disasmLine.setAddr(addr);
+		disasmLine.setInstruction(instruction.trim());
+		if (comment != null)
+			disasmLine.setComment(comment.trim());
+
+		return disasmLine;
+	}
+
+
+
+	private void parseLines(DisassembledFunction retval)
 	{
 		String line;
 		while ((line = nextLine()) != null)
 		{
-			if (isLineInstruction(line))
-				handleInstruction(retval, line);
-			else if (isLineComment(line))
-				handleComment(retval, line);
+
+			if (isLineInstruction(line)){
+				DisassemblyLine disasmLine = parseInstruction(line);
+				if(disasmLine != null)
+					retval.addLine(disasmLine);
+			}
+			else if (isLineComment(line)){
+				VariableOrArgument varOrArg = handleComment(line);
+				retval.addVarOrArg(varOrArg);
+			}
 		}
 	}
 
@@ -52,44 +102,14 @@ public class RadareDisassemblyParser
 		return line.startsWith(";");
 	}
 
-	private void handleComment(Disassembly retval, String line)
+	private VariableOrArgument handleComment(String line)
 	{
 		Matcher matcher = varAndArgPattern.matcher(line);
 		if (matcher.matches())
 		{
-			handleVarOrArg(retval, matcher);
+			return parseVarOrArg(matcher);
 		}
-	}
-
-	private void handleVarOrArg(Disassembly retval, Matcher matcher)
-	{
-		VariableOrArgument parsedVarOrArg = new VariableOrArgument();
-
-		parsedVarOrArg.setType(matcher.group(1));
-		parsedVarOrArg.setVarType(matcher.group(2));
-		parsedVarOrArg.setName(matcher.group(3));
-		parsedVarOrArg.setRegPlusOffset(matcher.group(4));
-
-		retval.addVarOrArg(parsedVarOrArg);
-	}
-
-	private void handleInstruction(Disassembly retval, String line)
-	{
-		Matcher matcher = instructionPattern.matcher(line);
-		if (!matcher.matches())
-			return;
-
-		Long addr = new BigInteger(matcher.group(1), 16).longValue();
-		String instruction = matcher.group(2);
-		String comment = matcher.group(3);
-
-		DisassemblyLine disasmLine = new DisassemblyLine();
-		disasmLine.setAddr(addr);
-		disasmLine.setInstruction(instruction.trim());
-		if (comment != null)
-			disasmLine.setComment(comment.trim());
-
-		retval.addLine(disasmLine);
+		return null;
 	}
 
 	private String nextLine()

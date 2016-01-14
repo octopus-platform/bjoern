@@ -6,14 +6,14 @@ import java.util.List;
 
 import exporters.structures.annotations.VariableOrArgument;
 
-public class Disassembly
+public class DisassembledFunction
 {
 
-	private final long funcAddress;
+	private long funcAddress = 0;
 	List<VariableOrArgument> varsAndArgs = new LinkedList<VariableOrArgument>();
 	HashMap<Long, DisassemblyLine> addrToLine = new HashMap<Long, DisassemblyLine>();
 
-	public Disassembly(long funcAddress)
+	public void setFuncAddress(long funcAddress)
 	{
 		this.funcAddress = funcAddress;
 	}
