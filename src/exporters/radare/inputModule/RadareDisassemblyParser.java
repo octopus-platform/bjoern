@@ -24,11 +24,13 @@ public class RadareDisassemblyParser
 	/**
 	 * Receives a disassembly for a function obtained via `pdf`,
 	 * along with the corresponding start address of the function.
+	 * @param functionAddr
 	 * */
 
-	public DisassembledFunction parseFunction(String disassembly) throws EmptyDisassembly
+	public DisassembledFunction parseFunction(String disassembly, long functionAddr) throws EmptyDisassembly
 	{
 		DisassembledFunction retval = new DisassembledFunction();
+		retval.setFuncAddress(functionAddr);
 
 		initializeLines(disassembly);
 		parseLines(retval);
@@ -102,8 +104,10 @@ public class RadareDisassemblyParser
 		}
 		else if (isLineComment(line)){
 			VariableOrArgument varOrArg = handleComment(line);
-			if(varOrArg != null)
+			if(varOrArg != null){
+				varOrArg.setAddr(retval.getAddress());
 				retval.addVarOrArg(varOrArg);
+			}
 		}
 	}
 

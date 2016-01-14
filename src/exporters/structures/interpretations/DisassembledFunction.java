@@ -38,5 +38,10 @@ public class DisassembledFunction
 		return disassembly.getLineForAddr(addr);
 	}
 
+	public long getAddress()
+	{
+		return this.funcAddress;
+	}
+
 
 }

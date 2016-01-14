@@ -82,8 +82,7 @@ public class FunctionContent
 		RadareDisassemblyParser parser = new RadareDisassemblyParser();
 		try
 		{
-			disassembledFunction = parser.parseFunction(disassemblyStr);
-			disassembledFunction.setFuncAddress(functionAddr);
+			disassembledFunction = parser.parseFunction(disassemblyStr, functionAddr);
 		}
 		catch (InvalidDisassembly e)
 		{
