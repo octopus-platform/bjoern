@@ -52,6 +52,19 @@ public class CFGCreator
 			}
 		}
 
+		// Add edges between instructions
+		for (Vertex bb : func.getVertices(Direction.OUT, "IS_FUNC_OF"))
+		{
+			for (Vertex instr : bb.getVertices(Direction.OUT, "IS_BB_OF"))
+			{
+				for (Edge nextInBBEdge : instr.getEdges(Direction.OUT,
+						"IS_NEXT_IN_BB"))
+				{
+					cfg.addEdge(nextInBBEdge);
+				}
+			}
+		}
+
 		// Add address node
 		for (Vertex addr : func.getVertices(Direction.IN, "INTERPRETABLE_AS"))
 		{
