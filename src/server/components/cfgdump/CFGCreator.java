@@ -17,45 +17,47 @@ public class CFGCreator
 		this.g = graph;
 	}
 
-	public Graph createCFG(Vertex functionNode)
+	public Graph createCFG(Vertex func)
 	{
-		CFGGraphWrapper sg = new CFGGraphWrapper(new TinkerGraph());
-		sg.addVertex(functionNode);
-		Iterable<Vertex> basicBlocks = functionNode.getVertices(Direction.OUT,
-				"IS_FUNC_OF");
-		// Connect basic blocks with instructions
-		for (Vertex bb : basicBlocks)
+		CFGGraphWrapper cfg = new CFGGraphWrapper(new TinkerGraph());
+		cfg.addVertex(func);
+
+		// Create hierarchy
+		for (Edge isFuncOfEdge : func.getEdges(Direction.OUT, "IS_FUNC_OF"))
 		{
-			sg.addVertex(bb);
-			for (Edge edge : bb.getEdges(Direction.OUT, "IS_BB_OF"))
+			Vertex bb = isFuncOfEdge.getVertex(Direction.IN);
+			cfg.addVertex(bb);
+			cfg.addEdge(isFuncOfEdge);
+			for (Edge isBBOfEdge : bb.getEdges(Direction.OUT, "IS_BB_OF"))
 			{
-				Vertex instr = edge.getVertex(Direction.IN);
-				sg.addVertex(instr);
-				sg.addEdge(edge);
-			}
-		}
-		// Connect basic blocks with each other
-		for (Vertex bb : basicBlocks)
-		{
-			for (Edge edge : bb.getEdges(Direction.OUT, "CFLOW_ALWAYS",
-					"CFLOW_TRUE", "CFLOW_FALSE"))
-			{
-				Vertex head = edge.getVertex(Direction.IN);
-				if (sg.contains(head))
-				{
-					sg.addEdge(edge);
-				}
-			}
-			// Add edge from function node to first basic block
-			if (bb.getProperty("addr").equals(functionNode.getProperty("addr")))
-			{
-				Graph graph = sg.getGraph();
-				Vertex v = graph.getVertex(functionNode.getId());
-				Vertex w = graph.getVertex(bb.getId());
-				graph.addEdge("", v, w, "START");
+				Vertex instr = isBBOfEdge.getVertex(Direction.IN);
+				cfg.addVertex(instr);
+				cfg.addEdge(isBBOfEdge);
 			}
 
 		}
-		return sg.getGraph();
+
+		// Add control flow edges
+		for (Vertex bb : func.getVertices(Direction.OUT, "IS_FUNC_OF"))
+		{
+			for (Edge cflow : bb.getEdges(Direction.OUT, "CFLOW_ALWAYS",
+					"CFLOW_TRUE", "CFLOW_FALSE"))
+			{
+				cfg.addEdge(cflow);
+			}
+		}
+
+		// Add addr node
+		for (Vertex addr : func.getVertices(Direction.IN, "INTERPRETABLE_AS"))
+		{
+			cfg.addVertex(addr);
+			for (Edge interpretableAsEdge : addr.getEdges(Direction.OUT,
+					"INTERPRETABLE_AS"))
+			{
+				cfg.addEdge(interpretableAsEdge);
+			}
+		}
+
+		return cfg.getGraph();
 	}
 }
