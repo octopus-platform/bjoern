@@ -82,7 +82,7 @@ public class CSVOutputModule implements OutputModule
 	{
 		setCurrentFunction(function);
 
-		// writeArgumentsAndVariables();
+		writeArgumentsAndVariables();
 		writeBasicBlocks();
 		writeCFGEdges();
 

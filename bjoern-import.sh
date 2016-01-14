@@ -11,8 +11,17 @@ trap "rm -rf $TMP" EXIT
 
 ./bjoern-radare.sh $1 -outdir $TMP || exit 1
 
-cat $TMP/nodes.csv | sort -r | uniq > nodes.csv
-cat $TMP/edges.csv | sort -r | uniq > edges.csv
+tail -n+2 $TMP/nodes.csv | sort -r | uniq > $TMP/nodes.csv_
+tail -n+2 $TMP/edges.csv | sort -r | uniq > $TMP/edges.csv_
+
+head -n 1 $TMP/nodes.csv > $TMP/nodeHead.csv
+head -n 1 $TMP/edges.csv > $TMP/edgeHead.csv
+
+cat $TMP/nodeHead.csv > nodes.csv
+cat $TMP/nodes.csv_ >> nodes.csv
+
+cat $TMP/edgeHead.csv > edges.csv
+cat $TMP/nodes.csv_ >> edges.csv
 
 if [ -z $2 ]
 then
