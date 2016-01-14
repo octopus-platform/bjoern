@@ -99,22 +99,9 @@ public class CSVOutputModule implements OutputModule
 		{
 			createRootNodeForNode(varOrArg);
 			createNodeForVarOrArg(varOrArg);
-			connectNodeToFunction(varOrArg);
+			addEdgeFromRootNode(varOrArg, EdgeTypes.ANNOTATION);
 		}
 
-	}
-
-	private void connectNodeToFunction(VariableOrArgument varOrArg)
-	{
-		Function function = currentFunction;
-
-		String srcId = varOrArg.getKey();
-		String dstId = function.getKey();
-
-		if (varOrArg.getType().equals(CSVFields.VAR))
-			CSVWriter.addEdge(srcId, dstId, null, EdgeTypes.IS_VAR_OF);
-		else
-			CSVWriter.addEdge(srcId, dstId, null, EdgeTypes.IS_ARG_OF);
 	}
 
 	private void createNodeForVarOrArg(VariableOrArgument varOrArg)

@@ -26,13 +26,13 @@ upon completion.
 
 .. code-block:: none
 
-	bjosh create bjoernDB
+	bjosh create
 
 4. Connect to the shell process using bjosh
 
 .. code-block:: none
 
-	bjosh connect 6000
+	bjosh connect
 
 5. Get names of all functions (sample query)
 
