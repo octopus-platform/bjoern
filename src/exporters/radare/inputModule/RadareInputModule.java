@@ -12,6 +12,7 @@ import exporters.radare.inputModule.creators.RadareFunctionContentCreator;
 import exporters.radare.inputModule.creators.RadareFunctionCreator;
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
 import exporters.structures.annotations.Flag;
+import exporters.structures.edges.CallRef;
 import exporters.structures.edges.Xref;
 import exporters.structures.interpretations.Function;
 import exporters.structures.interpretations.FunctionContent;
@@ -109,6 +110,15 @@ public class RadareInputModule implements InputModule
 		{
 			retval.addAll(xefs);
 		}
+
+		for(Xref r : retval)
+		{
+			if(r instanceof CallRef){
+				CallRef callRef = (CallRef) r;
+				callRef.initializeSourceInstruction();
+			}
+		}
+
 		return retval;
 	}
 

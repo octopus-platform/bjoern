@@ -55,6 +55,7 @@ public class RadareDisassemblyParser
 
 	public DisassemblyLine parseInstruction(String line)
 	{
+
 		Matcher matcher = instructionPattern.matcher(line);
 		if (!matcher.matches())
 			return null;
@@ -101,7 +102,8 @@ public class RadareDisassemblyParser
 		}
 		else if (isLineComment(line)){
 			VariableOrArgument varOrArg = handleComment(line);
-			retval.addVarOrArg(varOrArg);
+			if(varOrArg != null)
+				retval.addVarOrArg(varOrArg);
 		}
 	}
 

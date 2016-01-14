@@ -10,8 +10,10 @@ import exporters.nodeStore.Node;
 import exporters.nodeStore.NodeKey;
 import exporters.nodeStore.NodeTypes;
 import exporters.outputModules.OutputModule;
+import exporters.radare.inputModule.creators.RadareInstructionCreator;
 import exporters.structures.annotations.Flag;
 import exporters.structures.annotations.VariableOrArgument;
+import exporters.structures.edges.CallRef;
 import exporters.structures.edges.DirectedEdge;
 import exporters.structures.edges.EdgeTypes;
 import exporters.structures.interpretations.BasicBlock;
@@ -80,7 +82,7 @@ public class CSVOutputModule implements OutputModule
 	{
 		setCurrentFunction(function);
 
-		writeArgumentsAndVariables();
+		// writeArgumentsAndVariables();
 		writeBasicBlocks();
 		writeCFGEdges();
 
@@ -183,7 +185,7 @@ public class CSVOutputModule implements OutputModule
 		{
 			Instruction instr = it.next();
 			createRootNodeForNode(instr);
-			writeInstruction(block, instr, childNum);
+			writeInstruction(instr, childNum);
 			addEdgeFromRootNode(instr, EdgeTypes.INTERPRETATION);
 			writeEdgeFromBlockToInstruction(block, instr);
 			childNum++;
@@ -202,7 +204,7 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.addEdge(srcId, dstId, properties, EdgeTypes.IS_BB_OF);
 	}
 
-	private void writeInstruction(BasicBlock block, Instruction instr,
+	private void writeInstruction(Instruction instr,
 			int childNum)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
@@ -214,10 +216,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.REPR, instr.getStringRepr());
 		properties.put(CSVFields.CHILD_NUM, String.format("%d", childNum));
 		properties.put(CSVFields.KEY, instr.getKey());
-		properties.put(CSVFields.CODE, instr.getBytes());
-
-		String funcId = currentFunction.getKey();
-		properties.put(CSVFields.FUNCTION_ID, funcId);
+		properties.put(CSVFields.CODE,instr.getBytes());
 
 		addDisassemblyProperties(properties, instrAddress);
 
@@ -306,7 +305,32 @@ public class CSVOutputModule implements OutputModule
 
 	public void writeCrossReference(DirectedEdge xref)
 	{
+		writeSourceNode(xref);
 		writeEdge(xref);
+	}
+
+	private void writeSourceNode(DirectedEdge xref)
+	{
+		if(!(xref instanceof CallRef))
+			return;
+
+		CallRef callRef = (CallRef) xref;
+		DisassemblyLine disassemblyLine = callRef.getDisassemblyLine();
+		Instruction instruction = RadareInstructionCreator.createFromDisassemblyLine(disassemblyLine);
+
+		Map<String, Object> properties = new HashMap<String, Object>();
+
+		Long instrAddress = callRef.getSourceKey().getAddress();
+
+		properties.put(CSVFields.ADDR, instrAddress.toString());
+		properties.put(CSVFields.TYPE, instruction.getType());
+		properties.put(CSVFields.REPR, instruction.getStringRepr());
+		properties.put(CSVFields.KEY, instruction.getKey());
+		properties.put(CSVFields.CODE,instruction.getBytes());
+		properties.put(CSVFields.COMMENT, disassemblyLine.getComment());
+
+		CSVWriter.addNode(instruction, properties);
+
 	}
 
 }

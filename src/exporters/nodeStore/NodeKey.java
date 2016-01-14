@@ -39,4 +39,9 @@ public class NodeKey {
 		return (counter == null)? key : key + "_" + counter.toString();
 	}
 
+	public Long getAddress()
+	{
+		return this.address;
+	}
+
 }

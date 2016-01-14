@@ -14,6 +14,7 @@ import exporters.nodeStore.NodeKey;
 import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
 import exporters.structures.annotations.Flag;
+import exporters.structures.edges.CallRef;
 import exporters.structures.edges.EdgeTypes;
 import exporters.structures.edges.Xref;
 
@@ -78,8 +79,14 @@ public class Radare
 	{
 		// It would be much nicer if we could obtain an array representing the
 		// disassembly as opposed to a single string.
-		String cmd = String.format("pdf @" + Long.toUnsignedString(addr));
+		String cmd = "pdf @" + Long.toUnsignedString(addr);
 		return r2Pipe.cmd(cmd);
+	}
+
+	public static String getDisassemblyForInstructionAt(Long addr) throws IOException
+	{
+		String cmd = "pd 1 @" + Long.toUnsignedString(addr);
+		return r2Pipe.cmd(cmd).trim();
 	}
 
 	public static void shutdown() throws Exception
@@ -170,16 +177,16 @@ public class Radare
 		for(String dest : destinations)
 		{
 			Long destId = Long.decode(dest);
-			Xref xref = createCallEdge(destId, sourceId);
+			Xref xref = createCallRef(destId, sourceId);
 			retval.add(xref);
 		}
-		return retval;
 
+		return retval;
 	}
 
-	private static Xref createCallEdge(Long dest, Long source)
+	private static CallRef createCallRef(Long dest, Long source)
 	{
-		Xref xref = new Xref();
+		CallRef xref = new CallRef();
 		xref.setType(EdgeTypes.CALL);
 		xref.setSourceKey(new NodeKey(source, NodeTypes.INSTRUCTION));
 		xref.setDestKey(new NodeKey(dest));
