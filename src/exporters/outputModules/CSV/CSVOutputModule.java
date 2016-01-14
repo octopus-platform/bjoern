@@ -254,9 +254,6 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.TYPE, block.getType());
 		properties.put(CSVFields.KEY, block.getKey());
 
-		String funcId = currentFunction.getKey();
-		properties.put(CSVFields.FUNCTION_ID, funcId);
-
 		CSVWriter.addNode(block, properties);
 	}
 
