@@ -73,22 +73,35 @@ public class RadareDisassemblyParser
 	}
 
 
+	private void initializeLines(String disassembly) throws EmptyDisassembly
+	{
+		currentLine = 0;
+		lines = disassembly.split("\\r?\\n");
+		if (lines.length == 0)
+			throw new EmptyDisassembly();
+		// we skip the first line as it only contains the function name.
+		skipLine();
+	}
 
 	private void parseLines(DisassembledFunction retval)
 	{
 		String line;
 		while ((line = nextLine()) != null)
 		{
+			parseLine(retval, line);
+		}
+	}
 
-			if (isLineInstruction(line)){
-				DisassemblyLine disasmLine = parseInstruction(line);
-				if(disasmLine != null)
-					retval.addLine(disasmLine);
-			}
-			else if (isLineComment(line)){
-				VariableOrArgument varOrArg = handleComment(line);
-				retval.addVarOrArg(varOrArg);
-			}
+	private void parseLine(DisassembledFunction retval, String line)
+	{
+		if (isLineInstruction(line)){
+			DisassemblyLine disasmLine = parseInstruction(line);
+			if(disasmLine != null)
+				retval.addLine(disasmLine);
+		}
+		else if (isLineComment(line)){
+			VariableOrArgument varOrArg = handleComment(line);
+			retval.addVarOrArg(varOrArg);
 		}
 	}
 
@@ -117,16 +130,6 @@ public class RadareDisassemblyParser
 		if (currentLine == lines.length)
 			return null;
 		return lines[currentLine++].trim();
-	}
-
-	private void initializeLines(String disassembly) throws EmptyDisassembly
-	{
-		currentLine = 0;
-		lines = disassembly.split("\\r?\\n");
-		if (lines.length == 0)
-			throw new EmptyDisassembly();
-		// we skip the first line as it only contains the function name.
-		skipLine();
 	}
 
 	private void skipLine()

@@ -8,6 +8,7 @@ import exporters.outputModules.CSV.CSVOutputModule;
 import exporters.radare.inputModule.RadareInputModule;
 import exporters.structures.annotations.Flag;
 import exporters.structures.edges.DirectedEdge;
+import exporters.structures.edges.Xref;
 import exporters.structures.interpretations.Function;
 
 /**
@@ -45,7 +46,7 @@ public class RadareExporter extends Exporter
 
 	private void loadAndOutputCrossReferences()
 	{
-		List<DirectedEdge> xrefs;
+		List<Xref> xrefs;
 		try {
 			xrefs = inputModule.getCrossReferences();
 			for(DirectedEdge xref: xrefs)

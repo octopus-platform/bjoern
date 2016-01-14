@@ -1,6 +1,5 @@
 package exporters.structures.interpretations;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,7 +10,7 @@ public class DisassembledFunction
 
 	private long funcAddress = 0;
 	List<VariableOrArgument> varsAndArgs = new LinkedList<VariableOrArgument>();
-	HashMap<Long, DisassemblyLine> addrToLine = new HashMap<Long, DisassemblyLine>();
+	Disassembly disassembly = new Disassembly();
 
 	public void setFuncAddress(long funcAddress)
 	{
@@ -24,19 +23,20 @@ public class DisassembledFunction
 		varsAndArgs.add(parsedVarOrArg);
 	}
 
-	public void addLine(DisassemblyLine disasmLine)
-	{
-		addrToLine.put(disasmLine.getAddr(), disasmLine);
-	}
-
 	public List<VariableOrArgument> getVariablesAndArguments()
 	{
 		return varsAndArgs;
 	}
 
+	public void addLine(DisassemblyLine disasmLine)
+	{
+		disassembly.addLine(disasmLine);
+	}
+
 	public DisassemblyLine getLineForAddr(long addr)
 	{
-		return addrToLine.get(addr);
+		return disassembly.getLineForAddr(addr);
 	}
+
 
 }

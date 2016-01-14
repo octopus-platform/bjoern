@@ -14,8 +14,8 @@ import exporters.nodeStore.NodeKey;
 import exporters.nodeStore.NodeTypes;
 import exporters.radare.inputModule.exceptions.InvalidRadareFunction;
 import exporters.structures.annotations.Flag;
-import exporters.structures.edges.DirectedEdge;
 import exporters.structures.edges.EdgeTypes;
+import exporters.structures.edges.Xref;
 
 public class Radare
 {
@@ -129,13 +129,13 @@ public class Radare
 		r2Pipe.readNextLine();
 	}
 
-	public static List<DirectedEdge> getNextCrossReferences() throws IOException
+	public static List<Xref> getNextCrossReferences() throws IOException
 	{
 		while(true){
 			String nextLine = r2Pipe.readNextLine();
 			if (nextLine.length() == 0 || nextLine.endsWith("\0"))
 				return null;
-			List<DirectedEdge> newXrefs = createXrefsFromLine(nextLine);
+			List<Xref> newXrefs = createXrefsFromLine(nextLine);
 
 			if(newXrefs == null)
 				continue;
@@ -144,7 +144,7 @@ public class Radare
 		}
 	}
 
-	private static List<DirectedEdge> createXrefsFromLine(String line)
+	private static List<Xref> createXrefsFromLine(String line)
 	{
 
 		String[] parts = line.split("=");
@@ -166,24 +166,24 @@ public class Radare
 		String[] destinations = destList.split(",");
 		Long sourceId = Long.decode(parts[0].substring(lastDotPosition + 1));
 
-		LinkedList<DirectedEdge> retval = new LinkedList<DirectedEdge>();
+		LinkedList<Xref> retval = new LinkedList<Xref>();
 		for(String dest : destinations)
 		{
 			Long destId = Long.decode(dest);
-			DirectedEdge edge = createCallEdge(destId, sourceId);
-			retval.add(edge);
+			Xref xref = createCallEdge(destId, sourceId);
+			retval.add(xref);
 		}
 		return retval;
 
 	}
 
-	private static DirectedEdge createCallEdge(Long dest, Long source)
+	private static Xref createCallEdge(Long dest, Long source)
 	{
-		DirectedEdge edge = new DirectedEdge();
-		edge.setType(EdgeTypes.CALL);
-		edge.setSourceKey(new NodeKey(source, NodeTypes.INSTRUCTION));
-		edge.setDestKey(new NodeKey(dest));
-		return edge;
+		Xref xref = new Xref();
+		xref.setType(EdgeTypes.CALL);
+		xref.setSourceKey(new NodeKey(source, NodeTypes.INSTRUCTION));
+		xref.setDestKey(new NodeKey(dest));
+		return xref;
 	}
 
 }
