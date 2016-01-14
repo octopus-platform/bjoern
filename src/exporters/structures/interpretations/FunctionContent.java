@@ -17,6 +17,7 @@ public class FunctionContent
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<DirectedEdge> edges = new LinkedList<DirectedEdge>();
 	DisassembledFunction disassembledFunction = new DisassembledFunction();
+	private DisassembledFunction disassembledEsilFunction = new DisassembledFunction();
 
 	public FunctionContent(long functionAddr)
 	{
@@ -41,6 +42,11 @@ public class FunctionContent
 	public DisassemblyLine getDisassemblyLineForAddr(long addr)
 	{
 		return disassembledFunction.getLineForAddr(addr);
+	}
+
+	public DisassemblyLine getDisassemblyEsilLineForAddr(long addr)
+	{
+		return disassembledEsilFunction.getLineForAddr(addr);
 	}
 
 	public List<VariableOrArgument> getVariablesAndArguments()
@@ -83,6 +89,19 @@ public class FunctionContent
 		try
 		{
 			disassembledFunction = parser.parseFunction(disassemblyStr, functionAddr);
+		}
+		catch (InvalidDisassembly e)
+		{
+			// TODO: might want to log this error.
+		}
+	}
+
+	public void consumeEsilDisassembly(String disassemblyStr)
+	{
+		RadareDisassemblyParser parser = new RadareDisassemblyParser();
+		try
+		{
+			disassembledEsilFunction = parser.parseFunction(disassemblyStr, functionAddr);
 		}
 		catch (InvalidDisassembly e)
 		{

@@ -234,6 +234,13 @@ public class CSVOutputModule implements OutputModule
 			return;
 
 		properties.put(CSVFields.COMMENT, line.getComment());
+
+		DisassemblyLine esilLine = content.getDisassemblyEsilLineForAddr(address);
+		if (esilLine == null)
+			return;
+
+		properties.put(CSVFields.ESIL, esilLine.getInstruction());
+
 	}
 
 	private void writeNodeForBasicBlock(BasicBlock block)

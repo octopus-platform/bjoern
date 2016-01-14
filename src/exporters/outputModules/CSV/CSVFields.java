@@ -14,5 +14,6 @@ public class CSVFields
 
 	public static final Object VAR = "var";
 	public static final String FUNCTION_ID = "functionId";
+	public static final String ESIL = "esil";
 
 }

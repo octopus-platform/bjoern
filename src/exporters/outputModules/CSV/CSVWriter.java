@@ -15,7 +15,7 @@ public class CSVWriter
 
 	final static String[] nodeProperties = { CSVFields.KEY, CSVFields.TYPE,
 			CSVFields.ADDR, CSVFields.CHILD_NUM, CSVFields.FUNCTION_ID,
-			CSVFields.REPR, CSVFields.CODE, CSVFields.COMMENT };
+			CSVFields.REPR, CSVFields.CODE, CSVFields.COMMENT, CSVFields.ESIL };
 
 	final static String[] edgeProperties = {};
 

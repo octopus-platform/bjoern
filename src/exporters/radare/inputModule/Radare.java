@@ -151,6 +151,16 @@ public class Radare
 		}
 	}
 
+	public static void enableEsil() throws IOException
+	{
+		r2Pipe.cmd("e asm.esil=true");
+	}
+
+	public static void disableEsil() throws IOException
+	{
+		r2Pipe.cmd("e asm.esil=false");
+	}
+
 	private static List<Xref> createXrefsFromLine(String line)
 	{
 

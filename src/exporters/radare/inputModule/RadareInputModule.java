@@ -63,12 +63,16 @@ public class RadareInputModule implements InputModule
 	{
 		Long address = function.getAddress();
 		JSONObject jsonFunctionContent;
-		String disassembly;
+		String disassemblyStr;
+		String esilDisassemblyStr;
 
 		try
 		{
 			jsonFunctionContent = Radare.getJSONFunctionContentAt(address);
-			disassembly = Radare.getDisassemblyForFunctionAt(address);
+			disassemblyStr = Radare.getDisassemblyForFunctionAt(address);
+			Radare.enableEsil();
+			esilDisassemblyStr = Radare.getDisassemblyForFunctionAt(address);
+			Radare.disableEsil();
 		}
 		catch (InvalidRadareFunction e)
 		{
@@ -80,7 +84,8 @@ public class RadareInputModule implements InputModule
 
 		jsonFunctionContent = null;
 
-		content.consumeDisassembly(disassembly);
+		content.consumeDisassembly(disassemblyStr);
+		content.consumeEsilDisassembly(esilDisassemblyStr);
 
 		function.setContent(content);
 
