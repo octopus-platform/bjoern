@@ -21,7 +21,7 @@ cat $TMP/nodeHead.csv > nodes.csv
 cat $TMP/nodes.csv_ >> nodes.csv
 
 cat $TMP/edgeHead.csv > edges.csv
-cat $TMP/nodes.csv_ >> edges.csv
+cat $TMP/edges.csv_ >> edges.csv
 
 if [ -z $2 ]
 then
