@@ -180,17 +180,34 @@ public class CSVOutputModule implements OutputModule
 		Collection<Instruction> instructions = block.getInstructions();
 		Iterator<Instruction> it = instructions.iterator();
 
+
 		int childNum = 0;
+		Instruction instr;
+		Instruction prevInstr = null;
 		while (it.hasNext())
 		{
-			Instruction instr = it.next();
+			instr = it.next();
 			createRootNodeForNode(instr);
 			writeInstruction(instr, childNum);
 			addEdgeFromRootNode(instr, EdgeTypes.INTERPRETATION);
+			if(prevInstr != null)
+				addEdgeFromPreviousInstruction(instr, prevInstr);
+
 			writeEdgeFromBlockToInstruction(block, instr);
 			childNum++;
+			prevInstr = instr;
 		}
 
+	}
+
+	private void addEdgeFromPreviousInstruction(Instruction instr, Instruction prevInstr)
+	{
+		Map<String, Object> properties = new HashMap<String, Object>();
+
+		String srcId = prevInstr.getKey();
+		String dstId = instr.getKey();
+
+		CSVWriter.addEdge(srcId, dstId, properties, EdgeTypes.IS_NEXT_IN_BB);
 	}
 
 	private void writeEdgeFromBlockToInstruction(BasicBlock block,

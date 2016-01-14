@@ -12,5 +12,6 @@ public class EdgeTypes
 	public static final String IS_VAR_OF = "IS_VAR_OF";
 	public static final String ANNOTATION = "IS_ANNOTATED_BY";
 	public static final String INTERPRETATION = "INTERPRETABLE_AS";
+	public static final String IS_NEXT_IN_BB = "IS_NEXT_IN_BB";
 
 }
