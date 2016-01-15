@@ -40,6 +40,11 @@ public class GraphWrapper
 		return graph.getVertex(vertex.getId()) != null;
 	}
 
+	public boolean contains(Edge edge)
+	{
+		return graph.getEdge(edge.getId()) != null;
+	}
+
 	public Graph getGraph()
 	{
 		return this.graph;

@@ -32,6 +32,11 @@ public class CFGGraphWrapper extends GraphWrapper
 	@Override
 	public void addEdge(Edge edge)
 	{
+		if (contains(edge))
+		{
+			logger.debug("Ignoring edge. Edge is already contained.");
+			return;
+		}
 		if (!contains(edge.getVertex(Direction.OUT)))
 		{
 			logger.warn("Skipping edge. Tail is not contained.");
