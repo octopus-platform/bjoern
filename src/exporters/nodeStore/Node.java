@@ -39,6 +39,7 @@ public class Node
 	public NodeKey createEpsilonKey()
 	{
 		NodeKey key = new NodeKey();
+		key.setType(NodeTypes.ROOT);
 		key.setAddress(getAddress());
 		return key;
 	}

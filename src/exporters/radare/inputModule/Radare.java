@@ -199,7 +199,7 @@ public class Radare
 		CallRef xref = new CallRef();
 		xref.setType(EdgeTypes.CALL);
 		xref.setSourceKey(new NodeKey(source, NodeTypes.INSTRUCTION));
-		xref.setDestKey(new NodeKey(dest));
+		xref.setDestKey(new NodeKey(dest, NodeTypes.ROOT));
 		return xref;
 	}
 

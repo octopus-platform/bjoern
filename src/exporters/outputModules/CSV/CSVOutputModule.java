@@ -11,6 +11,7 @@ import exporters.nodeStore.NodeKey;
 import exporters.nodeStore.NodeTypes;
 import exporters.outputModules.OutputModule;
 import exporters.radare.inputModule.creators.RadareInstructionCreator;
+import exporters.structures.RootNode;
 import exporters.structures.annotations.Flag;
 import exporters.structures.annotations.VariableOrArgument;
 import exporters.structures.edges.CallRef;
@@ -55,11 +56,12 @@ public class CSVOutputModule implements OutputModule
 
 	private void createRootNodeForNode(Node node)
 	{
-		Node rootNode = new Node();
+		Node rootNode = new RootNode();
 		rootNode.setAddr(node.getAddress());
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(CSVFields.KEY, rootNode.getKey());
 		properties.put(CSVFields.ADDR, rootNode.getAddress().toString());
+		properties.put(CSVFields.TYPE, rootNode.getType());
 		CSVWriter.addNoReplaceNode(rootNode, properties);
 	}
 
