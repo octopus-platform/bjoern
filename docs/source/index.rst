@@ -18,6 +18,7 @@ Contents:
 	firststeps
 	architecture
 	dbcontents
+	dumpcfg
 	querying
 	plugins
 
