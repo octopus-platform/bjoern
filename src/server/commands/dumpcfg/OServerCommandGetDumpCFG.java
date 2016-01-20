@@ -119,8 +119,10 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 		// Wait until all work is done.
 		service.shutDown();
 		service.awaitTermination();
-		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
-				baseDir.toString() + "\n", null);
+		iResponse.send(
+				OHttpUtils.STATUS_OK_CODE, "OK", null, "Data written to "
+						+ baseDir.toString() + "/cfg/" + databaseName + "/.\n",
+				null);
 
 		return false;
 	}
