@@ -14,6 +14,7 @@ public class BasicBlock extends Node
 {
 
 	HashMap<Long, Instruction> instructions = new HashMap<Long, Instruction>();
+	List<Instruction> sortedInstructions = null;
 
 	public BasicBlock()
 	{
@@ -27,17 +28,37 @@ public class BasicBlock extends Node
 
 	public List<Instruction> getInstructions()
 	{
+		generateSortedInstructions();
+		return sortedInstructions;
+	}
+
+	private void generateSortedInstructions()
+	{
+		if(sortedInstructions != null)
+			return;
+
 		Collection<Instruction> collection = instructions.values();
-		List<Instruction> retval = new ArrayList<Instruction>(collection);
+		sortedInstructions = new ArrayList<Instruction>(collection);
 		Comparator<? super Instruction> c;
 
-		retval.sort(new InstructionComparator());
-		return retval;
+		sortedInstructions.sort(new InstructionComparator());
 	}
 
 	public Instruction getInstructionAtAddress(long address)
 	{
 		return instructions.get(address);
+	}
+
+	public String getInstructionsStr()
+	{
+		generateSortedInstructions();
+
+		String retval = "";
+		for(Instruction instr : sortedInstructions)
+		{
+			retval += instr.getStringRepr() + "|";
+		}
+		return retval;
 	}
 
 }

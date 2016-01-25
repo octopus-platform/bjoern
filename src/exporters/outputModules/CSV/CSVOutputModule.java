@@ -255,6 +255,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(CSVFields.ADDR, block.getAddress().toString());
 		properties.put(CSVFields.TYPE, block.getType());
 		properties.put(CSVFields.KEY, block.getKey());
+		properties.put(CSVFields.REPR, block.getInstructionsStr());
 
 		CSVWriter.addNode(block, properties);
 	}
