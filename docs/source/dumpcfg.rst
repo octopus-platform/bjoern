@@ -1,5 +1,8 @@
-Exporting of CFGs
+Plugin: CFG Export
 ==================
+
+This plugin allows control flow graphs for all functions stored in a
+database to be exported in the graphml format.
 
 Usage
 -----

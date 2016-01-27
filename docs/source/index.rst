@@ -18,6 +18,8 @@ Contents:
 	firststeps
 	architecture
 	dbcontents
+	csvimport
+	gremlinshell
 	dumpcfg
 	querying
 	plugins
