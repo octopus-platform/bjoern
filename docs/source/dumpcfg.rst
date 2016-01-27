@@ -58,8 +58,8 @@ Configurable parameters:
   control flow graphs.
 - **format** The graph format. Currently graphml and gml are supported.
 
-Layered Control Flow Graphs
----------------------------
+Output: Layered Control Flow Graphs
+-----------------------------------
 
 The exported control flow graphs are structured into 3 layers. The
 function layer, the basic block layer, and the instruction layer. The
