@@ -1,5 +1,5 @@
-Plugin: Gremlin Shell
-======================
+Plugin: Shell (Gremlin)
+=======================
 
 This plugin provides access to Gremlin shells that can be used to
 query the database. Shells run inside the server process and can
