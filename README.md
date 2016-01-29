@@ -1,12 +1,12 @@
-# bjoern-radare: A Radare to Graph Database Exporter
+# Bjoern: a platform for graph-based analysis of binary code
 
-bjoern-radare allows analysis results of the Radare reverse
-engineering framework (http://www.radare.org/) to be imported into
-graph databases for subsequent analysis via traversals. It thus
-exposes results of function, argument, and variable detection, control
-flow graphs, including the corresponding instructions and basic
-blocks, as well as data, code and call cross references.
+Bjoern is a platform for the analysis of binary code. The platform
+ports, extends, and reimplements concepts of the source code analysis
+platform joern. It generates a graph representation of native code
+directly from output provided by the open-source reverse engineering
+toolchain radare2, and stores it in an OrientDB graph database for
+subsequent mining with graph database queries.
 
 You can find its documentation here:
 
-http://bjoern-radare.readthedocs.org/en/latest/
+http://bjoern.readthedocs.org/en/latest/
