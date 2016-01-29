@@ -20,8 +20,6 @@ Contents:
 	csvimport
 	gremlinshell
 	dumpcfg
-	querying
-	plugins
 
 ..
    Indices and tables

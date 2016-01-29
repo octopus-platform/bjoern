@@ -1,2 +1,0 @@
-Writing Plugins for Bjoern
---------------------------

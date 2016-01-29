@@ -24,3 +24,8 @@ A new shell can be created using the `shellcreate` command as follows.
 
 where `dbname` is the name of the database to connect to. By default,
 a shell for `bjoernDB` is created.
+
+Configuration
+-------------
+
+none
