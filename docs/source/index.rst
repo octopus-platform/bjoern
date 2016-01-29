@@ -16,7 +16,6 @@ Contents:
 	overview
 	installation
 	firststeps
-	architecture
 	dbcontents
 	csvimport
 	gremlinshell
