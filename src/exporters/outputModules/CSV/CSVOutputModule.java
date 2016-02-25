@@ -327,6 +327,7 @@ public class CSVOutputModule implements OutputModule
 
 		CallRef callRef = (CallRef) xref;
 		DisassemblyLine disassemblyLine = callRef.getDisassemblyLine();
+
 		Instruction instruction = RadareInstructionCreator.createFromDisassemblyLine(disassemblyLine);
 
 		Map<String, Object> properties = new HashMap<String, Object>();

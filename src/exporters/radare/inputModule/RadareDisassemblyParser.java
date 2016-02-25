@@ -57,10 +57,18 @@ public class RadareDisassemblyParser
 
 	public DisassemblyLine parseInstruction(String line)
 	{
+		// Some disassembly lines contain newline
+		// characters. We skip to the first character
+		// after the last newline.
+		int lastNewLine = line.lastIndexOf("\n");
+		if(lastNewLine != -1){
+			line = line.substring(lastNewLine + 1);
+		}
 
 		Matcher matcher = instructionPattern.matcher(line);
-		if (!matcher.matches())
+		if (!matcher.matches()){
 			return null;
+		}
 
 		Long addr = new BigInteger(matcher.group(1), 16).longValue();
 		String instruction = matcher.group(2);
