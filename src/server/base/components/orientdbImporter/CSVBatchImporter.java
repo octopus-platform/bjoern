@@ -2,7 +2,7 @@ package server.base.components.orientdbImporter;
 
 import java.io.IOException;
 
-import server.Constants;
+import server.base.Constants;
 import server.base.components.orientdbImporter.processors.EdgeProcessor;
 import server.base.components.orientdbImporter.processors.NodeProcessor;
 

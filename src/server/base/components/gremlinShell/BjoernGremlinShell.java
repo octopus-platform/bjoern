@@ -4,7 +4,7 @@ import groovy.lang.GroovyShell;
 
 import java.io.IOException;
 
-import server.Constants;
+import server.base.Constants;
 import server.base.components.gremlinShell.fileWalker.OrderedWalker;
 import server.base.components.gremlinShell.fileWalker.SourceFileWalker;
 

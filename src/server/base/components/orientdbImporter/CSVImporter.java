@@ -2,12 +2,12 @@ package server.base.components.orientdbImporter;
 
 import java.io.IOException;
 
-import server.Constants;
-
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+
+import server.base.Constants;
 
 public abstract class CSVImporter
 {

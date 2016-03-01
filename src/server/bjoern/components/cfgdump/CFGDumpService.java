@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 
-import server.Constants;
+import server.base.Constants;
 
 public class CFGDumpService
 {

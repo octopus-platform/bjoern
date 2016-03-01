@@ -18,7 +18,8 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
-import server.Constants;
+import server.base.Constants;
+import server.bjoern.BjoernConstants;
 import server.bjoern.components.cfgdump.CFGDumpRunnable;
 import server.bjoern.components.cfgdump.CFGDumpService;
 
@@ -129,7 +130,7 @@ public class OServerCommandGetDumpCFG extends OServerCommandAbstract
 
 	protected static Iterable<Vertex> getFunctionNodes(OrientBaseGraph g)
 	{
-		return g.getVertices("V", Constants.INDEX_KEYS,
+		return g.getVertices("V", BjoernConstants.INDEX_KEYS,
 				new String[] { "nodeType:Func" });
 	}
 

@@ -13,7 +13,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
 
 import exporters.outputModules.CSV.CSVCommands;
-import server.Constants;
+import server.base.Constants;
 import server.base.components.orientdbImporter.CSVImporter;
 
 public class NodeProcessor extends CSVFileProcessor
