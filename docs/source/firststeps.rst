@@ -11,6 +11,9 @@ run queries against the database.
 
 	./bjoern-server.sh
 
+This starts an orientDB server instance, along with the OrientDB
+Studio on port 2480. Studio provides a useful interface to explore the
+database contents (see http://orientdb.com/docs/last/Home-page.html).
 
 2. In another shell, import some code
 
@@ -39,7 +42,7 @@ upon completion.
 .. code-block:: none
 
 
-	_     _           _
+	 _     _           _
 	| |__ (_) ___  ___| |__
 	| '_ \| |/ _ \/ __| '_ \
 	| |_) | | (_) \__ \ | | |
