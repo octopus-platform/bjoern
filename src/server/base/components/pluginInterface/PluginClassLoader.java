@@ -1,4 +1,4 @@
-package server.base.commands.reloadplugin;
+package server.base.components.pluginInterface;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
