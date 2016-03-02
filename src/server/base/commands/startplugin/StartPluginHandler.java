@@ -1,4 +1,4 @@
-package server.base.commands.startPlugin;
+package server.base.commands.startplugin;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
@@ -51,6 +51,6 @@ public class StartPluginHandler extends OServerCommandAbstract {
 	@Override
 	public String[] getNames()
 	{
-		return new String[] { "GET|loadplugin/*" };
+		return new String[] { "GET|startplugin/*" };
 	}
 }

@@ -9,8 +9,9 @@ public class PluginRunnable implements Runnable {
 	{
 
 		ClassLoader parentClassLoader = PluginClassLoader.class.getClassLoader();
-        PluginClassLoader classLoader = new PluginClassLoader(parentClassLoader);
-        Class myObjectClass = classLoader.loadClass("Plugin");
+		PluginClassLoader classLoader = new PluginClassLoader(parentClassLoader);
+		classLoader.setJarFilename(jarName);
+		Class myObjectClass = classLoader.loadClass("Plugin");
 
         try {
 			IPlugin plugin = (IPlugin) myObjectClass.newInstance();

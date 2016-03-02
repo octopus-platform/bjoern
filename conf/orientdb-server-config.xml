@@ -104,13 +104,15 @@
 				<commands>
 
 					<!-- Added for bjoern -->
-					<command implementation="server.commands.importcsv.ImportCSVHandler"
+					<command implementation="server.base.commands.startplugin.StartPluginHandler"
+						pattern="GET|startplugin/*" />
+					<command implementation="server.base.commands.importcsv.ImportCSVHandler"
 						pattern="GET|importcsv/*" />
-					<command implementation="server.commands.shellcreate.ShellCreateHandler"
+					<command implementation="server.base.commands.shellcreate.ShellCreateHandler"
 						pattern="GET|shellcreate/*" />
-					<command implementation="server.commands.listshells.ListShellsHandler"
+					<command implementation="server.base.commands.listshells.ListShellsHandler"
 						pattern="GET|listshells/*" />
-					<command implementation="server.commands.dumpcfg.OServerCommandGetDumpCFG"
+					<command implementation="server.bjoern.commands.dumpcfg.OServerCommandGetDumpCFG"
 						pattern="GET|dumpcfg/*">
 						<parameters>
 							<!-- Dump CFGs into this folder -->

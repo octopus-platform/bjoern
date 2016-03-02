@@ -26,7 +26,7 @@
   </target>
 
   <target name="compile">
-    <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false" debug="on">
 	<src path="src"/>
 	<classpath refid="bjoern.classpath"/>
     </javac>

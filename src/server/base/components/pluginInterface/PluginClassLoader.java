@@ -32,7 +32,6 @@ public class PluginClassLoader extends ClassLoader {
 		try {
 			return loadClassFromJar(className);
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 		return null;
@@ -45,7 +44,7 @@ public class PluginClassLoader extends ClassLoader {
 		if(retval == null)
 			return loadClassViaParent(className);
 
-		return null;
+		return retval;
 	}
 
 	private Class<?> loadClassDirectly(String className)
@@ -53,9 +52,15 @@ public class PluginClassLoader extends ClassLoader {
 
 		JarFile jar = null;
 		try {
-
 			jar = new JarFile(getJarFilename());
 			JarEntry entry = jar.getJarEntry(className + ".class");
+
+			if(entry == null)
+			{
+				jar.close();
+				return null;
+			}
+
 			InputStream is = jar.getInputStream(entry);
 			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 			int nextValue = is.read();
