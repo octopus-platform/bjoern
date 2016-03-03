@@ -39,6 +39,7 @@ public class PluginClassLoader extends ClassLoader {
 
 	private Class<?> loadClassFromJar(String className) throws IOException
 	{
+
 		Class<?> retval = loadClassDirectly(className);
 
 		if(retval == null)
@@ -53,7 +54,7 @@ public class PluginClassLoader extends ClassLoader {
 		JarFile jar = null;
 		try {
 			jar = new JarFile(getJarFilename());
-			JarEntry entry = jar.getJarEntry(className + ".class");
+			JarEntry entry = jar.getJarEntry(className.replace('.', '/') + ".class");
 
 			if(entry == null)
 			{
