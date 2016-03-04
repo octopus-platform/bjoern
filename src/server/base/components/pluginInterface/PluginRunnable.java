@@ -20,17 +20,25 @@ public class PluginRunnable implements Runnable
     @Override
     public void run()
     {
+        IPlugin plugin;
         try
         {
-            IPlugin plugin = newInstance();
-            if (plugin != null)
-            {
-                plugin.configure(settings);
-                plugin.execute();
-            }
-        } catch (InstantiationException | IllegalAccessException e)
+            plugin = newInstance();
+
+        } catch (Exception e)
         {
-            logger.error(e.getMessage());
+            logger.error("Error while loading plugin: " + e.getMessage());
+            return;
+        }
+        try
+        {
+            plugin.configure(settings);
+            plugin.beforeExecution();
+            plugin.execute();
+            plugin.afterExecution();
+        } catch (Exception e)
+        {
+            logger.error("Error while running plugin: " + e.getMessage());
         }
     }
 
@@ -58,17 +66,7 @@ public class PluginRunnable implements Runnable
                 parentClassLoader);
         classLoader.setJarFilename(Paths.get(dirName, jarName).toString());
         Class<?> myObjectClass = classLoader.loadClass("Plugin");
-        try
-        {
-            return (IPlugin) myObjectClass.newInstance();
-        } catch (ClassCastException e)
-        {
-            logger.error("Invalid plugin");
-        } catch (NullPointerException e)
-        {
-            logger.error("Plugin not found: " + jarName);
-        }
-        return null;
+        return (IPlugin) myObjectClass.newInstance();
     }
 
 }
