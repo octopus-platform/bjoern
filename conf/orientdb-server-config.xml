@@ -105,7 +105,12 @@
 
 					<!-- Added for bjoern -->
 					<command implementation="server.base.commands.startplugin.StartPluginHandler"
-						pattern="GET|startplugin/*" />
+						pattern="POST|startplugin/" >
+						<parameters>
+							<!-- Read plugins from this folder -->
+							<entry name="dir" value="../../bjoern-plugins" />
+						</parameters>
+					</command>
 					<command implementation="server.base.commands.importcsv.ImportCSVHandler"
 						pattern="GET|importcsv/*" />
 					<command implementation="server.base.commands.shellcreate.ShellCreateHandler"
