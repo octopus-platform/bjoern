@@ -1,21 +1,22 @@
 package exporters.outputModules.CSV;
 
+import exporters.nodeStore.Node;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
-import exporters.nodeStore.Node;
-
 public class CSVWriter
 {
 	final static String SEPARATOR = "\t";
 
-	final static String[] nodeProperties = { CSVFields.KEY, CSVFields.TYPE,
-			CSVFields.ADDR, CSVFields.CHILD_NUM, CSVFields.REPR, CSVFields.CODE,
-			CSVFields.COMMENT, CSVFields.ESIL };
+	final static String[] nodeProperties = {
+			CSVFields.KEY, CSVFields.TYPE, CSVFields.ADDR, CSVFields.CHILD_NUM,
+			CSVFields.REPR, CSVFields.CODE, CSVFields.COMMENT, CSVFields.ESIL
+	};
 
 	final static String[] edgeProperties = {};
 
@@ -42,20 +43,23 @@ public class CSVWriter
 		writeNodeProperties(properties);
 	}
 
-	private static void writeNodeProperties(Map<String, Object> properties) {
+	private static void writeNodeProperties(Map<String, Object> properties)
+	{
 		for (String property : nodeProperties)
 		{
 			nodeWriter.write(SEPARATOR);
 			String propValue = (String) properties.get(property);
 			if (propValue != null)
-				nodeWriter.write(espaceAndQuote(propValue));
+			{
+				nodeWriter.write(escape(propValue));
+			}
 		}
 		nodeWriter.write("\n");
 	}
 
-	private static String espaceAndQuote(String propValue)
+	private static String escape(String propValue)
 	{
-		return "\"" + propValue.replace("\"", "\\\"") + "\"";
+		return StringEscapeUtils.escapeCsv(propValue.replace("\\", "\\\\"));
 	}
 
 
@@ -94,8 +98,12 @@ public class CSVWriter
 
 	private static void writeEdgePropertyNames()
 	{
-		String joined = "nodeType_addr" + SEPARATOR + "nodeType_addr"
-				+ SEPARATOR + "type" + SEPARATOR
+		String joined = "nodeType_addr"
+				+ SEPARATOR
+				+ "nodeType_addr"
+				+ SEPARATOR
+				+ "type"
+				+ SEPARATOR
 				+ StringUtils.join(edgeProperties, SEPARATOR);
 		edgeWriter.println(joined);
 	}
@@ -105,8 +113,7 @@ public class CSVWriter
 		try
 		{
 			return new PrintWriter(path);
-		}
-		catch (FileNotFoundException e)
+		} catch (FileNotFoundException e)
 		{
 			throw new RuntimeException("Cannot create file: " + path);
 		}
@@ -125,7 +132,8 @@ public class CSVWriter
 
 	}
 
-	public static void addNoReplaceNode(Node node, Map<String, Object> properties)
+	public static void addNoReplaceNode(Node node,
+			Map<String, Object> properties)
 	{
 		nodeWriter.write(CSVCommands.ADD_NO_REPLACE);
 		writeNodeProperties(properties);
