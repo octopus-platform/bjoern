@@ -104,7 +104,7 @@
 				<commands>
 
 					<!-- Added for bjoern -->
-					<command implementation="server.base.commands.startplugin.StartPluginHandler"
+					<command implementation="server.base.commands.startplugin.ExecutePluginHandler"
 						pattern="POST|startplugin/" >
 						<parameters>
 							<!-- Read plugins from this folder -->
