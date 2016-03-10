@@ -104,8 +104,8 @@
 				<commands>
 
 					<!-- Added for bjoern -->
-					<command implementation="server.base.commands.startplugin.ExecutePluginHandler"
-						pattern="POST|startplugin/" >
+					<command implementation="server.base.commands.plugin.ExecutePluginCommand"
+						pattern="POST|executeplugin/" >
 						<parameters>
 							<!-- Read plugins from this folder -->
 							<entry name="dir" value="../../bjoern-plugins" />
@@ -117,18 +117,6 @@
 						pattern="GET|shellcreate/*" />
 					<command implementation="server.base.commands.listshells.ListShellsHandler"
 						pattern="GET|listshells/*" />
-					<command implementation="server.bjoern.commands.dumpcfg.OServerCommandGetDumpCFG"
-						pattern="GET|dumpcfg/*">
-						<parameters>
-							<!-- Dump CFGs into this folder -->
-							<entry name="dest" value="../../dump" />
-							<!-- Number of threads -->
-							<entry name="threads" value="4" />
-							<!-- Output format (graphml/gml) -->
-							<entry name="format" value="graphml" />
-						</parameters>
-					</command>
-
 					<command
 						implementation="com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStaticContent"
 						pattern="GET|www GET|studio/ GET| GET|*.htm GET|*.html GET|*.xml GET|*.jpeg GET|*.jpg GET|*.png GET|*.gif GET|*.js GET|*.css GET|*.swf GET|*.ico GET|*.txt GET|*.otf GET|*.pjs GET|*.svg GET|*.json GET|*.woff GET|*.woff2 GET|*.ttf GET|*.svgz"

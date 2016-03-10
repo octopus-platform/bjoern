@@ -93,6 +93,6 @@ public class ExecutePluginCommand extends OServerCommandAbstract
 	@Override
 	public String[] getNames()
 	{
-		return new String[]{"POST|startplugin/"};
+		return new String[]{"POST|executeplugin/"};
 	}
 }
