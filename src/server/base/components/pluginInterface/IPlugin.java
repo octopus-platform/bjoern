@@ -1,7 +1,14 @@
 package server.base.components.pluginInterface;
 
-public interface IPlugin {
+import org.json.JSONObject;
 
-	public void execute();
+public interface IPlugin
+{
+    void configure(JSONObject settings);
 
+    void execute() throws Exception;
+
+    void beforeExecution() throws Exception;
+
+    void afterExecution() throws Exception;
 }
