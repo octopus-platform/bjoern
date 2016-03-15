@@ -8,6 +8,7 @@ import com.tinkerpop.blueprints.util.ElementHelper;
 import com.tinkerpop.blueprints.util.GraphHelper;
 import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
+import com.tinkerpop.blueprints.util.wrappers.batch.cache.ObjectIDVertexCache;
 import io.dot.DotWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -215,7 +216,11 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		{
 			return;
 		}
-		Vertex v = GraphHelper.addVertex(graph, vertex.getId());
+		Object id = vertex.getId();
+		if (graph.getVertex(id) != null) {
+			return;
+		}
+		Vertex v = GraphHelper.addVertex(graph, id);
 		if (v != null)
 		{
 			ElementHelper.copyProperties(vertex, v);
