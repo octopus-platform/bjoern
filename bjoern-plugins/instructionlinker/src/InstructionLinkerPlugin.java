@@ -1,7 +1,8 @@
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+
 import server.base.components.pluginInterface.OrientGraphConnectionPlugin;
 import server.bjoern.BjoernConstants;
 import util.BasicBlock;
@@ -14,12 +15,12 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	};
 	private final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
 
-	private OrientGraph graph;
+	private OrientGraphNoTx graph;
 
 	@Override
 	public void execute() throws Exception
 	{
-		graph = getGraphInstance();
+		graph = getNoTxGraphInstance();
 		Iterable<Vertex> iterable = graph.command(
 				BjoernConstants.LUCENE_QUERY).execute("nodeType:BB");
 
@@ -74,7 +75,6 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	 * Add an edge from the instruction src to the instruction dst if it does
 	 * not already exist.
 	 * <p>
-	 * Each graph modification is performed in an isolated transaction.
 	 *
 	 * @param src the source of the edge
 	 * @param dst the destination of the edge
@@ -89,15 +89,6 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 				return;
 			}
 		}
-		try
-		{
-			graph.begin();
 			graph.addEdge(0, src.getNode(), dst.getNode(), INSTR_CFLOW_EDGE);
-			graph.commit();
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-			graph.rollback();
-		}
 	}
 }
