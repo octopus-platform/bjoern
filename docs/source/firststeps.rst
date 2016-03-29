@@ -51,3 +51,21 @@ upon completion.
 
 
 	bjoern> queryNodeIndex('nodeType:Func').repr
+
+6. Get all calls
+
+.. code-block:: none
+
+	getCallsTo('').map
+
+7. Get basic blocks containing calls to 'malloc'
+
+.. code-block:: none
+
+	getCallsTo('malloc').in('IS_BB_OF').repr
+
+8. Walk to first instruction of each function
+
+.. code-block:: none
+
+	getFunctions('').funcToInstr().repr
