@@ -62,6 +62,16 @@ Finally, download and extract jar-dependencies, and build:
 	tar xfz jars.tar.gz
 	ant
 
+Building bjoern plugins
+-----------------------
+
+Bjoern is built to operate on arbitrary property graphs. All
+functionality specific to binary code analysis is made available by
+plugins contained in the directory `bjoern-plugins`. You can build
+plugins by entering a plugin's directory and executing
+`ant`. As plugins depend on `bjoern.jar`, this will only succeed if
+bjoern has been built already.
+
 Installing radare2
 ------------------
 
