@@ -1,4 +1,4 @@
-package clients.bjoernImport;
+package clients.importer;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;

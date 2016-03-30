@@ -1,4 +1,4 @@
-package clients.bjoernImport;
+package clients.importer;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.cli.ParseException;
 
-public class BjoernImport
+public class Import
 {
 
 	static CommandLineInterface cmdLine = new CommandLineInterface();
