@@ -3,13 +3,13 @@
 
   <property environment="env"/>
   <property name="src.dir" location="src" />
-  <property name="build.dir" location="build" />
+  <property name="build.dir" location="bin" />
   <property name="jar.dir" location="jar" />
   <property name="octopus.dir" location = "../octopus"/>
 
   <!-- Add jars to the classpath -->
   <path id="bjoern.classpath">
-    <pathelement location="build"/>
+    <pathelement location="bin"/>
     <fileset dir="${jar.dir}">
 	<include name="**/*.jar" />
     </fileset>
