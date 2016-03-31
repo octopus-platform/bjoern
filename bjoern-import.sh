@@ -25,7 +25,7 @@ cat $TMP/edges.csv_ >> edges.csv
 
 if [ -z $2 ]
 then
-	./bjoern-csvimport.sh
+	octopus-csvimport.sh
 else
-	./bjoern-csvimport.sh -dbname $2
+	octopus-csvimport.sh -dbname $2
 fi

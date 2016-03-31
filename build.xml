@@ -3,13 +3,12 @@
 
   <property environment="env"/>
   <property name="src.dir" location="src" />
-  <property name="build.dir" location="bin" />
+  <property name="build.dir" location="build" />
   <property name="jar.dir" location="jar" />
-  <property name="orientdb.dir" location="orientdb-community-2.1.5" />
 
   <!-- Add jars to the classpath -->
   <path id="bjoern.classpath">
-    <pathelement location="bin"/>
+    <pathelement location="build"/>
     <fileset dir="${jar.dir}">
 	<include name="**/*.jar" />
     </fileset>
@@ -48,9 +47,6 @@
       <fileset file="conf/logback*"/>
       <zipgroupfileset dir="${jar.dir}" includes="**/*.jar" />
     </jar>
-
-  <copy file="${build.dir}/bjoern.jar" todir="${orientdb.dir}/lib/"/>
-  <copy file="conf/orientdb-server-config.xml" todir="${orientdb.dir}/config/"/>
 
   </target>
 
