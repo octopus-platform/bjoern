@@ -9,7 +9,7 @@
 TMP=$(mktemp -d)
 trap "rm -rf $TMP" EXIT
 
-./bjoern-radare.sh $1 -outdir $TMP || exit 1
+../bjoern-radare/bjoern-radare.sh $1 -outdir $TMP || exit 1
 
 tail -n+2 $TMP/nodes.csv | sort -r | uniq > $TMP/nodes.csv_
 tail -n+2 $TMP/edges.csv | sort -r | uniq > $TMP/edges.csv_
@@ -25,7 +25,7 @@ cat $TMP/edges.csv_ >> edges.csv
 
 if [ -z $2 ]
 then
-	octopus-csvimport.sh
+	../octopus/octopus-csvimport.sh
 else
-	octopus-csvimport.sh -dbname $2
+	../octopus/octopus-csvimport.sh -dbname $2
 fi
