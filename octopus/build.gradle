@@ -15,7 +15,10 @@ dependencies{
 
 task downloadAndExtractOrientDB << {
      println 'Download OrientDB with wget.'
-     def f = new File('orientdb.tar.gz') 
+
+     def OCTOPUS_PATH = "$project.projectDir"
+     def ARCHIVE_FILENAME = "$OCTOPUS_PATH/orientdb.tar.gz"
+     def f = new File(ARCHIVE_FILENAME) 
      
      if (f.exists()){
      	println 'OrientDB already downloaded.';
@@ -23,34 +26,34 @@ task downloadAndExtractOrientDB << {
      }
 
      println 'Download OrientDB ...'
-     println "wget http://orientdb.com/download.php?file=orientdb-community-2.1.5.tar.gz&os=multi -O orientdb.tar.gz".execute().text
+     println "wget http://orientdb.com/download.php?file=orientdb-community-2.1.5.tar.gz&os=multi -O $ARCHIVE_FILENAME".execute().text
      
-     f = new File('orientdb.tar.gz')
+     f = new File(ARCHIVE_FILENAME)
      if(!f.exists()){
 	throw new RuntimeException("Error downloading OrientDB.")
      }	
 
-     println "tar xfzv orientdb.tar.gz".execute().text
-
+     println "tar xfzv $ARCHIVE_FILENAME -C $OCTOPUS_PATH".execute().text
+     
 }
 
 task copyConfigFilesToOrientDB(type:Copy){
-    into "orientdb-community-2.1.5/config"
-    from "conf/orientdb-server-config.xml"
+    into "${project.projectDir}/orientdb-community-2.1.5/config"
+    from "${project.projectDir}/conf/orientdb-server-config.xml"
 }
 
 task copyServerSh(type:Copy){
-    into "orientdb-community-2.1.5/bin"
-    from "conf/server.sh"
+    into "${project.projectDir}/orientdb-community-2.1.5/bin"
+    from "${project.projectDir}/conf/server.sh"
 }
 
-task copyToLib(type: Copy) {    
-    into "jars"
+task copyToLib(type: Copy) {     
+    into "${project.projectDir}/jars"
     from configurations.runtime 
 }
 
 task copyOctopus(type:Copy) {
-   into "jars"
+   into "${project.projectDir}/jars"
    from "$buildDir/libs/octopus.jar"
 }
 
@@ -59,4 +62,9 @@ compileJava.dependsOn copyConfigFilesToOrientDB
 compileJava.dependsOn copyServerSh
 compileJava.dependsOn copyToLib
 compileJava.dependsOn copyOctopus
+
+copyServerSh.dependsOn downloadAndExtractOrientDB
+copyConfigFilesToOrientDB.dependsOn downloadAndExtractOrientDB
+
+
 
