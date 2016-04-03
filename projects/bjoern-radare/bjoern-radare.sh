@@ -1,2 +1,5 @@
 #!/bin/sh
-java -cp "./build/libs/bjoern-radare.jar:jars/*" bjoern.input.radare.RadareExporterMain $@
+
+BASEDIR=$(dirname "$0")
+
+java -cp "$BASEDIR/build/libs/bjoern-radare.jar:$BASEDIR/jars/*" bjoern.input.radare.RadareExporterMain $@

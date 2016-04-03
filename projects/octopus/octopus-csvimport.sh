@@ -1,3 +1,5 @@
 #!/bin/sh
 
-java -cp "jars/*" octopus.clients.importer.Import $@
+BASEDIR=$(dirname "$0")
+
+java -cp "$BASEDIR/jars/*" octopus.clients.importer.Import $@
