@@ -65,6 +65,3 @@ compileJava.dependsOn copyOctopus
 
 copyServerSh.dependsOn downloadAndExtractOrientDB
 copyConfigFilesToOrientDB.dependsOn downloadAndExtractOrientDB
-
-
-
