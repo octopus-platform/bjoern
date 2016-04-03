@@ -1,8 +1,17 @@
 
-subprojects {
+allprojects {
    apply plugin: 'java'
 
    repositories {
       mavenCentral()
    }
 }
+
+task copyPlugins(type:Copy) {
+   into "projects/octopus/plugins"
+   from fileTree("projects/bjoern-plugins").files
+   include '**/*.jar'
+   includeEmptyDirs = false
+}
+
+build.dependsOn copyPlugins
