@@ -1,4 +1,4 @@
-package bjoern.plugins.functionexport.io.dot;
+package bjoern.plugins.functionexporter.io.dot;
 
 public class DotTokens {
 

@@ -1,4 +1,4 @@
-package bjoern.plugins.functionexport;
+package bjoern.plugins.functionexporter;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -12,7 +12,7 @@ import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
 import bjoern.pluginlib.BjoernConstants;
-import bjoern.plugins.functionexport.io.dot.DotWriter;
+import bjoern.plugins.functionexporter.io.dot.DotWriter;
 import octopus.server.components.pluginInterface.OrientGraphConnectionPlugin;
 
 import org.json.JSONArray;
