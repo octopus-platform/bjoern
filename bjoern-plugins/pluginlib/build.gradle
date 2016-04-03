@@ -1,0 +1,3 @@
+dependencies {
+    compile group: 'com.orientechnologies', name: 'orientdb-core', version: '2.1.5'
+}

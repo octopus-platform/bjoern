@@ -1,3 +1,7 @@
 include 'orientdbimporter'
 include 'bjoern-radare'
 include 'octopus'
+
+include 'bjoern-plugins:pluginlib'
+include 'bjoern-plugins:functionexport'
+include 'bjoern-plugins:instructionlinker'
