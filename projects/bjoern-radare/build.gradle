@@ -4,7 +4,7 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.3.2'
     
     compile group: 'org.json', name: 'json', version: '20141113'
-    compile project(':orientdbimporter')    
+    compile project(':projects:orientdbimporter')    
 
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
     
