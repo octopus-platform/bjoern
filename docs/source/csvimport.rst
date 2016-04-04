@@ -1,15 +1,15 @@
-Plugin: CSV Import
-==================
+CSV Import
+==========
 
-This plugin allows property graphs to be imported into the graph
+The CSV importer allows property graphs to be imported into the graph
 database. It requires nodes and edges to be specified in a CSV
 format.
 
 Usage
 -----
 
-The plugin can be invoked via an HTTP GET request or via the utility
-'bjoern-csvimport.sh'.
+The importer can be invoked via an HTTP GET request or via the utility
+'octopus-csvimport.sh' in `projects/octopus`.
 
 The HTTP GET request can be issued with curl as
 follows
@@ -22,11 +22,11 @@ where nodeFilename is a CSV file containing nodes, edgeFilename is a
 CSV file containing edges, and dbname is the name of the database to
 import into.
 
-Alternatively, the script 'bjoern-csvimport.sh' can be invoked as follows
+Alternatively, the script 'octopus-csvimport.sh' can be invoked as follows
 
 .. code-block:: none
 
-	./bjoern-csvimport.sh [dbname]
+	projects/octopus/octopus-csvimport.sh [dbname]
 
 where dbname is the name of the database. The tool will automatically
 impor the files 'nodes.csv' and 'edges.csv' if present in the current
