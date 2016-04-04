@@ -17,50 +17,73 @@ makes it possible for users to execute commands on the server side,
 disconnect, and come back later to view results, similar in style to
 the way GNU screen sessions are used on shared servers.
 
-Bjoern-Server
--------------
-
-At heart, the bjoern server is an OrientDB server instance, extended
-with plugins that are loaded at startup. These plugins expose the
+At heart, the Bjoern is an OrientDB server instance, extended with
+plugins that are loaded at startup. These plugins expose the
 platforms functionality via a REST API, which makes it possible to
-invoke server functionality via HTTP requests. Functionality
-implemented by Bjoern-server does not make use of language specific
-concepts. Bjoern-server is therefore a generic platform for code
-analysis with graph databases.
+invoke server functionality via HTTP requests. Bjoern-server extends
+the language-agnostic server component Octopus with plugins for binary
+analysis and provides a language for binary code analysis. In the
+following, we describe the main components Bjoern is composed of.
 
-To date, the following plugins are available.
+Octopus
+-------
 
-- **CSV Importer Plugin.** The CSV importer plugin enables the user to
+Octopus is a server component that provides shell access to an
+OrientDB graph database. It allows arbitrary property graphs to be
+imported from CSV files that describe nodes and edges. This is
+achieved using the OrientDBImporter, a generic library for batch
+importing large property graphs into OrientDB.
+
+In summary, octopus offers the following two primary features.
+
+- **Import of CSV files.** The CSV importer enables the user to
   perform batch imports of graphs given in CSV files. It is a generic
-  plugin implemented to allow fast import of any property graph into
+  component implemented to allow fast import of any property graph into
   an OrientDB graph database. The importer runs in a thread on the
   server-side to access the database without the overhead introduced
   by OrientDB’s access protocols. Several databases can be created in
   parallel using the importer plugin.
 
-- **Shell Plugin.** The shell plugin is a server-side shell that
+- **Shell Access.** Octopus offers a server-side shell that
   provides database access via the general purpose scripting language
-  Groovy and the traversal language Gremlin. Like the importer plugin,
-  shells run as threads inside the server, giving them access to the
-  database with low overhead. Multiple users can spawn shells on the
-  server side to work on the database in parallel.
+  Groovy and the traversal language Gremlin. Like importers, shells
+  run as threads inside the server, giving them access to the database
+  with low overhead. Multiple users can spawn shells on the server
+  side to work on the database in parallel.
 
-- **CFG Exporter Plugin.** The shell plugin allows control flow graphs
-  of all functions to be exported in the standard format graphml. This
-  allows external tools to analyze CFGs. Results can be communicated
-  back to the server via the CSV importer plugin.
+- **Execution of plugins.** Octopus offers a plugin interface that can
+  be used to extend functionality at runtime. In particular, this
+  allows language-dependent analysis algorithms to be executed on the
+  graph database contents.
 
 Bjoern-Radare
 -------------
 
-Bjoern-radare generates graph-based program representations from
+Bjoern-Radare generates graph-based program representations from
 binaries and outputs them in a CSV format. The resulting files can be
-imported into the bjoern-server via the importer plugin. Under the
-hood, bjoern-radare uses radare2 to perform an initial automatic
-analysis of a binary and extract symbol information, control flow
-graphs, and call graphs. Moreover, it translates machine code into
-radare's intermediate language ESIL to allow platform independent
-analysis of code.
+imported into the octopus server. Under the hood, bjoern-radare uses
+radare2 to perform an initial automatic analysis of a binary and
+extract symbol information, control flow graphs, and call
+graphs. Moreover, it translates machine code into radare's
+intermediate language ESIL to allow platform independent analysis of
+code.
+
+Bjoern-plugins
+--------------
+
+Bjoern-plugins are a set of plugins that turn Octopus into a platform
+for binary code analysis. On the one hand, these plugins allow
+structures such as control flow graphs of functions to be exported, on
+the other, they perform active computations on the database contents
+to generate new nodes and edges.
+
+Bjoern-lang and Octopus-lang
+-----------------------------
+
+Bjoern-lang and Octopus-lang provide a domain specific language for
+binary code analysis and generic traversal of property graphs
+respectively. These languages are realized as so called *steps* for
+the graph-traversal language Gremlin.
 
 Bjoern-Shell
 ------------
