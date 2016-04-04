@@ -19,7 +19,7 @@ Contents:
 	dbcontents
 	csvimport
 	gremlinshell
-	dumpcfg
+	plugins
 
 ..
    Indices and tables
