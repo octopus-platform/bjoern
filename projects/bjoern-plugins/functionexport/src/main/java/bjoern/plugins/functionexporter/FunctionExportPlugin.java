@@ -13,7 +13,7 @@ import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
 import bjoern.pluginlib.BjoernConstants;
 import bjoern.plugins.functionexporter.io.dot.DotWriter;
-import octopus.server.components.pluginInterface.OrientGraphConnectionPlugin;
+import bjoern.pluginlib.OrientGraphConnectionPlugin;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

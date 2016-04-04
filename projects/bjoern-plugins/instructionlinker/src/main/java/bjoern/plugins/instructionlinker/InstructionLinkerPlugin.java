@@ -7,7 +7,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import bjoern.pluginlib.BjoernConstants;
 import bjoern.plugins.instructionlinker.util.BasicBlock;
 import bjoern.plugins.instructionlinker.util.Instruction;
-import octopus.server.components.pluginInterface.OrientGraphConnectionPlugin;
+import bjoern.pluginlib.OrientGraphConnectionPlugin;
 
 public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 {
