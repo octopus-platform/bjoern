@@ -15,3 +15,5 @@ task copyPlugins(type:Copy) {
 }
 
 build.dependsOn copyPlugins
+
+copyPlugins.dependsOn subprojects.build
