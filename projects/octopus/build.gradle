@@ -59,9 +59,14 @@ task copyOctopus(type:Copy) {
 
 compileJava.dependsOn downloadAndExtractOrientDB
 compileJava.dependsOn copyConfigFilesToOrientDB
-compileJava.dependsOn copyServerSh
-compileJava.dependsOn copyToLib
-compileJava.dependsOn copyOctopus
+
+build.dependsOn copyToLib
+build.dependsOn copyServerSh
+build.dependsOn copyOctopus
 
 copyServerSh.dependsOn downloadAndExtractOrientDB
 copyConfigFilesToOrientDB.dependsOn downloadAndExtractOrientDB
+
+copyToLib.dependsOn compileJava
+copyServerSh.dependsOn compileJava
+copyOctopus.dependsOn compileJava
