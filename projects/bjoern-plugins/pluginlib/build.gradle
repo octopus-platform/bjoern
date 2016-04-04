@@ -5,3 +5,11 @@ dependencies {
     compile group: 'org.json', name: 'json', version: '20141113'
     compile project(':projects:octopus')
 }
+
+task copyPluginlib(type:Copy) {
+    into "../../octopus/jars"
+    from "$buildDir/libs/pluginlib.jar"
+}
+
+build.dependsOn copyPluginlib
+copyPluginlib.dependsOn compileJava
