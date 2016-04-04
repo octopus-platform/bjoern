@@ -18,4 +18,6 @@ task copyToLib(type: Copy) {
     from configurations.runtime 
 }
 
-compileJava.dependsOn copyToLib
+copyToLib.dependsOn compileJava
+build.dependsOn copyToLib
+
