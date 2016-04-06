@@ -1,9 +1,9 @@
-package bjoern.input.common.structures.interpretations;
+package bjoern.structures.interpretations;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import bjoern.input.common.structures.annotations.VariableOrArgument;
+import bjoern.structures.annotations.VariableOrArgument;
 
 public class DisassembledFunction
 {

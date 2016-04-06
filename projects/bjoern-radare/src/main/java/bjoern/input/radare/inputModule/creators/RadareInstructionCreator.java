@@ -2,8 +2,8 @@ package bjoern.input.radare.inputModule.creators;
 
 import org.json.JSONObject;
 
-import bjoern.input.common.structures.interpretations.DisassemblyLine;
-import bjoern.input.common.structures.interpretations.Instruction;
+import bjoern.structures.interpretations.DisassemblyLine;
+import bjoern.structures.interpretations.Instruction;
 import bjoern.input.radare.inputModule.JSONUtils;
 
 

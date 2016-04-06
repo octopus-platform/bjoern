@@ -1,7 +1,7 @@
-package bjoern.input.common.structures.interpretations;
+package bjoern.structures.interpretations;
 
-import bjoern.input.common.nodeStore.Node;
-import bjoern.input.common.nodeStore.NodeTypes;
+import bjoern.nodeStore.Node;
+import bjoern.nodeStore.NodeTypes;
 
 
 public class Function extends Node

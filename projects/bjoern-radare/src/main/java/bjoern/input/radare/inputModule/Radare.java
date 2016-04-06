@@ -10,12 +10,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bjoern.input.common.nodeStore.NodeKey;
-import bjoern.input.common.nodeStore.NodeTypes;
-import bjoern.input.common.structures.annotations.Flag;
-import bjoern.input.common.structures.edges.CallRef;
-import bjoern.input.common.structures.edges.EdgeTypes;
-import bjoern.input.common.structures.edges.Xref;
+import bjoern.nodeStore.NodeKey;
+import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.annotations.Flag;
+import bjoern.structures.edges.CallRef;
+import bjoern.structures.edges.EdgeTypes;
+import bjoern.structures.edges.Xref;
 import bjoern.input.radare.inputModule.exceptions.InvalidRadareFunction;
 
 public class Radare

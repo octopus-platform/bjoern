@@ -3,7 +3,7 @@ package bjoern.input.radare.inputModule.creators;
 
 import org.json.JSONObject;
 
-import bjoern.input.common.structures.interpretations.Function;
+import bjoern.structures.interpretations.Function;
 
 
 public class RadareFunctionCreator

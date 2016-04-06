@@ -3,7 +3,7 @@ package bjoern.input.common.outputModules.CSV;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import bjoern.input.common.nodeStore.Node;
+import bjoern.nodeStore.Node;
 import orientdbimporter.CSVCommands;
 
 import java.io.File;

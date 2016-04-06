@@ -1,6 +1,6 @@
-package bjoern.input.common.structures.annotations;
+package bjoern.structures.annotations;
 
-import bjoern.input.common.nodeStore.Node;
+import bjoern.nodeStore.Node;
 
 public class VariableOrArgument extends Node
 {

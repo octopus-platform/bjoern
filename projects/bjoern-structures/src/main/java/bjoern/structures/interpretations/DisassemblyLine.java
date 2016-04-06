@@ -1,4 +1,4 @@
-package bjoern.input.common.structures.interpretations;
+package bjoern.structures.interpretations;
 
 public class DisassemblyLine
 {

@@ -3,12 +3,12 @@ package bjoern.input.radare.inputModule.creators;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import bjoern.input.common.nodeStore.NodeKey;
-import bjoern.input.common.nodeStore.NodeStore;
-import bjoern.input.common.nodeStore.NodeTypes;
-import bjoern.input.common.structures.edges.EdgeTypes;
-import bjoern.input.common.structures.interpretations.BasicBlock;
-import bjoern.input.common.structures.interpretations.FunctionContent;
+import bjoern.nodeStore.NodeKey;
+import bjoern.nodeStore.NodeStore;
+import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.edges.EdgeTypes;
+import bjoern.structures.interpretations.BasicBlock;
+import bjoern.structures.interpretations.FunctionContent;
 import bjoern.input.radare.inputModule.JSONUtils;
 import bjoern.input.radare.inputModule.exceptions.BasicBlockWithoutAddress;
 

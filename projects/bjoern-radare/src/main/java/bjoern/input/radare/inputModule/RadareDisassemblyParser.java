@@ -4,9 +4,9 @@ import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import bjoern.input.common.structures.annotations.VariableOrArgument;
-import bjoern.input.common.structures.interpretations.DisassembledFunction;
-import bjoern.input.common.structures.interpretations.DisassemblyLine;
+import bjoern.structures.annotations.VariableOrArgument;
+import bjoern.structures.interpretations.DisassembledFunction;
+import bjoern.structures.interpretations.DisassemblyLine;
 import bjoern.input.radare.inputModule.exceptions.EmptyDisassembly;
 
 public class RadareDisassemblyParser

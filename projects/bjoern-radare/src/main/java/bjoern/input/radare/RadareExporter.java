@@ -5,10 +5,10 @@ import java.util.List;
 
 import bjoern.input.common.Exporter;
 import bjoern.input.common.outputModules.CSV.CSVOutputModule;
-import bjoern.input.common.structures.annotations.Flag;
-import bjoern.input.common.structures.edges.DirectedEdge;
-import bjoern.input.common.structures.edges.Xref;
-import bjoern.input.common.structures.interpretations.Function;
+import bjoern.structures.annotations.Flag;
+import bjoern.structures.edges.DirectedEdge;
+import bjoern.structures.edges.Xref;
+import bjoern.structures.interpretations.Function;
 import bjoern.input.radare.inputModule.RadareInputModule;
 
 /**

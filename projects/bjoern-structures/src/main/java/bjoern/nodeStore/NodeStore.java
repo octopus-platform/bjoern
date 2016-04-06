@@ -1,4 +1,4 @@
-package bjoern.input.common.nodeStore;
+package bjoern.nodeStore;
 
 import java.util.HashMap;
 import java.util.Iterator;

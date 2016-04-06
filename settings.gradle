@@ -8,3 +8,4 @@ include 'projects:bjoern-plugins:instructionlinker'
 
 include 'projects:octopus-lang'
 include 'projects:bjoern-lang'
+include 'projects:bjoern-structures'

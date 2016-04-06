@@ -3,9 +3,9 @@ package bjoern.input.common;
 import java.io.IOException;
 import java.util.List;
 
-import bjoern.input.common.structures.annotations.Flag;
-import bjoern.input.common.structures.edges.Xref;
-import bjoern.input.common.structures.interpretations.Function;
+import bjoern.structures.annotations.Flag;
+import bjoern.structures.edges.Xref;
+import bjoern.structures.interpretations.Function;
 
 public interface InputModule
 {

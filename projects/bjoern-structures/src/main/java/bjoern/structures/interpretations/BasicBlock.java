@@ -1,4 +1,4 @@
-package bjoern.input.common.structures.interpretations;
+package bjoern.structures.interpretations;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,8 +6,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import bjoern.input.common.nodeStore.Node;
-import bjoern.input.common.nodeStore.NodeTypes;
+import bjoern.nodeStore.Node;
+import bjoern.nodeStore.NodeTypes;
 
 
 public class BasicBlock extends Node

@@ -1,4 +1,4 @@
-package bjoern.input.common.nodeStore;
+package bjoern.nodeStore;
 
 public class Node
 {

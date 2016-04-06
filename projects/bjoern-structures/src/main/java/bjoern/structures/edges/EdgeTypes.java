@@ -1,4 +1,4 @@
-package bjoern.input.common.structures.edges;
+package bjoern.structures.edges;
 
 public class EdgeTypes
 {

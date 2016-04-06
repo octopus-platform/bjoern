@@ -1,6 +1,6 @@
-package bjoern.input.common.structures.edges;
+package bjoern.structures.edges;
 
-import bjoern.input.common.nodeStore.NodeKey;
+import bjoern.nodeStore.NodeKey;
 
 public class DirectedEdge
 {

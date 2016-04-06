@@ -8,13 +8,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import bjoern.input.common.InputModule;
-import bjoern.input.common.structures.annotations.Flag;
-import bjoern.input.common.structures.edges.CallRef;
-import bjoern.input.common.structures.edges.Xref;
-import bjoern.input.common.structures.interpretations.Function;
-import bjoern.input.common.structures.interpretations.FunctionContent;
+import bjoern.structures.annotations.Flag;
+import bjoern.structures.edges.CallRef;
+import bjoern.structures.edges.Xref;
+import bjoern.structures.interpretations.DisassembledFunction;
+import bjoern.structures.interpretations.DisassemblyLine;
+import bjoern.structures.interpretations.Function;
+import bjoern.structures.interpretations.FunctionContent;
+
 import bjoern.input.radare.inputModule.creators.RadareFunctionContentCreator;
 import bjoern.input.radare.inputModule.creators.RadareFunctionCreator;
+import bjoern.input.radare.inputModule.exceptions.EmptyDisassembly;
 import bjoern.input.radare.inputModule.exceptions.InvalidRadareFunction;
 
 public class RadareInputModule implements InputModule
@@ -83,12 +87,34 @@ public class RadareInputModule implements InputModule
 				.createContentFromJSON(jsonFunctionContent, address);
 
 		jsonFunctionContent = null;
-
-		content.consumeDisassembly(disassemblyStr);
-		content.consumeEsilDisassembly(esilDisassemblyStr);
+		
+		generateDisassembly(address, disassemblyStr, content);
+		generateESILDisassembly(address, esilDisassemblyStr, content);
 
 		function.setContent(content);
 
+	}
+
+	private void generateESILDisassembly(Long address, String esilDisassemblyStr, FunctionContent content) {
+		try {
+			RadareDisassemblyParser parser = new RadareDisassemblyParser();
+			DisassembledFunction func = parser.parseFunction(esilDisassemblyStr, address);
+			content.setDisassembledEsilFunction(func);
+		} catch (EmptyDisassembly e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void generateDisassembly(Long address, String disassemblyStr, FunctionContent content) {
+		try {
+			RadareDisassemblyParser parser = new RadareDisassemblyParser();		
+			DisassembledFunction func = parser.parseFunction(disassemblyStr, address);
+			content.setDisassembledFunction(func);
+		} catch (EmptyDisassembly e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -107,24 +133,32 @@ public class RadareInputModule implements InputModule
 	@Override
 	public List<Xref> getCrossReferences() throws IOException
 	{
-		List<Xref> retval = new LinkedList<Xref>();
+		List<Xref> crossReferences = new LinkedList<Xref>();
 		Radare.askForCrossReferences();
 		List<Xref> xefs;
 
 		while ((xefs = Radare.getNextCrossReferences()) != null)
 		{
-			retval.addAll(xefs);
+			crossReferences.addAll(xefs);
 		}
 
-		for(Xref r : retval)
+		for(Xref r : crossReferences)
 		{
-			if(r instanceof CallRef){
-				CallRef callRef = (CallRef) r;
-				callRef.initializeSourceInstruction();
-			}
+			if(r instanceof CallRef)	
+				initializeCallRefInstruction(r);			
 		}
 
-		return retval;
+		return crossReferences;
+	}
+
+	private void initializeCallRefInstruction(Xref xref) throws IOException
+	{
+		CallRef callRef = (CallRef) xref;
+		long addr = callRef.getSourceKey().getAddress();
+		String line = Radare.getDisassemblyForInstructionAt(addr);
+		RadareDisassemblyParser parser = new RadareDisassemblyParser();
+		DisassemblyLine parsedInstruction = parser.parseInstruction(line);
+		callRef.setDisassemblyLine(parsedInstruction);
 	}
 
 }

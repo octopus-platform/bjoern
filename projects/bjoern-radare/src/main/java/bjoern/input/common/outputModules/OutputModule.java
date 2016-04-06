@@ -1,8 +1,8 @@
 package bjoern.input.common.outputModules;
 
-import bjoern.input.common.structures.annotations.Flag;
-import bjoern.input.common.structures.interpretations.BasicBlock;
-import bjoern.input.common.structures.interpretations.Function;
+import bjoern.structures.annotations.Flag;
+import bjoern.structures.interpretations.BasicBlock;
+import bjoern.structures.interpretations.Function;
 
 public interface OutputModule
 {

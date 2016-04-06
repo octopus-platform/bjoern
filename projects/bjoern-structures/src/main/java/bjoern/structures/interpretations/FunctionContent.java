@@ -1,15 +1,13 @@
-package bjoern.input.common.structures.interpretations;
+package bjoern.structures.interpretations;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import bjoern.input.common.nodeStore.NodeKey;
-import bjoern.input.common.structures.annotations.VariableOrArgument;
-import bjoern.input.common.structures.edges.DirectedEdge;
-import bjoern.input.radare.inputModule.RadareDisassemblyParser;
-import bjoern.input.radare.inputModule.exceptions.InvalidDisassembly;
+import bjoern.nodeStore.NodeKey;
+import bjoern.structures.annotations.VariableOrArgument;
+import bjoern.structures.edges.DirectedEdge;
 
 public class FunctionContent
 {
@@ -23,7 +21,7 @@ public class FunctionContent
 	{
 		this.functionAddr = functionAddr;
 	}
-
+	
 	public Collection<BasicBlock> getBasicBlocks()
 	{
 		return basicBlocks.values();
@@ -83,30 +81,15 @@ public class FunctionContent
 	}
 
 
-	public void consumeDisassembly(String disassemblyStr)
+	public void setDisassembledFunction(DisassembledFunction func)
 	{
-		RadareDisassemblyParser parser = new RadareDisassemblyParser();
-		try
-		{
-			disassembledFunction = parser.parseFunction(disassemblyStr, functionAddr);
-		}
-		catch (InvalidDisassembly e)
-		{
-			// TODO: might want to log this error.
-		}
+		disassembledFunction = func;
 	}
 
-	public void consumeEsilDisassembly(String disassemblyStr)
+	public void setDisassembledEsilFunction(DisassembledFunction func)
 	{
-		RadareDisassemblyParser parser = new RadareDisassemblyParser();
-		try
-		{
-			disassembledEsilFunction = parser.parseFunction(disassemblyStr, functionAddr);
-		}
-		catch (InvalidDisassembly e)
-		{
-			// TODO: might want to log this error.
-		}
+		disassembledEsilFunction = func;
 	}
 
+	
 }

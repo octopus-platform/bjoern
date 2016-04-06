@@ -4,8 +4,8 @@ package bjoern.input.radare.inputModule.creators;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import bjoern.input.common.structures.interpretations.BasicBlock;
-import bjoern.input.common.structures.interpretations.Instruction;
+import bjoern.structures.interpretations.BasicBlock;
+import bjoern.structures.interpretations.Instruction;
 
 
 public class RadareBasicBlockCreator

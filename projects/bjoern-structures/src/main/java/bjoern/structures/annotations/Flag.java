@@ -1,7 +1,7 @@
-package bjoern.input.common.structures.annotations;
+package bjoern.structures.annotations;
 
-import bjoern.input.common.nodeStore.Node;
-import bjoern.input.common.nodeStore.NodeTypes;
+import bjoern.nodeStore.Node;
+import bjoern.nodeStore.NodeTypes;
 
 /**
  * A flag is a concept from radare2.

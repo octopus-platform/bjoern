@@ -6,21 +6,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import bjoern.input.common.nodeStore.Node;
-import bjoern.input.common.nodeStore.NodeKey;
-import bjoern.input.common.nodeStore.NodeTypes;
+import bjoern.nodeStore.Node;
+import bjoern.nodeStore.NodeKey;
+import bjoern.nodeStore.NodeTypes;
 import bjoern.input.common.outputModules.OutputModule;
-import bjoern.input.common.structures.RootNode;
-import bjoern.input.common.structures.annotations.Flag;
-import bjoern.input.common.structures.annotations.VariableOrArgument;
-import bjoern.input.common.structures.edges.CallRef;
-import bjoern.input.common.structures.edges.DirectedEdge;
-import bjoern.input.common.structures.edges.EdgeTypes;
-import bjoern.input.common.structures.interpretations.BasicBlock;
-import bjoern.input.common.structures.interpretations.DisassemblyLine;
-import bjoern.input.common.structures.interpretations.Function;
-import bjoern.input.common.structures.interpretations.FunctionContent;
-import bjoern.input.common.structures.interpretations.Instruction;
+import bjoern.structures.RootNode;
+import bjoern.structures.annotations.Flag;
+import bjoern.structures.annotations.VariableOrArgument;
+import bjoern.structures.edges.CallRef;
+import bjoern.structures.edges.DirectedEdge;
+import bjoern.structures.edges.EdgeTypes;
+import bjoern.structures.interpretations.BasicBlock;
+import bjoern.structures.interpretations.DisassemblyLine;
+import bjoern.structures.interpretations.Function;
+import bjoern.structures.interpretations.FunctionContent;
+import bjoern.structures.interpretations.Instruction;
 import bjoern.input.radare.inputModule.creators.RadareInstructionCreator;
 
 public class CSVOutputModule implements OutputModule
