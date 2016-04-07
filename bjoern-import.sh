@@ -1,10 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Arguments:
-# $1 - binary (passed to RadareExporter
-# $2 - database name (optional, passed to BjoernImport)
+# $1 - binary (passed to Radare
+# $2 - database name (optional, passed to Importer)
 #
 # Note: All duplicate rows are removed before import.
+
+BASEDIR=$(dirname "$0")
+pushd $BASEDIR
 
 TMP=$(mktemp -d)
 trap "rm -rf $TMP" EXIT
@@ -29,3 +32,5 @@ then
 else
 	projects/octopus/octopus-csvimport.sh -dbname $2
 fi
+
+popd
