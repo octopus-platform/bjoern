@@ -19,8 +19,6 @@ public class ImportCSVHandler extends OServerCommandAbstract
 	private static final Logger logger = LoggerFactory
 			.getLogger(ImportCSVHandler.class);
 
-	private Thread importThread;
-
 	public ImportCSVHandler(final OServerCommandConfiguration iConfiguration)
 	{
 	}
@@ -32,9 +30,7 @@ public class ImportCSVHandler extends OServerCommandAbstract
 		logger.info("Importer called");
 
 		ImportJob importJob = getImportJobFromRequest(iRequest);
-
-		startImporterThread(importJob);
-		OLogManager.instance().warn(this, "Import Thread started");
+		(new ImportCSVRunnable(importJob)).run();
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
 				OHttpUtils.CONTENT_TEXT_PLAIN, "");
@@ -52,12 +48,6 @@ public class ImportCSVHandler extends OServerCommandAbstract
 				"Syntax error: importcsv/<nodeFilename>/<edgeFilename>/<dbName>/");
 
 		return new ImportJob(urlParts[1], urlParts[2], urlParts[3]);
-	}
-
-	private void startImporterThread(ImportJob graphFiles)
-	{
-		importThread = new Thread(new ImportCSVRunnable(graphFiles));
-		importThread.start();
 	}
 
 	@Override
