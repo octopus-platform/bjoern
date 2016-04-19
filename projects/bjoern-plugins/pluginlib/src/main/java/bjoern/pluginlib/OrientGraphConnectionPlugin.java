@@ -9,7 +9,7 @@ import octopus.server.components.pluginInterface.IPlugin;
 
 import org.json.JSONObject;
 
-public abstract class OrientGraphConnectionPlugin implements IPlugin
+public abstract class OrientGraphConnectionPlugin extends PluginAdapter
 {
 	private static final int MAX_POOL_SIZE = 10;
 	private OrientGraphFactory graphFactory;
@@ -52,8 +52,7 @@ public abstract class OrientGraphConnectionPlugin implements IPlugin
 	{
 		graphFactory = new OrientGraphFactory(
 				Constants.PLOCAL_REL_PATH_TO_DBS + getDatabaseName())
-				.setupPool(
-				1, MAX_POOL_SIZE);
+				.setupPool(1, MAX_POOL_SIZE);
 	}
 
 	protected void close()
