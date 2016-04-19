@@ -1,11 +1,10 @@
 package bjoern.plugins.instructionlinker;
 import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
-import bjoern.nodeStore.NodeTypes;
-import bjoern.pluginlib.BjoernConstants;
+import bjoern.pluginlib.GraphOperations;
+import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.OrientGraphConnectionPlugin;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
@@ -16,7 +15,6 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	private final static String[] CFLOW_EDGES = {
 			EdgeTypes.CFLOW, EdgeTypes.CFLOW_TRUE, EdgeTypes.CFLOW_FALSE
 	};
-	private final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
 
 	private OrientGraphNoTx graph;
 
@@ -24,8 +22,8 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	public void execute() throws Exception
 	{
 		graph = getNoTxGraphInstance();
-		Iterable<Vertex> iterable = graph.command(
-				BjoernConstants.LUCENE_QUERY).execute("nodeType:" + NodeTypes.BASIC_BLOCK);
+
+		Iterable<Vertex> iterable = LookupOperations.getAllBasicBlocks(graph);
 
 		for (Vertex v : iterable)
 		{
@@ -51,7 +49,7 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	{
 		Instruction src = srcBlock.getExit();
 		Instruction dst = dstBlock.getEntry();
-		addEdge(src, dst);
+		GraphOperations.addEdge(graph, src, dst);
 	}
 
 	/**
@@ -70,28 +68,8 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 		{
 			Instruction src = block.getInstructions().get(i - 1);
 			Instruction dst = block.getInstructions().get(i);
-			addEdge(src, dst);
+			GraphOperations.addEdge(graph, src, dst);
 		}
 	}
 
-	/**
-	 * Add an edge from the instruction src to the instruction dst if it does
-	 * not already exist.
-	 * <p>
-	 *
-	 * @param src the source of the edge
-	 * @param dst the destination of the edge
-	 */
-	private void addEdge(Instruction src, Instruction dst)
-	{
-		for (Edge edge : src.getNode().getEdges(Direction.OUT,
-				INSTR_CFLOW_EDGE))
-		{
-			if (edge.getVertex(Direction.IN).equals(dst.getNode()))
-			{
-				return;
-			}
-		}
-			graph.addEdge(0, src.getNode(), dst.getNode(), INSTR_CFLOW_EDGE);
-	}
 }
