@@ -17,6 +17,11 @@ public class Instruction extends Node implements Comparable<Instruction>
 		return Long.parseLong(getNode().getProperty(BjoernNodeProperties.ADDR).toString());
 	}
 
+	public String getEsilCode()
+	{
+		return getNode().getProperty(BjoernNodeProperties.ESIL);
+	}
+
 	@Override
 	public int compareTo(Instruction instruction)
 	{
