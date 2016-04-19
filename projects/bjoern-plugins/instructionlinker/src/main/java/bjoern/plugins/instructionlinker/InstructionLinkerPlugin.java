@@ -4,15 +4,17 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
+import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.BjoernConstants;
 import bjoern.pluginlib.OrientGraphConnectionPlugin;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
+import bjoern.structures.edges.EdgeTypes;
 
 public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 {
 	private final static String[] CFLOW_EDGES = {
-			"CFLOW_ALWAYS", "CFLOW_TRUE", "CFLOW_FALSE"
+			EdgeTypes.CFLOW, EdgeTypes.CFLOW_TRUE, EdgeTypes.CFLOW_FALSE
 	};
 	private final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
 
@@ -23,7 +25,7 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	{
 		graph = getNoTxGraphInstance();
 		Iterable<Vertex> iterable = graph.command(
-				BjoernConstants.LUCENE_QUERY).execute("nodeType:BB");
+				BjoernConstants.LUCENE_QUERY).execute("nodeType:" + NodeTypes.BASIC_BLOCK);
 
 		for (Vertex v : iterable)
 		{
