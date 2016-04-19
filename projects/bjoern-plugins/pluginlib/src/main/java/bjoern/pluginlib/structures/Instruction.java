@@ -1,4 +1,4 @@
-package bjoern.plugins.instructionlinker.util;
+package bjoern.pluginlib.structures;
 
 import com.tinkerpop.blueprints.Vertex;
 
