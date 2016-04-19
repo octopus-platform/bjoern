@@ -5,9 +5,9 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import bjoern.pluginlib.BjoernConstants;
-import bjoern.plugins.instructionlinker.util.BasicBlock;
-import bjoern.plugins.instructionlinker.util.Instruction;
 import bjoern.pluginlib.OrientGraphConnectionPlugin;
+import bjoern.pluginlib.structures.BasicBlock;
+import bjoern.pluginlib.structures.Instruction;
 
 public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 {
