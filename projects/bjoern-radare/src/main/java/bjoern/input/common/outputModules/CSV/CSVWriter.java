@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import bjoern.nodeStore.Node;
+import bjoern.structures.BjoernNodeProperties;
 import orientdbimporter.CSVCommands;
 
 import java.io.File;
@@ -16,8 +17,8 @@ public class CSVWriter
 	final static String SEPARATOR = "\t";
 
 	final static String[] nodeProperties = {
-			CSVFields.KEY, CSVFields.TYPE, CSVFields.ADDR, CSVFields.CHILD_NUM,
-			CSVFields.REPR, CSVFields.CODE, CSVFields.COMMENT, CSVFields.ESIL
+			BjoernNodeProperties.KEY, BjoernNodeProperties.TYPE, BjoernNodeProperties.ADDR, BjoernNodeProperties.CHILD_NUM,
+			BjoernNodeProperties.REPR, BjoernNodeProperties.CODE, BjoernNodeProperties.COMMENT, BjoernNodeProperties.ESIL
 	};
 
 	final static String[] edgeProperties = {};

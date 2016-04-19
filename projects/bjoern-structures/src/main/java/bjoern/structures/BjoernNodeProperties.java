@@ -1,6 +1,6 @@
-package bjoern.input.common.outputModules.CSV;
+package bjoern.structures;
 
-public class CSVFields
+public class BjoernNodeProperties
 {
 
 	public static final String TYPE = "nodeType";

@@ -10,6 +10,7 @@ import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.input.common.outputModules.OutputModule;
+import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.RootNode;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.annotations.VariableOrArgument;
@@ -46,10 +47,10 @@ public class CSVOutputModule implements OutputModule
 		createRootNodeForNode(flag);
 
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(CSVFields.CODE, flag.getValue());
-		properties.put(CSVFields.KEY, flag.getKey());
-		properties.put(CSVFields.TYPE, flag.getType());
-		properties.put(CSVFields.ADDR, flag.getAddress().toString());
+		properties.put(BjoernNodeProperties.CODE, flag.getValue());
+		properties.put(BjoernNodeProperties.KEY, flag.getKey());
+		properties.put(BjoernNodeProperties.TYPE, flag.getType());
+		properties.put(BjoernNodeProperties.ADDR, flag.getAddress().toString());
 		// Skipping length-field for now, let's see if we need it.
 		CSVWriter.addNode(flag, properties);
 	}
@@ -59,9 +60,9 @@ public class CSVOutputModule implements OutputModule
 		Node rootNode = new RootNode();
 		rootNode.setAddr(node.getAddress());
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(CSVFields.KEY, rootNode.getKey());
-		properties.put(CSVFields.ADDR, rootNode.getAddress().toString());
-		properties.put(CSVFields.TYPE, rootNode.getType());
+		properties.put(BjoernNodeProperties.KEY, rootNode.getKey());
+		properties.put(BjoernNodeProperties.ADDR, rootNode.getAddress().toString());
+		properties.put(BjoernNodeProperties.TYPE, rootNode.getType());
 		CSVWriter.addNoReplaceNode(rootNode, properties);
 	}
 
@@ -71,10 +72,10 @@ public class CSVOutputModule implements OutputModule
 		createRootNodeForNode(function);
 
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(CSVFields.ADDR, function.getAddress().toString());
-		properties.put(CSVFields.TYPE, function.getType());
-		properties.put(CSVFields.REPR, function.getName());
-		properties.put(CSVFields.KEY, function.getKey());
+		properties.put(BjoernNodeProperties.ADDR, function.getAddress().toString());
+		properties.put(BjoernNodeProperties.TYPE, function.getType());
+		properties.put(BjoernNodeProperties.REPR, function.getName());
+		properties.put(BjoernNodeProperties.KEY, function.getKey());
 
 		CSVWriter.addNoReplaceNode(function, properties);
 	}
@@ -110,17 +111,17 @@ public class CSVOutputModule implements OutputModule
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 		String type = varOrArg.getType();
-		if (type.equals(CSVFields.VAR))
-			properties.put(CSVFields.TYPE, NodeTypes.LOCAL_VAR);
+		if (type.equals(BjoernNodeProperties.VAR))
+			properties.put(BjoernNodeProperties.TYPE, NodeTypes.LOCAL_VAR);
 		else
-			properties.put(CSVFields.TYPE, NodeTypes.ARG);
+			properties.put(BjoernNodeProperties.TYPE, NodeTypes.ARG);
 
-		properties.put(CSVFields.KEY, varOrArg.getKey());
-		properties.put(CSVFields.TYPE, varOrArg.getType());
-		properties.put(CSVFields.ADDR, varOrArg.getAddress().toString());
-		properties.put(CSVFields.NAME, varOrArg.getVarName());
-		properties.put(CSVFields.REPR, varOrArg.getVarType());
-		properties.put(CSVFields.CODE, varOrArg.getRegPlusOffset());
+		properties.put(BjoernNodeProperties.KEY, varOrArg.getKey());
+		properties.put(BjoernNodeProperties.TYPE, varOrArg.getType());
+		properties.put(BjoernNodeProperties.ADDR, varOrArg.getAddress().toString());
+		properties.put(BjoernNodeProperties.NAME, varOrArg.getVarName());
+		properties.put(BjoernNodeProperties.REPR, varOrArg.getVarType());
+		properties.put(BjoernNodeProperties.CODE, varOrArg.getRegPlusOffset());
 
 		CSVWriter.addNode(varOrArg, properties);
 	}
@@ -217,12 +218,12 @@ public class CSVOutputModule implements OutputModule
 
 		Long instrAddress = instr.getAddress();
 
-		properties.put(CSVFields.ADDR, instrAddress.toString());
-		properties.put(CSVFields.TYPE, instr.getType());
-		properties.put(CSVFields.REPR, instr.getStringRepr());
-		properties.put(CSVFields.CHILD_NUM, String.format("%d", childNum));
-		properties.put(CSVFields.KEY, instr.getKey());
-		properties.put(CSVFields.CODE,instr.getBytes());
+		properties.put(BjoernNodeProperties.ADDR, instrAddress.toString());
+		properties.put(BjoernNodeProperties.TYPE, instr.getType());
+		properties.put(BjoernNodeProperties.REPR, instr.getStringRepr());
+		properties.put(BjoernNodeProperties.CHILD_NUM, String.format("%d", childNum));
+		properties.put(BjoernNodeProperties.KEY, instr.getKey());
+		properties.put(BjoernNodeProperties.CODE,instr.getBytes());
 
 		addDisassemblyProperties(properties, instrAddress);
 
@@ -239,23 +240,23 @@ public class CSVOutputModule implements OutputModule
 		if (line == null)
 			return;
 
-		properties.put(CSVFields.COMMENT, line.getComment());
+		properties.put(BjoernNodeProperties.COMMENT, line.getComment());
 
 		DisassemblyLine esilLine = content.getDisassemblyEsilLineForAddr(address);
 		if (esilLine == null)
 			return;
 
-		properties.put(CSVFields.ESIL, esilLine.getInstruction());
+		properties.put(BjoernNodeProperties.ESIL, esilLine.getInstruction());
 
 	}
 
 	private void writeNodeForBasicBlock(BasicBlock block)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(CSVFields.ADDR, block.getAddress().toString());
-		properties.put(CSVFields.TYPE, block.getType());
-		properties.put(CSVFields.KEY, block.getKey());
-		properties.put(CSVFields.REPR, block.getInstructionsStr());
+		properties.put(BjoernNodeProperties.ADDR, block.getAddress().toString());
+		properties.put(BjoernNodeProperties.TYPE, block.getType());
+		properties.put(BjoernNodeProperties.KEY, block.getKey());
+		properties.put(BjoernNodeProperties.REPR, block.getInstructionsStr());
 
 		CSVWriter.addNode(block, properties);
 	}
@@ -334,12 +335,12 @@ public class CSVOutputModule implements OutputModule
 
 		Long instrAddress = callRef.getSourceKey().getAddress();
 
-		properties.put(CSVFields.ADDR, instrAddress.toString());
-		properties.put(CSVFields.TYPE, instruction.getType());
-		properties.put(CSVFields.REPR, instruction.getStringRepr());
-		properties.put(CSVFields.KEY, instruction.getKey());
-		properties.put(CSVFields.CODE,instruction.getBytes());
-		properties.put(CSVFields.COMMENT, disassemblyLine.getComment());
+		properties.put(BjoernNodeProperties.ADDR, instrAddress.toString());
+		properties.put(BjoernNodeProperties.TYPE, instruction.getType());
+		properties.put(BjoernNodeProperties.REPR, instruction.getStringRepr());
+		properties.put(BjoernNodeProperties.KEY, instruction.getKey());
+		properties.put(BjoernNodeProperties.CODE,instruction.getBytes());
+		properties.put(BjoernNodeProperties.COMMENT, disassemblyLine.getComment());
 
 		CSVWriter.addNode(instruction, properties);
 
