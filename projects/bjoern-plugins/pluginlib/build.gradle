@@ -5,6 +5,7 @@ dependencies {
     compile group: 'org.json', name: 'json', version: '20141113'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
     compile project(':projects:octopus')
+    compile project(':projects:bjoern-structures')
 }
 
 task copyPluginlib(type: Copy) {
