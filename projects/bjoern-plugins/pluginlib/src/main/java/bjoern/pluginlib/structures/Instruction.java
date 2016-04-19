@@ -2,6 +2,8 @@ package bjoern.pluginlib.structures;
 
 import com.tinkerpop.blueprints.Vertex;
 
+import bjoern.structures.BjoernNodeProperties;
+
 public class Instruction extends Node implements Comparable<Instruction>
 {
 
@@ -12,7 +14,7 @@ public class Instruction extends Node implements Comparable<Instruction>
 
 	public long getAddress()
 	{
-		return Long.parseLong(getNode().getProperty("addr").toString());
+		return Long.parseLong(getNode().getProperty(BjoernNodeProperties.ADDR).toString());
 	}
 
 	@Override

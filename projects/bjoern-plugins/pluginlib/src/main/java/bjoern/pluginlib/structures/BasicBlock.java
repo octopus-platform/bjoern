@@ -1,11 +1,13 @@
 package bjoern.pluginlib.structures;
 
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Vertex;
+
+import bjoern.structures.edges.EdgeTypes;
 
 public class BasicBlock extends Node
 {
@@ -23,7 +25,7 @@ public class BasicBlock extends Node
 		{
 			instructions = new ArrayList<Instruction>();
 			for (Vertex instruction : getNode().getVertices(Direction.OUT,
-					"IS_BB_OF"))
+					EdgeTypes.IS_BB_OF))
 			{
 
 				instructions.add(new Instruction(instruction));
