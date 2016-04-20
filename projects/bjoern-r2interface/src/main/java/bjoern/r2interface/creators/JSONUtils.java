@@ -1,4 +1,4 @@
-package bjoern.input.radare.inputModule;
+package bjoern.r2interface.creators;
 
 import org.json.JSONException;
 import org.json.JSONObject;

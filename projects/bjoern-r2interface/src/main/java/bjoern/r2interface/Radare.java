@@ -1,4 +1,4 @@
-package bjoern.input.radare.inputModule;
+package bjoern.r2interface;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeTypes;
+import bjoern.r2interface.exceptions.InvalidRadareFunction;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.EdgeTypes;
 import bjoern.structures.edges.Xref;
-import bjoern.input.radare.inputModule.exceptions.InvalidRadareFunction;
 
 public class Radare
 {

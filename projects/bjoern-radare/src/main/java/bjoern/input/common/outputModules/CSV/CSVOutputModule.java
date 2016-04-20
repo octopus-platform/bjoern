@@ -9,6 +9,7 @@ import java.util.Map;
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeTypes;
+import bjoern.r2interface.creators.RadareInstructionCreator;
 import bjoern.input.common.outputModules.OutputModule;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.RootNode;
@@ -22,7 +23,6 @@ import bjoern.structures.interpretations.DisassemblyLine;
 import bjoern.structures.interpretations.Function;
 import bjoern.structures.interpretations.FunctionContent;
 import bjoern.structures.interpretations.Instruction;
-import bjoern.input.radare.inputModule.creators.RadareInstructionCreator;
 
 public class CSVOutputModule implements OutputModule
 {

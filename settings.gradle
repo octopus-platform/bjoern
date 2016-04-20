@@ -1,5 +1,6 @@
 include 'projects:orientdbimporter'
 include 'projects:bjoern-radare'
+include 'projects:bjoern-r2interface'
 include 'projects:octopus'
 
 include 'projects:bjoern-plugins:pluginlib'

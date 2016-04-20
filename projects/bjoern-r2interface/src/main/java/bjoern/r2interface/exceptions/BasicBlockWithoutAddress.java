@@ -1,4 +1,4 @@
-package bjoern.input.radare.inputModule.exceptions;
+package bjoern.r2interface.exceptions;
 
 public class BasicBlockWithoutAddress extends Exception
 {

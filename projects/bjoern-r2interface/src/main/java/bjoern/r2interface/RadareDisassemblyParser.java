@@ -1,13 +1,13 @@
-package bjoern.input.radare.inputModule;
+package bjoern.r2interface;
 
 import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import bjoern.r2interface.exceptions.EmptyDisassembly;
 import bjoern.structures.annotations.VariableOrArgument;
 import bjoern.structures.interpretations.DisassembledFunction;
 import bjoern.structures.interpretations.DisassemblyLine;
-import bjoern.input.radare.inputModule.exceptions.EmptyDisassembly;
 
 public class RadareDisassemblyParser
 {

@@ -1,11 +1,9 @@
-package bjoern.input.radare.inputModule.creators;
+package bjoern.r2interface.creators;
 
 import org.json.JSONObject;
 
 import bjoern.structures.interpretations.DisassemblyLine;
 import bjoern.structures.interpretations.Instruction;
-import bjoern.input.radare.inputModule.JSONUtils;
-
 
 public class RadareInstructionCreator
 {

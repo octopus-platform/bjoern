@@ -25,7 +25,7 @@ public class EsilEmulator {
 		state = new EmulatorState();
 	}
 
-	public void emulate(Iterable<Instruction> instructions)
+	public void emulateWithoutCalls(Iterable<Instruction> instructions)
 	{
 		String esilSeq = createEsilSequenceWithoutCalls(instructions);
 
@@ -38,11 +38,11 @@ public class EsilEmulator {
 		return createEsilSequence(instructions, isNotCall);
 	}
 
-	/*
+	/**
 	 * Create a flat string of ESIL instructions from an iterable
 	 * of Instructions, where an instruction is only included if
 	 * it matches p.
-	 **/
+	 */
 
 	private String createEsilSequence(Iterable<Instruction> instructions,
 												  Predicate<Instruction> p)

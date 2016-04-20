@@ -1,4 +1,4 @@
-package bjoern.input.radare.inputModule.creators;
+package bjoern.r2interface.creators;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -6,11 +6,10 @@ import org.json.JSONObject;
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeStore;
 import bjoern.nodeStore.NodeTypes;
+import bjoern.r2interface.exceptions.BasicBlockWithoutAddress;
 import bjoern.structures.edges.EdgeTypes;
 import bjoern.structures.interpretations.BasicBlock;
 import bjoern.structures.interpretations.FunctionContent;
-import bjoern.input.radare.inputModule.JSONUtils;
-import bjoern.input.radare.inputModule.exceptions.BasicBlockWithoutAddress;
 
 public class RadareFunctionContentCreator
 {

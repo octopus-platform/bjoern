@@ -15,11 +15,12 @@ import bjoern.structures.interpretations.DisassembledFunction;
 import bjoern.structures.interpretations.DisassemblyLine;
 import bjoern.structures.interpretations.Function;
 import bjoern.structures.interpretations.FunctionContent;
-
-import bjoern.input.radare.inputModule.creators.RadareFunctionContentCreator;
-import bjoern.input.radare.inputModule.creators.RadareFunctionCreator;
-import bjoern.input.radare.inputModule.exceptions.EmptyDisassembly;
-import bjoern.input.radare.inputModule.exceptions.InvalidRadareFunction;
+import bjoern.r2interface.Radare;
+import bjoern.r2interface.RadareDisassemblyParser;
+import bjoern.r2interface.creators.RadareFunctionContentCreator;
+import bjoern.r2interface.creators.RadareFunctionCreator;
+import bjoern.r2interface.exceptions.EmptyDisassembly;
+import bjoern.r2interface.exceptions.InvalidRadareFunction;
 
 public class RadareInputModule implements InputModule
 {

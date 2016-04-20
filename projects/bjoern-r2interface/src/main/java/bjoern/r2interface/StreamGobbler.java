@@ -1,4 +1,4 @@
-package bjoern.input.radare.inputModule;
+package bjoern.r2interface;
 
 // Adapted from:
 // http://www.javaworld.com/article/2071275/core-java/when-runtime-exec---won-t.html

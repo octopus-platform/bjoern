@@ -1,4 +1,4 @@
-package bjoern.input.radare.inputModule;
+package bjoern.r2interface;
 
 // Adapted from:
 // https://github.com/radare/radare2-bindings/blob/master/r2pipe/java/org/radare/r2pipe/R2Pipe.java
