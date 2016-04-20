@@ -1,8 +1,8 @@
-package bjoern.pluginlib.emulation;
+package bjoern.pluginlib.radare.emulation;
 
 import java.util.function.Predicate;
 
-import bjoern.pluginlib.emulation.architectures.Architecture;
+import bjoern.pluginlib.radare.emulation.architectures.Architecture;
 import bjoern.pluginlib.structures.Instruction;
 
 public class EsilEmulator {
@@ -15,14 +15,14 @@ public class EsilEmulator {
 		reset();
 	}
 
-	public void setArchitecture(Architecture architecture)
-	{
-		this.architecture = architecture;
-	}
-
 	public void reset()
 	{
 		state = new EmulatorState();
+	}
+
+	public void setArchitecture(Architecture architecture)
+	{
+		this.architecture = architecture;
 	}
 
 	public void emulateWithoutCalls(Iterable<Instruction> instructions)

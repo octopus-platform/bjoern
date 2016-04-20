@@ -1,4 +1,4 @@
-package bjoern.pluginlib.emulation.architectures;
+package bjoern.pluginlib.radare.emulation.architectures;
 
 import bjoern.pluginlib.structures.Instruction;
 

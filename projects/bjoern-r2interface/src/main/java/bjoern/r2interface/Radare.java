@@ -161,6 +161,23 @@ public class Radare
 		r2Pipe.cmd("e asm.esil=false");
 	}
 
+	public static void resetEsilState() throws IOException
+	{
+		r2Pipe.cmd("ar0");
+		r2Pipe.cmd("aei");
+		r2Pipe.cmd("aeim");
+	}
+
+	public static void runEsilCode(String esilCode) throws IOException
+	{
+		r2Pipe.cmd(String.format("\"ae %s\"", esilCode));
+	}
+
+	public static String getRegisterValue(String registerStr) throws IOException
+	{
+		return r2Pipe.cmd(String.format("ar %s", registerStr));
+	}
+
 	private static List<Xref> createXrefsFromLine(String line)
 	{
 
