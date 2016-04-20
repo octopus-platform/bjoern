@@ -1,5 +1,10 @@
 package octopus.server.commands.plugin;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.json.JSONObject;
+
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -13,11 +18,6 @@ import com.orientechnologies.orient.server.network.protocol.http.command
 
 import octopus.server.components.pluginInterface.IPlugin;
 import octopus.server.components.pluginInterface.PluginLoader;
-
-import org.json.JSONObject;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class ExecutePluginCommand extends OServerCommandAbstract
 {
@@ -75,6 +75,7 @@ public class ExecutePluginCommand extends OServerCommandAbstract
 	{
 		Path path = Paths.get(pluginDir, pluginName);
 		IPlugin plugin = PluginLoader.load(path, pluginClass);
+
 		if (plugin == null)
 		{
 			throw new OHttpRequestException(

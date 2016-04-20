@@ -1,5 +1,6 @@
 package bjoern.pluginlib;
 
+import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
@@ -9,8 +10,10 @@ public class LookupOperations {
 
 	public static Iterable<Vertex> getAllBasicBlocks(OrientGraphNoTx graph)
 	{
-		Iterable<Vertex> iterable = graph.command(
-				BjoernConstants.LUCENE_QUERY).execute("nodeType:" + NodeTypes.BASIC_BLOCK);
+		String luceneQuery = "nodeType:" + NodeTypes.BASIC_BLOCK;
+		OCommandRequest cmd = graph.command(BjoernConstants.LUCENE_QUERY);
+		Iterable<Vertex> iterable = cmd.execute(luceneQuery);
+
 		return iterable;
 	}
 

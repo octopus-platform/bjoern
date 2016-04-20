@@ -35,6 +35,7 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 				linkInstructions(block, new BasicBlock(nextBasicBlock));
 			}
 		}
+
 		graph.shutdown();
 	}
 
