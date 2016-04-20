@@ -2,20 +2,22 @@ package bjoern.pluginlib.emulation;
 
 import java.util.function.Predicate;
 
+import bjoern.pluginlib.emulation.architectures.Architecture;
 import bjoern.pluginlib.structures.Instruction;
 
 public class EsilEmulator {
 
 	EmulatorState state;
-
-	// TODO: This is platform dependent.
-
-	private Predicate<Instruction> isNotFunction =
-			p -> p.getEsilCode().startsWith("rip,8,rsp,-=,rsp,=[],");
+	Architecture architecture;
 
 	public EsilEmulator()
 	{
 		reset();
+	}
+
+	public void setArchitecture(Architecture architecture)
+	{
+		this.architecture = architecture;
 	}
 
 	public void reset()
@@ -25,13 +27,26 @@ public class EsilEmulator {
 
 	public void emulate(Iterable<Instruction> instructions)
 	{
-		String esilSeq = createEsilSequence(instructions, isNotFunction);
+		String esilSeq = createEsilSequenceWithoutCalls(instructions);
 
 	}
 
-	private String createEsilSequence(Iterable<Instruction> instructions,
-									  Predicate<Instruction> p) {
+	private String createEsilSequenceWithoutCalls(Iterable<Instruction> instructions)
+	{
 
+		Predicate<Instruction> isNotCall = p -> !architecture.isCall(p);
+		return createEsilSequence(instructions, isNotCall);
+	}
+
+	/*
+	 * Create a flat string of ESIL instructions from an iterable
+	 * of Instructions, where an instruction is only included if
+	 * it matches p.
+	 **/
+
+	private String createEsilSequence(Iterable<Instruction> instructions,
+												  Predicate<Instruction> p)
+	{
 		StringBuilder builder = new StringBuilder();
 
 		for(Instruction instr: instructions)
@@ -43,6 +58,8 @@ public class EsilEmulator {
 		String instructionSeq = builder.toString();
 		instructionSeq = instructionSeq.substring(0, instructionSeq.length() -1);
 		return instructionSeq;
+
 	}
+
 
 }
