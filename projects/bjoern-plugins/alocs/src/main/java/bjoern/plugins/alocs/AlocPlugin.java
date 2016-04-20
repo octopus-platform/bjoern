@@ -5,6 +5,8 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.OrientGraphConnectionPlugin;
+import bjoern.pluginlib.Traversals;
+import bjoern.pluginlib.structures.BasicBlock;
 
 public class AlocPlugin extends OrientGraphConnectionPlugin{
 
@@ -18,7 +20,20 @@ public class AlocPlugin extends OrientGraphConnectionPlugin{
 
 	private void createAlocsForFunctions(Iterable<Vertex> functions)
 	{
-		// TODO Auto-generated method stub
+		for(Vertex func : functions)
+		{
+			createAlocsForFunction(func);
+		}
+
+	}
+
+	private void createAlocsForFunction(Vertex vertex)
+	{
+		BasicBlock entryBlock = Traversals.functionToEntryBlock(vertex);
+		if(entryBlock == null){
+			System.err.println("Warning: function without entry block");
+			return;
+		}
 
 	}
 
