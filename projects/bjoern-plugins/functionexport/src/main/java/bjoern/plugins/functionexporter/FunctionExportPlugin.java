@@ -1,5 +1,18 @@
 package bjoern.plugins.functionexporter;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -11,22 +24,9 @@ import com.tinkerpop.blueprints.util.GraphHelper;
 import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
-import bjoern.pluginlib.BjoernConstants;
-import bjoern.plugins.functionexporter.io.dot.DotWriter;
+import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.OrientGraphConnectionPlugin;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import bjoern.plugins.functionexporter.io.dot.DotWriter;
 
 public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 {
@@ -113,9 +113,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 	{
 		OrientGraphNoTx graph = getNoTxGraphInstance();
 
-		Iterable<Vertex> functions = graph.command(
-				BjoernConstants.LUCENE_QUERY).execute("nodeType:Func");
-
+		Iterable<Vertex> functions = LookupOperations.getAllFunctions(graph);
 
 		for (Vertex function : functions)
 		{
