@@ -104,6 +104,8 @@
 				<commands>
 
 					<!-- Added for octopus -->
+					<command implementation="octopus.server.commands.uploadfile.UploadHandler"
+						 pattern="POST|uploadfile/"/>
 					<command implementation="octopus.server.commands.plugin.ExecutePluginCommand"
 						pattern="POST|executeplugin/" >
 						<parameters>
