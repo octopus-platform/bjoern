@@ -12,7 +12,7 @@ pushd $BASEDIR
 TMP=$(mktemp -d)
 trap "rm -rf $TMP" EXIT
 
-projects/bjoern-radare/bjoern-radare.sh $1 -outdir $TMP || exit 1
+projects/radare2csv/radare2csv.sh $1 -outdir $TMP || exit 1
 
 tail -n+2 $TMP/nodes.csv | sort -r | uniq > $TMP/nodes.csv_
 tail -n+2 $TMP/edges.csv | sort -r | uniq > $TMP/edges.csv_

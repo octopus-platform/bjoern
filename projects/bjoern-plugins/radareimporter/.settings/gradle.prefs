@@ -1,0 +1,12 @@
+{
+  "1.0": {
+    "project_path": ":projects:bjoern-plugins:radareimporter",
+    "project_dir": "/home/fabs/git/bjoern/projects/bjoern-plugins/radareimporter",
+    "connection_project_dir": "/home/fabs/git/bjoern",
+    "connection_gradle_user_home": null,
+    "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
+    "connection_java_home": null,
+    "connection_jvm_arguments": "",
+    "connection_arguments": ""
+  }
+}
