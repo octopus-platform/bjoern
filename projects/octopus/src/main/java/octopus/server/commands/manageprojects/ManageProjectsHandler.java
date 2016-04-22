@@ -1,6 +1,7 @@
 package octopus.server.commands.manageprojects;
 
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
+import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -11,8 +12,25 @@ import octopus.server.components.projectmanager.ProjectManager;
 public class ManageProjectsHandler extends OServerCommandAbstract
 {
 
+	String projectsDir;
+
 	public ManageProjectsHandler(final OServerCommandConfiguration iConfiguration)
 	{
+		readConfiguration(iConfiguration);
+	}
+
+	private void readConfiguration(OServerCommandConfiguration iConfiguration)
+	{
+		for (OServerEntryConfiguration param : iConfiguration.parameters)
+		{
+			switch (param.name)
+			{
+				case "dir":
+					projectsDir = param.value;
+					break;
+			}
+		}
+
 	}
 
 	@Override
@@ -27,7 +45,7 @@ public class ManageProjectsHandler extends OServerCommandAbstract
 		String command = urlParts[1];
 		String projectName = urlParts[2];
 
-		ProjectManager manager = new ProjectManager();
+		ProjectManager manager = new ProjectManager(projectsDir);
 
 		if(command.equals("create"))
 			manager.create(projectName);
