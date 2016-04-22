@@ -1,5 +1,6 @@
 package octopus.server.components.projectmanager;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -10,13 +11,19 @@ public class ProjectManager {
 	public ProjectManager(String projectsDir)
 	{
 		this.projectsDir = projectsDir;
-		ensureProjectDirExists();
+		openProjectsDir();
 	}
 
-	private void ensureProjectDirExists()
+	public String getPathToProject(String name)
+	{
+		return projectsDir + File.separator + name;
+	}
+
+	private void openProjectsDir()
 	{
 		if(Files.notExists(Paths.get(projectsDir)))
 			throw new RuntimeException("Error: projectDir does not exist");
+
 	}
 
 	public void create(String name)
@@ -24,7 +31,8 @@ public class ProjectManager {
 		if(projectsDir == null)
 			throw new RuntimeException("Error: projectDir not set");
 
-		System.out.println("create");
+		File dir = new File(getPathToProject(name));
+		dir.mkdirs();
 	}
 
 	public void delete(String name)
@@ -32,7 +40,8 @@ public class ProjectManager {
 		if(projectsDir == null)
 			throw new RuntimeException("Error: projectDir not set");
 
-		System.out.println("delete");
+		File dir = new File(getPathToProject(name));
+		dir.delete();
 	}
 
 }
