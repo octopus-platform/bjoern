@@ -21,9 +21,9 @@ public class ProjectManager {
 
 	private void openProjectsDir()
 	{
-		if(Files.notExists(Paths.get(projectsDir)))
-			throw new RuntimeException("Error: projectDir does not exist");
-
+		if(Files.notExists(Paths.get(projectsDir))){
+			new File(projectsDir).mkdirs();
+		}
 	}
 
 	public void create(String name)
