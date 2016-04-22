@@ -1,4 +1,4 @@
-package octopus.server.commands.plugin;
+package octopus.server.commands.executeplugin;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

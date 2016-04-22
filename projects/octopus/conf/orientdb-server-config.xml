@@ -106,11 +106,18 @@
 					<!-- Added for octopus -->
 					<command implementation="octopus.server.commands.uploadfile.UploadHandler"
 						 pattern="POST|uploadfile/*"/>
-					<command implementation="octopus.server.commands.plugin.ExecutePluginCommand"
+					<command implementation="octopus.server.commands.executeplugin.ExecutePluginCommand"
 						pattern="POST|executeplugin/" >
 						<parameters>
 							<!-- Read plugins from this folder -->
 							<entry name="dir" value="../../plugins" />
+						</parameters>
+					</command>
+					<command implementation="octopus.server.commands.manageprojects.ManageProjectsHandler"
+						pattern="GET|manageprojects/*" >
+						<parameters>
+							<!-- Read plugins from this folder -->
+							<entry name="dir" value="../../projects" />
 						</parameters>
 					</command>
 					<command implementation="octopus.server.commands.importcsv.ImportCSVHandler"
