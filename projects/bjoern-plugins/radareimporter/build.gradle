@@ -1,5 +1,0 @@
-
-dependencies{
-  compile project(':projects:bjoern-plugins:pluginlib')
-  compile project(':projects:octopus')
-}

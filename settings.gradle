@@ -7,7 +7,6 @@ include 'projects:bjoern-plugins:pluginlib'
 include 'projects:bjoern-plugins:functionexport'
 include 'projects:bjoern-plugins:instructionlinker'
 include 'projects:bjoern-plugins:alocs'
-include 'projects:bjoern-plugins:radareimporter'
 
 include 'projects:octopus-lang'
 include 'projects:bjoern-lang'
