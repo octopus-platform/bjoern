@@ -43,7 +43,7 @@ public class ProjectManager {
 		nameToProject.put(projectName, newProject);
 	}
 
-	public OctopusProject getProjectByName(String name)
+	public static OctopusProject getProjectByName(String name)
 	{
 		return nameToProject.get(name);
 	}
