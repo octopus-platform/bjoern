@@ -17,6 +17,7 @@ public class ManageProjectsHandler extends OServerCommandAbstract
 	public ManageProjectsHandler(final OServerCommandConfiguration iConfiguration)
 	{
 		readConfiguration(iConfiguration);
+		ProjectManager.setProjectDir(projectsDir);
 	}
 
 	private void readConfiguration(OServerCommandConfiguration iConfiguration)
@@ -45,12 +46,10 @@ public class ManageProjectsHandler extends OServerCommandAbstract
 		String command = urlParts[1];
 		String projectName = urlParts[2];
 
-		ProjectManager manager = new ProjectManager(projectsDir);
-
 		if(command.equals("create"))
-			manager.create(projectName);
+			ProjectManager.create(projectName);
 		else if(command.equals("delete"))
-			manager.delete(projectName);
+			ProjectManager.delete(projectName);
 
 		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null,
 				"", null);
