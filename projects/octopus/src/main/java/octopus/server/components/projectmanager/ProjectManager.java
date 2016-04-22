@@ -13,7 +13,7 @@ public class ProjectManager {
 
 	public static void setProjectDir(String newProjectsDir)
 	{
-		projectsDir = newProjectsDir;
+		projectsDir = new File(newProjectsDir).getAbsolutePath();
 		openProjectsDir();
 		loadProjects();
 	}
@@ -24,7 +24,6 @@ public class ProjectManager {
 			new File(projectsDir).mkdirs();
 		}
 	}
-
 
 	private static void loadProjects()
 	{
@@ -39,12 +38,8 @@ public class ProjectManager {
 
 	private static void loadProject(File projectDir)
 	{
-		OctopusProject newProject = new OctopusProject();
-
 		String projectName = projectDir.getName();
-		newProject.setPathToProjectDir(projectDir.getAbsolutePath());
-		newProject.setDatabaseName(projectName);
-
+		OctopusProject newProject = createOctopusProjectForName(projectName);
 		nameToProject.put(projectName, newProject);
 	}
 
@@ -63,8 +58,8 @@ public class ProjectManager {
 		if(projectsDir == null)
 			throw new RuntimeException("Error: projectDir not set");
 
-		File dir = new File(getPathToProject(name));
-		dir.mkdirs();
+		OctopusProject project = createOctopusProjectForName(name);
+		nameToProject.put(name, project);
 	}
 
 	public static void delete(String name)
@@ -72,8 +67,26 @@ public class ProjectManager {
 		if(projectsDir == null)
 			throw new RuntimeException("Error: projectDir not set");
 
+		deleteProjectWithName(name);
+	}
+
+	private static OctopusProject createOctopusProjectForName(String name)
+	{
+		String pathToProject = getPathToProject(name);
+		File dir = new File(pathToProject);
+		dir.mkdirs();
+
+		OctopusProject newProject = new OctopusProject();
+		newProject.setPathToProjectDir(pathToProject);
+		newProject.setDatabaseName(name);
+		return newProject;
+	}
+
+	private static void deleteProjectWithName(String name)
+	{
 		File dir = new File(getPathToProject(name));
 		dir.delete();
+		nameToProject.remove(name);
 	}
 
 }
