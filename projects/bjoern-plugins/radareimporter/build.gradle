@@ -2,6 +2,8 @@
 dependencies {
 
   compile project(':projects:bjoern-plugins:pluginlib')
+  compile project(':projects:radare2csv')
+  compile project(':projects:bjoern-r2interface')
   compile project(':projects:octopus')
 
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'

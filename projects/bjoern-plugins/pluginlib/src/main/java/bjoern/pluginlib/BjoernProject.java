@@ -28,4 +28,9 @@ public class BjoernProject {
 		return getPathToProjectDir() + File.separator + "binary";
 	}
 
+	public String getR2ProjectFilename()
+	{
+		return getPathToProjectDir() + File.separator + "radareproject";
+	}
+
 }

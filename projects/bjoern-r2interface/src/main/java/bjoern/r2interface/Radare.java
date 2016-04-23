@@ -46,6 +46,16 @@ public class Radare
 		r2Pipe.cmd("e asm.indentspace = 0");
 	}
 
+	public static void saveProject(String projectFilename) throws IOException
+	{
+		r2Pipe.cmd("Ps " + projectFilename);
+	}
+
+	public static void loadProject(String projectFilename) throws IOException
+	{
+		r2Pipe.cmd("Po " + projectFilename);
+	}
+
 	public static JSONArray getJSONFunctions() throws IOException
 	{
 		String str = r2Pipe.cmd("aflj");
