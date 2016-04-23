@@ -1,4 +1,4 @@
-package radareimporter;
+package bjoern.plugins.radareimporter;
 
 import org.json.JSONObject;
 
@@ -14,13 +14,13 @@ public class RadareImporterPlugin extends PluginAdapter {
 	public void configure(JSONObject settings)
 	{
 		projectName = settings.getString("projectName");
+		System.out.println(projectName);
 	}
 
 	@Override
 	public void execute() throws Exception
 	{
 		OctopusProject project = openProject();
-
 	}
 
 	private OctopusProject openProject()

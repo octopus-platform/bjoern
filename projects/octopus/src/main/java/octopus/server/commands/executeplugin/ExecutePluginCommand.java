@@ -65,6 +65,9 @@ public class ExecutePluginCommand extends OServerCommandAbstract
 
 	private void parseContent(String content)
 	{
+		if(content == null)
+			throw new RuntimeException("Error: no content");
+
 		JSONObject data = new JSONObject(content);
 		pluginName = data.getString("plugin");
 		pluginClass = data.getString("class");

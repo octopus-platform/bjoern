@@ -8,6 +8,16 @@ import urllib
 SERVER_HOST = 'localhost'
 SERVER_PORT = '2480'
 
+importerPluginJSON ="""{
+    "plugin": "radareimporter.jar",
+    "class": "bjoern.plugins.radareimporter.RadareImporterPlugin",
+    "settings": {
+        "projectName": "%s",
+    }
+}
+"""
+
+
 class BjoernRadareImporter:
     def __init__(self):
         pass
@@ -38,12 +48,12 @@ class BjoernRadareImporter:
 
         headers = {"Content-type": "text/plain;charset=us/ascii"}
         conn = self._getConnectionToServer()
-
         conn.request("POST", "/uploadfile/%s/binary" % (self.projectName), base64Content, headers)
         response = conn.getresponse()
 
     def executeImporterPlugin(self):
-        pass
+        conn = self._getConnectionToServer()
+        conn.request("POST", "/executeplugin/", importerPluginJSON % (self.projectName))
 
 def main(filename):
     importer = BjoernRadareImporter()

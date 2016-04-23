@@ -1,13 +1,12 @@
 package bjoern.pluginlib;
 
+import org.json.JSONObject;
+
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import octopus.server.Constants;
-import octopus.server.components.pluginInterface.IPlugin;
-
-import org.json.JSONObject;
 
 public abstract class OrientGraphConnectionPlugin extends PluginAdapter
 {
