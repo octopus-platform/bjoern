@@ -1,5 +1,7 @@
 package octopus.server.commands.manageprojects;
 
+import java.io.IOException;
+
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -17,7 +19,11 @@ public class ManageProjectsHandler extends OServerCommandAbstract
 	public ManageProjectsHandler(final OServerCommandConfiguration iConfiguration)
 	{
 		readConfiguration(iConfiguration);
-		ProjectManager.setProjectDir(projectsDir);
+		try {
+			ProjectManager.setProjectDir(projectsDir);
+		} catch (IOException e) {
+			throw new RuntimeException("Error opening project dir");
+		}
 	}
 
 	private void readConfiguration(OServerCommandConfiguration iConfiguration)

@@ -2,6 +2,7 @@ package bjoern.plugins.radareimporter;
 
 import org.json.JSONObject;
 
+import bjoern.pluginlib.BjoernProject;
 import bjoern.pluginlib.PluginAdapter;
 import octopus.server.components.projectmanager.OctopusProject;
 import octopus.server.components.projectmanager.ProjectManager;
@@ -20,16 +21,17 @@ public class RadareImporterPlugin extends PluginAdapter {
 	@Override
 	public void execute() throws Exception
 	{
-		OctopusProject project = openProject();
+		BjoernProject project = openProject();
+		System.out.println(project.getPathToBinary());
 	}
 
-	private OctopusProject openProject()
+	private BjoernProject openProject()
 	{
-		OctopusProject project = ProjectManager.getProjectByName(projectName);
-		if(project == null)
+		OctopusProject oProject = ProjectManager.getProjectByName(projectName);
+		if(oProject == null)
 			throw new RuntimeException("Error: project does not exist");
 
-		return project;
+		return new BjoernProject(oProject);
 	}
 
 	@Override

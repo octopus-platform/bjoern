@@ -1,5 +1,7 @@
 package bjoern.pluginlib;
 
+import java.io.File;
+
 import octopus.server.components.projectmanager.OctopusProject;
 
 public class BjoernProject {
@@ -19,6 +21,11 @@ public class BjoernProject {
 	public String getDatabaseName()
 	{
 		return oProject.getDatabaseName();
+	}
+
+	public String getPathToBinary()
+	{
+		return getPathToProjectDir() + File.separator + "binary";
 	}
 
 }

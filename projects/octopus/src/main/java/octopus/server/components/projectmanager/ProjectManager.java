@@ -1,6 +1,7 @@
 package octopus.server.components.projectmanager;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -11,9 +12,9 @@ public class ProjectManager {
 	private static String projectsDir;
 	private static Map<String, OctopusProject> nameToProject = new HashMap<String, OctopusProject>();
 
-	public static void setProjectDir(String newProjectsDir)
+	public static void setProjectDir(String newProjectsDir) throws IOException
 	{
-		projectsDir = new File(newProjectsDir).getAbsolutePath();
+		projectsDir = new File(newProjectsDir).getCanonicalPath();
 		openProjectsDir();
 		loadProjects();
 	}
