@@ -9,7 +9,7 @@ import bjoern.structures.interpretations.Function;
 
 public interface InputModule
 {
-	public void initialize(String filename) throws IOException;
+	public void initialize(String filename, String projectFilename) throws IOException;
 
 	public List<Function> getFunctions() throws IOException;
 

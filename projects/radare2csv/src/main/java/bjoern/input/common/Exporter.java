@@ -40,9 +40,10 @@ public abstract class Exporter
 
 		parseCommandLine(args);
 		String binaryFilename = cmdLine.getBinaryFilename();
+		String projectFilename = cmdLine.getProjectFilename();
 		String outputDir = cmdLine.getOutputDir();
 
-		tryToExport(binaryFilename, outputDir);
+		tryToExport(binaryFilename, outputDir, projectFilename);
 	}
 
 	protected void parseCommandLine(String[] args)
@@ -69,24 +70,24 @@ public abstract class Exporter
 		System.exit(1);
 	}
 
-	public void tryToExport(String binaryFilename, String outputDir)
+	public void tryToExport(String binaryFilename, String outputDir, String projectFilename)
 	{
 		try
 		{
-			export(binaryFilename, outputDir);
+			export(binaryFilename, outputDir, projectFilename);
 		} catch (IOException e)
 		{
 			printExceptionAndTerminate(e);
 		}
 	}
 
-	public void export(String binaryFilename, String outputDir)
+	public void export(String binaryFilename, String outputDir, String projectFilename)
 			throws IOException
 	{
 
 		logger.info("Exporting: {}", binaryFilename);
 
-		inputModule.initialize(binaryFilename);
+		inputModule.initialize(binaryFilename, projectFilename);
 		outputModule.initialize(outputDir);
 		export();
 		outputModule.finish();

@@ -8,6 +8,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import bjoern.input.common.InputModule;
+import bjoern.r2interface.Radare;
+import bjoern.r2interface.RadareDisassemblyParser;
+import bjoern.r2interface.creators.RadareFunctionContentCreator;
+import bjoern.r2interface.creators.RadareFunctionCreator;
+import bjoern.r2interface.exceptions.EmptyDisassembly;
+import bjoern.r2interface.exceptions.InvalidRadareFunction;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.Xref;
@@ -15,21 +21,20 @@ import bjoern.structures.interpretations.DisassembledFunction;
 import bjoern.structures.interpretations.DisassemblyLine;
 import bjoern.structures.interpretations.Function;
 import bjoern.structures.interpretations.FunctionContent;
-import bjoern.r2interface.Radare;
-import bjoern.r2interface.RadareDisassemblyParser;
-import bjoern.r2interface.creators.RadareFunctionContentCreator;
-import bjoern.r2interface.creators.RadareFunctionCreator;
-import bjoern.r2interface.exceptions.EmptyDisassembly;
-import bjoern.r2interface.exceptions.InvalidRadareFunction;
 
 public class RadareInputModule implements InputModule
 {
 
 	@Override
-	public void initialize(String filename) throws IOException
+	public void initialize(String filename, String projectFilename) throws IOException
 	{
 		Radare.loadBinary(filename);
-		Radare.analyzeBinary();
+
+		if(projectFilename != null){
+			Radare.loadProject(projectFilename);
+		}else{
+			Radare.analyzeBinary();
+		}
 	}
 
 	@Override
@@ -88,7 +93,7 @@ public class RadareInputModule implements InputModule
 				.createContentFromJSON(jsonFunctionContent, address);
 
 		jsonFunctionContent = null;
-		
+
 		generateDisassembly(address, disassemblyStr, content);
 		generateESILDisassembly(address, esilDisassemblyStr, content);
 
@@ -109,7 +114,7 @@ public class RadareInputModule implements InputModule
 
 	private void generateDisassembly(Long address, String disassemblyStr, FunctionContent content) {
 		try {
-			RadareDisassemblyParser parser = new RadareDisassemblyParser();		
+			RadareDisassemblyParser parser = new RadareDisassemblyParser();
 			DisassembledFunction func = parser.parseFunction(disassemblyStr, address);
 			content.setDisassembledFunction(func);
 		} catch (EmptyDisassembly e) {
@@ -145,8 +150,8 @@ public class RadareInputModule implements InputModule
 
 		for(Xref r : crossReferences)
 		{
-			if(r instanceof CallRef)	
-				initializeCallRefInstruction(r);			
+			if(r instanceof CallRef)
+				initializeCallRefInstruction(r);
 		}
 
 		return crossReferences;

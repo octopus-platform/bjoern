@@ -27,11 +27,11 @@ public class Radare
 	public static void loadBinary(String filename) throws IOException
 	{
 		r2Pipe = new R2Pipe(filename);
+		setRadareOptions();
 	}
 
 	public static void analyzeBinary() throws IOException
 	{
-		setRadareOptions();
 		r2Pipe.cmd("aaa");
 	}
 
@@ -54,6 +54,11 @@ public class Radare
 	public static void loadProject(String projectFilename) throws IOException
 	{
 		r2Pipe.cmd("Po " + projectFilename);
+		// This is a workaround: for some reason, when loading a
+		// project, r2 goes out of quiet mode
+		r2Pipe.cmd("e scr.interactive = false");
+		r2Pipe.cmd("e scr.prompt = false");
+		r2Pipe.cmd("e scr.color = false");
 	}
 
 	public static JSONArray getJSONFunctions() throws IOException

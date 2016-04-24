@@ -9,6 +9,7 @@ public class CommandLineInterface extends CommonCommandLineInterface
 
 	private String binaryFilename;
 	private String outputDir = ".";
+	private String projectFilename;
 
 	@Override
 	protected void initializeOptions()
@@ -27,6 +28,11 @@ public class CommandLineInterface extends CommonCommandLineInterface
 		return binaryFilename;
 	}
 
+	public String getProjectFilename()
+	{
+		return projectFilename;
+	}
+
 	public void parseCommandLine(String[] args) throws ParseException
 	{
 		if (args.length == 0)
@@ -39,6 +45,9 @@ public class CommandLineInterface extends CommonCommandLineInterface
 
 		String[] arguments = cmd.getArgs();
 		binaryFilename = arguments[0];
+		if(arguments.length > 1)
+			projectFilename = arguments[1];
+
 	}
 
 	public void printHelp()
