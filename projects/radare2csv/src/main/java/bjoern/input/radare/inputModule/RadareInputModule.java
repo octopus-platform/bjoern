@@ -1,6 +1,9 @@
 package bjoern.input.radare.inputModule;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -128,12 +131,20 @@ public class RadareInputModule implements InputModule
 	{
 		try
 		{
+			saveRadareProject();
 			Radare.shutdown();
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+	}
+
+	private void saveRadareProject() throws IOException
+	{
+		Path cwd = Paths.get(".").toAbsolutePath().normalize();
+		String projectFilename = cwd.toString() + File.separator + "radareProject";
+		Radare.saveProject(projectFilename);
 	}
 
 	@Override
