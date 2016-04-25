@@ -17,7 +17,6 @@ importerPluginJSON ="""{
 }
 """
 
-
 class BjoernRadareImporter:
     def __init__(self):
         pass
@@ -54,6 +53,8 @@ class BjoernRadareImporter:
     def executeImporterPlugin(self):
         conn = self._getConnectionToServer()
         conn.request("POST", "/executeplugin/", importerPluginJSON % (self.projectName))
+        response = conn.getresponse()
+        print(response)
 
 def main(filename):
     importer = BjoernRadareImporter()
