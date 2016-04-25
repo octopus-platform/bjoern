@@ -7,6 +7,12 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+
+import com.orientechnologies.orient.client.remote.OServerAdmin;
+
+import orientdbimporter.Constants;
+
 public class ProjectManager {
 
 	private static String projectsDir;
@@ -94,8 +100,21 @@ public class ProjectManager {
 	private static void deleteProjectWithName(String name)
 	{
 		File dir = new File(getPathToProject(name));
-		dir.delete();
-		nameToProject.remove(name);
+		try {
+			FileUtils.deleteDirectory(dir);
+			nameToProject.remove(name);
+			removeDatabase(name);
+		} catch (IOException e) {
+			throw new RuntimeException("IO Exception on delete");
+		}
+	}
+
+	private static void removeDatabase(String dbName) throws IOException
+	{
+		OServerAdmin admin;
+		admin = new OServerAdmin("localhost/" + dbName).connect(
+					Constants.DB_USERNAME, Constants.DB_PASSWORD);
+		admin.dropDatabase("plocal");
 	}
 
 }
