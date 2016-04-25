@@ -127,11 +127,11 @@ public class RadareInputModule implements InputModule
 	}
 
 	@Override
-	public void finish()
+	public void finish(String outputDir)
 	{
 		try
 		{
-			saveRadareProject();
+			saveRadareProject(outputDir);
 			Radare.shutdown();
 		}
 		catch (Exception e)
@@ -140,9 +140,9 @@ public class RadareInputModule implements InputModule
 		}
 	}
 
-	private void saveRadareProject() throws IOException
+	private void saveRadareProject(String outputDir) throws IOException
 	{
-		Path cwd = Paths.get(".").toAbsolutePath().normalize();
+		Path cwd = Paths.get(outputDir).toAbsolutePath().normalize();
 		String projectFilename = cwd.toString() + File.separator + "radareProject";
 		Radare.saveProject(projectFilename);
 	}

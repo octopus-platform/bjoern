@@ -1,12 +1,9 @@
 package bjoern.plugins.radareimporter;
 
-import java.io.IOException;
-
 import org.json.JSONObject;
 
 import bjoern.pluginlib.BjoernProject;
 import bjoern.pluginlib.PluginAdapter;
-import bjoern.r2interface.Radare;
 import octopus.server.components.projectmanager.OctopusProject;
 import octopus.server.components.projectmanager.ProjectManager;
 
@@ -26,24 +23,14 @@ public class RadareImporterPlugin extends PluginAdapter {
 	{
 		project = openProject();
 		String pathToBinary = project.getPathToBinary();
-		analysisBinaryWithR2(pathToBinary);
+		analyzeBinaryWithR2(pathToBinary);
 
 	}
 
-	private void analysisBinaryWithR2(String pathToBinary)
+	private void analyzeBinaryWithR2(String pathToBinary)
 	{
 		String radareProjectFilename = project.getR2ProjectFilename();
-		try {
-			System.out.println(pathToBinary);
-			Radare.loadBinary(pathToBinary);
-			Radare.analyzeBinary();
-			Radare.saveProject(radareProjectFilename);
-		} catch (IOException e) {
-			throw new RuntimeException("Error analyzing binary with r2");
-		}
 
-		// TODO: Export CSV files
-		// TODO: Import CSV files into the graph database.
 	}
 
 	private BjoernProject openProject()

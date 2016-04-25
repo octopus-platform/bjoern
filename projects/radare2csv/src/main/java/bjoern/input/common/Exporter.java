@@ -91,7 +91,7 @@ public abstract class Exporter
 		outputModule.initialize(outputDir);
 		export();
 		outputModule.finish();
-		inputModule.finish();
+		inputModule.finish(outputDir);
 	}
 
 }

@@ -46,6 +46,7 @@ public class CSVWriter
 	{
 		List<String> arr = new ArrayList<String>(nodeLineSet);
 		Collections.sort(arr);
+		Collections.reverse(arr);
 		for(String csvLine : arr){
 			nodeWriter.write(csvLine);
 		}
@@ -55,6 +56,7 @@ public class CSVWriter
 	{
 		List<String> arr = new ArrayList<String>(edgeLineSet);
 		Collections.sort(arr);
+		Collections.reverse(arr);
 		for(String csvLine : arr){
 			edgeWriter.write(csvLine);
 		}

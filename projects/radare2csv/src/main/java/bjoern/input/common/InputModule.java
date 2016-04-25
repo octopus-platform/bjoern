@@ -18,7 +18,7 @@ public interface InputModule
 	public void initializeFunctionContents(Function function)
 			throws IOException;
 
-	public void finish();
+	public void finish(String outputDir);
 
 	public List<Xref> getCrossReferences() throws IOException;
 
