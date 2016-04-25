@@ -20,6 +20,21 @@ task copyToLib(type: Copy) {
     from configurations.runtime 
 }
 
+task copyRadare2CSV(type: Copy) {
+    into "../octopus/jars"
+    from "$buildDir/libs/radare2csv.jar"
+}
+
+task copyLibsToOctopus(type: Copy) {
+     into "../octopus/jars"
+     from "jars"
+}
+
 copyToLib.dependsOn compileJava
 build.dependsOn copyToLib
 
+build.dependsOn copyRadare2CSV
+copyRadare2CSV.dependsOn compileJava
+
+build.dependsOn copyLibsToOctopus
+copyLibsToOctopus.dependsOn copyToLib

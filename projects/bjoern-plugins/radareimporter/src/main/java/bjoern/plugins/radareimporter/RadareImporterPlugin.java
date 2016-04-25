@@ -2,6 +2,7 @@ package bjoern.plugins.radareimporter;
 
 import org.json.JSONObject;
 
+import bjoern.input.radare.RadareExporter;
 import bjoern.pluginlib.BjoernProject;
 import bjoern.pluginlib.PluginAdapter;
 import octopus.server.components.projectmanager.OctopusProject;
@@ -29,8 +30,9 @@ public class RadareImporterPlugin extends PluginAdapter {
 
 	private void analyzeBinaryWithR2(String pathToBinary)
 	{
-		String radareProjectFilename = project.getR2ProjectFilename();
-
+		String pathToProjectDir = project.getPathToProjectDir();
+		RadareExporter radareExporter = new RadareExporter();
+		radareExporter.tryToExport(pathToBinary, pathToProjectDir, null);
 	}
 
 	private BjoernProject openProject()
