@@ -33,4 +33,14 @@ public class BjoernProject {
 		return getPathToProjectDir() + File.separator + "radareproject";
 	}
 
+	public String getNodeFilename()
+	{
+		return getPathToProjectDir() + File.separator + "nodes.csv";
+	}
+
+	public String getEdgeFilename()
+	{
+		return getPathToProjectDir() + File.separator + "edges.csv";
+	}
+
 }

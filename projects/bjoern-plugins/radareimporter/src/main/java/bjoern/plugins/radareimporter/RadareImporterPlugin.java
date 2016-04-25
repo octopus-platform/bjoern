@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import bjoern.input.radare.RadareExporter;
 import bjoern.pluginlib.BjoernProject;
 import bjoern.pluginlib.PluginAdapter;
+import octopus.server.components.orientdbImporter.ImportCSVRunnable;
+import octopus.server.components.orientdbImporter.ImportJob;
 import octopus.server.components.projectmanager.OctopusProject;
 import octopus.server.components.projectmanager.ProjectManager;
 
@@ -31,8 +33,16 @@ public class RadareImporterPlugin extends PluginAdapter {
 	private void analyzeBinaryWithR2(String pathToBinary)
 	{
 		String pathToProjectDir = project.getPathToProjectDir();
+		String nodeFilename = project.getNodeFilename();
+		String edgeFilename = project.getEdgeFilename();
+		String dbName = project.getDatabaseName();
+
 		RadareExporter radareExporter = new RadareExporter();
 		radareExporter.tryToExport(pathToBinary, pathToProjectDir, null);
+
+		ImportJob importJob = new ImportJob(nodeFilename, edgeFilename, dbName);
+		(new ImportCSVRunnable(importJob)).run();
+
 	}
 
 	private BjoernProject openProject()
