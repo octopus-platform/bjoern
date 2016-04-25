@@ -1,16 +1,21 @@
 package bjoern.input.common.outputModules.CSV;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import bjoern.nodeStore.Node;
 import bjoern.structures.BjoernNodeProperties;
 import orientdbimporter.CSVCommands;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Map;
 
 public class CSVWriter
 {
@@ -26,11 +31,36 @@ public class CSVWriter
 	static PrintWriter nodeWriter;
 	static PrintWriter edgeWriter;
 
+	static Set<String> nodeLineSet = new HashSet<String>();
+	static Set<String> edgeLineSet = new HashSet<String>();
+
 	public static void finish()
 	{
+		writeNodeFile();
+		writeEdgeFile();
 		closeEdgeFile();
 		closeNodeFile();
 	}
+
+	private static void writeNodeFile()
+	{
+		List<String> arr = new ArrayList<String>(nodeLineSet);
+		Collections.sort(arr);
+		for(String csvLine : arr){
+			nodeWriter.write(csvLine);
+		}
+	}
+
+	private static void writeEdgeFile()
+	{
+		List<String> arr = new ArrayList<String>(edgeLineSet);
+		Collections.sort(arr);
+		for(String csvLine : arr){
+			edgeWriter.write(csvLine);
+		}
+
+	}
+
 
 	public static void changeOutputDir(String dirNameForFileNode)
 	{
@@ -42,22 +72,33 @@ public class CSVWriter
 
 	public static void addNode(Node node, Map<String, Object> properties)
 	{
-		nodeWriter.write(CSVCommands.ADD);
-		writeNodeProperties(properties);
+		String csvLine = CSVCommands.ADD;
+		csvLine += generateNodePropertyString(properties);
+		nodeLineSet.add(csvLine);
 	}
 
-	private static void writeNodeProperties(Map<String, Object> properties)
+	public static void addNoReplaceNode(Node node,
+			Map<String, Object> properties)
 	{
+		String csvLine = CSVCommands.ADD_NO_REPLACE;
+		csvLine += generateNodePropertyString(properties);
+		nodeLineSet.add(csvLine);
+	}
+
+	private static String generateNodePropertyString(Map<String, Object> properties)
+	{
+		StringBuilder sb = new StringBuilder();
 		for (String property : nodeProperties)
 		{
-			nodeWriter.write(SEPARATOR);
+			sb.append(SEPARATOR);
 			String propValue = (String) properties.get(property);
 			if (propValue != null)
 			{
-				nodeWriter.write(escape(propValue));
+				sb.append(escape(propValue));
 			}
 		}
-		nodeWriter.write("\n");
+		sb.append("\n");
+		return sb.toString();
 	}
 
 	private static String escape(String propValue)
@@ -69,13 +110,17 @@ public class CSVWriter
 	public static void addEdge(String srcKey, String dstKey,
 			Map<String, Object> properties, String edgeType)
 	{
-		edgeWriter.print(srcKey);
-		edgeWriter.print(SEPARATOR);
-		edgeWriter.print(dstKey);
-		edgeWriter.print(SEPARATOR);
-		edgeWriter.print(edgeType);
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(srcKey);
+		sb.append(SEPARATOR);
+		sb.append(dstKey);
+		sb.append(SEPARATOR);
+		sb.append(edgeType);
 		// TODO: add properties
-		edgeWriter.print("\n");
+		sb.append("\n");
+
+		edgeLineSet.add(sb.toString());
 	}
 
 	private static void openNodeFile(String outDir)
@@ -133,13 +178,6 @@ public class CSVWriter
 		if (edgeWriter != null)
 			edgeWriter.close();
 
-	}
-
-	public static void addNoReplaceNode(Node node,
-			Map<String, Object> properties)
-	{
-		nodeWriter.write(CSVCommands.ADD_NO_REPLACE);
-		writeNodeProperties(properties);
 	}
 
 }
