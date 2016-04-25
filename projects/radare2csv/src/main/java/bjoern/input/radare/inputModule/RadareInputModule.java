@@ -28,15 +28,17 @@ import bjoern.structures.interpretations.FunctionContent;
 public class RadareInputModule implements InputModule
 {
 
+	private Radare radare = new Radare();
+
 	@Override
 	public void initialize(String filename, String projectFilename) throws IOException
 	{
-		Radare.loadBinary(filename);
+		radare.loadBinary(filename);
 
 		if(projectFilename != null){
-			Radare.loadProject(projectFilename);
+			radare.loadProject(projectFilename);
 		}else{
-			Radare.analyzeBinary();
+			radare.analyzeBinary();
 		}
 	}
 
@@ -44,7 +46,7 @@ public class RadareInputModule implements InputModule
 	public List<Function> getFunctions() throws IOException
 	{
 		List<Function> retval = new LinkedList<Function>();
-		JSONArray jsonFunctions = Radare.getJSONFunctions();
+		JSONArray jsonFunctions = radare.getJSONFunctions();
 		int nFunctions = jsonFunctions.length();
 		for (int i = 0; i < nFunctions; i++)
 		{
@@ -61,9 +63,9 @@ public class RadareInputModule implements InputModule
 	public List<Flag> getFlags() throws IOException
 	{
 		List<Flag> retval = new LinkedList<Flag>();
-		Radare.askForFlags();
+		radare.askForFlags();
 		Flag flag;
-		while ((flag = Radare.getNextFlag()) != null)
+		while ((flag = radare.getNextFlag()) != null)
 		{
 			retval.add(flag);
 		}
@@ -81,11 +83,11 @@ public class RadareInputModule implements InputModule
 
 		try
 		{
-			jsonFunctionContent = Radare.getJSONFunctionContentAt(address);
-			disassemblyStr = Radare.getDisassemblyForFunctionAt(address);
-			Radare.enableEsil();
-			esilDisassemblyStr = Radare.getDisassemblyForFunctionAt(address);
-			Radare.disableEsil();
+			jsonFunctionContent = radare.getJSONFunctionContentAt(address);
+			disassemblyStr = radare.getDisassemblyForFunctionAt(address);
+			radare.enableEsil();
+			esilDisassemblyStr = radare.getDisassemblyForFunctionAt(address);
+			radare.disableEsil();
 		}
 		catch (InvalidRadareFunction e)
 		{
@@ -132,7 +134,7 @@ public class RadareInputModule implements InputModule
 		try
 		{
 			saveRadareProject(outputDir);
-			Radare.shutdown();
+			radare.shutdown();
 		}
 		catch (Exception e)
 		{
@@ -144,17 +146,17 @@ public class RadareInputModule implements InputModule
 	{
 		Path cwd = Paths.get(outputDir).toAbsolutePath().normalize();
 		String projectFilename = cwd.toString() + File.separator + "radareProject";
-		Radare.saveProject(projectFilename);
+		radare.saveProject(projectFilename);
 	}
 
 	@Override
 	public List<Xref> getCrossReferences() throws IOException
 	{
 		List<Xref> crossReferences = new LinkedList<Xref>();
-		Radare.askForCrossReferences();
+		radare.askForCrossReferences();
 		List<Xref> xefs;
 
-		while ((xefs = Radare.getNextCrossReferences()) != null)
+		while ((xefs = radare.getNextCrossReferences()) != null)
 		{
 			crossReferences.addAll(xefs);
 		}
@@ -172,7 +174,7 @@ public class RadareInputModule implements InputModule
 	{
 		CallRef callRef = (CallRef) xref;
 		long addr = callRef.getSourceKey().getAddress();
-		String line = Radare.getDisassemblyForInstructionAt(addr);
+		String line = radare.getDisassemblyForInstructionAt(addr);
 		RadareDisassemblyParser parser = new RadareDisassemblyParser();
 		DisassemblyLine parsedInstruction = parser.parseInstruction(line);
 		callRef.setDisassemblyLine(parsedInstruction);

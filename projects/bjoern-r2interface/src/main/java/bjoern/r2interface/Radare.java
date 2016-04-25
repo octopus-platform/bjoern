@@ -20,22 +20,22 @@ import bjoern.structures.edges.Xref;
 
 public class Radare
 {
-	static R2Pipe r2Pipe;
+	R2Pipe r2Pipe;
 
 	private static final Logger logger = LoggerFactory.getLogger(Radare.class);
 
-	public static void loadBinary(String filename) throws IOException
+	public void loadBinary(String filename) throws IOException
 	{
 		r2Pipe = new R2Pipe(filename);
 		setRadareOptions();
 	}
 
-	public static void analyzeBinary() throws IOException
+	public void analyzeBinary() throws IOException
 	{
 		r2Pipe.cmd("aaa");
 	}
 
-	private static void setRadareOptions() throws IOException
+	private void setRadareOptions() throws IOException
 	{
 		r2Pipe.cmd("e scr.color = false");
 		r2Pipe.cmd("e asm.bytes = false");
@@ -46,12 +46,12 @@ public class Radare
 		r2Pipe.cmd("e asm.indentspace = 0");
 	}
 
-	public static void saveProject(String projectFilename) throws IOException
+	public void saveProject(String projectFilename) throws IOException
 	{
 		r2Pipe.cmd("Ps " + projectFilename);
 	}
 
-	public static void loadProject(String projectFilename) throws IOException
+	public void loadProject(String projectFilename) throws IOException
 	{
 		r2Pipe.cmd("Po " + projectFilename);
 		// This is a workaround: for some reason, when loading a
@@ -61,13 +61,13 @@ public class Radare
 		r2Pipe.cmd("e scr.color = false");
 	}
 
-	public static JSONArray getJSONFunctions() throws IOException
+	public JSONArray getJSONFunctions() throws IOException
 	{
 		String str = r2Pipe.cmd("aflj");
 		return new JSONArray(str);
 	}
 
-	public static JSONObject getJSONFunctionContentAt(Long addr)
+	public JSONObject getJSONFunctionContentAt(Long addr)
 			throws InvalidRadareFunction, IOException
 	{
 
@@ -89,7 +89,7 @@ public class Radare
 		return jsonArray.getJSONObject(0);
 	}
 
-	public static String getDisassemblyForFunctionAt(Long addr)
+	public String getDisassemblyForFunctionAt(Long addr)
 			throws IOException
 	{
 		// It would be much nicer if we could obtain an array representing the
@@ -98,23 +98,23 @@ public class Radare
 		return r2Pipe.cmd(cmd);
 	}
 
-	public static String getDisassemblyForInstructionAt(Long addr) throws IOException
+	public String getDisassemblyForInstructionAt(Long addr) throws IOException
 	{
 		String cmd = "pd 1 @" + Long.toUnsignedString(addr);
 		return r2Pipe.cmd(cmd).trim();
 	}
 
-	public static void shutdown() throws Exception
+	public void shutdown() throws Exception
 	{
 		r2Pipe.quit();
 	}
 
-	public static void askForFlags() throws IOException
+	public void askForFlags() throws IOException
 	{
 		r2Pipe.cmdNoResponse("f");
 	}
 
-	public static Flag getNextFlag() throws IOException
+	public Flag getNextFlag() throws IOException
 	{
 		String nextLine = r2Pipe.readNextLine();
 		if (nextLine.length() == 0 || nextLine.endsWith("\0"))
@@ -122,7 +122,7 @@ public class Radare
 		return createFlagFromLine(nextLine);
 	}
 
-	private static Flag createFlagFromLine(String line)
+	private Flag createFlagFromLine(String line)
 	{
 		Flag flag = new Flag();
 
@@ -144,14 +144,14 @@ public class Radare
 		return flag;
 	}
 
-	public static void askForCrossReferences() throws IOException
+	public void askForCrossReferences() throws IOException
 	{
 		r2Pipe.cmdNoResponse("ax");
 		// skip first line
 		r2Pipe.readNextLine();
 	}
 
-	public static List<Xref> getNextCrossReferences() throws IOException
+	public List<Xref> getNextCrossReferences() throws IOException
 	{
 		while(true){
 			String nextLine = r2Pipe.readNextLine();
@@ -166,34 +166,34 @@ public class Radare
 		}
 	}
 
-	public static void enableEsil() throws IOException
+	public void enableEsil() throws IOException
 	{
 		r2Pipe.cmd("e asm.esil=true");
 	}
 
-	public static void disableEsil() throws IOException
+	public void disableEsil() throws IOException
 	{
 		r2Pipe.cmd("e asm.esil=false");
 	}
 
-	public static void resetEsilState() throws IOException
+	public void resetEsilState() throws IOException
 	{
 		r2Pipe.cmd("ar0");
 		r2Pipe.cmd("aei");
 		r2Pipe.cmd("aeim");
 	}
 
-	public static void runEsilCode(String esilCode) throws IOException
+	public void runEsilCode(String esilCode) throws IOException
 	{
 		r2Pipe.cmd(String.format("\"ae %s\"", esilCode));
 	}
 
-	public static String getRegisterValue(String registerStr) throws IOException
+	public String getRegisterValue(String registerStr) throws IOException
 	{
 		return r2Pipe.cmd(String.format("ar %s", registerStr));
 	}
 
-	private static List<Xref> createXrefsFromLine(String line)
+	private List<Xref> createXrefsFromLine(String line)
 	{
 
 		String[] parts = line.split("=");
@@ -226,7 +226,7 @@ public class Radare
 		return retval;
 	}
 
-	private static CallRef createCallRef(Long dest, Long source)
+	private CallRef createCallRef(Long dest, Long source)
 	{
 		CallRef xref = new CallRef();
 		xref.setType(EdgeTypes.CALL);
