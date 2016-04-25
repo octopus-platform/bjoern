@@ -54,7 +54,6 @@ class BjoernRadareImporter:
         conn = self._getConnectionToServer()
         conn.request("POST", "/executeplugin/", importerPluginJSON % (self.projectName))
         response = conn.getresponse()
-        print(response)
 
 def main(filename):
     importer = BjoernRadareImporter()

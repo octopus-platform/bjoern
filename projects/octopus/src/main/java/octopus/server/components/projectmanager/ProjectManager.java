@@ -44,6 +44,11 @@ public class ProjectManager {
 		nameToProject.put(projectName, newProject);
 	}
 
+	public static boolean doesProjectExist(String name)
+	{
+		return nameToProject.containsKey(name);
+	}
+
 	public static OctopusProject getProjectByName(String name)
 	{
 		return nameToProject.get(name);
@@ -58,6 +63,9 @@ public class ProjectManager {
 	{
 		if(projectsDir == null)
 			throw new RuntimeException("Error: projectDir not set");
+
+		if(doesProjectExist(name))
+			throw new RuntimeException("Project already exists");
 
 		OctopusProject project = createOctopusProjectForName(name);
 		nameToProject.put(name, project);
