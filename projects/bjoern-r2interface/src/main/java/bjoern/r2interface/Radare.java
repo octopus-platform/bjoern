@@ -1,6 +1,7 @@
 package bjoern.r2interface;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -233,6 +234,25 @@ public class Radare
 		xref.setSourceKey(new NodeKey(source, NodeTypes.INSTRUCTION));
 		xref.setDestKey(new NodeKey(dest, NodeTypes.ROOT));
 		return xref;
+	}
+
+	public List<String> getRegistersWritten(Long addr) throws IOException
+	{
+		String cmd = "aeaw @ " + Long.toUnsignedString(addr);
+		return cmdAndSplitResultAtWhitespace(cmd);
+	}
+
+	public List<String> getRegistersRead(Long addr) throws IOException
+	{
+		String cmd = "aear @ " + Long.toUnsignedString(addr);
+		return cmdAndSplitResultAtWhitespace(cmd);
+	}
+
+	private List<String> cmdAndSplitResultAtWhitespace(String cmd) throws IOException
+	{
+		String registers = r2Pipe.cmd(cmd);
+		String[] registersAr = registers.split(" ");
+		return Arrays.asList(registersAr);
 	}
 
 }
