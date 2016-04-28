@@ -9,6 +9,7 @@ include 'projects:bjoern-plugins:instructionlinker'
 include 'projects:bjoern-plugins:radareimporter'
 include 'projects:bjoern-plugins:paramdetect'
 include 'projects:bjoern-plugins:alocs'
+include 'projects:bjoern-plugins:vsa'
 
 include 'projects:octopus-lang'
 include 'projects:bjoern-lang'
