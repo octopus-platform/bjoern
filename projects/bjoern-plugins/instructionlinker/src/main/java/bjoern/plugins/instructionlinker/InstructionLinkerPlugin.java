@@ -5,7 +5,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import bjoern.pluginlib.GraphOperations;
 import bjoern.pluginlib.LookupOperations;
-import bjoern.pluginlib.OrientGraphConnectionPlugin;
+import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.structures.edges.EdgeTypes;
@@ -21,7 +21,7 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	@Override
 	public void execute() throws Exception
 	{
-		graph = getNoTxGraphInstance();
+		graph = orientConnector.getNoTxGraphInstance();
 
 		Iterable<Vertex> iterable = LookupOperations.getAllBasicBlocks(graph);
 

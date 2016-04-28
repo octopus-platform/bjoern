@@ -16,7 +16,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command
 		.OServerCommandAbstract;
 
-import octopus.server.components.pluginInterface.IPlugin;
+import octopus.server.components.pluginInterface.Plugin;
 import octopus.server.components.pluginInterface.PluginLoader;
 
 public class ExecutePluginCommand extends OServerCommandAbstract
@@ -77,7 +77,7 @@ public class ExecutePluginCommand extends OServerCommandAbstract
 	private void executePlugin()
 	{
 		Path path = Paths.get(pluginDir, pluginName);
-		IPlugin plugin = PluginLoader.load(path, pluginClass);
+		Plugin plugin = PluginLoader.load(path, pluginClass);
 
 		if (plugin == null)
 		{

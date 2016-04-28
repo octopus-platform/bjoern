@@ -25,7 +25,7 @@ import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
 import bjoern.pluginlib.LookupOperations;
-import bjoern.pluginlib.OrientGraphConnectionPlugin;
+import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
 import bjoern.plugins.functionexporter.io.dot.DotWriter;
 
 public class FunctionExportPlugin extends OrientGraphConnectionPlugin
@@ -111,7 +111,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 	@Override
 	public void execute() throws Exception
 	{
-		OrientGraphNoTx graph = getNoTxGraphInstance();
+		OrientGraphNoTx graph = orientConnector.getNoTxGraphInstance();
 
 		Iterable<Vertex> functions = LookupOperations.getAllFunctions(graph);
 
@@ -131,7 +131,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 			@Override
 			public void run()
 			{
-				Graph graph = getNoTxGraphInstance();
+				Graph graph = orientConnector.getNoTxGraphInstance();
 				try
 				{
 					Vertex functionRoot = graph.getVertex(vertex);

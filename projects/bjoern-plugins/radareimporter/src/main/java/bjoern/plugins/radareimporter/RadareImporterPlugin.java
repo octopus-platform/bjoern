@@ -1,90 +1,40 @@
 package bjoern.plugins.radareimporter;
 
-import java.io.IOException;
-
-import org.json.JSONObject;
-
-import com.orientechnologies.orient.client.remote.OServerAdmin;
-
 import bjoern.input.radare.RadareExporter;
-import bjoern.pluginlib.BjoernProject;
-import bjoern.pluginlib.PluginAdapter;
+import bjoern.pluginlib.plugintypes.BjoernProjectPlugin;
 import octopus.server.components.orientdbImporter.ImportCSVRunnable;
 import octopus.server.components.orientdbImporter.ImportJob;
-import octopus.server.components.projectmanager.OctopusProject;
-import octopus.server.components.projectmanager.ProjectManager;
-import orientdbimporter.Constants;
 
-public class RadareImporterPlugin extends PluginAdapter {
-
-	String projectName;
-	private BjoernProject project;
-
-	@Override
-	public void configure(JSONObject settings)
-	{
-		projectName = settings.getString("projectName");
-	}
+public class RadareImporterPlugin extends BjoernProjectPlugin {
 
 	@Override
 	public void execute() throws Exception
 	{
-		project = openProject();
-		String pathToBinary = project.getPathToBinary();
-		analyzeBinaryWithR2(pathToBinary);
-
+		raiseIfDatabaseForProjectExists();
+		extractCSVFilesFromBinary();
+		importCSVFilesIntoDatabase();
 	}
 
-	private void analyzeBinaryWithR2(String pathToBinary)
+	private void extractCSVFilesFromBinary()
 	{
-		String pathToProjectDir = project.getPathToProjectDir();
-		String nodeFilename = project.getNodeFilename();
-		String edgeFilename = project.getEdgeFilename();
-		String dbName = project.getDatabaseName();
-
-		boolean databaseExists = doesDatabaseExist(dbName);
-		if(databaseExists)
-			throw new RuntimeException("Database already exists. Skipping.");
-
+		String pathToBinary = bjoernProjectConnector.getProject().getPathToBinary();
+		String pathToProjectDir = bjoernProjectConnector.getProject().getPathToProjectDir();
 		RadareExporter radareExporter = new RadareExporter();
 		radareExporter.tryToExport(pathToBinary, pathToProjectDir, null);
+	}
 
-		ImportJob importJob = new ImportJob(nodeFilename, edgeFilename, dbName);
+	private void importCSVFilesIntoDatabase()
+	{
+		ImportJob importJob = createImportJobForProject();
 		(new ImportCSVRunnable(importJob)).run();
-
 	}
 
-	private boolean doesDatabaseExist(String dbName)
+	private ImportJob createImportJobForProject()
 	{
-		try {
-			return new OServerAdmin("localhost/" + dbName).connect(
-					Constants.DB_USERNAME, Constants.DB_PASSWORD).existsDatabase();
-
-		} catch (IOException e) {
-			throw new RuntimeException("Error determining whether database exists");
-		}
-
-	}
-
-	private BjoernProject openProject()
-	{
-		OctopusProject oProject = ProjectManager.getProjectByName(projectName);
-		if(oProject == null)
-			throw new RuntimeException("Error: project does not exist");
-
-		return new BjoernProject(oProject);
-	}
-
-	@Override
-	public void beforeExecution() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void afterExecution() throws Exception {
-		// TODO Auto-generated method stub
-
+		String dbName = bjoernProjectConnector.getProject().getDatabaseName();
+		String nodeFilename = bjoernProjectConnector.getProject().getNodeFilename();
+		String edgeFilename = bjoernProjectConnector.getProject().getEdgeFilename();
+		return new ImportJob(nodeFilename, edgeFilename, dbName);
 	}
 
 }

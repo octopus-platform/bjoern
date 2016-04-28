@@ -248,6 +248,15 @@ public class Radare
 		return cmdAndSplitResultAtWhitespace(cmd);
 	}
 
+	public List<String> getRegistersUsedByFunc(Long addr) throws IOException
+	{
+		String cmd = "aeaf @ " + Long.toUnsignedString(addr);
+		String returnedString = r2Pipe.cmd(cmd);
+		String[] lines = returnedString.split("\n");
+		String allRegisters = lines[0].substring(3, lines[0].length() - 1);
+		return Arrays.asList(allRegisters.split(" "));
+	}
+
 	private List<String> cmdAndSplitResultAtWhitespace(String cmd) throws IOException
 	{
 		String registers = r2Pipe.cmd(cmd);

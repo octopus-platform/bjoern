@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public class PluginLoader
 {
-	public static IPlugin load(Path pathToJar, String pluginClass)
+	public static Plugin load(Path pathToJar, String pluginClass)
 	{
 		ClassLoader parentClassLoader = PluginClassLoader.class
 				.getClassLoader();
@@ -16,7 +16,7 @@ public class PluginLoader
 		Class<?> myObjectClass = classLoader.loadClass(pluginClass);
 		try
 		{
-			return (IPlugin) myObjectClass.newInstance();
+			return (Plugin) myObjectClass.newInstance();
 		} catch (Exception e)
 		{
 			return null;
