@@ -30,7 +30,7 @@ public class BjoernProject {
 
 	public String getR2ProjectFilename()
 	{
-		return getPathToProjectDir() + File.separator + "radareproject";
+		return getPathToProjectDir() + File.separator + "radareProject";
 	}
 
 	public String getNodeFilename()

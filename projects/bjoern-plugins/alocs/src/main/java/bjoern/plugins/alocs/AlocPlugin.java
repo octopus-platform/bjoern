@@ -5,24 +5,19 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
-import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
+import bjoern.pluginlib.plugintypes.RadareProjectPlugin;
 import bjoern.pluginlib.structures.BasicBlock;
-import bjoern.r2interface.Radare;
 
-public class AlocPlugin extends OrientGraphConnectionPlugin{
+public class AlocPlugin extends RadareProjectPlugin {
 
-	Radare radare;
 
 	@Override
 	public void execute() throws Exception
 	{
+		System.out.println("reached");
 		OrientGraphNoTx graph = orientConnector.getNoTxGraphInstance();
-
-		radare = new Radare();
-
-		Iterable<Vertex> functions = LookupOperations.getAllFunctions(graph);
-		createAlocsForFunctions(functions);
-
+		Iterable<Vertex> allFunctions = LookupOperations.getAllFunctions(graph);
+		createAlocsForFunctions(allFunctions);
 		graph.shutdown();
 	}
 
@@ -45,6 +40,12 @@ public class AlocPlugin extends OrientGraphConnectionPlugin{
 		// database nodes.
 
 		// Next, determine registers read/written for each basic block
+
+		String addr = vertex.getProperty("addr");
+		System.out.println(addr);
+
+		// radare.getRegistersUsedByFunc(addr)
+
 
 		BasicBlock entryBlock = Traversals.functionToEntryBlock(vertex);
 		if(entryBlock == null){
