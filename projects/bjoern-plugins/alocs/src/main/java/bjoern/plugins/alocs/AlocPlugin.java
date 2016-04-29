@@ -1,5 +1,8 @@
 package bjoern.plugins.alocs;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
@@ -14,7 +17,6 @@ public class AlocPlugin extends RadareProjectPlugin {
 	@Override
 	public void execute() throws Exception
 	{
-		System.out.println("reached");
 		OrientGraphNoTx graph = orientConnector.getNoTxGraphInstance();
 		Iterable<Vertex> allFunctions = LookupOperations.getAllFunctions(graph);
 		createAlocsForFunctions(allFunctions);
@@ -42,9 +44,7 @@ public class AlocPlugin extends RadareProjectPlugin {
 		// Next, determine registers read/written for each basic block
 
 		String addr = vertex.getProperty("addr");
-		System.out.println(addr);
-
-		// radare.getRegistersUsedByFunc(addr)
+		createNodesForRegistersUsedByFunction(addr);
 
 
 		BasicBlock entryBlock = Traversals.functionToEntryBlock(vertex);
@@ -53,6 +53,16 @@ public class AlocPlugin extends RadareProjectPlugin {
 			return;
 		}
 
+	}
+
+	private void createNodesForRegistersUsedByFunction(String addr)
+	{
+		try {
+			List<String> registers = radare.getRegistersUsedByFunc(addr);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

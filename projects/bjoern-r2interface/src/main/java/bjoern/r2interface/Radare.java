@@ -236,21 +236,21 @@ public class Radare
 		return xref;
 	}
 
-	public List<String> getRegistersWritten(Long addr) throws IOException
+	public List<String> getRegistersWritten(String addr) throws IOException
 	{
-		String cmd = "aeaw @ " + Long.toUnsignedString(addr);
+		String cmd = "aeaw @ " + addr;
 		return cmdAndSplitResultAtWhitespace(cmd);
 	}
 
-	public List<String> getRegistersRead(Long addr) throws IOException
+	public List<String> getRegistersRead(String addr) throws IOException
 	{
-		String cmd = "aear @ " + Long.toUnsignedString(addr);
+		String cmd = "aear @ " + addr;
 		return cmdAndSplitResultAtWhitespace(cmd);
 	}
 
-	public List<String> getRegistersUsedByFunc(Long addr) throws IOException
+	public List<String> getRegistersUsedByFunc(String addr) throws IOException
 	{
-		String cmd = "aeaf @ " + Long.toUnsignedString(addr);
+		String cmd = "aeaf @ " + addr;
 		String returnedString = r2Pipe.cmd(cmd);
 		String[] lines = returnedString.split("\n");
 		String allRegisters = lines[0].substring(3, lines[0].length() - 1);
