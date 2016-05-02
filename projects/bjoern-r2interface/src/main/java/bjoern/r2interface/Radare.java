@@ -245,21 +245,25 @@ public class Radare
 	public List<String> getRegistersRead(String addr) throws IOException
 	{
 		String cmd = "aear @ " + addr;
+		System.out.println(cmd);
 		return cmdAndSplitResultAtWhitespace(cmd);
 	}
 
 	public List<String> getRegistersUsedByFunc(String addr) throws IOException
 	{
 		String cmd = "aeaf @ " + addr;
-		String returnedString = r2Pipe.cmd(cmd);
+		String returnedString = r2Pipe.cmd(cmd).trim();
 		String[] lines = returnedString.split("\n");
-		String allRegisters = lines[0].substring(3, lines[0].length() - 1);
+		String allRegisters = lines[0].substring(3, lines[0].length());
 		return Arrays.asList(allRegisters.split(" "));
 	}
 
 	private List<String> cmdAndSplitResultAtWhitespace(String cmd) throws IOException
 	{
-		String registers = r2Pipe.cmd(cmd);
+		String registers = r2Pipe.cmd(cmd).trim();
+		if(registers.length() == 0)
+			return new LinkedList<String>();
+
 		String[] registersAr = registers.split(" ");
 		return Arrays.asList(registersAr);
 	}
