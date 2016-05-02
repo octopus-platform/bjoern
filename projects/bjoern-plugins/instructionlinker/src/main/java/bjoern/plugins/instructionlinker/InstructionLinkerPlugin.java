@@ -50,7 +50,7 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	{
 		Instruction src = srcBlock.getExit();
 		Instruction dst = dstBlock.getEntry();
-		GraphOperations.addEdge(graph, src, dst);
+		GraphOperations.addEdge(graph, src, dst, GraphOperations.INSTR_CFLOW_EDGE);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 		{
 			Instruction src = block.getInstructions().get(i - 1);
 			Instruction dst = block.getInstructions().get(i);
-			GraphOperations.addEdge(graph, src, dst);
+			GraphOperations.addEdge(graph, src, dst, GraphOperations.INSTR_CFLOW_EDGE);
 		}
 	}
 

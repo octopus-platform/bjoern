@@ -14,6 +14,7 @@ import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.plugintypes.RadareProjectPlugin;
 import bjoern.pluginlib.structures.BasicBlock;
+import bjoern.pluginlib.structures.Node;
 import bjoern.structures.BjoernNodeProperties;
 
 public class AlocPlugin extends RadareProjectPlugin {
@@ -64,18 +65,27 @@ public class AlocPlugin extends RadareProjectPlugin {
 		// Determine all registers written by the function
 	}
 
-	private void createNodesForRegistersUsedByFunction(Vertex vertex) throws IOException
+	private void createNodesForRegistersUsedByFunction(Vertex functionVertex) throws IOException
 	{
-		String functionAddr = vertex.getProperty("addr");
+		String functionAddr = functionVertex.getProperty("addr");
 		List<String> registers = radare.getRegistersUsedByFunc(functionAddr);
 		for(String register : registers)
 		{
-			createRegisterNodeForFunctionAndRegister(functionAddr, register);
+			Vertex registerVertex = createRegisterNodeForFunctionAndRegister(functionAddr, register);
+			linkFunctionAndRegister(functionVertex, registerVertex);
 		}
 
 	}
 
-	private void createRegisterNodeForFunctionAndRegister(String functionAddr, String register)
+	private void linkFunctionAndRegister(Vertex functionVertex, Vertex registerVertex)
+	{
+		Node functionNode = new Node(functionVertex);
+		Node registerNode = new Node(registerVertex);
+
+		GraphOperations.addEdge(graph, functionNode, registerNode, GraphOperations.INSTR_CFLOW_EDGE);
+	}
+
+	private Vertex createRegisterNodeForFunctionAndRegister(String functionAddr, String register)
 	{
 		Map<String, String> properties = new HashMap<String,String>();
 
@@ -83,7 +93,7 @@ public class AlocPlugin extends RadareProjectPlugin {
 		properties.put(BjoernNodeProperties.TYPE, NodeTypes.ALOC);
 		properties.put(BjoernNodeProperties.NAME, register);
 
-		GraphOperations.addNode(graph, properties);
+		return GraphOperations.addNode(graph, properties);
 	}
 
 }

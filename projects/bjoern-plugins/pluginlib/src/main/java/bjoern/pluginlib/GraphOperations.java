@@ -8,11 +8,12 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 
-import bjoern.pluginlib.structures.Instruction;
+import bjoern.pluginlib.structures.Node;
 
 public class GraphOperations {
 
-	private final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
+	public final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
+	public final static String ALOC_USE_EDGE = "ALOC_USE_EDGE";
 
 
 	/**
@@ -23,10 +24,10 @@ public class GraphOperations {
 	 * @param src the source of the edge
 	 * @param dst the destination of the edge
 	 */
-	public static void addEdge(Graph graph, Instruction src, Instruction dst)
+	public static void addEdge(Graph graph, Node src, Node dst, String edgeType)
 	{
 		for (Edge edge : src.getNode().getEdges(Direction.OUT,
-				INSTR_CFLOW_EDGE))
+				edgeType))
 		{
 			if (edge.getVertex(Direction.IN).equals(dst.getNode()))
 			{
