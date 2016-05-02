@@ -14,6 +14,7 @@ import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.plugintypes.RadareProjectPlugin;
 import bjoern.pluginlib.structures.BasicBlock;
+import bjoern.pluginlib.structures.Instruction;
 import bjoern.pluginlib.structures.Node;
 import bjoern.structures.BjoernNodeProperties;
 
@@ -45,27 +46,21 @@ public class AlocPlugin extends RadareProjectPlugin {
 	{
 		createRegisterAlocs(vertex);
 
-		BasicBlock entryBlock = Traversals.functionToEntryBlock(vertex);
-		if(entryBlock == null){
+		try{
+			BasicBlock entryBlock = Traversals.functionToEntryBlock(vertex);
+		} catch(RuntimeException ex) {
 			System.err.println("Warning: function without entry block");
 			return;
 		}
-
 	}
 
 	private void createRegisterAlocs(Vertex vertex) throws IOException
 	{
-		createNodesForRegistersUsedByFunction(vertex);
-		createReadAndWriteEdgesFromFunctions(vertex);
+		createNodesForAllRegistersUsedByFunction(vertex);
+		createEdgesFromInstructionsToAlocs(vertex);
 	}
 
-	private void createReadAndWriteEdgesFromFunctions(Vertex vertex)
-	{
-		// Determine all registers read by the function
-		// Determine all registers written by the function
-	}
-
-	private void createNodesForRegistersUsedByFunction(Vertex functionVertex) throws IOException
+	private void createNodesForAllRegistersUsedByFunction(Vertex functionVertex) throws IOException
 	{
 		String functionAddr = functionVertex.getProperty("addr");
 		List<String> registers = radare.getRegistersUsedByFunc(functionAddr);
@@ -82,7 +77,7 @@ public class AlocPlugin extends RadareProjectPlugin {
 		Node functionNode = new Node(functionVertex);
 		Node registerNode = new Node(registerVertex);
 
-		GraphOperations.addEdge(graph, functionNode, registerNode, GraphOperations.INSTR_CFLOW_EDGE);
+		GraphOperations.addEdge(graph, functionNode, registerNode, GraphOperations.ALOC_USE_EDGE);
 	}
 
 	private Vertex createRegisterNodeForFunctionAndRegister(String functionAddr, String register)
@@ -94,6 +89,19 @@ public class AlocPlugin extends RadareProjectPlugin {
 		properties.put(BjoernNodeProperties.NAME, register);
 
 		return GraphOperations.addNode(graph, properties);
+	}
+
+	private void createEdgesFromInstructionsToAlocs(Vertex vertex)
+	{
+		List<Instruction> instructions = Traversals.functionToInstructions(vertex);
+		for(Instruction instr : instructions){
+			createEdgesFromInstructionToAlocs(instr);
+		}
+	}
+
+	private void createEdgesFromInstructionToAlocs(Instruction instr)
+	{
+		// TODO Auto-generated method stub
 	}
 
 }

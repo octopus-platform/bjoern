@@ -40,6 +40,7 @@ public class GraphOperations {
 	public static Vertex addNode(Graph graph, Map<String, String> properties)
 	{
 		Vertex newVertex = graph.addVertex(0);
+
 		for( Entry<String, String> entrySet : properties.entrySet())
 		{
 			newVertex.setProperty(entrySet.getKey(), entrySet.getValue());
