@@ -81,27 +81,12 @@ public enum Bool3
 		switch (this)
 		{
 			case FALSE:
-				switch (bool)
-				{
-					case FALSE:
-						return FALSE;
-					case MAYBE:
-					case TRUE:
-						return MAYBE;
-				}
+				return MAYBE.and(bool);
 			case MAYBE:
 				return MAYBE;
 			case TRUE:
 			default:
-				switch (bool)
-				{
-					case FALSE:
-					case MAYBE:
-						return MAYBE;
-					case TRUE:
-					default:
-						return TRUE;
-				}
+				return MAYBE.or(bool);
 		}
 	}
 }
