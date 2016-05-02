@@ -8,95 +8,100 @@ public enum Bool3
 
 	public Bool3 and(Bool3 bool)
 	{
-		if (this == TRUE)
+		switch (this)
 		{
-			return bool;
-		} else if (this == FALSE)
-		{
-			return FALSE;
-		} else
-		{
-			if (bool == FALSE)
-			{
-				return MAYBE;
-			} else
-			{
+			case FALSE:
+				return FALSE;
+			case MAYBE:
+				switch (bool)
+				{
+					case FALSE:
+						return FALSE;
+					case MAYBE:
+					case TRUE:
+						return MAYBE;
+				}
+			case TRUE:
+			default:
 				return bool;
-			}
 		}
 	}
 
 	public Bool3 or(Bool3 bool)
 	{
-		if (this == TRUE)
+		switch (this)
 		{
-			return TRUE;
-		} else if (this == FALSE)
-		{
-			return bool;
-		} else
-		{
-			if (bool == FALSE)
-			{
-				return MAYBE;
-			} else
-			{
+			case FALSE:
 				return bool;
-			}
+			case MAYBE:
+				switch (bool)
+				{
+					case FALSE:
+					case MAYBE:
+						return MAYBE;
+					case TRUE:
+						return TRUE;
+				}
+			case TRUE:
+			default:
+				return TRUE;
 		}
 	}
 
 	public Bool3 not()
 	{
-		if (this == TRUE)
+		switch (this)
 		{
-			return FALSE;
-		} else if (this == FALSE)
-		{
-			return TRUE;
-		} else
-		{
-			return MAYBE;
+			case TRUE:
+				return FALSE;
+			case MAYBE:
+				return MAYBE;
+			case FALSE:
+			default:
+				return TRUE;
 		}
 	}
 
 	public Bool3 xor(Bool3 bool)
 	{
-		if (this == TRUE)
+		switch (this)
 		{
-			return bool.not();
-		} else if (this == FALSE)
-		{
-			return bool;
-		} else
-		{
-			return MAYBE;
+			case FALSE:
+				return bool;
+			case MAYBE:
+				return MAYBE;
+			case TRUE:
+			default:
+				return bool.not();
 		}
 	}
 
 	public Bool3 join(Bool3 bool)
 	{
-		if (this == TRUE)
+		switch (this)
 		{
-			if (bool == FALSE)
-			{
+			case FALSE:
+				switch (bool)
+				{
+					case FALSE:
+						return FALSE;
+					case MAYBE:
+					case TRUE:
+						return MAYBE;
+				}
+			case MAYBE:
 				return MAYBE;
-			} else
-			{
-				return bool;
-			}
-		} else if (this == FALSE)
-		{
-			if (bool == TRUE)
-			{
-				return MAYBE;
-			} else
-			{
-				return bool;
-			}
-		} else
-		{
-			return MAYBE;
+			case TRUE:
+			default:
+				switch (bool)
+				{
+					case FALSE:
+					case MAYBE:
+						return MAYBE;
+					case TRUE:
+					default:
+						return TRUE;
+				}
 		}
 	}
 }
