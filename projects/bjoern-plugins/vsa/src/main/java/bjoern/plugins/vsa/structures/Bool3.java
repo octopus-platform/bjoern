@@ -18,7 +18,7 @@ public enum Bool3
 		{
 			if (bool == FALSE)
 			{
-				return MAYBE
+				return MAYBE;
 			} else
 			{
 				return bool;
