@@ -8,5 +8,6 @@ public class NodeTypes
 	public static final Object LOCAL_VAR = "Local";
 	public static final Object ARG = "Arg";
 	public static final String FLAG = "Flag";
+	public static final String ALOC = "Aloc";
 	public static String ROOT = "Root";
 }
