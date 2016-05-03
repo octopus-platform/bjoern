@@ -7,7 +7,7 @@ class PluginCLI(object):
     def __init__(self, pluginname, pluginclass):
         self.pluginname = pluginname
         self.pluginclass = pluginclass
-        self.argparser = argparse.ArgumentParser()
+        self.argparser = argparse.ArgumentParser(description=self._description())
         self.args = None
         self.conn = None
 
@@ -50,3 +50,6 @@ class PluginCLI(object):
             default=2480,
             help="the port number of the octopus server"
         )
+
+    def _description(self):
+        return None

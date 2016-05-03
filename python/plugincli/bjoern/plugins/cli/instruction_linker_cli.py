@@ -1,11 +1,17 @@
 from bjoern.plugins.cli.plugin_cli import PluginCLI
 
+DESCRIPTION = "Instruction linker plugin. The instruction linker plugin connects instructions of a function " \
+              "accordingly to the control flow."
+
 
 class InstructionLinkerCLI(PluginCLI):
     def __init__(self):
         super().__init__(
             "instructionlinker.jar",
             "bjoern.plugins.instructionlinker.InstructionLinkerPlugin")
+
+    def _description(self):
+        return DESCRIPTION
 
     def _setup_argparser(self):
         super()._setup_argparser()
