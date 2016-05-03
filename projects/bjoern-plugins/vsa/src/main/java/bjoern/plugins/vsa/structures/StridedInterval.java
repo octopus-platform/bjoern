@@ -320,6 +320,20 @@ public abstract class StridedInterval
 		throw new UnsupportedOperationException("Not yet implemented.");
 	}
 
+	public Bool3 smaller(StridedInterval si)
+	{
+		if (this.upperBound < si.lowerBound)
+		{
+			return Bool3.TRUE;
+		} else if (this.lowerBound > si.upperBound)
+		{
+			return Bool3.FALSE;
+		} else
+		{
+			return Bool3.MAYBE;
+		}
+	}
+
 	public abstract DataWidth getDataWidth();
 
 	public long upperLimit()
