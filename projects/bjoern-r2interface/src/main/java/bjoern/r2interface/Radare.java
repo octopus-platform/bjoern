@@ -245,18 +245,9 @@ public class Radare
 	public List<String> getRegistersRead(String addr) throws IOException
 	{
 		String cmd = "aear @ " + addr;
-		System.out.println(cmd);
 		return cmdAndSplitResultAtWhitespace(cmd);
 	}
 
-	public List<String> getRegistersUsedByFunc(String addr) throws IOException
-	{
-		String cmd = "aeaf @ " + addr;
-		String returnedString = r2Pipe.cmd(cmd).trim();
-		String[] lines = returnedString.split("\n");
-		String allRegisters = lines[0].substring(3, lines[0].length());
-		return Arrays.asList(allRegisters.split(" "));
-	}
 
 	private List<String> cmdAndSplitResultAtWhitespace(String cmd) throws IOException
 	{

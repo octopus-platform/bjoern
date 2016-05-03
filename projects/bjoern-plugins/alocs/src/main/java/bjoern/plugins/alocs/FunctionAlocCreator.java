@@ -23,6 +23,7 @@ public class FunctionAlocCreator {
 	Map<String,Vertex> registerToVertex = new HashMap<String,Vertex>();
 	private Radare radare;
 	private OrientGraphNoTx graph;
+	Vertex functionVertex;
 
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph)
 	{
@@ -32,7 +33,9 @@ public class FunctionAlocCreator {
 
 	public void createAlocsForFunction(Vertex function) throws IOException
 	{
-		createRegisterAlocs(function);
+		functionVertex = function;
+
+		createRegisterAlocs();
 
 		try{
 			BasicBlock entryBlock = Traversals.functionToEntryBlock(function);
@@ -42,49 +45,9 @@ public class FunctionAlocCreator {
 		}
 	}
 
-	private void createRegisterAlocs(Vertex vertex) throws IOException
+	private void createRegisterAlocs() throws IOException
 	{
-		createNodesForAllRegistersUsedByFunction(vertex);
-		createEdgesFromInstructionsToAlocs(vertex);
-	}
-
-	private void createNodesForAllRegistersUsedByFunction(Vertex functionVertex) throws IOException
-	{
-		System.out.println("====");
-		String functionAddr = functionVertex.getProperty("addr");
-		List<String> registers = radare.getRegistersUsedByFunc(functionAddr);
-		for(String registerStr : registers)
-		{
-			System.out.println(registerStr);
-			System.out.println(registerStr.length());
-			Vertex registerVertex = createRegisterNodeForFunctionAndRegister(functionAddr, registerStr);
-			registerToVertex.put(registerStr, registerVertex);
-			linkFunctionAndRegister(functionVertex, registerVertex);
-		}
-	}
-
-	private void linkFunctionAndRegister(Vertex functionVertex, Vertex registerVertex)
-	{
-		Node functionNode = new Node(functionVertex);
-		Node registerNode = new Node(registerVertex);
-
-		GraphOperations.addEdge(graph, functionNode, registerNode, GraphOperations.ALOC_USE_EDGE);
-	}
-
-	private Vertex createRegisterNodeForFunctionAndRegister(String functionAddr, String register)
-	{
-		Map<String, String> properties = new HashMap<String,String>();
-
-		properties.put(BjoernNodeProperties.ADDR, functionAddr);
-		properties.put(BjoernNodeProperties.TYPE, NodeTypes.ALOC);
-		properties.put(BjoernNodeProperties.NAME, register);
-
-		return GraphOperations.addNode(graph, properties);
-	}
-
-	private void createEdgesFromInstructionsToAlocs(Vertex vertex) throws IOException
-	{
-		List<Instruction> instructions = Traversals.functionToInstructions(vertex);
+		List<Instruction> instructions = Traversals.functionToInstructions(functionVertex);
 		for(Instruction instr : instructions){
 			createEdgesFromInstructionToAlocs(instr);
 		}
@@ -94,16 +57,44 @@ public class FunctionAlocCreator {
 	{
 		long address = instr.getAddress();
 		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
+		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
+
+		createAlocsForRegisters(instr, registersRead, EdgeTypes.READ);
+		createAlocsForRegisters(instr, registersWritten, EdgeTypes.WRITE);
+	}
+
+	private void createAlocsForRegisters(Instruction instr, List<String> registersRead, String edgeType) {
 		for(String registerStr : registersRead){
 
 			Vertex registerVertex = registerToVertex.get(registerStr);
 			if(registerVertex == null){
-				throw new RuntimeException("No vertex for register: " + registerStr);
+				registerVertex = createAloc(registerStr);
 			}
-			GraphOperations.addEdge(graph, instr, new Node(registerVertex), EdgeTypes.READ);
+			GraphOperations.addEdge(graph, instr, new Node(registerVertex), edgeType);
 		}
 	}
 
+	private Vertex createAloc(String alocName)
+	{
+		String functionAddr = functionVertex.getProperty("addr");
 
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put(BjoernNodeProperties.ADDR, functionAddr);
+		properties.put(BjoernNodeProperties.TYPE, NodeTypes.ALOC);
+		properties.put(BjoernNodeProperties.NAME, alocName);
+
+		Vertex alocVertex = GraphOperations.addNode(graph, properties);
+		registerToVertex.put(alocName, alocVertex);
+		linkFunctionAndRegister(alocVertex);
+		return alocVertex;
+	}
+
+	private void linkFunctionAndRegister(Vertex alocVertex)
+	{
+		Node functionNode = new Node(functionVertex);
+		Node alocNode = new Node(alocVertex);
+
+		GraphOperations.addEdge(graph, functionNode, alocNode, GraphOperations.ALOC_USE_EDGE);
+	}
 
 }

@@ -18,7 +18,11 @@ public class AlocPlugin extends RadareProjectPlugin {
 		graph = orientConnector.getNoTxGraphInstance();
 		Iterable<Vertex> allFunctions = LookupOperations.getAllFunctions(graph);
 
-		createAlocsForFunctions(allFunctions);
+		try{
+			createAlocsForFunctions(allFunctions);
+		} catch(RuntimeException exception){
+			exception.printStackTrace();
+		}
 
 		graph.shutdown();
 	}
