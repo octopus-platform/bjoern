@@ -334,6 +334,11 @@ public abstract class StridedInterval
 		}
 	}
 
+	public Bool3 greater(StridedInterval si)
+	{
+		return smaller(si).not();
+	}
+
 	public abstract DataWidth getDataWidth();
 
 	public long upperLimit()
