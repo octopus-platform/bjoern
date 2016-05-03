@@ -31,7 +31,7 @@ where `plugin.json` contains the configuration.
 The Function Export Plugin
 --------------------------
 
-The function export plugin can be used to export database content at a function level. Functions consist of a
+The function export plugin can be used to export database content at function level. Functions consist of a
 function node, basic blocks and instruction nodes along with edges between those nodes. It is possible to export
 functions as a whole or only parts of a function, e.g., the control flow graph.
 
@@ -44,7 +44,7 @@ The plugins configuration file contains the following data:
 
     {
         "plugin": "functionexport.jar",
-        "class": "bjoern.plugins.instructionlinker.FunctionExportPlugin",
+        "class": "bjoern.plugins.functionexporter.FunctionExportPlugin",
         "settings": {
             "database": <database name>,
             "format": "dot"|"graphml"|"gml",
