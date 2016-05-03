@@ -356,6 +356,16 @@ public abstract class StridedInterval
 		return smaller(si).not();
 	}
 
+	public Bool3 greaterOrEqual(StridedInterval si)
+	{
+		return greater(si).or(compare(si));
+	}
+
+	public Bool3 smallerOrEqual(StridedInterval si)
+	{
+		return smaller(si).or(compare(si));
+	}
+
 	public abstract DataWidth getDataWidth();
 
 	public long upperLimit()
