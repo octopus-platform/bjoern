@@ -2,4 +2,4 @@
 
 from bjoern.plugins.cli import instruction_linker_cli
 
-instruction_linker_cli.InstructionLinkerCLI().execute_plugin()
+instruction_linker_cli.InstructionLinkerCLI().run()
