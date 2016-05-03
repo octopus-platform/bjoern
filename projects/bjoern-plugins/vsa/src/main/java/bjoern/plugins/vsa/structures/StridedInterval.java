@@ -320,6 +320,23 @@ public abstract class StridedInterval
 		throw new UnsupportedOperationException("Not yet implemented.");
 	}
 
+	public Bool3 compare(StridedInterval si)
+	{
+		if (this.equals(si))
+		{
+			return Bool3.TRUE;
+		} else
+		{
+			if (this.intersect(si).isBottom())
+			{
+				return Bool3.FALSE;
+			} else
+			{
+				return Bool3.MAYBE;
+			}
+		}
+	}
+
 	public Bool3 smaller(StridedInterval si)
 	{
 		if (this.upperBound < si.lowerBound)
