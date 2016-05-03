@@ -208,7 +208,33 @@ public abstract class StridedInterval
 
 	public StridedInterval union(StridedInterval si)
 	{
-		throw new UnsupportedOperationException("Not yet implemented.");
+		// handle inverted cases
+		if (this.upperBound > si.upperBound)
+		{
+			return si.union(this);
+		}
+
+		// bounds are simple
+		long lowerBound = Math.min(this.lowerBound, si.lowerBound);
+		long upperBound = Math.max(this.upperBound, si.upperBound);
+		long delta;
+
+		if (this.upperBound <= si.lowerBound)
+		{
+			// non-overlapping intervals
+			delta = si.lowerBound - this.upperBound;
+		} else if (this.lowerBound < si.lowerBound && this.upperBound < si.upperBound)
+		{
+			// partly overlapping intervals
+			delta = this.upperBound - si.lowerBound;
+		} else //if (this.lowerBound >= si.lowerBound && this.upperBound <= si.upperBound)
+		{
+			// fully contained interval
+			delta = this.lowerBound - si.lowerBound;
+		}
+
+		int stride = (int) gcd(gcd(this.stride, si.stride), delta);
+		return getStridedInterval(stride, lowerBound, upperBound, getDataWidth());
 	}
 
 	public StridedInterval removeLowerBound()
