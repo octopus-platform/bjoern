@@ -10,9 +10,9 @@ public class SetOperationTests
 	public void testUnionNonOverlappingIntervals()
 	{
 		StridedInterval a = StridedInterval.getStridedInterval(16, 48, 1024, DataWidth.R64);
-		StridedInterval b = StridedInterval.getStridedInterval(8, 0, 28, DataWidth.R64);
+		StridedInterval b = StridedInterval.getStridedInterval(8, 4, 28, DataWidth.R64);
 
-		StridedInterval expected = StridedInterval.getStridedInterval(4, 0, 1024, DataWidth.R64);
+		StridedInterval expected = StridedInterval.getStridedInterval(4, 4, 1024, DataWidth.R64);
 
 		assertEquals(expected, a.union(b));
 	}

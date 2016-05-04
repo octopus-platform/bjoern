@@ -2,7 +2,7 @@ package bjoern.plugins.vsa.structures;
 
 final class StridedInterval4Bit extends StridedInterval
 {
-	static final StridedInterval4Bit BOTTOM = new StridedInterval4Bit(0, 0, -1);
+	static final StridedInterval4Bit BOTTOM = new StridedInterval4Bit(1, 0, -1);
 	static final StridedInterval4Bit TOP = new StridedInterval4Bit(1, DataWidth.R4.getMinimumValue(),
 			DataWidth.R4.getMaximumValue());
 

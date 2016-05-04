@@ -9,7 +9,20 @@ public abstract class StridedInterval
 
 	StridedInterval(int stride, long lower, long upper)
 	{
-
+		if (stride < 0)
+		{
+			throw new IllegalArgumentException("Invalid strided interval: stride must not be negative");
+		} else if (stride == 0 && lower != upper)
+		{
+			throw new IllegalArgumentException("Invalid strided interval: stride must not be negative");
+		} else if ((lower > upper) && (stride != 1 || lower != 0 || upper != -1))
+		{
+			throw new IllegalArgumentException("Invalid strided interval: lower bound must not be larger than upper "
+					+ "bound.");
+		} else if (stride > 0 && ((upper - lower) % stride) != 0)
+		{
+			throw new IllegalArgumentException("Invalid strided interval: upper bound must be tight.");
+		}
 		this.stride = stride;
 		this.lowerBound = lower;
 		this.upperBound = upper;

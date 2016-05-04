@@ -127,7 +127,7 @@ public class BitArithmeticTests
 	public void testOr11()
 	{
 		StridedInterval a = StridedInterval.getStridedInterval(1, -8, -7, DataWidth.R4);
-		StridedInterval b = StridedInterval.getStridedInterval(3, -6, -5, DataWidth.R4);
+		StridedInterval b = StridedInterval.getStridedInterval(3, -6, -6, DataWidth.R4);
 
 		StridedInterval expected = StridedInterval.getStridedInterval(1, -6, -5, DataWidth.R4);
 		assertEquals(expected, a.or(b));

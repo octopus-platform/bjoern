@@ -47,8 +47,8 @@ public class ArithmeticTests
 	@Test
 	public void testNegateCase2()
 	{
-		StridedInterval a = StridedInterval.getStridedInterval(3, -7, 4, DataWidth.R4);
-		StridedInterval expected = StridedInterval.getStridedInterval(3, -4, 7, DataWidth.R4);
+		StridedInterval a = StridedInterval.getStridedInterval(3, -7, 5, DataWidth.R4);
+		StridedInterval expected = StridedInterval.getStridedInterval(3, -5, 7, DataWidth.R4);
 		assertEquals(expected, a.negate());
 	}
 
