@@ -56,7 +56,7 @@ class FunctionExporterCLI(PluginCLI):
             config["settings"] = {}
         config["settings"]["database"] = self.args.database
         config["settings"]["format"] = self.args.format
-        config["settings"]["destination"] = self.args.destination
+        config["settings"]["destination"] = os.path.abspath(self.args.destination)
         config["settings"]["nodes"] = self.args.nodes
         config["settings"]["edges"] = self.args.edges
         config["settings"]["threads"] = 4
