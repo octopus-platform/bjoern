@@ -10,16 +10,16 @@ import com.tinkerpop.blueprints.Vertex;
 
 import bjoern.pluginlib.structures.Node;
 
-public class GraphOperations {
+public class GraphOperations
+{
 
 	public final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
 	public final static String ALOC_USE_EDGE = "ALOC_USE_EDGE";
 
 
 	/**
-	 * Add an edge from the instruction src to the instruction dst if it does
+	 * Add an edge from the node src to the node dst if it does
 	 * not already exist.
-	 * <p>
 	 *
 	 * @param src the source of the edge
 	 * @param dst the destination of the edge
@@ -34,14 +34,14 @@ public class GraphOperations {
 				return;
 			}
 		}
-			graph.addEdge(0, src.getNode(), dst.getNode(), INSTR_CFLOW_EDGE);
+		graph.addEdge(0, src.getNode(), dst.getNode(), edgeType);
 	}
 
 	public static Vertex addNode(Graph graph, Map<String, String> properties)
 	{
 		Vertex newVertex = graph.addVertex(0);
 
-		for( Entry<String, String> entrySet : properties.entrySet())
+		for (Entry<String, String> entrySet : properties.entrySet())
 		{
 			newVertex.setProperty(entrySet.getKey(), entrySet.getValue());
 		}
