@@ -250,6 +250,73 @@ public abstract class StridedInterval
 		return getStridedInterval(stride, lowerBound, upperBound, getDataWidth());
 	}
 
+	public StridedInterval intersect(StridedInterval si)
+	{
+		if (si.getDataWidth() != this.getDataWidth())
+		{
+			throw new IllegalArgumentException("Incompatible width.");
+		}
+
+		// handle inverted cases
+		if (this.upperBound > si.upperBound)
+		{
+			return si.intersect(this);
+		}
+
+		if (this.upperBound <= si.lowerBound)
+		{
+			// non-overlapping intervals
+			return getBottom(this.getDataWidth());
+		} else if (this.lowerBound < si.lowerBound && this.upperBound < si.upperBound)
+		{
+			// partly overlapping intervals
+
+			// check if there can be any common elements
+			long[] ans = extended_gcd(si.stride, this.stride);
+			int gcd = (int) ans[0];
+			long u = ans[1];
+			long v = ans[2];
+			long difference = this.upperBound - si.lowerBound;
+
+			if ((difference % gcd) != 0)
+			{
+				// there are no common elements
+				return getBottom(this.getDataWidth());
+			}
+
+			// find one solution (let's call it the anchor) to
+			// si.lowerBound + i0 * si.stride == this.upperbound - j0 * this.stride
+			// Starting at the anchor we can move to common points that reside in the bound of both intervals
+			long i0 = (difference / gcd) * u;
+			long j0 = (difference / gcd) * v;
+			long anchor = si.lowerBound + (i0 * si.stride);
+			assert anchor == (this.upperBound - (j0 * this.stride)) : "Anchor is invalid";
+
+
+			int answerStride = (this.stride * si.stride) / gcd;
+			long t;
+
+			if (anchor < si.lowerBound)
+			{
+				t = (long) Math.ceil(1.0 * (si.lowerBound - anchor) / answerStride);
+			} else
+			{
+				t = (long) Math.floor(1.0 * (anchor - si.lowerBound) / answerStride);
+			}
+			long answerLowerBound = anchor + (t * answerStride);
+			long answerSize = (this.upperBound - answerLowerBound) / answerStride;
+			if (answerSize == 0)
+			{
+				return getSingletonSet(answerLowerBound, getDataWidth());
+			} else
+			{
+				return getStridedInterval(answerStride, answerLowerBound,
+						answerLowerBound + answerSize * answerStride, getDataWidth());
+			}
+		}
+		throw new UnsupportedOperationException("Not yet implemented.");
+	}
+
 	public StridedInterval removeLowerBound()
 	{
 		return getStridedInterval(stride, lowerLimit(), upperBound, getDataWidth());
@@ -354,11 +421,6 @@ public abstract class StridedInterval
 		return this.not().or(si).not().or(this.or(si.not()).not());
 	}
 
-	public StridedInterval intersect(StridedInterval si)
-	{
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-
 	public Bool3 compare(StridedInterval si)
 	{
 		if (this.equals(si))
@@ -424,6 +486,16 @@ public abstract class StridedInterval
 			return a;
 		}
 		return gcd(b, a % b);
+	}
+
+	public static long[] extended_gcd(long a, long b)
+	{
+		if (b == 0)
+		{
+			return new long[]{a, 1, 0};
+		}
+		long[] ans = extended_gcd(b, a % b);
+		return new long[]{ans[0], ans[2], ans[1] - ((a / b) * ans[2])};
 	}
 
 	private static long minOr(long a, long b, long c, long d)

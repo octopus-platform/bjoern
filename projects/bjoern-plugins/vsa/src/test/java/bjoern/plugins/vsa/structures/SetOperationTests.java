@@ -47,4 +47,24 @@ public class SetOperationTests
 
 		assertEquals(a.union(b), b.union(a));
 	}
+
+	@Test
+	public void testIntersect()
+	{
+		StridedInterval a = StridedInterval.getStridedInterval(3, 1, 4, DataWidth.R4);
+		StridedInterval b = StridedInterval.getStridedInterval(2, 2, 6, DataWidth.R4);
+
+		StridedInterval expected = StridedInterval.getSingletonSet(4, DataWidth.R4);
+		assertEquals(expected, a.intersect(b));
+	}
+
+	@Test
+	public void testIntersectCommutativeProperty()
+	{
+		StridedInterval a = StridedInterval.getStridedInterval(3, 1, 4, DataWidth.R4);
+		StridedInterval b = StridedInterval.getStridedInterval(2, 2, 6, DataWidth.R4);
+
+		assertEquals(b.intersect(a), a.intersect(b));
+	}
+
 }
