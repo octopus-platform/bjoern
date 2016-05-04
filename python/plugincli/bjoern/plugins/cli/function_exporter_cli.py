@@ -19,8 +19,8 @@ class FunctionExporterCLI(PluginCLI):
     def _setup_argparser(self):
         super()._setup_argparser()
         self.argparser.add_argument(
-            "database",
-            help="the name of the database"
+            "project",
+            help="the name of the project"
         )
         self.argparser.add_argument(
             "-f", "--format",
@@ -54,7 +54,7 @@ class FunctionExporterCLI(PluginCLI):
         # add own configuration
         if not "settings" in config:
             config["settings"] = {}
-        config["settings"]["database"] = self.args.database
+        config["settings"]["database"] = self.args.project
         config["settings"]["format"] = self.args.format
         config["settings"]["destination"] = os.path.abspath(self.args.destination)
         config["settings"]["nodes"] = self.args.nodes
