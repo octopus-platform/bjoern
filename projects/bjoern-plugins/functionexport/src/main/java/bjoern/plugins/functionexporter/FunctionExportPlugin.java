@@ -188,6 +188,11 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 			{
 				Vertex instr = isBBOfEdge.getVertex(Direction.IN);
 				copyVertex(graph, instr);
+				for (Edge readOrWriteEdge : instr.getEdges(Direction.OUT, "READ", "WRITE"))
+				{
+					Vertex aloc = readOrWriteEdge.getVertex(Direction.IN);
+					copyVertex(graph, aloc);
+				}
 			}
 		}
 	}
@@ -218,7 +223,8 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 			return;
 		}
 		Object id = vertex.getId();
-		if (graph.getVertex(id) != null) {
+		if (graph.getVertex(id) != null)
+		{
 			return;
 		}
 		Vertex v = GraphHelper.addVertex(graph, id);
