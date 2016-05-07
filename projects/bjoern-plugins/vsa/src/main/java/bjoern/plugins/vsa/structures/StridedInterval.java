@@ -267,54 +267,51 @@ public abstract class StridedInterval
 		{
 			// non-overlapping intervals
 			return getBottom(this.getDataWidth());
-		} else if (this.lowerBound < si.lowerBound && this.upperBound < si.upperBound)
+		} else
 		{
 			// partly overlapping intervals
-
-			// check if there can be any common elements
 			long[] ans = extended_gcd(si.stride, this.stride);
 			int gcd = (int) ans[0];
 			long u = ans[1];
 			long v = ans[2];
 			long difference = this.upperBound - si.lowerBound;
+			int answerStride = (this.stride * si.stride) / gcd;
 
+			// check if there can be any common elements
 			if ((difference % gcd) != 0)
 			{
-				// there are no common elements
 				return getBottom(this.getDataWidth());
 			}
 
 			// find one solution (let's call it the anchor) to
 			// si.lowerBound + i0 * si.stride == this.upperbound - j0 * this.stride
-			// Starting at the anchor we can move to common points that reside in the bound of both intervals
+			// Starting at the anchor we can jump to common points that reside in the bound of both intervals
+			// by adding the stride of the answer strided interval
 			long i0 = (difference / gcd) * u;
 			long j0 = (difference / gcd) * v;
 			long anchor = si.lowerBound + (i0 * si.stride);
 			assert anchor == (this.upperBound - (j0 * this.stride)) : "Anchor is invalid";
 
-
-			int answerStride = (this.stride * si.stride) / gcd;
-			long t;
-
-			if (anchor < si.lowerBound)
+			long t = (Math.max(this.lowerBound, si.lowerBound) - anchor) / answerStride;
+			if (t >= 0 && ((Math.max(this.lowerBound, si.lowerBound) - anchor) % answerStride) != 0)
 			{
-				t = (long) Math.ceil(1.0 * (si.lowerBound - anchor) / answerStride);
-			} else
-			{
-				t = (long) Math.floor(1.0 * (anchor - si.lowerBound) / answerStride);
+				t++;
 			}
+
 			long answerLowerBound = anchor + (t * answerStride);
-			long answerSize = (this.upperBound - answerLowerBound) / answerStride;
-			if (answerSize == 0)
+			if (answerLowerBound > Math.min(this.upperBound, si.upperBound))
+			{
+				return getBottom(getDataWidth());
+			} else if (Math.min(this.upperBound, si.upperBound) - answerLowerBound < answerStride)
 			{
 				return getSingletonSet(answerLowerBound, getDataWidth());
 			} else
 			{
+				long answerSize = (Math.min(this.upperBound, si.upperBound) - answerLowerBound) / answerStride + 1;
 				return getStridedInterval(answerStride, answerLowerBound,
-						answerLowerBound + answerSize * answerStride, getDataWidth());
+						answerLowerBound + (answerSize - 1) * answerStride, getDataWidth());
 			}
 		}
-		throw new UnsupportedOperationException("Not yet implemented.");
 	}
 
 	public StridedInterval removeLowerBound()
@@ -338,10 +335,9 @@ public abstract class StridedInterval
 		long lower = this.lowerBound + si.lowerBound;
 		long upper = this.upperBound + si.upperBound;
 
-		long u = this.lowerBound & si.lowerBound & ~lower
-				& ~(this.upperBound & si.upperBound & ~upper);
-		long v = ((this.lowerBound ^ si.lowerBound) | ~(this.lowerBound ^ lower))
-				& (~this.upperBound & ~si.upperBound & upper);
+		long u = this.lowerBound & si.lowerBound & ~lower & ~(this.upperBound & si.upperBound & ~upper);
+		long v = ((this.lowerBound ^ si.lowerBound) | ~(this.lowerBound ^ lower)) & (~this.upperBound & ~si.upperBound
+				& upper);
 		u = getDataWidth().effectiveValue(u);
 		v = getDataWidth().effectiveValue(v);
 		if ((u | v) < 0)
@@ -381,26 +377,25 @@ public abstract class StridedInterval
 		long suffixBits2 = suffixMask2 & si.lowerBound;
 		long suffixBits = suffixBits1 | suffixBits2;
 
-		long t = Long.min(Integer.numberOfTrailingZeros(this.stride),
-				Integer.numberOfTrailingZeros(si.stride));
+		long t = Long.min(Integer.numberOfTrailingZeros(this.stride), Integer.numberOfTrailingZeros(si.stride));
 		long mask = (0x1 << t) - 1;
 
 		int answerStride = 0x1 << t;
 		long answerSharedSuffix = (this.lowerBound & mask) | (si.lowerBound & mask);
 
 		// zero out suffix bits
-		long answerLowerBound = minOrSigned((this.lowerBound & ~mask), (this.upperBound & ~mask),
-				(si.lowerBound & ~mask), (si.upperBound & ~mask));
-		long answerUpperBound = maxOrSigned((this.lowerBound & ~mask), (this.upperBound & ~mask),
-				(si.lowerBound & ~mask), (si.upperBound & ~mask));
+		long answerLowerBound =
+				minOrSigned((this.lowerBound & ~mask), (this.upperBound & ~mask), (si.lowerBound & ~mask), (
+						si.upperBound & ~mask));
+		long answerUpperBound =
+				maxOrSigned((this.lowerBound & ~mask), (this.upperBound & ~mask), (si.lowerBound & ~mask), (
+						si.upperBound & ~mask));
 
 		answerLowerBound = (answerLowerBound & ~mask) | answerSharedSuffix;
 		answerUpperBound = (answerUpperBound & ~mask) | answerSharedSuffix;
 
-		while ((answerLowerBound & suffixBits) != suffixBits)
-			answerLowerBound++;
-		while ((answerUpperBound & suffixBits) != suffixBits)
-			answerUpperBound--;
+		while ((answerLowerBound & suffixBits) != suffixBits) answerLowerBound++;
+		while ((answerUpperBound & suffixBits) != suffixBits) answerUpperBound--;
 
 		return getStridedInterval(answerStride, answerLowerBound, answerUpperBound, this.getDataWidth());
 
