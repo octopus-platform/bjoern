@@ -35,7 +35,7 @@ Building bjoern (step-by-step)
 
 	git clone https://github.com/fabsx00/bjoern
 	cd bjoern
-	gradle build
+	gradle deploy
 
 Installing the bjoern-shell
 ---------------------------
