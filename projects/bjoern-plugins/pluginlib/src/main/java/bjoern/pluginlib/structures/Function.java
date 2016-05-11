@@ -3,6 +3,7 @@ package bjoern.pluginlib.structures;
 import java.util.ArrayList;
 import java.util.List;
 
+import bjoern.nodeStore.NodeTypes;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -15,7 +16,7 @@ public class Function extends Node
 
 	public Function(Vertex vertex)
 	{
-		super(vertex);
+		super(vertex, NodeTypes.FUNCTION);
 	}
 
 	public List<BasicBlock> getBasicBlocks()

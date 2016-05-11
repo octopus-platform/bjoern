@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import bjoern.nodeStore.NodeTypes;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -16,7 +17,7 @@ public class BasicBlock extends Node
 
 	public BasicBlock(Vertex vertex)
 	{
-		super(vertex);
+		super(vertex, NodeTypes.BASIC_BLOCK);
 	}
 
 	public List<Instruction> getInstructions()

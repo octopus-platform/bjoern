@@ -1,5 +1,6 @@
 package bjoern.pluginlib.structures;
 
+import bjoern.nodeStore.NodeTypes;
 import com.tinkerpop.blueprints.Vertex;
 
 import bjoern.structures.BjoernNodeProperties;
@@ -9,7 +10,7 @@ public class Instruction extends Node implements Comparable<Instruction>
 
 	public Instruction(Vertex vertex)
 	{
-		super(vertex);
+		super(vertex, NodeTypes.INSTRUCTION);
 	}
 
 	public long getAddress()
