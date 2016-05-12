@@ -199,6 +199,11 @@ public abstract class StridedInterval
 		return mask;
 	}
 
+	public StridedInterval sub(long c)
+	{
+		return this.add(-c);
+	}
+
 	public StridedInterval sub(StridedInterval si)
 	{
 		return this.add(si.negate());
@@ -621,5 +626,4 @@ public abstract class StridedInterval
 			throw new IllegalArgumentException("Arguments are invalid bounds.");
 		}
 	}
-
 }
