@@ -12,8 +12,8 @@ public enum DataWidth
 	DataWidth(int dataWidth)
 	{
 		this.dataWidth = dataWidth;
-		this.minimumValue = -(0x1 << (dataWidth - 1));
-		this.maximumValue = (0x1 << (dataWidth - 1)) - 1;
+		this.minimumValue = -(0x1l << (dataWidth - 1l));
+		this.maximumValue = -(minimumValue + 1);
 	}
 
 	public long effectiveBits()
@@ -23,8 +23,8 @@ public enum DataWidth
 
 	public long effectiveValue(long value)
 	{
-		long maskHighestBit = 0x1 << (dataWidth - 1);
-		return -(value & maskHighestBit) + (value & (maskHighestBit - 1));
+		long maskHighestBit = 0x1l << (dataWidth - 1l);
+		return -(value & maskHighestBit) + (value & (maskHighestBit - 1l));
 	}
 
 	public int getDataWidth()
