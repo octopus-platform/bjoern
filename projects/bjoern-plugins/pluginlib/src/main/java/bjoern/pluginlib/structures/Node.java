@@ -9,6 +9,10 @@ public class Node
 
 	public Node(Vertex vertex)
 	{
+		if (vertex == null)
+		{
+			throw new IllegalArgumentException("Node must not be null.");
+		}
 		node = vertex;
 	}
 
