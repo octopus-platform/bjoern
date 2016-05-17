@@ -32,9 +32,36 @@ public class Node
 	}
 
 	@Override
-	public String toString()
+	public boolean equals(Object o)
 	{
-		return getNode().toString();
+		if (!(o instanceof Node))
+		{
+			return false;
+		}
+
+		Node other = (Node) o;
+		return getNode().getId().equals(other.getNode().getId());
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return node != null ? node.hashCode() : 0;
+	}
+
+	@Override
+	public String toString()
+	{
+		String delimiter = ", ";
+		StringBuilder builder = new StringBuilder();
+		builder.append(getNode().getProperty(BjoernNodeProperties.TYPE) + "(");
+		for (String property : getNode().getPropertyKeys())
+		{
+			builder.append(property + ":" + getNode().getProperty(property));
+			builder.append(delimiter);
+		}
+		builder.setLength(builder.length() - delimiter.length());
+		builder.append(")");
+		return builder.toString();
+	}
 }
