@@ -31,6 +31,11 @@ public class Node
 		return node;
 	}
 
+	public long getId()
+	{
+		return Long.parseLong(getNode().getId().toString().split(":")[1]);
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{
