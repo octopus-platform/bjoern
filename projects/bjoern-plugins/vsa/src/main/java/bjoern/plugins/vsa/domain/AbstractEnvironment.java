@@ -59,12 +59,12 @@ public class AbstractEnvironment
 		registers.put(register, value);
 	}
 
-	private Set<String> getFlags()
+	public Set<String> getFlags()
 	{
 		return flags.keySet();
 	}
 
-	private Set<String> getRegisters()
+	public Set<String> getRegisters()
 	{
 		return registers.keySet();
 	}
