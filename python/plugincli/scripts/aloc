@@ -1,0 +1,5 @@
+#!python
+
+from bjoern.plugins.cli import aloc_cli
+
+aloc_cli.AlocCLI().run()

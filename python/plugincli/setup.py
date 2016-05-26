@@ -7,5 +7,6 @@ setup(
     scripts=[
         'scripts/instructionlinker',
         'scripts/functionexporter',
-        'scripts/aloc']
+        'scripts/aloc',
+        'scripts/vsa']
 )
