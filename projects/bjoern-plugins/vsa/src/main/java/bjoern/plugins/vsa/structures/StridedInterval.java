@@ -1,20 +1,22 @@
 package bjoern.plugins.vsa.structures;
 
+import java.math.BigInteger;
+
 public abstract class StridedInterval
 {
 
-	private final int stride;
+	private final long stride;
 	private final long lowerBound;
 	private final long upperBound;
 
-	StridedInterval(int stride, long lower, long upper)
+	StridedInterval(long stride, long lower, long upper)
 	{
 		if (stride < 0)
 		{
 			throw new IllegalArgumentException("Invalid strided interval: stride must not be negative");
 		} else if (stride == 0 && lower != upper)
 		{
-			throw new IllegalArgumentException("Invalid strided interval: stride must not be negative");
+			throw new IllegalArgumentException("Invalid strided interval: stride must not be zero");
 		} else if ((lower > upper) && (stride != 1 || lower != 0 || upper != -1))
 		{
 			throw new IllegalArgumentException("Invalid strided interval: lower bound must not be larger than upper "
@@ -71,7 +73,7 @@ public abstract class StridedInterval
 		return getStridedInterval(1, lower, upper, dataWidth);
 	}
 
-	public static StridedInterval getStridedInterval(int stride, long lower, long upper, DataWidth dataWidth)
+	public static StridedInterval getStridedInterval(long stride, long lower, long upper, DataWidth dataWidth)
 	{
 		switch (dataWidth)
 		{
@@ -105,7 +107,7 @@ public abstract class StridedInterval
 	public int hashCode()
 	{
 		int result = 17;
-		result = 31 * result + stride;
+		result = 31 * result + (int) (stride ^ (stride >>> 32));
 		result = 31 * result + (int) (lowerBound ^ (lowerBound >>> 32));
 		result = 31 * result + (int) (upperBound ^ (upperBound >>> 32));
 		return result;
@@ -113,7 +115,7 @@ public abstract class StridedInterval
 
 	public boolean isSingletonSet()
 	{
-		return lowerBound == upperBound;
+		return stride == 0;
 	}
 
 	public boolean isTop()
@@ -126,6 +128,11 @@ public abstract class StridedInterval
 		return this.equals(getBottom(this.getDataWidth()));
 	}
 
+	public boolean isZero()
+	{
+		return isSingletonSet() && contains(0);
+	}
+
 	public boolean contains(long number)
 	{
 		if (lowerBound > number || upperBound < number)
@@ -133,7 +140,7 @@ public abstract class StridedInterval
 			return false;
 		} else
 		{
-			return ((number - lowerBound) % stride) == 0;
+			return isSingletonSet() && lowerBound == number || ((number - lowerBound) % stride) == 0;
 		}
 	}
 
@@ -155,31 +162,13 @@ public abstract class StridedInterval
 		return this.upperBound == upperLimit();
 	}
 
-	public long get(int i)
-	{
-		if (i >= size() || i < 0)
-		{
-			throw new IllegalArgumentException("Invalid index.");
-		}
-		return lowerBound + i * stride;
-	}
-
-	public long size()
-	{
-		if (stride == 0)
-		{
-			return 1;
-		}
-		return 1 + ((upperBound - lowerBound) / stride);
-	}
-
 	public long sharedSuffixMask()
 	{
 		if (isSingletonSet())
 		{
 			return 0xffffffffffffffffl;
 		}
-		int t = Integer.numberOfTrailingZeros(stride);
+		int t = Long.numberOfTrailingZeros(stride);
 		long mask = (0x1 << t) - 1;
 		return mask;
 	}
@@ -251,7 +240,8 @@ public abstract class StridedInterval
 			delta = this.lowerBound - si.lowerBound;
 		}
 
-		int stride = (int) gcd(gcd(this.stride, si.stride), delta);
+		long gcd = gcd(gcd(this.stride, si.stride), delta);
+		long stride = gcd < 0 ? -gcd : gcd;
 		return getStridedInterval(stride, lowerBound, upperBound, getDataWidth());
 	}
 
@@ -276,11 +266,11 @@ public abstract class StridedInterval
 		{
 			// partly overlapping intervals
 			long[] ans = extended_gcd(si.stride, this.stride);
-			int gcd = (int) ans[0];
+			long gcd = ans[0];
 			long u = ans[1];
 			long v = ans[2];
 			long difference = this.upperBound - si.lowerBound;
-			int answerStride = (this.stride * si.stride) / gcd;
+			long answerStride = (this.stride * si.stride) / gcd;
 
 			// check if there can be any common elements
 			if ((difference % gcd) != 0)
@@ -336,7 +326,7 @@ public abstract class StridedInterval
 			throw new IllegalArgumentException("Incompatible width.");
 		}
 
-		int stride = (int) gcd(this.stride, si.stride);
+		long stride = gcd(this.stride, si.stride);
 		long lower = this.lowerBound + si.lowerBound;
 		long upper = this.upperBound + si.upperBound;
 
@@ -382,10 +372,10 @@ public abstract class StridedInterval
 		long suffixBits2 = suffixMask2 & si.lowerBound;
 		long suffixBits = suffixBits1 | suffixBits2;
 
-		long t = Long.min(Integer.numberOfTrailingZeros(this.stride), Integer.numberOfTrailingZeros(si.stride));
-		long mask = (0x1 << t) - 1;
+		long t = Long.min(Long.numberOfTrailingZeros(this.stride), Long.numberOfTrailingZeros(si.stride));
+		long mask = (0x1L << t) - 1;
 
-		int answerStride = 0x1 << t;
+		long answerStride = 0x1L << t;
 		long answerSharedSuffix = (this.lowerBound & mask) | (si.lowerBound & mask);
 
 		// zero out suffix bits
@@ -488,7 +478,7 @@ public abstract class StridedInterval
 		return gcd(b, a % b);
 	}
 
-	public static long[] extended_gcd(long a, long b)
+	private static long[] extended_gcd(long a, long b)
 	{
 		if (b == 0)
 		{
@@ -502,8 +492,7 @@ public abstract class StridedInterval
 	{
 		// H.S. Warren, Jr. Hacker’s Delight. Addison-Wesley, 2003
 		long m, temp;
-		m = 0x8000000000000000l;
-		m = 0x80;
+		m = 0x8000000000000000L;
 		while (m != 0)
 		{
 			if ((~a & c & m) != 0)
@@ -532,7 +521,7 @@ public abstract class StridedInterval
 	{
 		// H.S. Warren, Jr. Hacker’s Delight. Addison-Wesley, 2003
 		long m, temp;
-		m = 0x8000000000000000l;
+		m = 0x8000000000000000L;
 		while (m != 0)
 		{
 			if ((b & d & m) != 0)
@@ -557,7 +546,7 @@ public abstract class StridedInterval
 
 	private static long minOrSigned(long a, long b, long c, long d)
 	{
-		long m = 0x8000000000000000l;
+		long m = 0x8000000000000000L;
 		if ((a & b & c & d & m) != 0)
 		{
 			return minOr(a, b, c, d);
@@ -593,7 +582,7 @@ public abstract class StridedInterval
 
 	private static long maxOrSigned(long a, long b, long c, long d)
 	{
-		long m = 0x8000000000000000l;
+		long m = 0x8000000000000000L;
 		if ((a & b & c & d & m) != 0)
 		{
 			return maxOr(a, b, c, d);
@@ -626,4 +615,5 @@ public abstract class StridedInterval
 			throw new IllegalArgumentException("Arguments are invalid bounds.");
 		}
 	}
+
 }

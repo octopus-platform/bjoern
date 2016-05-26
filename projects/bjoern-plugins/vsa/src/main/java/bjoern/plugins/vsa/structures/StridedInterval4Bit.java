@@ -6,7 +6,7 @@ final class StridedInterval4Bit extends StridedInterval
 	static final StridedInterval4Bit TOP = new StridedInterval4Bit(1, DataWidth.R4.getMinimumValue(),
 			DataWidth.R4.getMaximumValue());
 
-	StridedInterval4Bit(int stride, long lower, long upper)
+	StridedInterval4Bit(long stride, long lower, long upper)
 	{
 		super(stride, lower, upper);
 	}
