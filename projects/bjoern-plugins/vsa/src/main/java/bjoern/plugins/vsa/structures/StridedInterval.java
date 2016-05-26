@@ -616,4 +616,10 @@ public abstract class StridedInterval
 		}
 	}
 
+	public StridedInterval widen(StridedInterval stridedInterval)
+	{
+		long l = lowerBound <= stridedInterval.lowerBound ? lowerBound : lowerLimit();
+		long u = upperBound >= stridedInterval.upperBound ? upperBound : upperLimit();
+		return StridedInterval.getInterval(l, u, getDataWidth());
+	}
 }

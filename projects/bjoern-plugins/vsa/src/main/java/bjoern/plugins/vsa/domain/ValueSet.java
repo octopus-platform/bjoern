@@ -32,19 +32,14 @@ public class ValueSet
 
 	public static ValueSet newGlobal(StridedInterval values)
 	{
-		return newGlobal(values.getDataWidth(), values);
-	}
-
-	public static ValueSet newGlobal(DataWidth width, StridedInterval values)
-	{
-		ValueSet valueSet = new ValueSet(width);
+		ValueSet valueSet = new ValueSet(values.getDataWidth());
 		valueSet.setValueOfGlobalRegion(values);
 		return valueSet;
 	}
 
-	public static ValueSet newSingle(DataWidth width, LocalRegion region, StridedInterval values)
+	public static ValueSet newSingle(LocalRegion region, StridedInterval values)
 	{
-		ValueSet valueSet = new ValueSet(width);
+		ValueSet valueSet = new ValueSet(values.getDataWidth());
 		valueSet.setValueOfRegion(region, values);
 		return valueSet;
 	}
@@ -264,7 +259,6 @@ public class ValueSet
 
 	public ValueSet xor(ValueSet valueSet)
 	{
-
 		ValueSet answer = new ValueSet(dataWidth);
 		if (this.isGlobal() && valueSet.isGlobal())
 		{
@@ -331,6 +325,16 @@ public class ValueSet
 	{
 		logger.warn("Operation (not) not yet implemented");
 		return newTop(dataWidth);
+	}
+
+	public ValueSet widen(ValueSet valueSet)
+	{
+		ValueSet answer = new ValueSet(dataWidth);
+		for (MemoryRegion region : getRegions())
+		{
+			answer.setValueOfRegion(region, getValueOfRegion(region).widen(valueSet.getValueOfRegion(region)));
+		}
+		return answer;
 	}
 
 }
