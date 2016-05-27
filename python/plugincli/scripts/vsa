@@ -1,5 +1,5 @@
 #!python
 
-from bjoern.plugins.cli import vsa
+from bjoern.plugins.cli import vsa_cli
 
-vsa.VSACLI().run()
+vsa_cli.VSACLI().run()
