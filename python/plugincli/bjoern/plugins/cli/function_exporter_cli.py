@@ -30,7 +30,7 @@ class FunctionExporterCLI(PluginCLI):
             help="the format of the exported graphs"
         )
         self.argparser.add_argument(
-            "-d", "--destination",
+            "-o", "--outdir",
             type=str,
             default=os.getcwd(),
             help="the output directory of the exported graphs"
@@ -56,7 +56,7 @@ class FunctionExporterCLI(PluginCLI):
             config["settings"] = {}
         config["settings"]["database"] = self.args.project
         config["settings"]["format"] = self.args.format
-        config["settings"]["destination"] = os.path.abspath(self.args.destination)
+        config["settings"]["outdir"] = os.path.abspath(self.args.outdir)
         config["settings"]["nodes"] = self.args.nodes
         config["settings"]["edges"] = self.args.edges
         config["settings"]["threads"] = 4
