@@ -11,7 +11,7 @@ public class X64Architecture extends Architecture {
 	@Override
 	public boolean isFlag(String registerName)
 	{
-		return false;
+		return (registerName.length() == 2 && registerName.endsWith("f"));
 	}
 
 }
