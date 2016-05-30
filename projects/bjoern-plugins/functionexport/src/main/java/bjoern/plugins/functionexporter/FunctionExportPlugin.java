@@ -47,17 +47,45 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		// calling super here is important. It reads the database name from
 		// the json object.
 		super.configure(settings);
+
 		// read the output format (graphml, dot, etc.)
-		format = settings.getString("format");
+		configureFormat(settings);
+
 		// read the number of threads to use
-		nThreads = settings.getInt("threads");
+		configureNumberOfThreads(settings);
+
 		// read the destination folder
-		destination = Paths.get(settings.getString("destination"),
-				getDatabaseName());
+		configureOutputDirectoru(settings);
 
 		// read the node and edge types to include in the exported graph
-		readNodeList(settings.getJSONArray("nodes"));
+		configureNodes(settings);
+		configureEdges(settings);
+	}
+
+	private void configureEdges(JSONObject settings)
+	{
 		readEdgeList(settings.getJSONArray("edges"));
+	}
+
+	private void configureNodes(JSONObject settings)
+	{
+		readNodeList(settings.getJSONArray("nodes"));
+	}
+
+	private void configureOutputDirectoru(JSONObject settings)
+	{
+		destination = Paths.get(settings.getString("destination"),
+				getDatabaseName());
+	}
+
+	private void configureNumberOfThreads(JSONObject settings)
+	{
+		nThreads = settings.getInt("threads");
+	}
+
+	private void configureFormat(JSONObject settings)
+	{
+		format = settings.getString("format");
 	}
 
 	private void readNodeList(JSONArray nodeList)
