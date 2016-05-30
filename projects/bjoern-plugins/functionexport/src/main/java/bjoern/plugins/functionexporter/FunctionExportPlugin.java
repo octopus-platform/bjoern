@@ -1,21 +1,11 @@
 package bjoern.plugins.functionexporter;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
+import bjoern.nodeStore.NodeTypes;
+import bjoern.pluginlib.LookupOperations;
+import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
+import bjoern.plugins.functionexporter.io.dot.DotWriter;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -26,20 +16,36 @@ import com.tinkerpop.blueprints.util.ElementHelper;
 import com.tinkerpop.blueprints.util.GraphHelper;
 import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import bjoern.pluginlib.LookupOperations;
-import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
-import bjoern.plugins.functionexporter.io.dot.DotWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 {
 
+	private static final String DEFAULT_FORMAT = "graphml";
+	private static final int DEFAULT_NUMBER_OF_THREADS = 4;
+
+	private static final String[] DEFAULT_NODES = {NodeTypes.FUNCTION, NodeTypes.BASIC_BLOCK, NodeTypes.INSTRUCTION};
+	private static final String[] DEFAULT_EDGES = {EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF};
+
 	private String format;
 	private ExecutorService executor;
 	private int nThreads;
-	private Path destination;
-	private ArrayList<String> nodes;
-	private ArrayList<String> edges;
+	private Path outputDirectory;
+	private String[] nodes;
+	private String[] edges;
 
 	@Override
 	public void configure(JSONObject settings)
@@ -54,7 +60,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		// read the number of threads to use
 		configureNumberOfThreads(settings);
 
-		// read the destination folder
+		// read the outputDirectory folder
 		configureOutputDirectoru(settings);
 
 		// read the node and edge types to include in the exported graph
@@ -62,47 +68,71 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		configureEdges(settings);
 	}
 
-	private void configureEdges(JSONObject settings)
+	private void configureFormat(JSONObject settings)
 	{
-		readEdgeList(settings.getJSONArray("edges"));
-	}
-
-	private void configureNodes(JSONObject settings)
-	{
-		readNodeList(settings.getJSONArray("nodes"));
-	}
-
-	private void configureOutputDirectoru(JSONObject settings)
-	{
-		destination = Paths.get(settings.getString("destination"),
-				getDatabaseName());
+		if (settings.has("format"))
+		{
+			format = settings.getString("format");
+		} else
+		{
+			format = DEFAULT_FORMAT;
+		}
 	}
 
 	private void configureNumberOfThreads(JSONObject settings)
 	{
-		nThreads = settings.getInt("threads");
+		if (settings.has("threads"))
+		{
+			nThreads = settings.getInt("threads");
+		} else
+		{
+			nThreads = DEFAULT_NUMBER_OF_THREADS;
+		}
 	}
 
-	private void configureFormat(JSONObject settings)
+	private void configureOutputDirectoru(JSONObject settings)
 	{
-		format = settings.getString("format");
+		outputDirectory = Paths.get(settings.getString("outdir"),
+				getDatabaseName());
+	}
+
+	private void configureNodes(JSONObject settings)
+	{
+		if (settings.has("nodes"))
+		{
+			readNodeList(settings.getJSONArray("nodes"));
+		} else
+		{
+			nodes = DEFAULT_NODES;
+		}
+	}
+
+	private void configureEdges(JSONObject settings)
+	{
+		if (settings.has("edges"))
+		{
+			readEdgeList(settings.getJSONArray("edges"));
+		} else
+		{
+			nodes = DEFAULT_EDGES;
+		}
 	}
 
 	private void readNodeList(JSONArray nodeList)
 	{
-		nodes = new ArrayList<>(nodeList.length());
+		nodes = new String[nodeList.length()];
 		for (int i = 0; i < nodeList.length(); i++)
 		{
-			nodes.add(nodeList.getString(i));
+			nodes[i] = nodeList.getString(i);
 		}
 	}
 
 	private void readEdgeList(JSONArray edgeList)
 	{
-		edges = new ArrayList<>(edgeList.length());
+		edges = new String[edgeList.length()];
 		for (int i = 0; i < edgeList.length(); i++)
 		{
-			edges.add(edgeList.getString(i));
+			edges[i] = edgeList.getString(i);
 		}
 	}
 
@@ -113,7 +143,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		// connection for you.
 		super.beforeExecution();
 		executor = Executors.newFixedThreadPool(nThreads);
-		Files.createDirectories(destination);
+		Files.createDirectories(outputDirectory);
 	}
 
 	@Override
@@ -166,7 +196,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 				copyFunctionNodes(subgraph, functionRoot);
 				copyFunctionEdges(subgraph, functionRoot);
 				subgraph.shutdown();
-				Path out = Paths.get(destination.toString(), "func" +
+				Path out = Paths.get(outputDirectory.toString(), "func" +
 						functionRoot.getId().toString().split(":")[1] +
 						"." + format);
 				writeGraph(subgraph, out);
@@ -208,7 +238,8 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		pipe.start(functionRoot).as("loop")
 				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
 				.loop("loop", v -> true,
-						v -> nodes.contains(v.getObject().getProperty(BjoernNodeProperties.TYPE).toString()));
+						v -> Arrays.asList(nodes)
+								.contains(v.getObject().getProperty(BjoernNodeProperties.TYPE).toString()));
 
 		for (Vertex v : pipe)
 		{
@@ -223,8 +254,9 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		pipe.start(functionRoot).as("loop")
 				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
 				.loop("loop", v -> true,
-						v -> nodes.contains(v.getObject().getProperty(BjoernNodeProperties.TYPE).toString()))
-				.outE(edges.toArray(new String[edges.size()]));
+						v -> Arrays.asList(nodes)
+								.contains(v.getObject().getProperty(BjoernNodeProperties.TYPE).toString()))
+				.outE(edges);
 
 		for (Edge e : pipe)
 		{
