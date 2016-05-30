@@ -10,6 +10,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.edges.EdgeTypes;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -126,30 +129,25 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 	private void exportFunction(Vertex vertex) throws IOException
 	{
 
-		executor.execute(new Runnable()
-		{
-			@Override
-			public void run()
+		executor.execute(() -> {
+			Graph graph = orientConnector.getNoTxGraphInstance();
+			try
 			{
-				Graph graph = orientConnector.getNoTxGraphInstance();
-				try
-				{
-					Vertex functionRoot = graph.getVertex(vertex);
-					Graph subgraph = new TinkerGraph();
-					copyFunctionNodes(subgraph, functionRoot);
-					copyFunctionEdges(subgraph, functionRoot);
-					subgraph.shutdown();
-					Path out = Paths.get(destination.toString(), "cfg" +
-							functionRoot.getId().toString().split(":")[1] +
-							"." + format);
-					writeGraph(subgraph, out);
-				} catch (IOException e)
-				{
-					e.printStackTrace();
-				} finally
-				{
-					graph.shutdown();
-				}
+				Vertex functionRoot = graph.getVertex(vertex);
+				Graph subgraph = new TinkerGraph();
+				copyFunctionNodes(subgraph, functionRoot);
+				copyFunctionEdges(subgraph, functionRoot);
+				subgraph.shutdown();
+				Path out = Paths.get(destination.toString(), "func" +
+						functionRoot.getId().toString().split(":")[1] +
+						"." + format);
+				writeGraph(subgraph, out);
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			} finally
+			{
+				graph.shutdown();
 			}
 		});
 
@@ -178,50 +176,36 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 
 	private void copyFunctionNodes(Graph graph, Vertex functionRoot)
 	{
-		copyVertex(graph, functionRoot);
-		for (Edge isFuncOfEdge : functionRoot.getEdges(Direction.OUT,
-				"IS_FUNC_OF"))
+		GremlinPipeline<Vertex, Vertex> pipe = new GremlinPipeline<>();
+		pipe.start(functionRoot).as("loop")
+				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
+				.loop("loop", v -> true,
+						v -> nodes.contains(v.getObject().getProperty(BjoernNodeProperties.TYPE).toString()));
+
+		for (Vertex v : pipe)
 		{
-			Vertex bb = isFuncOfEdge.getVertex(Direction.IN);
-			copyVertex(graph, bb);
-			for (Edge isBBOfEdge : bb.getEdges(Direction.OUT, "IS_BB_OF"))
-			{
-				Vertex instr = isBBOfEdge.getVertex(Direction.IN);
-				copyVertex(graph, instr);
-				for (Edge readOrWriteEdge : instr.getEdges(Direction.OUT, "READ", "WRITE"))
-				{
-					Vertex aloc = readOrWriteEdge.getVertex(Direction.IN);
-					copyVertex(graph, aloc);
-				}
-			}
+			copyVertex(graph, v);
 		}
+
 	}
 
 	private void copyFunctionEdges(Graph graph, Vertex functionRoot)
 	{
+		GremlinPipeline<Vertex, Edge> pipe = new GremlinPipeline<>();
+		pipe.start(functionRoot).as("loop")
+				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
+				.loop("loop", v -> true,
+						v -> nodes.contains(v.getObject().getProperty(BjoernNodeProperties.TYPE).toString()))
+				.outE(edges.toArray(new String[edges.size()]));
 
-		for (Edge edge1 : functionRoot.getEdges(Direction.OUT))
+		for (Edge e : pipe)
 		{
-			copyEdge(graph, edge1);
-			Vertex vertex1 = edge1.getVertex(Direction.IN);
-			for (Edge edge2 : vertex1.getEdges(Direction.OUT))
-			{
-				copyEdge(graph, edge2);
-				Vertex vertex2 = edge2.getVertex(Direction.IN);
-				for (Edge edge3 : vertex2.getEdges(Direction.OUT))
-				{
-					copyEdge(graph, edge3);
-				}
-			}
+			copyEdge(graph, e);
 		}
 	}
 
-	private void copyVertex(Graph graph, Vertex vertex)
+	private static void copyVertex(Graph graph, Vertex vertex)
 	{
-		if (!nodes.contains(vertex.getProperty("nodeType").toString()))
-		{
-			return;
-		}
 		Object id = vertex.getId();
 		if (graph.getVertex(id) != null)
 		{
@@ -234,13 +218,8 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		}
 	}
 
-	private void copyEdge(Graph graph, Edge edge)
+	private static void copyEdge(Graph graph, Edge edge)
 	{
-		String label = edge.getLabel();
-		if (!edges.contains(label))
-		{
-			return;
-		}
 		Object id = edge.getId();
 		if (graph.getEdge(id) != null)
 		{
@@ -250,7 +229,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		Vertex dst = graph.getVertex(edge.getVertex(Direction.IN).getId());
 		if (src != null && dst != null)
 		{
-			Edge e = GraphHelper.addEdge(graph, id, src, dst, label);
+			Edge e = GraphHelper.addEdge(graph, id, src, dst, edge.getLabel());
 			if (e != null)
 			{
 				ElementHelper.copyProperties(edge, e);
