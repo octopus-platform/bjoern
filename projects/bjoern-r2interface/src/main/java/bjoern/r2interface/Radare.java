@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeTypes;
+import bjoern.r2interface.architectures.Architecture;
+import bjoern.r2interface.architectures.X64Architecture;
 import bjoern.r2interface.exceptions.InvalidRadareFunction;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
@@ -60,6 +62,16 @@ public class Radare
 		r2Pipe.cmd("e scr.interactive = false");
 		r2Pipe.cmd("e scr.prompt = false");
 		r2Pipe.cmd("e scr.color = false");
+	}
+
+	public Architecture getArchitecture() throws IOException
+	{
+		String arch = r2Pipe.cmd("e asm.arch");
+		String bits = r2Pipe.cmd("e asm.bits");
+
+		// TODO: Actually take a look at `arch` and `bits`
+		// to decide which architecture to return
+		return new X64Architecture();
 	}
 
 	public JSONArray getJSONFunctions() throws IOException

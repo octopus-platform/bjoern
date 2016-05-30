@@ -15,6 +15,7 @@ import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.pluginlib.structures.Node;
 import bjoern.r2interface.Radare;
+import bjoern.r2interface.architectures.Architecture;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
 
@@ -49,11 +50,11 @@ public class FunctionAlocCreator {
 	{
 		List<Instruction> instructions = Traversals.functionToInstructions(functionVertex);
 		for(Instruction instr : instructions){
-			createEdgesFromInstructionToAlocs(instr);
+			createRegisterAlocsForInstruction(instr);
 		}
 	}
 
-	private void createEdgesFromInstructionToAlocs(Instruction instr) throws IOException
+	private void createRegisterAlocsForInstruction(Instruction instr) throws IOException
 	{
 		long address = instr.getAddress();
 		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
@@ -63,7 +64,7 @@ public class FunctionAlocCreator {
 		createAlocsForRegisters(instr, registersWritten, EdgeTypes.WRITE);
 	}
 
-	private void createAlocsForRegisters(Instruction instr, List<String> registersRead, String edgeType) {
+	private void createAlocsForRegisters(Instruction instr, List<String> registersRead, String edgeType) throws IOException {
 		for(String registerStr : registersRead){
 
 			Vertex registerVertex = registerToVertex.get(registerStr);
@@ -74,19 +75,37 @@ public class FunctionAlocCreator {
 		}
 	}
 
-	private Vertex createAloc(String alocName)
+	private Vertex createAloc(String alocName) throws IOException
 	{
 		String functionAddr = functionVertex.getProperty("addr");
+		String subType = subTypeFromAlocName(alocName);
 
 		Map<String, String> properties = new HashMap<String,String>();
 		properties.put(BjoernNodeProperties.ADDR, functionAddr);
 		properties.put(BjoernNodeProperties.TYPE, NodeTypes.ALOC);
+		properties.put(BjoernNodeProperties.SUBTYPE, subType);
 		properties.put(BjoernNodeProperties.NAME, alocName);
 
 		Vertex alocVertex = GraphOperations.addNode(graph, properties);
 		registerToVertex.put(alocName, alocVertex);
 		linkFunctionAndRegister(alocVertex);
 		return alocVertex;
+	}
+
+	/**
+	 * Determines the subtype by register name, e.g., register, flag, local, ...
+	 * @throws IOException
+	 * */
+
+	private String subTypeFromAlocName(String alocName) throws IOException
+	{
+		Architecture architecture = radare.getArchitecture();
+
+		if(alocName.startsWith("$") || architecture.isFlag(alocName))
+			return AlocTypes.FLAG;
+
+
+		return AlocTypes.UNKNOWN;
 	}
 
 	private void linkFunctionAndRegister(Vertex alocVertex)

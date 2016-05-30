@@ -4,6 +4,7 @@ public class BjoernNodeProperties
 {
 
 	public static final String TYPE = "nodeType";
+	public static final String SUBTYPE = "subType";
 	public static final String KEY = "key";
 	public static final String NAME = "name";
 	public static final String REPR = "repr";

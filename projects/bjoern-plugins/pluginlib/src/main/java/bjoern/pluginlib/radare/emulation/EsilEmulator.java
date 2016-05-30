@@ -2,8 +2,8 @@ package bjoern.pluginlib.radare.emulation;
 
 import java.util.function.Predicate;
 
-import bjoern.pluginlib.radare.emulation.architectures.Architecture;
 import bjoern.pluginlib.structures.Instruction;
+import bjoern.r2interface.architectures.Architecture;
 
 public class EsilEmulator {
 
@@ -34,7 +34,7 @@ public class EsilEmulator {
 	private String createEsilSequenceWithoutCalls(Iterable<Instruction> instructions)
 	{
 
-		Predicate<Instruction> isNotCall = p -> !architecture.isCall(p);
+		Predicate<Instruction> isNotCall = p -> !architecture.isCall(p.getEsilCode());
 		return createEsilSequence(instructions, isNotCall);
 	}
 
