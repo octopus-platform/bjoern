@@ -5,8 +5,8 @@ setup(
     packages=['bjoern', 'bjoern.plugins', 'bjoern.plugins.cli'],
     license='GPLv3',
     scripts=[
-        'scripts/instructionlinker',
-        'scripts/functionexporter',
-        'scripts/aloc',
-        'scripts/vsa']
+        'scripts/bjoern-instructionlinker',
+        'scripts/bjoern-functionexporter',
+        'scripts/bjoern-aloc',
+        'scripts/bjoern-vsa']
 )
