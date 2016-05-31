@@ -1,20 +1,9 @@
 package bjoern.plugins.vsa;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Queue;
-
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
+import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
@@ -22,12 +11,17 @@ import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.domain.region.LocalRegion;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
+import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
-import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.structures.BjoernEdgeProperties;
-import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+
+import java.util.*;
 
 public class VSAPlugin extends OrientGraphConnectionPlugin
 {
@@ -105,25 +99,20 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 			getLogger().info(assignment.get(instr).toString());
 			for (Edge edge : instr.getNode().getEdges(Direction.OUT, EdgeTypes.READ))
 			{
-				String aloc = edge.getVertex(Direction.IN).getProperty(BjoernNodeProperties.NAME);
-				if (isFlag(aloc))
+				Aloc aloc = new Aloc(edge.getVertex(Direction.IN));
+				if (aloc.isFlag())
 				{
 					edge.setProperty(BjoernEdgeProperties.VALUE,
-							assignment.get(instr).getValueOfFlag(aloc).toString());
+							assignment.get(instr).getValueOfFlag(aloc.getName()).toString());
 				} else
 				{
 					edge.setProperty(BjoernEdgeProperties.VALUE,
-							assignment.get(instr).getValueSetOfRegister(aloc).toString());
+							assignment.get(instr).getValueSetOfRegister(aloc.getName()).toString());
 				}
 			}
 
 		}
 
-	}
-
-	private boolean isFlag(String aloc)
-	{
-		return aloc.startsWith("$") || (aloc.length() == 2 && aloc.endsWith("f"));
 	}
 
 	private int getCounter(Instruction n)
