@@ -1,8 +1,6 @@
 package bjoern.plugins.vsa.transformer.esil;
 
-import java.util.Arrays;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.slf4j.Logger;
@@ -22,7 +20,8 @@ public class ESILTransformer extends Transformer
 	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
 	private AbstractEnvironment outEnv;
 	private Deque<Object> esilStack;
-	private Iterator<String> tokenStream;
+
+	private ESILTokenStream tokenStream;
 
 	public ESILTransformer() {}
 
@@ -32,7 +31,7 @@ public class ESILTransformer extends Transformer
 	{
 		outEnv = new AbstractEnvironment(env);
 		esilStack = new LinkedList<>();
-		tokenStream = (new LinkedList<>(Arrays.asList(esilCode.split(",")))).iterator();
+		tokenStream = new ESILTokenStream(esilCode);
 
 		logger.info("Transforming [" + esilCode + "]");
 
@@ -64,16 +63,6 @@ public class ESILTransformer extends Transformer
 		}
 
 		return outEnv;
-	}
-
-
-	private void skipUntilToken(String token)
-	{
-		String t;
-		do
-		{
-			t = tokenStream.next();
-		} while (!token.equals(t));
 	}
 
 	private ValueSet getValueSetOfObject(Object obj)
@@ -517,7 +506,7 @@ public class ESILTransformer extends Transformer
 		Bool3 bool3 = popBooleanValue();
 		if (bool3 == Bool3.FALSE)
 		{
-			skipUntilToken(ESILKeyword.END_CONDITIONAL.keyword);
+			tokenStream.skipUntilToken(ESILKeyword.END_CONDITIONAL.keyword);
 		} else if (bool3 == Bool3.MAYBE)
 		{
 			StringBuilder builder = new StringBuilder();
