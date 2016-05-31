@@ -36,7 +36,7 @@ public class FunctionAlocCreator {
 	{
 		functionVertex = function;
 
-		createRegisterAlocs();
+		createAlocsForAllInstructions();
 
 		try{
 			BasicBlock entryBlock = Traversals.functionToEntryBlock(function);
@@ -46,15 +46,15 @@ public class FunctionAlocCreator {
 		}
 	}
 
-	private void createRegisterAlocs() throws IOException
+	private void createAlocsForAllInstructions() throws IOException
 	{
 		List<Instruction> instructions = Traversals.functionToInstructions(functionVertex);
 		for(Instruction instr : instructions){
-			createRegisterAlocsForInstruction(instr);
+			createAlocsForInstruction(instr);
 		}
 	}
 
-	private void createRegisterAlocsForInstruction(Instruction instr) throws IOException
+	private void createAlocsForInstruction(Instruction instr) throws IOException
 	{
 		long address = instr.getAddress();
 		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));

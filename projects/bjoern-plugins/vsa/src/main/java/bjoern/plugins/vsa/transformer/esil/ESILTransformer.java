@@ -1,19 +1,21 @@
 package bjoern.plugins.vsa.transformer.esil;
 
-import bjoern.pluginlib.structures.Instruction;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
+import bjoern.pluginlib.radare.emulation.esil.EsilParser;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.Transformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 public class ESILTransformer extends Transformer
 {
@@ -24,13 +26,9 @@ public class ESILTransformer extends Transformer
 
 	public ESILTransformer() {}
 
-	@Override
-	public AbstractEnvironment transform(Instruction instruction, AbstractEnvironment env)
-	{
-		return transform(instruction.getEsilCode(), env);
-	}
 
-	private AbstractEnvironment transform(String esilCode, AbstractEnvironment env)
+	@Override
+	public AbstractEnvironment transform(String esilCode, AbstractEnvironment env)
 	{
 		outEnv = new AbstractEnvironment(env);
 		esilStack = new LinkedList<>();
@@ -49,14 +47,14 @@ public class ESILTransformer extends Transformer
 			if (ESILKeyword.isKeyword(token))
 			{
 				executeEsilCommand(ESILKeyword.fromString(token));
-			} else if (isNumericConstant(token))
+			} else if (EsilParser.isNumericConstant(token))
 			{
 				esilStack.push(ValueSet
-						.newGlobal(StridedInterval.getSingletonSet(parseNumericConstant(token), DataWidth.R64)));
-			} else if (isRegister(token))
+						.newGlobal(StridedInterval.getSingletonSet(EsilParser.parseNumericConstant(token), DataWidth.R64)));
+			} else if (EsilParser.isRegister(token))
 			{
 				esilStack.push(token);
-			} else if (isFlag(token))
+			} else if (EsilParser.isFlag(token))
 			{
 				esilStack.push(token);
 			} else
@@ -68,61 +66,6 @@ public class ESILTransformer extends Transformer
 		return outEnv;
 	}
 
-	private long parseNumericConstant(String token)
-	{
-		if (token.startsWith("0x"))
-		{
-			return Long.parseUnsignedLong(token.substring(2), 16);
-		}
-		return Long.parseLong(token, 10);
-	}
-
-	private boolean isNumericConstant(String token)
-	{
-		if (token.startsWith("0x"))
-		{
-			return isHexadecimalConstant(token.substring(2));
-		} else
-		{
-			return isDecimalConstant(token);
-		}
-	}
-
-	private boolean isHexadecimalConstant(String token)
-	{
-		if (token.equals(""))
-		{
-			return false;
-		}
-		for (Character c : token.toCharArray())
-		{
-			if (Character.digit(c, 16) == -1)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private boolean isDecimalConstant(String token)
-	{
-		if (token.equals(""))
-		{
-			return false;
-		}
-		if (token.startsWith(("-")) && token.length() > 1)
-		{
-			token = token.substring(1);
-		}
-		for (Character c : token.toCharArray())
-		{
-			if (Character.digit(c, 10) == -1)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
 
 	private void skipUntilToken(String token)
 	{
@@ -133,16 +76,6 @@ public class ESILTransformer extends Transformer
 		} while (!token.equals(t));
 	}
 
-	private boolean isFlag(String token)
-	{
-		return token.startsWith("$") || (token.length() == 2 && token.endsWith("f"));
-	}
-
-	private boolean isRegister(String token)
-	{
-		return !isFlag(token);
-	}
-
 	private ValueSet getValueSetOfObject(Object obj)
 	{
 		if (obj instanceof ValueSet)
@@ -151,10 +84,10 @@ public class ESILTransformer extends Transformer
 		} else if (obj instanceof Bool3)
 		{
 			return getValueSetOfBooleanValue((Bool3) obj);
-		} else if (obj instanceof String && isRegister((String) obj))
+		} else if (obj instanceof String && EsilParser.isRegister((String) obj))
 		{
 			return outEnv.getValueSetOfRegister((String) obj);
-		} else if (obj instanceof String && isFlag((String) obj))
+		} else if (obj instanceof String && EsilParser.isFlag((String) obj))
 		{
 			return getValueSetOfBooleanValue(outEnv.getValueOfFlag((String) obj));
 		}
@@ -181,13 +114,13 @@ public class ESILTransformer extends Transformer
 		if (obj instanceof Bool3)
 		{
 			return (Bool3) obj;
-		} else if (obj instanceof String && isFlag((String) obj))
+		} else if (obj instanceof String && EsilParser.isFlag((String) obj))
 		{
 			return outEnv.getValueOfFlag((String) obj);
 		} else if (obj instanceof ValueSet)
 		{
 			return getBooleanValueOfValueSet((ValueSet) obj);
-		} else if (obj instanceof String && isRegister((String) obj))
+		} else if (obj instanceof String && EsilParser.isRegister((String) obj))
 		{
 			return getBooleanValueOfValueSet(outEnv.getValueSetOfRegister((String) obj));
 
@@ -230,7 +163,7 @@ public class ESILTransformer extends Transformer
 		if (obj instanceof String)
 		{
 			String identifier = (String) obj;
-			if (isRegister(identifier) || isFlag(identifier))
+			if (EsilParser.isRegister(identifier) || EsilParser.isFlag(identifier))
 			{
 				return identifier;
 			}
@@ -474,8 +407,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && isFlag((String) obj1)) || (
-				obj2 instanceof String && isFlag((String) obj2)))
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
+				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);
 			esilStack.push(obj1);
@@ -511,8 +444,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && isFlag((String) obj1)) || (
-				obj2 instanceof String && isFlag((String) obj2)))
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
+				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);
 			esilStack.push(obj1);
@@ -547,8 +480,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && isFlag((String) obj1)) || (
-				obj2 instanceof String && isFlag((String) obj2)))
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
+				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);
 			esilStack.push(obj1);
@@ -679,10 +612,10 @@ public class ESILTransformer extends Transformer
 	private void executeAssignment()
 	{
 		String identifier = popRegisterOrFlag();
-		if (isRegister(identifier))
+		if (EsilParser.isRegister(identifier))
 		{
 			outEnv.setValueSetOfRegister(identifier, popValueSet());
-		} else if (isFlag(identifier))
+		} else if (EsilParser.isFlag(identifier))
 		{
 			outEnv.setValueOfFlag(identifier, popBooleanValue());
 		}

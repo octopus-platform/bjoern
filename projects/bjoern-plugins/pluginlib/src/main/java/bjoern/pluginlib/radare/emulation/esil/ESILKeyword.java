@@ -1,4 +1,4 @@
-package bjoern.plugins.vsa.transformer.esil;
+package bjoern.pluginlib.radare.emulation.esil;
 
 public enum ESILKeyword
 {
@@ -52,14 +52,14 @@ public enum ESILKeyword
 	END_CONDITIONAL("}");
 
 
-	final String keyword;
+	public final String keyword;
 
 	ESILKeyword(String s)
 	{
 		keyword = s;
 	}
 
-	static ESILKeyword fromString(String word)
+	public static ESILKeyword fromString(String word)
 	{
 		for (ESILKeyword command : values())
 		{
@@ -71,7 +71,7 @@ public enum ESILKeyword
 		return null;
 	}
 
-	static boolean isKeyword(String word)
+	public static boolean isKeyword(String word)
 	{
 		return fromString(word) != null;
 	}
