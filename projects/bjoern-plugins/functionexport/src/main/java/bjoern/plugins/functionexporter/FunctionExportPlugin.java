@@ -1,18 +1,11 @@
 package bjoern.plugins.functionexporter;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import bjoern.nodeStore.NodeTypes;
+import bjoern.pluginlib.LookupOperations;
+import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
+import bjoern.plugins.functionexporter.io.dot.DotWriter;
+import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -23,20 +16,36 @@ import com.tinkerpop.blueprints.util.ElementHelper;
 import com.tinkerpop.blueprints.util.GraphHelper;
 import com.tinkerpop.blueprints.util.io.gml.GMLWriter;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import bjoern.pluginlib.LookupOperations;
-import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
-import bjoern.plugins.functionexporter.io.dot.DotWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 {
 
+	private static final String DEFAULT_FORMAT = "graphml";
+	private static final int DEFAULT_NUMBER_OF_THREADS = 4;
+
+	private static final String[] DEFAULT_NODES = {NodeTypes.FUNCTION, NodeTypes.BASIC_BLOCK, NodeTypes.INSTRUCTION};
+	private static final String[] DEFAULT_EDGES = {EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF};
+
 	private String format;
 	private ExecutorService executor;
 	private int nThreads;
-	private Path destination;
-	private ArrayList<String> nodes;
-	private ArrayList<String> edges;
+	private Path outputDirectory;
+	private String[] nodes;
+	private String[] edges;
 
 	@Override
 	public void configure(JSONObject settings)
@@ -44,34 +53,86 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		// calling super here is important. It reads the database name from
 		// the json object.
 		super.configure(settings);
+
 		// read the output format (graphml, dot, etc.)
-		format = settings.getString("format");
+		configureFormat(settings);
+
 		// read the number of threads to use
-		nThreads = settings.getInt("threads");
-		// read the destination folder
-		destination = Paths.get(settings.getString("destination"),
-				getDatabaseName());
+		configureNumberOfThreads(settings);
+
+		// read the outputDirectory folder
+		configureOutputDirectoru(settings);
 
 		// read the node and edge types to include in the exported graph
-		readNodeList(settings.getJSONArray("nodes"));
-		readEdgeList(settings.getJSONArray("edges"));
+		configureNodes(settings);
+		configureEdges(settings);
+	}
+
+	private void configureFormat(JSONObject settings)
+	{
+		if (settings.has("format"))
+		{
+			format = settings.getString("format");
+		} else
+		{
+			format = DEFAULT_FORMAT;
+		}
+	}
+
+	private void configureNumberOfThreads(JSONObject settings)
+	{
+		if (settings.has("threads"))
+		{
+			nThreads = settings.getInt("threads");
+		} else
+		{
+			nThreads = DEFAULT_NUMBER_OF_THREADS;
+		}
+	}
+
+	private void configureOutputDirectoru(JSONObject settings)
+	{
+		outputDirectory = Paths.get(settings.getString("outdir"),
+				getDatabaseName());
+	}
+
+	private void configureNodes(JSONObject settings)
+	{
+		if (settings.has("nodes"))
+		{
+			readNodeList(settings.getJSONArray("nodes"));
+		} else
+		{
+			nodes = DEFAULT_NODES;
+		}
+	}
+
+	private void configureEdges(JSONObject settings)
+	{
+		if (settings.has("edges"))
+		{
+			readEdgeList(settings.getJSONArray("edges"));
+		} else
+		{
+			nodes = DEFAULT_EDGES;
+		}
 	}
 
 	private void readNodeList(JSONArray nodeList)
 	{
-		nodes = new ArrayList<>(nodeList.length());
+		nodes = new String[nodeList.length()];
 		for (int i = 0; i < nodeList.length(); i++)
 		{
-			nodes.add(nodeList.getString(i));
+			nodes[i] = nodeList.getString(i);
 		}
 	}
 
 	private void readEdgeList(JSONArray edgeList)
 	{
-		edges = new ArrayList<>(edgeList.length());
+		edges = new String[edgeList.length()];
 		for (int i = 0; i < edgeList.length(); i++)
 		{
-			edges.add(edgeList.getString(i));
+			edges[i] = edgeList.getString(i);
 		}
 	}
 
@@ -82,7 +143,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		// connection for you.
 		super.beforeExecution();
 		executor = Executors.newFixedThreadPool(nThreads);
-		Files.createDirectories(destination);
+		Files.createDirectories(outputDirectory);
 	}
 
 	@Override
@@ -126,30 +187,25 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 	private void exportFunction(Vertex vertex) throws IOException
 	{
 
-		executor.execute(new Runnable()
-		{
-			@Override
-			public void run()
+		executor.execute(() -> {
+			Graph graph = orientConnector.getNoTxGraphInstance();
+			try
 			{
-				Graph graph = orientConnector.getNoTxGraphInstance();
-				try
-				{
-					Vertex functionRoot = graph.getVertex(vertex);
-					Graph subgraph = new TinkerGraph();
-					copyFunctionNodes(subgraph, functionRoot);
-					copyFunctionEdges(subgraph, functionRoot);
-					subgraph.shutdown();
-					Path out = Paths.get(destination.toString(), "cfg" +
-							functionRoot.getId().toString().split(":")[1] +
-							"." + format);
-					writeGraph(subgraph, out);
-				} catch (IOException e)
-				{
-					e.printStackTrace();
-				} finally
-				{
-					graph.shutdown();
-				}
+				Vertex functionRoot = graph.getVertex(vertex);
+				Graph subgraph = new TinkerGraph();
+				copyFunctionNodes(subgraph, functionRoot);
+				copyFunctionEdges(subgraph, functionRoot);
+				subgraph.shutdown();
+				Path out = Paths.get(outputDirectory.toString(), "func" +
+						functionRoot.getId().toString().split(":")[1] +
+						"." + format);
+				writeGraph(subgraph, out);
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			} finally
+			{
+				graph.shutdown();
 			}
 		});
 
@@ -178,50 +234,38 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 
 	private void copyFunctionNodes(Graph graph, Vertex functionRoot)
 	{
-		copyVertex(graph, functionRoot);
-		for (Edge isFuncOfEdge : functionRoot.getEdges(Direction.OUT,
-				"IS_FUNC_OF"))
+		GremlinPipeline<Vertex, Vertex> pipe = new GremlinPipeline<>();
+		pipe.start(functionRoot).as("loop")
+				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
+				.loop("loop", v -> true,
+						v -> Arrays.asList(nodes)
+								.contains(v.getObject().getProperty(BjoernNodeProperties.TYPE).toString()));
+
+		for (Vertex v : pipe)
 		{
-			Vertex bb = isFuncOfEdge.getVertex(Direction.IN);
-			copyVertex(graph, bb);
-			for (Edge isBBOfEdge : bb.getEdges(Direction.OUT, "IS_BB_OF"))
-			{
-				Vertex instr = isBBOfEdge.getVertex(Direction.IN);
-				copyVertex(graph, instr);
-				for (Edge readOrWriteEdge : instr.getEdges(Direction.OUT, "READ", "WRITE"))
-				{
-					Vertex aloc = readOrWriteEdge.getVertex(Direction.IN);
-					copyVertex(graph, aloc);
-				}
-			}
+			copyVertex(graph, v);
 		}
+
 	}
 
 	private void copyFunctionEdges(Graph graph, Vertex functionRoot)
 	{
+		GremlinPipeline<Vertex, Edge> pipe = new GremlinPipeline<>();
+		pipe.start(functionRoot).as("loop")
+				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
+				.loop("loop", v -> true,
+						v -> Arrays.asList(nodes)
+								.contains(v.getObject().getProperty(BjoernNodeProperties.TYPE).toString()))
+				.outE(edges);
 
-		for (Edge edge1 : functionRoot.getEdges(Direction.OUT))
+		for (Edge e : pipe)
 		{
-			copyEdge(graph, edge1);
-			Vertex vertex1 = edge1.getVertex(Direction.IN);
-			for (Edge edge2 : vertex1.getEdges(Direction.OUT))
-			{
-				copyEdge(graph, edge2);
-				Vertex vertex2 = edge2.getVertex(Direction.IN);
-				for (Edge edge3 : vertex2.getEdges(Direction.OUT))
-				{
-					copyEdge(graph, edge3);
-				}
-			}
+			copyEdge(graph, e);
 		}
 	}
 
-	private void copyVertex(Graph graph, Vertex vertex)
+	private static void copyVertex(Graph graph, Vertex vertex)
 	{
-		if (!nodes.contains(vertex.getProperty("nodeType").toString()))
-		{
-			return;
-		}
 		Object id = vertex.getId();
 		if (graph.getVertex(id) != null)
 		{
@@ -234,13 +278,8 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		}
 	}
 
-	private void copyEdge(Graph graph, Edge edge)
+	private static void copyEdge(Graph graph, Edge edge)
 	{
-		String label = edge.getLabel();
-		if (!edges.contains(label))
-		{
-			return;
-		}
 		Object id = edge.getId();
 		if (graph.getEdge(id) != null)
 		{
@@ -250,7 +289,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 		Vertex dst = graph.getVertex(edge.getVertex(Direction.IN).getId());
 		if (src != null && dst != null)
 		{
-			Edge e = GraphHelper.addEdge(graph, id, src, dst, label);
+			Edge e = GraphHelper.addEdge(graph, id, src, dst, edge.getLabel());
 			if (e != null)
 			{
 				ElementHelper.copyProperties(edge, e);
