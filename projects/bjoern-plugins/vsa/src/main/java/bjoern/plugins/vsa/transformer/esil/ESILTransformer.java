@@ -43,13 +43,14 @@ public class ESILTransformer extends Transformer
 		while (tokenStream.hasNext())
 		{
 			String token = tokenStream.next();
-			if (ESILKeyword.isKeyword(token))
+			if (EsilParser.isEsilKeyword(token))
 			{
 				executeEsilCommand(ESILKeyword.fromString(token));
 			} else if (EsilParser.isNumericConstant(token))
 			{
 				esilStack.push(ValueSet
-						.newGlobal(StridedInterval.getSingletonSet(EsilParser.parseNumericConstant(token), DataWidth.R64)));
+						.newGlobal(StridedInterval
+								.getSingletonSet(EsilParser.parseNumericConstant(token), DataWidth.R64)));
 			} else if (EsilParser.isRegister(token))
 			{
 				esilStack.push(token);
@@ -396,7 +397,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser
+				.isFlag((String) obj1)) || (
 				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);
@@ -433,7 +435,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser
+				.isFlag((String) obj1)) || (
 				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);
@@ -469,7 +472,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser
+				.isFlag((String) obj1)) || (
 				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);

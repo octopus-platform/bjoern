@@ -1,6 +1,7 @@
 package bjoern.pluginlib.radare.emulation.esil;
 
-public class EsilParser {
+public class EsilParser
+{
 
 	public static long parseNumericConstant(String token)
 	{
@@ -66,6 +67,11 @@ public class EsilParser {
 	public static boolean isRegister(String token)
 	{
 		return !isFlag(token);
+	}
+
+	public static boolean isEsilKeyword(String token)
+	{
+		return ESILKeyword.fromString(token) != null;
 	}
 
 }
