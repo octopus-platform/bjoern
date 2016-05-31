@@ -1,0 +1,15 @@
+build/
+jars/
+
+projects/octopus/plugins/
+projects/octopus/projects/
+projects/octopus/querylib/
+projects/octopus/orientdb-community-2.1.5/
+projects/octopus/orientdb.tar.gz
+
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+
+.idea/
