@@ -488,12 +488,12 @@ public class StridedInterval
 
 	public StridedInterval signExtend(DataWidth dataWidth)
 	{
-		if (dataWidth.compareTo(dataWidth) >= 0)
+		if (this.dataWidth.compareTo(dataWidth) >= 0)
 		{
 			return this;
 		} else
 		{
-			throw new UnsupportedOperationException("Not yet implemented.");
+			return getStridedInterval(stride, lowerBound, upperBound, dataWidth);
 		}
 	}
 
