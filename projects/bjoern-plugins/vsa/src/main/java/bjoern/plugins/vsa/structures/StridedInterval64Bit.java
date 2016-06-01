@@ -9,13 +9,7 @@ final class StridedInterval64Bit extends StridedInterval
 
 	StridedInterval64Bit(long stride, long lower, long upper)
 	{
-		super(stride, lower, upper);
-	}
-
-	@Override
-	public DataWidth getDataWidth()
-	{
-		return DataWidth.R64;
+		super(stride, lower, upper, DataWidth.R64);
 	}
 
 }
