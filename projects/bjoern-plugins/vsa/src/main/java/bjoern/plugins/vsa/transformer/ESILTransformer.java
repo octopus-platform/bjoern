@@ -1,10 +1,4 @@
-package bjoern.plugins.vsa.transformer.esil;
-
-import java.util.Deque;
-import java.util.LinkedList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package bjoern.plugins.vsa.transformer;
 
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.radare.emulation.esil.ESILParser;
@@ -14,9 +8,14 @@ import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
-import bjoern.plugins.vsa.transformer.Transformer;
+import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ESILTransformer extends Transformer
+import java.util.Deque;
+import java.util.LinkedList;
+
+public class ESILTransformer implements Transformer
 {
 	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
 	private AbstractEnvironment outEnv;

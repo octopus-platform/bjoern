@@ -24,7 +24,7 @@ import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
-import bjoern.plugins.vsa.transformer.esil.ESILTransformer;
+import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.structures.BjoernEdgeProperties;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
