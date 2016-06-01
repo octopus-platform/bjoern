@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
+import bjoern.pluginlib.radare.emulation.esil.ESILParser;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
-import bjoern.pluginlib.radare.emulation.esil.EsilParser;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.Bool3;
@@ -23,7 +23,7 @@ public class ESILTransformer extends Transformer
 	private Deque<Object> esilStack;
 
 	private ESILTokenStream tokenStream;
-	private EsilParser esilParser = new EsilParser();
+	private ESILParser esilParser = new ESILParser();
 
 	public ESILTransformer() {}
 
@@ -603,10 +603,10 @@ public class ESILTransformer extends Transformer
 	private void executeAssignment()
 	{
 		String identifier = popRegisterOrFlag();
-		if (EsilParser.isRegister(identifier))
+		if (esilParser.isRegister(identifier))
 		{
 			outEnv.setValueSetOfRegister(identifier, popValueSet());
-		} else if (EsilParser.isFlag(identifier))
+		} else if (esilParser.isFlag(identifier))
 		{
 			outEnv.setValueOfFlag(identifier, popBooleanValue());
 		}

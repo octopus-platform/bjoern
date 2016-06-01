@@ -1,6 +1,6 @@
 package bjoern.pluginlib.radare.emulation.esil;
 
-public class EsilParser {
+public class ESILParser {
 
 	public long parseNumericConstant(String token)
 	{
