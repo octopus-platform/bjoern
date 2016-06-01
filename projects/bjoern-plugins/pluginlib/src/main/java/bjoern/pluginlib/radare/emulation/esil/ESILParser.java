@@ -68,4 +68,9 @@ public class ESILParser {
 		return !isFlag(token);
 	}
 
+	public static boolean isEsilKeyword(String token)
+	{
+		return ESILKeyword.fromString(token) != null;
+	}
+
 }

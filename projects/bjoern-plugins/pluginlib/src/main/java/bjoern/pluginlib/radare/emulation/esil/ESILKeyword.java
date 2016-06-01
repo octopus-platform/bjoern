@@ -71,9 +71,4 @@ public enum ESILKeyword
 		return null;
 	}
 
-	public static boolean isKeyword(String word)
-	{
-		return fromString(word) != null;
-	}
-
 }

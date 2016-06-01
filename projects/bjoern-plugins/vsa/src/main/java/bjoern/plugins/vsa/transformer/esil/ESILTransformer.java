@@ -45,7 +45,7 @@ public class ESILTransformer extends Transformer
 		while (tokenStream.hasNext())
 		{
 			String token = tokenStream.next();
-			if (ESILKeyword.isKeyword(token))
+			if (esilParser.isEsilKeyword(token))
 			{
 				executeEsilCommand(ESILKeyword.fromString(token));
 			} else if (esilParser.isNumericConstant(token))
@@ -471,6 +471,7 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
+
 		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && esilParser.isFlag((String) obj1)) || (
 				obj2 instanceof String && esilParser.isFlag((String) obj2)))
 		{
