@@ -15,7 +15,7 @@ public class AlocPlugin extends RadareProjectPlugin {
 	@Override
 	public void execute() throws Exception
 	{
-		graph = orientConnector.getNoTxGraphInstance();
+		graph = getOrientConnector().getNoTxGraphInstance();
 		Iterable<Vertex> allFunctions = LookupOperations.getAllFunctions(graph);
 
 		try{
@@ -31,7 +31,7 @@ public class AlocPlugin extends RadareProjectPlugin {
 	{
 		for(Vertex func : functions)
 		{
-			new FunctionAlocCreator(radare, graph).createAlocsForFunction(func);
+			new FunctionAlocCreator(getRadare(), graph).createAlocsForFunction(func);
 		}
 
 	}

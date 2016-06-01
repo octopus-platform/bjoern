@@ -8,9 +8,9 @@ import bjoern.r2interface.Radare;
 
 public class RadareProjectPlugin extends BjoernProjectPlugin {
 
-	protected Radare radare = new Radare();
-	protected BjoernProject project;
-	protected OrientDBConnector orientConnector = new OrientDBConnector();
+	private Radare radare = new Radare();
+	private BjoernProject project;
+	private OrientDBConnector orientConnector = new OrientDBConnector();
 
 	@Override
 	public void beforeExecution() throws Exception
@@ -21,24 +21,48 @@ public class RadareProjectPlugin extends BjoernProjectPlugin {
 
 	private void loadR2Project() throws IOException
 	{
-		project = bjoernProjectConnector.getProject();
-		String r2ProjectFilename = project.getR2ProjectFilename();
-		String pathToBinary = project.getPathToBinary();
-		radare.loadBinary(pathToBinary);
-		radare.loadProject(r2ProjectFilename);
+		setProject(getBjoernProjectConnector().getProject());
+		String r2ProjectFilename = getProject().getR2ProjectFilename();
+		String pathToBinary = getProject().getPathToBinary();
+		getRadare().loadBinary(pathToBinary);
+		getRadare().loadProject(r2ProjectFilename);
 	}
 
 	private void connectToProjectDatabase()
 	{
-		String databaseName = project.getDatabaseName();
-		orientConnector.connect(databaseName);
+		String databaseName = getProject().getDatabaseName();
+		getOrientConnector().connect(databaseName);
 	}
 
 	@Override
 	public void afterExecution() throws Exception
 	{
-		orientConnector.disconnect();
-		radare.shutdown();
+		getOrientConnector().disconnect();
+		getRadare().shutdown();
+	}
+
+	protected Radare getRadare(){
+		return radare;
+	}
+
+	protected void setRadare(Radare radare) {
+		this.radare = radare;
+	}
+
+	protected BjoernProject getProject() {
+		return project;
+	}
+
+	protected void setProject(BjoernProject project) {
+		this.project = project;
+	}
+
+	protected OrientDBConnector getOrientConnector() {
+		return orientConnector;
+	}
+
+	protected void setOrientConnector(OrientDBConnector orientConnector) {
+		this.orientConnector = orientConnector;
 	}
 
 }

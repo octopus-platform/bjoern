@@ -1,5 +1,6 @@
 package bjoern.pluginlib.radare.emulation;
 
+import java.io.IOException;
 import java.util.function.Predicate;
 
 import bjoern.pluginlib.structures.Instruction;
@@ -11,9 +12,11 @@ public class EsilEmulator {
 	Architecture architecture;
 	Radare wrappedRadare;
 
-	public EsilEmulator(Radare radare)
+	public EsilEmulator(Radare radare) throws IOException
 	{
 		wrappedRadare = radare;
+		setArchitecture(radare.getArchitecture());
+
 		reset();
 	}
 
@@ -27,15 +30,25 @@ public class EsilEmulator {
 		this.architecture = architecture;
 	}
 
-	public void emulateWithoutCalls(Iterable<Instruction> instructions)
+	public void emulateWithoutCalls(Iterable<Instruction> instructions) throws IOException
 	{
 		String esilSeq = createEsilSequenceWithoutCalls(instructions);
+		wrappedRadare.resetEsilState();
+		wrappedRadare.runEsilCode(esilSeq);
+	}
 
+	public long getRegisterValue(String registerName) throws IOException
+	{
+		String registerValueStr = wrappedRadare.getRegisterValue(registerName);
+		if(registerValueStr == null)
+			return 0;
+
+		registerValueStr = registerValueStr.substring(2, registerValueStr.length() -1);
+		return Long.parseUnsignedLong(registerValueStr, 16);
 	}
 
 	private String createEsilSequenceWithoutCalls(Iterable<Instruction> instructions)
 	{
-
 		Predicate<Instruction> isNotCall = p -> !architecture.isCall(p.getEsilCode());
 		return createEsilSequence(instructions, isNotCall);
 	}
@@ -60,7 +73,6 @@ public class EsilEmulator {
 		String instructionSeq = builder.toString();
 		instructionSeq = instructionSeq.substring(0, instructionSeq.length() -1);
 		return instructionSeq;
-
 	}
 
 

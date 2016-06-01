@@ -11,6 +11,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.GraphOperations;
 import bjoern.pluginlib.Traversals;
+import bjoern.pluginlib.radare.emulation.EsilEmulator;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.pluginlib.structures.Node;
@@ -25,12 +26,14 @@ public class FunctionAlocCreator {
 	private Radare radare;
 	private OrientGraphNoTx graph;
 	Vertex functionVertex;
+	EsilEmulator emulator;
 
 
-	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph)
+	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
 	{
 		this.radare = radare;
 		this.graph = graph;
+		this.emulator = new EsilEmulator(radare);
 	}
 
 	public void createAlocsForFunction(Vertex function) throws IOException
@@ -38,13 +41,7 @@ public class FunctionAlocCreator {
 		functionVertex = function;
 
 		createAlocsForAllInstructions();
-
-		try{
-			BasicBlock entryBlock = Traversals.functionToEntryBlock(function);
-		} catch(RuntimeException ex) {
-			System.err.println("Warning: function without entry block");
-			return;
-		}
+		emulateFirstBasicBlock(function);
 	}
 
 	private void createAlocsForAllInstructions() throws IOException
@@ -116,6 +113,22 @@ public class FunctionAlocCreator {
 		Node alocNode = new Node(alocVertex);
 
 		GraphOperations.addEdge(graph, functionNode, alocNode, GraphOperations.ALOC_USE_EDGE);
+	}
+
+	private void emulateFirstBasicBlock(Vertex function) throws IOException
+	{
+		BasicBlock entryBlock;
+		try{
+			entryBlock = Traversals.functionToEntryBlock(function);
+
+		} catch(RuntimeException ex) {
+			System.err.println("Warning: function without entry block");
+			return;
+		}
+
+		emulator.emulateWithoutCalls(entryBlock.getInstructions());
+		long rbp = emulator.getRegisterValue("rbp");
+		long rsp = emulator.getRegisterValue("rsp");
 	}
 
 }
