@@ -3,21 +3,23 @@ package bjoern.pluginlib.radare.emulation;
 import java.util.function.Predicate;
 
 import bjoern.pluginlib.structures.Instruction;
+import bjoern.r2interface.Radare;
 import bjoern.r2interface.architectures.Architecture;
 
 public class EsilEmulator {
 
-	EmulatorState state;
 	Architecture architecture;
+	Radare wrappedRadare;
 
-	public EsilEmulator()
+	public EsilEmulator(Radare radare)
 	{
+		wrappedRadare = radare;
 		reset();
 	}
 
 	public void reset()
 	{
-		state = new EmulatorState();
+
 	}
 
 	public void setArchitecture(Architecture architecture)

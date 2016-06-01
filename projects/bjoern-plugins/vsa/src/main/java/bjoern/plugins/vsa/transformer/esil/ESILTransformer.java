@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
+import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
 import bjoern.pluginlib.radare.emulation.esil.EsilParser;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
@@ -22,6 +23,7 @@ public class ESILTransformer extends Transformer
 	private Deque<Object> esilStack;
 
 	private ESILTokenStream tokenStream;
+	private EsilParser esilParser = new EsilParser();
 
 	public ESILTransformer() {}
 
@@ -46,14 +48,14 @@ public class ESILTransformer extends Transformer
 			if (ESILKeyword.isKeyword(token))
 			{
 				executeEsilCommand(ESILKeyword.fromString(token));
-			} else if (EsilParser.isNumericConstant(token))
+			} else if (esilParser.isNumericConstant(token))
 			{
 				esilStack.push(ValueSet
-						.newGlobal(StridedInterval.getSingletonSet(EsilParser.parseNumericConstant(token), DataWidth.R64)));
-			} else if (EsilParser.isRegister(token))
+						.newGlobal(StridedInterval.getSingletonSet(esilParser.parseNumericConstant(token), DataWidth.R64)));
+			} else if (esilParser.isRegister(token))
 			{
 				esilStack.push(token);
-			} else if (EsilParser.isFlag(token))
+			} else if (esilParser.isFlag(token))
 			{
 				esilStack.push(token);
 			} else
@@ -73,10 +75,10 @@ public class ESILTransformer extends Transformer
 		} else if (obj instanceof Bool3)
 		{
 			return getValueSetOfBooleanValue((Bool3) obj);
-		} else if (obj instanceof String && EsilParser.isRegister((String) obj))
+		} else if (obj instanceof String && esilParser.isRegister((String) obj))
 		{
 			return outEnv.getValueSetOfRegister((String) obj);
-		} else if (obj instanceof String && EsilParser.isFlag((String) obj))
+		} else if (obj instanceof String && esilParser.isFlag((String) obj))
 		{
 			return getValueSetOfBooleanValue(outEnv.getValueOfFlag((String) obj));
 		}
@@ -103,13 +105,13 @@ public class ESILTransformer extends Transformer
 		if (obj instanceof Bool3)
 		{
 			return (Bool3) obj;
-		} else if (obj instanceof String && EsilParser.isFlag((String) obj))
+		} else if (obj instanceof String && esilParser.isFlag((String) obj))
 		{
 			return outEnv.getValueOfFlag((String) obj);
 		} else if (obj instanceof ValueSet)
 		{
 			return getBooleanValueOfValueSet((ValueSet) obj);
-		} else if (obj instanceof String && EsilParser.isRegister((String) obj))
+		} else if (obj instanceof String && esilParser.isRegister((String) obj))
 		{
 			return getBooleanValueOfValueSet(outEnv.getValueSetOfRegister((String) obj));
 
@@ -152,7 +154,7 @@ public class ESILTransformer extends Transformer
 		if (obj instanceof String)
 		{
 			String identifier = (String) obj;
-			if (EsilParser.isRegister(identifier) || EsilParser.isFlag(identifier))
+			if (esilParser.isRegister(identifier) || esilParser.isFlag(identifier))
 			{
 				return identifier;
 			}
@@ -396,8 +398,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
-				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && esilParser.isFlag((String) obj1)) || (
+				obj2 instanceof String && esilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);
 			esilStack.push(obj1);
@@ -433,8 +435,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
-				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && esilParser.isFlag((String) obj1)) || (
+				obj2 instanceof String && esilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);
 			esilStack.push(obj1);
@@ -469,8 +471,8 @@ public class ESILTransformer extends Transformer
 	{
 		Object obj1 = esilStack.pop();
 		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && EsilParser.isFlag((String) obj1)) || (
-				obj2 instanceof String && EsilParser.isFlag((String) obj2)))
+		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && esilParser.isFlag((String) obj1)) || (
+				obj2 instanceof String && esilParser.isFlag((String) obj2)))
 		{
 			esilStack.push(obj2);
 			esilStack.push(obj1);

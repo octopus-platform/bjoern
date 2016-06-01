@@ -2,7 +2,7 @@ package bjoern.pluginlib.radare.emulation.esil;
 
 public class EsilParser {
 
-	public static long parseNumericConstant(String token)
+	public long parseNumericConstant(String token)
 	{
 		if (token.startsWith("0x"))
 		{
@@ -11,7 +11,7 @@ public class EsilParser {
 		return Long.parseLong(token, 10);
 	}
 
-	public static boolean isNumericConstant(String token)
+	public boolean isNumericConstant(String token)
 	{
 		if (token.startsWith("0x"))
 		{
@@ -22,7 +22,7 @@ public class EsilParser {
 		}
 	}
 
-	public static boolean isHexadecimalConstant(String token)
+	public boolean isHexadecimalConstant(String token)
 	{
 		if (token.equals(""))
 		{
@@ -38,7 +38,7 @@ public class EsilParser {
 		return true;
 	}
 
-	public static boolean isDecimalConstant(String token)
+	public boolean isDecimalConstant(String token)
 	{
 		if (token.equals(""))
 		{
@@ -58,12 +58,12 @@ public class EsilParser {
 		return true;
 	}
 
-	public static boolean isFlag(String token)
+	public boolean isFlag(String token)
 	{
 		return token.startsWith("$") || (token.length() == 2 && token.endsWith("f"));
 	}
 
-	public static boolean isRegister(String token)
+	public boolean isRegister(String token)
 	{
 		return !isFlag(token);
 	}

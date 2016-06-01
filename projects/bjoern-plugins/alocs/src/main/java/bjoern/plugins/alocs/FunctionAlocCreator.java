@@ -26,6 +26,7 @@ public class FunctionAlocCreator {
 	private OrientGraphNoTx graph;
 	Vertex functionVertex;
 
+
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph)
 	{
 		this.radare = radare;
@@ -57,11 +58,12 @@ public class FunctionAlocCreator {
 	private void createAlocsForInstruction(Instruction instr) throws IOException
 	{
 		long address = instr.getAddress();
-		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
-		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
 
+		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
 		createAlocsForRegisters(instr, registersRead, EdgeTypes.READ);
+		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
 		createAlocsForRegisters(instr, registersWritten, EdgeTypes.WRITE);
+
 	}
 
 	private void createAlocsForRegisters(Instruction instr, List<String> registersRead, String edgeType) throws IOException {
