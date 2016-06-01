@@ -37,6 +37,18 @@ public class EsilEmulator {
 		wrappedRadare.runEsilCode(esilSeq);
 	}
 
+	public long getStackPointerValue() throws IOException
+	{
+		String stackRegisterName = architecture.getStackRegisterName();
+		return getRegisterValue(stackRegisterName);
+	}
+
+	public long getBasePointerValue() throws IOException
+	{
+		String baseRegisterName = architecture.getBaseRegisterName();
+		return getRegisterValue(baseRegisterName);
+	}
+
 	public long getRegisterValue(String registerName) throws IOException
 	{
 		String registerValueStr = wrappedRadare.getRegisterValue(registerName);

@@ -127,8 +127,8 @@ public class FunctionAlocCreator {
 		}
 
 		emulator.emulateWithoutCalls(entryBlock.getInstructions());
-		long rbp = emulator.getRegisterValue("rbp");
-		long rsp = emulator.getRegisterValue("rsp");
+		long basePtrValue = emulator.getBasePointerValue();
+		long stackPtrValue = emulator.getStackPointerValue();
 	}
 
 }

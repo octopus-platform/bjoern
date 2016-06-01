@@ -14,4 +14,16 @@ public class X64Architecture extends Architecture {
 		return (registerName.length() == 2 && registerName.endsWith("f"));
 	}
 
+	@Override
+	public String getStackRegisterName()
+	{
+		return "rsp";
+	}
+
+	@Override
+	public String getBaseRegisterName()
+	{
+		return "rbp";
+	}
+
 }
