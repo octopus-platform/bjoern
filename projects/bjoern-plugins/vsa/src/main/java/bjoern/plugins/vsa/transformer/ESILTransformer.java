@@ -431,14 +431,14 @@ public class ESILTransformer implements Transformer
 
 	private void executePeek()
 	{
-		logger.warn("Loading data from memory not yet supported");
+		logger.info("Loading data from memory not yet supported");
 		esilStack.pop();
 		esilStack.push(ValueSet.newTop(DataWidth.R64));
 	}
 
 	private void executePoke()
 	{
-		logger.warn("Writing data to memory not yet supported");
+		logger.info("Writing data to memory not yet supported");
 		esilStack.pop();
 		esilStack.pop();
 	}
