@@ -7,12 +7,14 @@ public final class DataWidth implements Comparable<DataWidth>
 {
 
 	private static Map<Integer, DataWidth> cache;
+	public static DataWidth R1;
 	public static DataWidth R4;
 	public static DataWidth R64;
 
 	static
 	{
 		cache = new HashMap<>();
+		R1 = getInstance(1);
 		R4 = getInstance(4);
 		R64 = getInstance(64);
 	}
@@ -23,6 +25,9 @@ public final class DataWidth implements Comparable<DataWidth>
 
 	private DataWidth(int width)
 	{
+		if (width < 1) {
+			throw new IllegalArgumentException("Invalid width: width must be larger than zero.");
+		}
 		this.width = width;
 		this.minimumValue = -(0x1l << (width - 1l));
 		this.maximumValue = -(minimumValue + 1);
@@ -37,6 +42,12 @@ public final class DataWidth implements Comparable<DataWidth>
 			cache.put(width, o);
 		}
 		return o;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "R" + width;
 	}
 
 	public long effectiveValue(long value)
