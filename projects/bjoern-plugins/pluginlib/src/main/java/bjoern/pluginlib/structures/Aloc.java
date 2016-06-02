@@ -20,4 +20,11 @@ public class Aloc extends Node
 	{
 		return getNode().getProperty(BjoernNodeProperties.SUBTYPE).toString().equals("flag");
 	}
+
+	public boolean isRegister()
+	{
+		// TODO
+		return !isFlag();
+//		return getNode().getProperty(BjoernNodeProperties.SUBTYPE).toString().equals("register");
+	}
 }
