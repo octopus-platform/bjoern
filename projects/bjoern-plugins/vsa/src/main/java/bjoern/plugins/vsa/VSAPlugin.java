@@ -39,7 +39,13 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		{
 			Function function = new Function(v);
 			getLogger().info(function.toString());
-			performIntraProceduralVSA(function);
+			try
+			{
+				performIntraProceduralVSA(function);
+			} catch (Exception e)
+			{
+				getLogger().error("Error for function " + function + ": " + e.getMessage());
+			}
 		}
 		graph.shutdown();
 	}
@@ -108,7 +114,8 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 				{
 					valueSet = ValueSet.newSingle(LocalRegion.newLocalRegion(),
 							StridedInterval.getSingletonSet(0, DataWidth.R64));
-				} else {
+				} else
+				{
 					valueSet = ValueSet.newTop(DataWidth.R64);
 				}
 				env.setValueSetOfRegister(aloc.getName(), valueSet);
