@@ -92,7 +92,7 @@ public class Traversals
 		pipe.start(function.getNode()).as("loop")
 				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
 				.loop("loop", v -> true,
-						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(NodeTypes.ALOC));
+						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(NodeTypes.ALOC)).dedup();
 		return pipe.toList().stream().map(Aloc::new).collect(Collectors.toList());
 	}
 
