@@ -9,6 +9,7 @@ import bjoern.pluginlib.structures.Instruction;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.domain.region.LocalRegion;
+import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.ESILTransformer;
@@ -47,15 +48,15 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 	{
 		assignment = new HashMap<>();
 		mycounter = new HashMap<>();
+		Queue<Instruction> worklist = new LinkedList<>();
+		Transformer transformer = new ESILTransformer();
+
 		Instruction entry = Traversals.functionToEntryInstruction(function);
 		if (entry == null)
 		{
 			return;
 		}
-
-		Queue<Instruction> worklist = new LinkedList<>();
-		Transformer transformer = new ESILTransformer();
-		initAbstractEnvironment(entry);
+		setAbstractEnvironment(entry, createAbstractEnvironment(function));
 		worklist.add(entry);
 		while (!worklist.isEmpty())
 		{
@@ -89,6 +90,31 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		}
 
 		writeResults();
+	}
+
+	private AbstractEnvironment createAbstractEnvironment(Function function)
+	{
+		AbstractEnvironment env = new AbstractEnvironment();
+		for (Aloc aloc : Traversals.functionToAlocs(function))
+		{
+			if (aloc.isFlag())
+			{
+				env.setValueOfFlag(aloc.getName(), Bool3.MAYBE);
+			} else if (aloc.isRegister())
+			{
+				// TODO: Read initial values and the data width from aloc node.
+				ValueSet valueSet;
+				if (aloc.getName().equals("rsp"))
+				{
+					valueSet = ValueSet.newSingle(LocalRegion.newLocalRegion(),
+							StridedInterval.getSingletonSet(0, DataWidth.R64));
+				} else {
+					valueSet = ValueSet.newTop(DataWidth.R64);
+				}
+				env.setValueSetOfRegister(aloc.getName(), valueSet);
+			}
+		}
+		return env;
 	}
 
 	private void writeResults()
@@ -173,14 +199,4 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		assignment.put(n, env);
 	}
 
-	private void initAbstractEnvironment(Instruction entry)
-	{
-		AbstractEnvironment initState = new AbstractEnvironment();
-		ValueSet valueSet;
-		valueSet = ValueSet.newSingle(LocalRegion.newLocalRegion(),
-				StridedInterval.getSingletonSet(0, DataWidth.R64));
-		initState.setValueSetOfRegister("rsp", valueSet);
-
-		setAbstractEnvironment(entry, initState);
-	}
 }
