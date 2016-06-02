@@ -1,5 +1,7 @@
 package bjoern.plugins.vsa.structures;
 
+import java.math.BigInteger;
+
 public class StridedInterval
 {
 
@@ -26,7 +28,9 @@ public class StridedInterval
 		{
 			throw new IllegalArgumentException("Invalid strided interval: lower bound must not be larger than upper "
 					+ "bound.");
-		} else if (stride > 0 && ((upper - lower) % stride) != 0)
+		} else if (stride > 0 &&
+				BigInteger.valueOf(upper).subtract(BigInteger.valueOf(lower)).mod(BigInteger.valueOf(stride))
+						.longValue() != 0)
 		{
 			throw new IllegalArgumentException("Invalid strided interval: upper bound must be tight.");
 		}
@@ -358,12 +362,38 @@ public class StridedInterval
 
 	public StridedInterval removeLowerBound()
 	{
-		return getStridedInterval(stride, dataWidth.getMinimumValue(), upperBound, dataWidth);
+		if (lowerBound == dataWidth.getMinimumValue())
+		{
+			return this;
+		} else if (isSingletonSet())
+		{
+			return getStridedInterval(1, dataWidth.getMinimumValue(), upperBound, dataWidth);
+		} else
+		{
+			long lowerBound = dataWidth.getMinimumValue();
+			long delta = BigInteger.valueOf(upperBound).subtract(BigInteger.valueOf(lowerBound))
+					.mod(BigInteger.valueOf(stride)).longValue();
+			lowerBound += delta;
+			return getStridedInterval(stride, lowerBound, upperBound, dataWidth);
+		}
 	}
 
 	public StridedInterval removeUpperBound()
 	{
-		return getStridedInterval(stride, lowerBound, dataWidth.getMaximumValue(), dataWidth);
+		if (upperBound == dataWidth.getMaximumValue())
+		{
+			return this;
+		} else if (isSingletonSet())
+		{
+			return getStridedInterval(1, lowerBound, dataWidth.getMaximumValue(), dataWidth);
+		} else
+		{
+			long upperBound = dataWidth.getMaximumValue();
+			long delta = BigInteger.valueOf(upperBound).subtract(BigInteger.valueOf(lowerBound))
+					.mod(BigInteger.valueOf(stride)).longValue();
+			upperBound -= delta;
+			return getStridedInterval(stride, lowerBound, upperBound, dataWidth);
+		}
 	}
 
 	public StridedInterval negate()
