@@ -50,7 +50,8 @@ public class ESILTransformer implements Transformer
 			} else if (esilParser.isNumericConstant(token))
 			{
 				esilStack.push(ValueSet
-						.newGlobal(StridedInterval.getSingletonSet(esilParser.parseNumericConstant(token), DataWidth.R64)));
+						.newGlobal(StridedInterval
+								.getSingletonSet(esilParser.parseNumericConstant(token), DataWidth.R64)));
 			} else if (esilParser.isRegister(token))
 			{
 				esilStack.push(token);
@@ -99,52 +100,9 @@ public class ESILTransformer implements Transformer
 		}
 	}
 
-	private Bool3 getBooleanValueOfObject(Object obj)
-	{
-		if (obj instanceof Bool3)
-		{
-			return (Bool3) obj;
-		} else if (obj instanceof String && esilParser.isFlag((String) obj))
-		{
-			return outEnv.getValueOfFlag((String) obj);
-		} else if (obj instanceof ValueSet)
-		{
-			return getBooleanValueOfValueSet((ValueSet) obj);
-		} else if (obj instanceof String && esilParser.isRegister((String) obj))
-		{
-			return getBooleanValueOfValueSet(outEnv.getValueSetOfRegister((String) obj));
-
-		}
-		throw new ESILTransformationException("Object cannot be represented as boolean value: " + obj);
-	}
-
-	private Bool3 getBooleanValueOfValueSet(ValueSet valueSet)
-	{
-		StridedInterval si = valueSet.getValueOfGlobalRegion();
-		if (!si.isBottom())
-		{
-			if (si.isZero())
-			{
-				return Bool3.FALSE;
-			} else if (!si.contains(0))
-			{
-				return Bool3.TRUE;
-			} else
-			{
-				return Bool3.MAYBE;
-			}
-		}
-		throw new ESILTransformationException("Value set cannot be represented as boolean value: " + valueSet);
-	}
-
 	private ValueSet popValueSet()
 	{
 		return getValueSetOfObject(esilStack.pop());
-	}
-
-	private Bool3 popBooleanValue()
-	{
-		return getBooleanValueOfObject(esilStack.pop());
 	}
 
 	private String popRegisterOrFlag()
@@ -183,7 +141,7 @@ public class ESILTransformer implements Transformer
 				logger.warn("Operation (smaller*, bigger*) not yet implemented");
 				esilStack.pop();
 				esilStack.pop();
-				esilStack.push(Bool3.MAYBE);
+				esilStack.push(ValueSet.newGlobal(StridedInterval.getInterval(0, 1, DataWidth.R1)));
 				break;
 			case SHIFT_LEFT:
 				executeShiftLeft();
@@ -222,7 +180,7 @@ public class ESILTransformer implements Transformer
 				executeMod();
 				break;
 			case NEG:
-				executeLogicalNot();
+				executeNeg();
 				break;
 			case INC:
 				executeInc();
@@ -372,17 +330,8 @@ public class ESILTransformer implements Transformer
 
 	private void executeNeg()
 	{
-		executeLogicalNot();
-	}
-
-	private void executeLogicalNot()
-	{
-		esilStack.push(popBooleanValue().not());
-	}
-
-	private void executeBitNeg()
-	{
-		esilStack.push(popValueSet().not());
+		// TODO: not sure what neg (!) does!?
+		esilStack.push(popValueSet().negate());
 	}
 
 	private void executeNegAssign()
@@ -395,20 +344,7 @@ public class ESILTransformer implements Transformer
 
 	private void executeXor()
 	{
-		Object obj1 = esilStack.pop();
-		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && esilParser.isFlag((String) obj1)) || (
-				obj2 instanceof String && esilParser.isFlag((String) obj2)))
-		{
-			esilStack.push(obj2);
-			esilStack.push(obj1);
-			executeLogicalXor();
-		} else
-		{
-			esilStack.push(obj2);
-			esilStack.push(obj1);
-			executeBitXor();
-		}
+		esilStack.push(popValueSet().xor(popValueSet()));
 	}
 
 
@@ -420,11 +356,6 @@ public class ESILTransformer implements Transformer
 		executeAssignment();
 	}
 
-	private void executeLogicalXor()
-	{
-		esilStack.push(popBooleanValue().xor(popBooleanValue()));
-	}
-
 	private void executeBitXor()
 	{
 		esilStack.push(popValueSet().xor(popValueSet()));
@@ -432,20 +363,7 @@ public class ESILTransformer implements Transformer
 
 	private void executeOr()
 	{
-		Object obj1 = esilStack.pop();
-		Object obj2 = esilStack.pop();
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && esilParser.isFlag((String) obj1)) || (
-				obj2 instanceof String && esilParser.isFlag((String) obj2)))
-		{
-			esilStack.push(obj2);
-			esilStack.push(obj1);
-			executeLogicalOr();
-		} else
-		{
-			esilStack.push(obj2);
-			esilStack.push(obj1);
-			executeBitOr();
-		}
+		esilStack.push(popValueSet().or(popValueSet()));
 	}
 
 	private void executeOrAssign()
@@ -456,11 +374,6 @@ public class ESILTransformer implements Transformer
 		executeAssignment();
 	}
 
-	private void executeLogicalOr()
-	{
-		esilStack.push(popBooleanValue().or(popBooleanValue()));
-	}
-
 	private void executeBitOr()
 	{
 		esilStack.push(popValueSet().or(popValueSet()));
@@ -468,21 +381,7 @@ public class ESILTransformer implements Transformer
 
 	private void executeAnd()
 	{
-		Object obj1 = esilStack.pop();
-		Object obj2 = esilStack.pop();
-
-		if (obj1 instanceof Bool3 || obj2 instanceof Bool3 || (obj1 instanceof String && esilParser.isFlag((String) obj1)) || (
-				obj2 instanceof String && esilParser.isFlag((String) obj2)))
-		{
-			esilStack.push(obj2);
-			esilStack.push(obj1);
-			executeLogicalAnd();
-		} else
-		{
-			esilStack.push(obj2);
-			esilStack.push(obj1);
-			executeBitAnd();
-		}
+		esilStack.push(popValueSet().and(popValueSet()));
 	}
 
 	private void executeAndAssign()
@@ -498,18 +397,16 @@ public class ESILTransformer implements Transformer
 		esilStack.push(popValueSet().and(popValueSet()));
 	}
 
-	private void executeLogicalAnd()
-	{
-		esilStack.push(popBooleanValue().and(popBooleanValue()));
-	}
-
 	private void executeConditional()
 	{
-		Bool3 bool3 = popBooleanValue();
-		if (bool3 == Bool3.FALSE)
+		ValueSet valueSet = popValueSet();
+		if (valueSet.getValueOfGlobalRegion().isZero())
 		{
 			tokenStream.skipUntilToken(ESILKeyword.END_CONDITIONAL.keyword);
-		} else if (bool3 == Bool3.MAYBE)
+		} else if (valueSet.getValueOfGlobalRegion().isOne())
+		{
+			return;
+		} else
 		{
 			StringBuilder builder = new StringBuilder();
 			do
@@ -608,7 +505,17 @@ public class ESILTransformer implements Transformer
 			outEnv.setValueSetOfRegister(identifier, popValueSet());
 		} else if (esilParser.isFlag(identifier))
 		{
-			outEnv.setValueOfFlag(identifier, popBooleanValue());
+			StridedInterval stridedInterval = popValueSet().getValueOfGlobalRegion();
+			if (stridedInterval.isZero())
+			{
+				outEnv.setValueOfFlag(identifier, Bool3.FALSE);
+			} else if (stridedInterval.isOne())
+			{
+				outEnv.setValueOfFlag(identifier, Bool3.TRUE);
+			} else
+			{
+				outEnv.setValueOfFlag(identifier, Bool3.MAYBE);
+			}
 		}
 	}
 

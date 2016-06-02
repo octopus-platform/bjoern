@@ -5,10 +5,10 @@ import java.math.BigInteger;
 public class StridedInterval
 {
 
-	private final long stride;
-	private final long lowerBound;
-	private final long upperBound;
-	private final DataWidth dataWidth;
+	protected final long stride;
+	protected final long lowerBound;
+	protected final long upperBound;
+	protected final DataWidth dataWidth;
 
 
 	protected StridedInterval(long stride, long lower, long upper, DataWidth dataWidth)
@@ -24,7 +24,7 @@ public class StridedInterval
 		} else if (stride == 0 && lower != upper)
 		{
 			throw new IllegalArgumentException("Invalid strided interval: stride must not be zero");
-		} else if ((lower > upper) && (stride != 1 || lower != 0 || upper != -1))
+		} else if ((lower > upper) && (stride != 1 || lower != 1 || upper != 0))
 		{
 			throw new IllegalArgumentException("Invalid strided interval: lower bound must not be larger than upper "
 					+ "bound.");
@@ -45,6 +45,8 @@ public class StridedInterval
 	{
 		switch (dataWidth.getWidth())
 		{
+			case 1:
+				return StridedInterval1Bit.TOP;
 			case 64:
 				return StridedInterval64Bit.TOP;
 			default:
@@ -54,14 +56,16 @@ public class StridedInterval
 
 	public static StridedInterval getBottom(DataWidth dataWidth)
 	{
-		// the bottom element (empty set) is always represented by a stride equal to 1, minimum value equal to 0, and
-		// maximum value equal to -1.
+		// the bottom element (empty set) is always represented by a stride equal to 1, minimum value equal to 1, and
+		// maximum value equal to 0.
 		switch (dataWidth.getWidth())
 		{
+			case 1:
+				return StridedInterval1Bit.BOTTOM;
 			case 64:
 				return StridedInterval64Bit.BOTTOM;
 			default:
-				return getStridedInterval(1, 0, -1, dataWidth);
+				return getStridedInterval(1, 1, 0, dataWidth);
 		}
 	}
 
@@ -80,6 +84,8 @@ public class StridedInterval
 	{
 		switch (dataWidth.getWidth())
 		{
+			case 1:
+				return new StridedInterval1Bit(stride, lower, upper);
 			case 64:
 				return new StridedInterval64Bit(stride, lower, upper);
 			default:
@@ -96,7 +102,7 @@ public class StridedInterval
 		} else if (isBottom())
 		{
 			return "{}"; //empty set
-		} else if (isTop())
+		} else if (isInterval())
 		{
 			return "[" + lowerBound + ", " + upperBound + "]";
 		} else
@@ -150,6 +156,16 @@ public class StridedInterval
 	public boolean isZero()
 	{
 		return isSingletonSet() && lowerBound == 0;
+	}
+
+	public boolean isOne()
+	{
+		return isSingletonSet() && lowerBound == 1;
+	}
+
+	public boolean isInterval()
+	{
+		return stride == 1;
 	}
 
 	public boolean contains(long number)
@@ -507,7 +523,7 @@ public class StridedInterval
 
 	public StridedInterval extend(DataWidth dataWidth)
 	{
-		if (dataWidth.compareTo(dataWidth) >= 0)
+		if (this.dataWidth.compareTo(dataWidth) >= 0)
 		{
 			return this;
 		} else
@@ -688,5 +704,4 @@ public class StridedInterval
 			throw new IllegalArgumentException("Arguments are invalid bounds.");
 		}
 	}
-
 }

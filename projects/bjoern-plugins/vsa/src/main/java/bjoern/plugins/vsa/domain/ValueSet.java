@@ -321,12 +321,6 @@ public class ValueSet
 		return newTop(dataWidth);
 	}
 
-	public ValueSet not()
-	{
-		logger.warn("Operation (not) not yet implemented");
-		return newTop(dataWidth);
-	}
-
 	public ValueSet widen(ValueSet valueSet)
 	{
 		ValueSet answer = new ValueSet(dataWidth);
@@ -337,4 +331,9 @@ public class ValueSet
 		return answer;
 	}
 
+	public ValueSet negate()
+	{
+		logger.warn("Operation (negate) not yet implemented");
+		return newGlobal(StridedInterval.getInterval(0, 1, DataWidth.R1));
+	}
 }

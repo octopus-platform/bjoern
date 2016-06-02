@@ -29,8 +29,15 @@ public final class DataWidth implements Comparable<DataWidth>
 			throw new IllegalArgumentException("Invalid width: width must be larger than zero.");
 		}
 		this.width = width;
-		this.minimumValue = -(0x1l << (width - 1l));
-		this.maximumValue = -(minimumValue + 1);
+		if (equals(R1)) {
+			minimumValue = 0;
+			maximumValue = 1;
+
+		} else
+		{
+			minimumValue = -(0x1l << (width - 1l));
+			maximumValue = -(minimumValue + 1);
+		}
 	}
 
 	public static DataWidth getInstance(int width)
@@ -53,7 +60,12 @@ public final class DataWidth implements Comparable<DataWidth>
 	public long effectiveValue(long value)
 	{
 		long highBitMask = 0x1l << (width - 1l);
-		return -(value & highBitMask) + (value & (highBitMask - 1l));
+		if (equals(R1)) {
+			return value & highBitMask;
+		} else
+		{
+			return -(value & highBitMask) + (value & (highBitMask - 1l));
+		}
 	}
 
 	public int getWidth()
