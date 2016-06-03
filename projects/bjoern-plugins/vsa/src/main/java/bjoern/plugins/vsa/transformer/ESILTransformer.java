@@ -9,8 +9,10 @@ import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
+import bjoern.plugins.vsa.transformer.esil.stack.ESILStackItem;
 import bjoern.plugins.vsa.transformer.esil.stack.Flag;
 import bjoern.plugins.vsa.transformer.esil.stack.Register;
+import bjoern.plugins.vsa.transformer.esil.stack.ValueSetContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,13 +23,10 @@ public class ESILTransformer implements Transformer
 {
 	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
 	private AbstractEnvironment outEnv;
-	private Deque<Object> esilStack;
+	private Deque<ESILStackItem<ValueSet>> esilStack;
 
 	private ESILTokenStream tokenStream;
 	private ESILParser esilParser = new ESILParser();
-
-	public ESILTransformer() {}
-
 
 	@Override
 	public AbstractEnvironment transform(String esilCode, AbstractEnvironment env)
@@ -51,7 +50,7 @@ public class ESILTransformer implements Transformer
 				executeEsilCommand(ESILKeyword.fromString(token));
 			} else if (esilParser.isNumericConstant(token))
 			{
-				esilStack.push(ValueSet
+				pushValueSet(ValueSet
 						.newGlobal(StridedInterval
 								.getSingletonSet(esilParser.parseNumericConstant(token), DataWidth.R64)));
 			} else if (esilParser.isRegister(token))
@@ -69,53 +68,14 @@ public class ESILTransformer implements Transformer
 		return outEnv;
 	}
 
-	private ValueSet getValueSetOfObject(Object obj)
-	{
-		if (obj instanceof ValueSet)
-		{
-			return (ValueSet) obj;
-		} else if (obj instanceof Register)
-		{
-			return ((Register) obj).getValue();
-		} else if (obj instanceof Flag)
-		{
-			return ((Flag) obj).getValue();
-		}
-		throw new ESILTransformationException(
-				"Object cannot be represented as value set: " + obj.getClass().getSimpleName());
-	}
-
-	private ValueSet getValueSetOfBooleanValue(Bool3 value)
-	{
-		if (value == Bool3.TRUE)
-		{
-			return ValueSet.newGlobal(StridedInterval.getSingletonSet(1, DataWidth.R64));
-		} else if (value == Bool3.FALSE)
-		{
-			return ValueSet.newGlobal(StridedInterval.getSingletonSet(0, DataWidth.R64));
-		} else
-		{
-			return ValueSet.newGlobal(StridedInterval.getInterval(0, 1, DataWidth.R64));
-		}
-	}
-
 	private ValueSet popValueSet()
 	{
-		return getValueSetOfObject(esilStack.pop());
+		return esilStack.pop().getValue();
 	}
 
-	private String popRegisterOrFlag()
+	private void pushValueSet(ValueSet valueSet)
 	{
-		Object obj = esilStack.pop();
-		if (obj instanceof String)
-		{
-			String identifier = (String) obj;
-			if (esilParser.isRegister(identifier) || esilParser.isFlag(identifier))
-			{
-				return identifier;
-			}
-		}
-		throw new ESILTransformationException("Expected register of flag, found " + obj);
+		esilStack.push(new ValueSetContainer(valueSet));
 	}
 
 	private void executeEsilCommand(ESILKeyword command)
@@ -140,7 +100,8 @@ public class ESILTransformer implements Transformer
 				logger.warn("Operation (smaller*, bigger*) not yet implemented");
 				esilStack.pop();
 				esilStack.pop();
-				esilStack.push(ValueSet.newGlobal(StridedInterval.getInterval(0, 1, DataWidth.R1)));
+				esilStack.push(
+						new ValueSetContainer(ValueSet.newGlobal(StridedInterval.getInterval(0, 1, DataWidth.R1))));
 				break;
 			case SHIFT_LEFT:
 				executeShiftLeft();
@@ -155,13 +116,13 @@ public class ESILTransformer implements Transformer
 				executeRotateRight();
 				break;
 			case AND:
-				executeBitAnd();
+				executeAnd();
 				break;
 			case OR:
-				executeBitOr();
+				executeOr();
 				break;
 			case XOR:
-				executeBitXor();
+				executeXor();
 				break;
 			case ADD:
 				executeAdd();
@@ -254,12 +215,12 @@ public class ESILTransformer implements Transformer
 
 	private void executeMul()
 	{
-		esilStack.push(popValueSet().mul(popValueSet()));
+		pushValueSet(popValueSet().mul(popValueSet()));
 	}
 
 	private void executeMulAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeMul();
 		esilStack.push(element);
 		executeAssignment();
@@ -267,12 +228,12 @@ public class ESILTransformer implements Transformer
 
 	private void executeDiv()
 	{
-		esilStack.push(popValueSet().div(popValueSet()));
+		pushValueSet(popValueSet().div(popValueSet()));
 	}
 
 	private void executeDivAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeDiv();
 		esilStack.push(element);
 		executeAssignment();
@@ -280,12 +241,12 @@ public class ESILTransformer implements Transformer
 
 	private void executeMod()
 	{
-		esilStack.push(popValueSet().mod(popValueSet()));
+		pushValueSet(popValueSet().mod(popValueSet()));
 	}
 
 	private void executeModAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeMod();
 		esilStack.push(element);
 		executeAssignment();
@@ -293,12 +254,12 @@ public class ESILTransformer implements Transformer
 
 	private void executeShiftLeft()
 	{
-		esilStack.push(popValueSet().shiftLeft(popValueSet()));
+		pushValueSet(popValueSet().shiftLeft(popValueSet()));
 	}
 
 	private void executeShiftLeftAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeShiftLeft();
 		esilStack.push(element);
 		executeAssignment();
@@ -306,12 +267,12 @@ public class ESILTransformer implements Transformer
 
 	private void executeShiftRight()
 	{
-		esilStack.push(popValueSet().shiftRight(popValueSet()));
+		pushValueSet(popValueSet().shiftRight(popValueSet()));
 	}
 
 	private void executeShiftRightAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeShiftRight();
 		esilStack.push(element);
 		executeAssignment();
@@ -319,23 +280,23 @@ public class ESILTransformer implements Transformer
 
 	private void executeRotateLeft()
 	{
-		esilStack.push(popValueSet().rotateLeft(popValueSet()));
+		pushValueSet(popValueSet().rotateLeft(popValueSet()));
 	}
 
 	private void executeRotateRight()
 	{
-		esilStack.push(popValueSet().rotateRight(popValueSet()));
+		pushValueSet(popValueSet().rotateRight(popValueSet()));
 	}
 
 	private void executeNeg()
 	{
 		// TODO: not sure what neg (!) does!?
-		esilStack.push(popValueSet().negate());
+		pushValueSet(popValueSet().negate());
 	}
 
 	private void executeNegAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeNeg();
 		esilStack.push(element);
 		executeAssignment();
@@ -343,57 +304,42 @@ public class ESILTransformer implements Transformer
 
 	private void executeXor()
 	{
-		esilStack.push(popValueSet().xor(popValueSet()));
+		pushValueSet(popValueSet().xor(popValueSet()));
 	}
 
 
 	private void executeXorAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeXor();
 		esilStack.push(element);
 		executeAssignment();
 	}
 
-	private void executeBitXor()
-	{
-		esilStack.push(popValueSet().xor(popValueSet()));
-	}
-
 	private void executeOr()
 	{
-		esilStack.push(popValueSet().or(popValueSet()));
+		pushValueSet(popValueSet().or(popValueSet()));
 	}
 
 	private void executeOrAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeOr();
 		esilStack.push(element);
 		executeAssignment();
 	}
 
-	private void executeBitOr()
-	{
-		esilStack.push(popValueSet().or(popValueSet()));
-	}
-
 	private void executeAnd()
 	{
-		esilStack.push(popValueSet().and(popValueSet()));
+		pushValueSet(popValueSet().and(popValueSet()));
 	}
 
 	private void executeAndAssign()
 	{
-		Object element = esilStack.peek();
+		ESILStackItem<ValueSet> element = esilStack.peek();
 		executeAnd();
 		esilStack.push(element);
 		executeAssignment();
-	}
-
-	private void executeBitAnd()
-	{
-		esilStack.push(popValueSet().and(popValueSet()));
 	}
 
 	private void executeConditional()
@@ -402,9 +348,9 @@ public class ESILTransformer implements Transformer
 		if (valueSet.getValueOfGlobalRegion().isZero())
 		{
 			tokenStream.skipUntilToken(ESILKeyword.END_CONDITIONAL.keyword);
-		} else if (valueSet.getValueOfGlobalRegion().isOne())
+		} else if (!valueSet.getValueOfGlobalRegion().isOne())
 		{
-			return;
+			// nothing to do
 		} else
 		{
 			StringBuilder builder = new StringBuilder();
@@ -432,7 +378,7 @@ public class ESILTransformer implements Transformer
 	{
 		logger.info("Loading data from memory not yet supported");
 		esilStack.pop();
-		esilStack.push(ValueSet.newTop(DataWidth.R64));
+		pushValueSet(ValueSet.newTop(DataWidth.R64));
 	}
 
 	private void executePoke()
@@ -444,13 +390,13 @@ public class ESILTransformer implements Transformer
 
 	private void executeInc()
 	{
-		esilStack.push(ValueSet.newGlobal(StridedInterval.getSingletonSet(1, DataWidth.R64)));
+		pushValueSet(ValueSet.newGlobal(StridedInterval.getSingletonSet(1, DataWidth.R64)));
 		executeAdd();
 	}
 
 	private void executeIncAssign()
 	{
-		Object obj = esilStack.peek();
+		ESILStackItem<ValueSet> obj = esilStack.peek();
 		executeInc();
 		esilStack.push(obj);
 		executeAssignment();
@@ -458,13 +404,13 @@ public class ESILTransformer implements Transformer
 
 	private void executeDec()
 	{
-		esilStack.push(ValueSet.newGlobal(StridedInterval.getSingletonSet(1, DataWidth.R64)));
+		pushValueSet(ValueSet.newGlobal(StridedInterval.getSingletonSet(1, DataWidth.R64)));
 		executeSub();
 	}
 
 	private void executeDecAssign()
 	{
-		Object obj = esilStack.peek();
+		ESILStackItem<ValueSet> obj = esilStack.peek();
 		executeDec();
 		esilStack.push(obj);
 		executeAssignment();
@@ -472,12 +418,12 @@ public class ESILTransformer implements Transformer
 
 	private void executeAdd()
 	{
-		esilStack.push(popValueSet().add(popValueSet()));
+		pushValueSet(popValueSet().add(popValueSet()));
 	}
 
 	private void executeAddAssign()
 	{
-		Object obj = esilStack.peek();
+		ESILStackItem<ValueSet> obj = esilStack.peek();
 		executeAdd();
 		esilStack.push(obj);
 		executeAssignment();
@@ -485,12 +431,12 @@ public class ESILTransformer implements Transformer
 
 	private void executeSub()
 	{
-		esilStack.push(popValueSet().sub(popValueSet()));
+		pushValueSet(popValueSet().sub(popValueSet()));
 	}
 
 	private void executeSubAssign()
 	{
-		Object obj = esilStack.peek();
+		ESILStackItem<ValueSet> obj = esilStack.peek();
 		executeSub();
 		esilStack.push(obj);
 		executeAssignment();

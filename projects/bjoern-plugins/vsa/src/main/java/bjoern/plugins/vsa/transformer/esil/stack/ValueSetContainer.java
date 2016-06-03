@@ -7,7 +7,12 @@ public class ValueSetContainer implements ESILStackItem<ValueSet>
 
 	private final ValueSet valueSet;
 
-	public ValueSetContainer(ValueSet valueSet) {
+	public ValueSetContainer(ValueSet valueSet)
+	{
+		if (valueSet == null)
+		{
+			throw new IllegalArgumentException("Value must not be null");
+		}
 		this.valueSet = valueSet;
 	}
 
@@ -16,4 +21,5 @@ public class ValueSetContainer implements ESILStackItem<ValueSet>
 	{
 		return valueSet;
 	}
+
 }
