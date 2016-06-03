@@ -16,7 +16,7 @@ public class Register implements ESILStackItem<ValueSet>
 
 	public Register(Register register)
 	{
-		this(register.getIdentifier(), ValueSet.copy(register.getValue()));
+		this(register.getIdentifier(), register.getValue());
 	}
 
 	@Override
