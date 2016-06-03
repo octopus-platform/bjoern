@@ -46,7 +46,6 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 				performIntraProceduralVSA(function);
 			} catch (Exception e)
 			{
-				e.printStackTrace();
 				getLogger().error("Error for function " + function + ": " + e.getMessage());
 			}
 		}
@@ -192,10 +191,11 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 	private void performWidening(AbstractEnvironment newEnv, AbstractEnvironment oldEnv)
 	{
 		getLogger().info("Performing widening: " + oldEnv + " [<=>] " + newEnv);
-		for (String register : newEnv.getRegisters())
+		for (Register register : newEnv.getRegisters())
 		{
-			newEnv.setRegister(new Register(register,
-					oldEnv.getRegister(register).getValue().widen(newEnv.getRegister(register).getValue())));
+			String identifier = register.getIdentifier();
+			ValueSet valueSet = oldEnv.getRegister(identifier).getValue().widen(register.getValue());
+			newEnv.setRegister(new Register(identifier, valueSet));
 		}
 	}
 

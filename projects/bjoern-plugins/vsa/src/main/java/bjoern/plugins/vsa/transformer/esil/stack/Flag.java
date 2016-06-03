@@ -49,6 +49,27 @@ public class Flag implements ESILStackItem<ValueSet>
 		return identifier + " = " + value;
 	}
 
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof Flag))
+		{
+			return false;
+		}
+
+		Flag other = (Flag) o;
+		return identifier.equals(other.identifier) && value.equals(other.value);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = identifier.hashCode();
+		result = 31 * result + value.hashCode();
+		return result;
+	}
+
 	public void setValue(Bool3 value)
 	{
 		this.value = value;
