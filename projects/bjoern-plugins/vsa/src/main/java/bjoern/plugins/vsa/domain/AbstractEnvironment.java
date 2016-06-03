@@ -2,6 +2,8 @@ package bjoern.plugins.vsa.domain;
 
 import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
+import bjoern.plugins.vsa.transformer.esil.stack.Flag;
+import bjoern.plugins.vsa.transformer.esil.stack.Register;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,54 +11,44 @@ import java.util.Set;
 
 public class AbstractEnvironment
 {
-	private final Map<String, ValueSet> registers;
-	private final Map<String, Bool3> flags;
+	private final Map<String, Register> registers;
+	private final Map<String, Flag> flags;
 
 	public AbstractEnvironment()
 	{
-		registers = new HashMap<String, ValueSet>();
-		flags = new HashMap<String, Bool3>();
+		registers = new HashMap<>();
+		flags = new HashMap<>();
 	}
 
 	public AbstractEnvironment(AbstractEnvironment inEnv)
 	{
 		this();
-		for (String register : inEnv.getRegisters())
+		for (Register register : inEnv.registers.values())
 		{
-			registers.put(register, ValueSet.copy(inEnv.getValueSetOfRegister(register)));
+			setRegister(new Register(register));
 		}
-		for (String flag : inEnv.getFlags())
+		for (Flag flag : inEnv.flags.values())
 		{
-			flags.put(flag, inEnv.getValueOfFlag(flag));
+			setFlag(new Flag(flag));
 		}
 	}
 
-	public Bool3 getValueOfFlag(String flag)
+	public Flag getFlag(String flag)
 	{
 		if (!flags.containsKey(flag))
 		{
-			return Bool3.MAYBE;
+			return new Flag(flag, Bool3.MAYBE);
 		}
 		return flags.get(flag);
 	}
 
-	public void setValueOfFlag(String flag, Bool3 value)
-	{
-		flags.put(flag, value);
-	}
-
-	public ValueSet getValueSetOfRegister(String register)
+	public Register getRegister(String register)
 	{
 		if (!registers.containsKey(register))
 		{
-			return ValueSet.newTop(DataWidth.R64);
+			return new Register(register, ValueSet.newTop(DataWidth.R64));
 		}
 		return registers.get(register);
-	}
-
-	public void setValueSetOfRegister(String register, ValueSet value)
-	{
-		registers.put(register, value);
 	}
 
 	public Set<String> getFlags()
@@ -72,23 +64,21 @@ public class AbstractEnvironment
 	public AbstractEnvironment union(AbstractEnvironment absEnv)
 	{
 		AbstractEnvironment answer = new AbstractEnvironment();
-		for (String register : this.getRegisters())
+		for (Register register : registers.values())
 		{
-			answer.setValueSetOfRegister(register,
-					getValueSetOfRegister(register).union(absEnv.getValueSetOfRegister(register)));
+			answer.setRegister(new Register(register));
 		}
-		for (String register : absEnv.getRegisters())
+		for (Register register : absEnv.registers.values())
 		{
-			answer.setValueSetOfRegister(register,
-					getValueSetOfRegister(register).union(absEnv.getValueSetOfRegister(register)));
+			answer.setRegister(new Register(register));
 		}
-		for (String flag : this.getFlags())
+		for (Flag flag : flags.values())
 		{
-			answer.setValueOfFlag(flag, getValueOfFlag(flag).join(absEnv.getValueOfFlag(flag)));
+			answer.setFlag(new Flag(flag));
 		}
-		for (String flag : absEnv.getFlags())
+		for (Flag flag : absEnv.flags.values())
 		{
-			answer.setValueOfFlag(flag, getValueOfFlag(flag).join(absEnv.getValueOfFlag(flag)));
+			answer.setFlag(new Flag(flag));
 		}
 		return answer;
 	}
@@ -114,5 +104,15 @@ public class AbstractEnvironment
 	public String toString()
 	{
 		return "AbstractEnvironment[" + registers.toString() + ", " + flags.toString() + "]";
+	}
+
+	public void setFlag(Flag flag)
+	{
+		this.flags.put(flag.getIdentifier(), flag);
+	}
+
+	public void setRegister(Register register)
+	{
+		this.registers.put(register.getIdentifier(), register);
 	}
 }

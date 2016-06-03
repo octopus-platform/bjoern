@@ -44,7 +44,7 @@ public class ValueSet
 		return valueSet;
 	}
 
-	static ValueSet copy(ValueSet valueSet)
+	public static ValueSet copy(ValueSet valueSet)
 	{
 		if (valueSet.isTop())
 		{

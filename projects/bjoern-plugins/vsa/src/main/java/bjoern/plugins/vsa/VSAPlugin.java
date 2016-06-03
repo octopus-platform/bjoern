@@ -15,6 +15,8 @@ import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
+import bjoern.plugins.vsa.transformer.esil.stack.Flag;
+import bjoern.plugins.vsa.transformer.esil.stack.Register;
 import bjoern.structures.BjoernEdgeProperties;
 import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Direction;
@@ -44,6 +46,7 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 				performIntraProceduralVSA(function);
 			} catch (Exception e)
 			{
+				e.printStackTrace();
 				getLogger().error("Error for function " + function + ": " + e.getMessage());
 			}
 		}
@@ -105,7 +108,7 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		{
 			if (aloc.isFlag())
 			{
-				env.setValueOfFlag(aloc.getName(), Bool3.MAYBE);
+				env.setFlag(new Flag(aloc.getName(), Bool3.MAYBE));
 			} else if (aloc.isRegister())
 			{
 				// TODO: Read initial values and the data width from aloc node.
@@ -118,7 +121,7 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 				{
 					valueSet = ValueSet.newTop(DataWidth.R64);
 				}
-				env.setValueSetOfRegister(aloc.getName(), valueSet);
+				env.setRegister(new Register(aloc.getName(), valueSet));
 			}
 		}
 		return env;
@@ -136,11 +139,11 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 				if (aloc.isFlag())
 				{
 					edge.setProperty(BjoernEdgeProperties.VALUE,
-							assignment.get(instr).getValueOfFlag(aloc.getName()).toString());
+							assignment.get(instr).getFlag(aloc.getName()).getBooleanValue().toString());
 				} else
 				{
 					edge.setProperty(BjoernEdgeProperties.VALUE,
-							assignment.get(instr).getValueSetOfRegister(aloc.getName()).toString());
+							assignment.get(instr).getRegister(aloc.getName()).getValue().toString());
 				}
 			}
 
@@ -191,8 +194,8 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		getLogger().info("Performing widening: " + oldEnv + " [<=>] " + newEnv);
 		for (String register : newEnv.getRegisters())
 		{
-			newEnv.setValueSetOfRegister(register,
-					oldEnv.getValueSetOfRegister(register).widen(newEnv.getValueSetOfRegister(register)));
+			newEnv.setRegister(new Register(register,
+					oldEnv.getRegister(register).getValue().widen(newEnv.getRegister(register).getValue())));
 		}
 	}
 

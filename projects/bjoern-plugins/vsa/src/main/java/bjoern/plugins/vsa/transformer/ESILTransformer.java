@@ -9,6 +9,8 @@ import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
+import bjoern.plugins.vsa.transformer.esil.stack.Flag;
+import bjoern.plugins.vsa.transformer.esil.stack.Register;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +56,10 @@ public class ESILTransformer implements Transformer
 								.getSingletonSet(esilParser.parseNumericConstant(token), DataWidth.R64)));
 			} else if (esilParser.isRegister(token))
 			{
-				esilStack.push(token);
+				esilStack.push(outEnv.getRegister(token));
 			} else if (esilParser.isFlag(token))
 			{
-				esilStack.push(token);
+				esilStack.push(outEnv.getFlag(token));
 			} else
 			{
 				throw new ESILTransformationException("Unknown ESIL token (" + token + ")");
@@ -72,15 +74,12 @@ public class ESILTransformer implements Transformer
 		if (obj instanceof ValueSet)
 		{
 			return (ValueSet) obj;
-		} else if (obj instanceof Bool3)
+		} else if (obj instanceof Register)
 		{
-			return getValueSetOfBooleanValue((Bool3) obj);
-		} else if (obj instanceof String && esilParser.isRegister((String) obj))
+			return ((Register) obj).getValue();
+		} else if (obj instanceof Flag)
 		{
-			return outEnv.getValueSetOfRegister((String) obj);
-		} else if (obj instanceof String && esilParser.isFlag((String) obj))
-		{
-			return getValueSetOfBooleanValue(outEnv.getValueOfFlag((String) obj));
+			return ((Flag) obj).getValue();
 		}
 		throw new ESILTransformationException(
 				"Object cannot be represented as value set: " + obj.getClass().getSimpleName());
@@ -499,23 +498,27 @@ public class ESILTransformer implements Transformer
 
 	private void executeAssignment()
 	{
-		String identifier = popRegisterOrFlag();
-		if (esilParser.isRegister(identifier))
+		Object obj = esilStack.pop();
+		if (obj instanceof Register)
 		{
-			outEnv.setValueSetOfRegister(identifier, popValueSet());
-		} else if (esilParser.isFlag(identifier))
+			String identifier = ((Register) obj).getIdentifier();
+			outEnv.setRegister(new Register(identifier, popValueSet()));
+		} else if (obj instanceof Flag)
 		{
+			String identifier = ((Flag) obj).getIdentifier();
 			StridedInterval stridedInterval = popValueSet().getValueOfGlobalRegion();
+			Flag flag;
 			if (stridedInterval.isZero())
 			{
-				outEnv.setValueOfFlag(identifier, Bool3.FALSE);
+				flag = new Flag(identifier, Bool3.FALSE);
 			} else if (stridedInterval.isOne())
 			{
-				outEnv.setValueOfFlag(identifier, Bool3.TRUE);
+				flag = new Flag(identifier, Bool3.TRUE);
 			} else
 			{
-				outEnv.setValueOfFlag(identifier, Bool3.MAYBE);
+				flag = new Flag(identifier, Bool3.MAYBE);
 			}
+			outEnv.setFlag(flag);
 		}
 	}
 
