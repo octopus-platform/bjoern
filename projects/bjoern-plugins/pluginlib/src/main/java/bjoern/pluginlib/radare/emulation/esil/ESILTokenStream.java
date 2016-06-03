@@ -9,6 +9,8 @@ public class ESILTokenStream {
 	private String[] tokens;
 	private int index = 0;
 
+	public static final int TOKEN_NOT_FOUND = -1;
+
 	public ESILTokenStream(String esilCode)
 	{
 		tokens = esilCode.split(",");
@@ -56,7 +58,7 @@ public class ESILTokenStream {
 			}
 		}
 
-		return -1;
+		return TOKEN_NOT_FOUND;
 	}
 
 
