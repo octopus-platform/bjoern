@@ -1,35 +1,63 @@
 package bjoern.pluginlib.radare.emulation.esil;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ESILTokenStream {
 
-	private Iterator<String> stream;
+	private String[] tokens;
+	private int index = 0;
 
 	public ESILTokenStream(String esilCode)
 	{
-		stream = (new LinkedList<>(Arrays.asList(esilCode.split(",")))).iterator();
+		tokens = esilCode.split(",");
+	}
+
+	public boolean isEmpty()
+	{
+		return (index >= tokens.length);
 	}
 
 	public boolean hasNext()
 	{
-		return stream.hasNext();
+		return (index < tokens.length);
 	}
 
 	public String next()
 	{
-		return stream.next();
+		if(isEmpty())
+			return null;
+
+		return tokens[++index];
 	}
 
-	public void skipUntilToken(String token)
+	public String getTokenAt(int i)
+	{
+		return tokens[i];
+	}
+
+	public int skipUntilToken(String token)
+	{
+		return skipUntilToken(new HashSet<String>(Arrays.asList(token)));
+	}
+
+
+	public int skipUntilToken(Set<String> tokens)
 	{
 		String t;
-		do
-		{
+
+		while(hasNext()){
 			t = next();
-		} while (!token.equals(t));
+
+			if(tokens.contains(t)){
+				index--;
+				return index;
+			}
+		}
+
+		return -1;
 	}
+
 
 }

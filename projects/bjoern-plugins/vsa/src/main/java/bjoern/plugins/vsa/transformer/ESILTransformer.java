@@ -1,7 +1,13 @@
 package bjoern.plugins.vsa.transformer;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
-import bjoern.pluginlib.radare.emulation.esil.ESILParser;
+import bjoern.pluginlib.radare.emulation.esil.ESILTokenEvaluator;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
@@ -9,11 +15,6 @@ import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Deque;
-import java.util.LinkedList;
 
 public class ESILTransformer implements Transformer
 {
@@ -22,7 +23,7 @@ public class ESILTransformer implements Transformer
 	private Deque<Object> esilStack;
 
 	private ESILTokenStream tokenStream;
-	private ESILParser esilParser = new ESILParser();
+	private ESILTokenEvaluator esilParser = new ESILTokenEvaluator();
 
 	public ESILTransformer() {}
 

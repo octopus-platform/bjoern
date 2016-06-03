@@ -1,82 +1,37 @@
 package bjoern.pluginlib.radare.emulation.esil;
 
-public class ESILParser
-{
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
-	public long parseNumericConstant(String token)
-	{
-		if (token.startsWith("0x"))
-		{
-			return Long.parseUnsignedLong(token.substring(2), 16);
-		}
-		return Long.parseLong(token, 10);
-	}
+public class ESILParser {
 
-	public boolean isNumericConstant(String token)
-	{
-		if (token.startsWith("0x"))
-		{
-			return isHexadecimalConstant(token.substring(2));
-		} else
-		{
-			return isDecimalConstant(token);
-		}
-	}
+	private Set<String> MEM_ACCESS_TOKENS =
+			new HashSet<String>(Arrays.asList(
 
-	public boolean isHexadecimalConstant(String token)
-	{
-		if (token.equals(""))
-		{
-			return false;
-		}
-		for (Character c : token.toCharArray())
-		{
-			if (Character.digit(c, 16) == -1)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
+					ESILKeyword.POKE.keyword, ESILKeyword.POKE1.keyword,
+					ESILKeyword.POKE2.keyword, ESILKeyword.POKE4.keyword,
+					ESILKeyword.POKE8.keyword, ESILKeyword.POKE_AST.keyword,
 
-	public boolean isDecimalConstant(String token)
-	{
-		if (token.equals(""))
-		{
-			return false;
-		}
-		if (token.startsWith(("-")) && token.length() > 1)
-		{
-			token = token.substring(1);
-		}
-		for (Character c : token.toCharArray())
-		{
-			if (Character.digit(c, 10) == -1)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
+					ESILKeyword.PEEK.keyword, ESILKeyword.PEEK1.keyword,
+					ESILKeyword.PEEK2.keyword, ESILKeyword.PEEK4.keyword,
+					ESILKeyword.PEEK8.keyword, ESILKeyword.PEEK_AST.keyword
 
-	public boolean isFlag(String token)
-	{
-		return isInternalFlag(token) || (token.length() == 2 && token.endsWith("f"));
-	}
+					));
 
-	private boolean isInternalFlag(String token)
+	public List<MemoryAccess> extractMemoryAccesses(String esilCode)
 	{
-		return token.startsWith("$");
-	}
+		ESILTokenStream stream = new ESILTokenStream(esilCode);
 
-	public boolean isRegister(String token)
-	{
-		return !isFlag(token);
-	}
+		List<MemoryAccess> retList = new LinkedList<MemoryAccess>();
 
-	public boolean isEsilKeyword(String token)
-	{
-		return ESILKeyword.fromString(token) != null;
+
+		stream.skipUntilToken(MEM_ACCESS_TOKENS);
+
+
+		return null;
 	}
 
 }

@@ -12,6 +12,8 @@ import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.GraphOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.radare.emulation.EsilEmulator;
+import bjoern.pluginlib.radare.emulation.esil.ESILParser;
+import bjoern.pluginlib.radare.emulation.esil.MemoryAccess;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.pluginlib.structures.Node;
@@ -27,7 +29,7 @@ public class FunctionAlocCreator {
 	private OrientGraphNoTx graph;
 	Vertex functionVertex;
 	EsilEmulator emulator;
-
+	ESILParser esilParser = new ESILParser();
 
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
 	{
@@ -40,27 +42,32 @@ public class FunctionAlocCreator {
 	{
 		functionVertex = function;
 
-		createAlocsForAllInstructions();
-		emulateFirstBasicBlock(function);
+		StackState stackState = emulateFirstBasicBlock(function);
+		createAlocsForAllInstructions(stackState);
 	}
 
-	private void createAlocsForAllInstructions() throws IOException
+	private void createAlocsForAllInstructions(StackState stackState) throws IOException
 	{
 		List<Instruction> instructions = Traversals.functionToInstructions(functionVertex);
 		for(Instruction instr : instructions){
-			createAlocsForInstruction(instr);
+			createAlocsForInstruction(instr, stackState);
 		}
 	}
 
-	private void createAlocsForInstruction(Instruction instr) throws IOException
+	private void createAlocsForInstruction(Instruction instr, StackState stackState) throws IOException
 	{
 		long address = instr.getAddress();
+		createAlocsForRegisters(instr, address);
+		createAlocsForMemoryAccesses(instr, address);
 
+	}
+
+	private void createAlocsForRegisters(Instruction instr, long address) throws IOException
+	{
 		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
 		createAlocsForRegisters(instr, registersRead, EdgeTypes.READ);
 		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
 		createAlocsForRegisters(instr, registersWritten, EdgeTypes.WRITE);
-
 	}
 
 	private void createAlocsForRegisters(Instruction instr, List<String> registersRead, String edgeType) throws IOException {
@@ -72,6 +79,14 @@ public class FunctionAlocCreator {
 			}
 			GraphOperations.addEdge(graph, instr, new Node(registerVertex), edgeType);
 		}
+	}
+
+	private void createAlocsForMemoryAccesses(Instruction instr, long address)
+	{
+		String esilCode = instr.getEsilCode();
+		List<MemoryAccess> access = esilParser.extractMemoryAccesses(esilCode);
+
+
 	}
 
 	private Vertex createAloc(String alocName) throws IOException
@@ -115,7 +130,7 @@ public class FunctionAlocCreator {
 		GraphOperations.addEdge(graph, functionNode, alocNode, GraphOperations.ALOC_USE_EDGE);
 	}
 
-	private void emulateFirstBasicBlock(Vertex function) throws IOException
+	private StackState emulateFirstBasicBlock(Vertex function) throws IOException
 	{
 		BasicBlock entryBlock;
 		try{
@@ -123,12 +138,14 @@ public class FunctionAlocCreator {
 
 		} catch(RuntimeException ex) {
 			System.err.println("Warning: function without entry block");
-			return;
+			return null;
 		}
 
 		emulator.emulateWithoutCalls(entryBlock.getInstructions());
 		long basePtrValue = emulator.getBasePointerValue();
 		long stackPtrValue = emulator.getStackPointerValue();
+		return new StackState(basePtrValue, stackPtrValue);
+
 	}
 
 }
