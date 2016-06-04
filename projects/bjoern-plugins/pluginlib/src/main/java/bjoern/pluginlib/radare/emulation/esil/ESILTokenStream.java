@@ -31,13 +31,26 @@ public class ESILTokenStream {
 		if(isEmpty())
 			return null;
 
-		return tokens[++index];
+		return tokens[index++];
 	}
 
 	public String getTokenAt(int i)
 	{
 		return tokens[i];
 	}
+
+	public String getEsilCode(int startIndex, int stopIndex)
+	{
+		StringBuilder builder = new StringBuilder();
+
+		for(int i = startIndex; i < stopIndex; i++){
+			builder.append(tokens[i] + ",");
+		}
+
+		String retString = builder.toString();
+		return retString.substring(0, retString.length() - 1);
+	}
+
 
 	public int skipUntilToken(String token)
 	{
@@ -53,8 +66,7 @@ public class ESILTokenStream {
 			t = next();
 
 			if(tokens.contains(t)){
-				index--;
-				return index;
+				return index - 1;
 			}
 		}
 
