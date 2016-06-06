@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import bjoern.pluginlib.structures.Instruction;
+
 public class ESILParser {
 
 	private static final Set<String> POKE_TOKENS =
@@ -31,44 +33,48 @@ public class ESILParser {
 		MEM_ACCESS_TOKENS.addAll(PEEK_TOKENS);
 	}
 
-	public List<MemoryAccess> extractMemoryAccesses(String esilCode)
+	public List<MemoryAccess> extractMemoryAccesses(String esilCode, Instruction instr)
 	{
 		ESILTokenStream stream = new ESILTokenStream(esilCode);
 
 		List<MemoryAccess> retList = new LinkedList<MemoryAccess>();
 
-		int index, prevIndex = 0;
+		int index;
 		while((index = stream.skipUntilToken(MEM_ACCESS_TOKENS)) !=
 				ESILTokenStream.TOKEN_NOT_FOUND)
 		{
-			retList.add(createMemoryAccessAt(stream, prevIndex, index));
-			prevIndex = index;
+			retList.add(createMemoryAccessAt(stream, index, instr));
 		}
 
 		return retList;
 	}
 
-	private MemoryAccess createMemoryAccessAt(ESILTokenStream stream, int prevIndex, int index)
+	private MemoryAccess createMemoryAccessAt(ESILTokenStream stream, int index, Instruction instr)
 	{
+		String esilCode = stream.getEsilCodeForAccess(index);
+
+		if(esilCode.contains("rbp")){
+			System.out.println( (String) instr.getNode().getProperty("repr") );
+			System.out.println(esilCode);
+		}
 
 		String operation = stream.getTokenAt(index);
 		if(POKE_TOKENS.contains(operation))
-			return createPokeMemoryAccessAt(stream, prevIndex, index);
+			return createPokeMemoryAccessAt(stream, index);
 		else if(PEEK_TOKENS.contains(operation))
-			return createPeekMemoryAccessAt(stream, prevIndex, index);
+			return createPeekMemoryAccessAt(stream, index);
 
 		return null;
 	}
 
-	private MemoryAccess createPokeMemoryAccessAt(ESILTokenStream stream, int prevIndex, int index)
+	private MemoryAccess createPokeMemoryAccessAt(ESILTokenStream stream, int index)
 	{
 		MemoryAccess access = new MemoryAccess();
-		String esilCode = stream.getEsilCode(prevIndex + 1, index);
-		System.out.println(esilCode);
+
 		return access;
 	}
 
-	private MemoryAccess createPeekMemoryAccessAt(ESILTokenStream stream, int prevIndex, int index)
+	private MemoryAccess createPeekMemoryAccessAt(ESILTokenStream stream, int index)
 	{
 		MemoryAccess access = new MemoryAccess();
 		return access;

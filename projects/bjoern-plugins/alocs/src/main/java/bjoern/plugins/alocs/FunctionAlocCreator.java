@@ -84,7 +84,8 @@ public class FunctionAlocCreator {
 	private void createAlocsForMemoryAccesses(Instruction instr, long address)
 	{
 		String esilCode = instr.getEsilCode();
-		List<MemoryAccess> access = esilParser.extractMemoryAccesses(esilCode);
+
+		List<MemoryAccess> access = esilParser.extractMemoryAccesses(esilCode, instr);
 
 	}
 
