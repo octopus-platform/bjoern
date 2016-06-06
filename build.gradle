@@ -16,3 +16,22 @@ task deploy(dependsOn: build) << {
 }
 
 build.dependsOn subprojects.build
+
+configure(project(':projects:bjoern-plugins').subprojects - project(':projects:bjoern-plugins:pluginlib')) {
+    task jarWithDep(type: Jar) {
+        doFirst {
+            def pluginJars = configurations.runtime.minus(project(':projects:octopus').configurations.runtime).asCollection()
+            pluginJars.remove(new File(project(':projects:octopus').buildDir.toString() + '/libs/octopus.jar'))
+            pluginJars.add(new File(project.buildDir.toString() + '/libs/' + project.name + '-plain.jar'))
+            baseName = project.name
+            from { pluginJars.collect { it.isDirectory() ? it : zipTree(it) } }
+            with jar
+        }
+    }
+    jar {
+        baseName = project.name + '-plain'
+    }
+
+    jarWithDep.dependsOn(jar)
+    assemble.dependsOn(jarWithDep)
+}
