@@ -6,8 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import bjoern.pluginlib.structures.Instruction;
-
 public class ESILParser {
 
 	private static final Set<String> POKE_TOKENS =
@@ -33,7 +31,7 @@ public class ESILParser {
 		MEM_ACCESS_TOKENS.addAll(PEEK_TOKENS);
 	}
 
-	public List<String> extractMemoryAccesses(String esilCode, Instruction instr)
+	public List<String> extractMemoryAccesses(String esilCode)
 	{
 		ESILTokenStream stream = new ESILTokenStream(esilCode);
 
@@ -43,26 +41,13 @@ public class ESILParser {
 		while((index = stream.skipUntilToken(MEM_ACCESS_TOKENS)) !=
 				ESILTokenStream.TOKEN_NOT_FOUND)
 		{
-			String memoryAccess = createMemoryAccessAt(stream, index, instr);
-			if(memoryAccess != null)
-				retList.add(memoryAccess);
+			// TODO: make this platform independent
+			String esilMemAccessCode = stream.getEsilCodeForAccess(index);
+			if(esilMemAccessCode != null && esilCode.contains("rbp"))
+				retList.add(esilMemAccessCode);
 		}
-
 		return retList;
 	}
-
-	private String createMemoryAccessAt(ESILTokenStream stream, int index, Instruction instr)
-	{
-		String esilCode = stream.getEsilCodeForAccess(index);
-
-		// TODO: make this platform independent
-
-		if(!esilCode.contains("rbp"))
-			return null;
-
-		return esilCode;
-	}
-
 
 
 }

@@ -80,11 +80,16 @@ public class FunctionAlocCreator {
 		}
 	}
 
-	private void createAlocsForMemoryAccesses(Instruction instr, long address)
+	private void createAlocsForMemoryAccesses(Instruction instr, long address) throws IOException
 	{
 		String esilCode = instr.getEsilCode();
 
-		List<String> access = esilParser.extractMemoryAccesses(esilCode, instr);
+		List<String> access = esilParser.extractMemoryAccesses(esilCode);
+		for(String a : access){
+			Vertex aloc = createAloc(a);
+			// TODO: need to find out whether this is a read or write access.
+			GraphOperations.addEdge(graph, instr, new Node(aloc), EdgeTypes.READ);
+		}
 
 	}
 
