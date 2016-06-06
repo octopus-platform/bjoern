@@ -133,7 +133,7 @@ public enum ESILKeyword
 
 	}
 
-	public static int nargs(ESILKeyword keyword)
+	public static int nargsForKeyword(ESILKeyword keyword)
 	{
 		return keywordToNargs.get(keyword);
 	}
