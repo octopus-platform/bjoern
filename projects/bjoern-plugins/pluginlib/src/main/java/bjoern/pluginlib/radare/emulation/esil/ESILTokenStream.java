@@ -75,8 +75,7 @@ public class ESILTokenStream {
 
 	public String getEsilCodeForAccess(int index)
 	{
-		ESILAccessExtractor extractor = new ESILAccessExtractor();
-		return extractor.extract(this, index);
+		return ESILAccessExtractor.extract(this, index);
 	}
 
 

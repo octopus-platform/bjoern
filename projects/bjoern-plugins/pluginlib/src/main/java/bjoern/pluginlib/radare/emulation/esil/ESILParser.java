@@ -53,12 +53,10 @@ public class ESILParser {
 	{
 		String esilCode = stream.getEsilCodeForAccess(index);
 
-		System.out.println(esilCode);
-
-//		if(esilCode.contains("rbp")){
-//			System.out.println( (String) instr.getNode().getProperty("repr") );
-//			System.out.println(esilCode);
-//		}
+		if(esilCode.contains("rbp")){
+			System.out.println( (String) instr.getNode().getProperty("repr") + ": " +  esilCode);
+			System.out.println(instr.getEsilCode());
+		}
 
 		String operation = stream.getTokenAt(index);
 		if(POKE_TOKENS.contains(operation))
