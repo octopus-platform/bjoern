@@ -13,7 +13,6 @@ import bjoern.pluginlib.GraphOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.radare.emulation.EsilEmulator;
 import bjoern.pluginlib.radare.emulation.esil.ESILParser;
-import bjoern.pluginlib.radare.emulation.esil.MemoryAccess;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.pluginlib.structures.Node;
@@ -85,7 +84,7 @@ public class FunctionAlocCreator {
 	{
 		String esilCode = instr.getEsilCode();
 
-		List<MemoryAccess> access = esilParser.extractMemoryAccesses(esilCode, instr);
+		List<String> access = esilParser.extractMemoryAccesses(esilCode, instr);
 
 	}
 

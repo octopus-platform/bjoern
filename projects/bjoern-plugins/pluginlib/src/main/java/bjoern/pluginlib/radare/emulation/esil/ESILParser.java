@@ -33,51 +33,36 @@ public class ESILParser {
 		MEM_ACCESS_TOKENS.addAll(PEEK_TOKENS);
 	}
 
-	public List<MemoryAccess> extractMemoryAccesses(String esilCode, Instruction instr)
+	public List<String> extractMemoryAccesses(String esilCode, Instruction instr)
 	{
 		ESILTokenStream stream = new ESILTokenStream(esilCode);
 
-		List<MemoryAccess> retList = new LinkedList<MemoryAccess>();
+		List<String> retList = new LinkedList<String>();
 
 		int index;
 		while((index = stream.skipUntilToken(MEM_ACCESS_TOKENS)) !=
 				ESILTokenStream.TOKEN_NOT_FOUND)
 		{
-			retList.add(createMemoryAccessAt(stream, index, instr));
+			String memoryAccess = createMemoryAccessAt(stream, index, instr);
+			if(memoryAccess != null)
+				retList.add(memoryAccess);
 		}
 
 		return retList;
 	}
 
-	private MemoryAccess createMemoryAccessAt(ESILTokenStream stream, int index, Instruction instr)
+	private String createMemoryAccessAt(ESILTokenStream stream, int index, Instruction instr)
 	{
 		String esilCode = stream.getEsilCodeForAccess(index);
 
-		if(esilCode.contains("rbp")){
-			System.out.println( (String) instr.getNode().getProperty("repr") + ": " +  esilCode);
-			System.out.println(instr.getEsilCode());
-		}
+		// TODO: make this platform independent
 
-		String operation = stream.getTokenAt(index);
-		if(POKE_TOKENS.contains(operation))
-			return createPokeMemoryAccessAt(stream, index);
-		else if(PEEK_TOKENS.contains(operation))
-			return createPeekMemoryAccessAt(stream, index);
+		if(!esilCode.contains("rbp"))
+			return null;
 
-		return null;
+		return esilCode;
 	}
 
-	private MemoryAccess createPokeMemoryAccessAt(ESILTokenStream stream, int index)
-	{
-		MemoryAccess access = new MemoryAccess();
 
-		return access;
-	}
-
-	private MemoryAccess createPeekMemoryAccessAt(ESILTokenStream stream, int index)
-	{
-		MemoryAccess access = new MemoryAccess();
-		return access;
-	}
 
 }
