@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.tinkerpop.blueprints.Vertex;
 
@@ -14,9 +15,10 @@ import bjoern.pluginlib.radare.emulation.ESILEmulator;
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
 import bjoern.pluginlib.structures.BasicBlock;
+import bjoern.pluginlib.structures.Instruction;
 import bjoern.r2interface.Radare;
 
-public class ESILMemAccessEvaluator {
+public class ESILStackAccessEvaluator {
 
 	ESILEmulator emulator;
 	StackState stackState;
@@ -45,7 +47,7 @@ public class ESILMemAccessEvaluator {
 		MEM_ACCESS_TOKENS.addAll(PEEK_TOKENS);
 	}
 
-	public ESILMemAccessEvaluator(Radare radare) throws IOException
+	public ESILStackAccessEvaluator(Radare radare) throws IOException
 	{
 		emulator = new ESILEmulator(radare);
 	}
@@ -74,8 +76,10 @@ public class ESILMemAccessEvaluator {
 	}
 
 
-	public List<MemoryAccess> extractMemoryAccesses(String esilCode) throws IOException
+	public List<MemoryAccess> extractMemoryAccesses(Instruction instr) throws IOException
 	{
+		String esilCode = instr.getEsilCode();
+
 		ESILTokenStream stream = new ESILTokenStream(esilCode);
 		List<MemoryAccess> retList = new LinkedList<MemoryAccess>();
 
@@ -86,26 +90,52 @@ public class ESILMemAccessEvaluator {
 		while((index = stream.skipUntilToken(MEM_ACCESS_TOKENS)) !=
 				ESILTokenStream.TOKEN_NOT_FOUND)
 		{
-			String bpName = emulator.getBasePointerRegisterName();
-
 			String esilMemAccessExpr = ESILAccessParser.parse(stream, index);
-			if(esilMemAccessExpr == null || !esilCode.contains(bpName))
+
+			if(!isResolvableStackAccess(esilMemAccessExpr))
 				continue;
 
-			MemoryAccess access = createMemoryAccessFromESILExpr(esilMemAccessExpr);
+			MemoryAccess access = createMemoryAccessFromESILExpr(esilMemAccessExpr, instr);
 			retList.add(access);
 		}
 		return retList;
 	}
 
-	private MemoryAccess createMemoryAccessFromESILExpr(String esilMemAccessExpr) throws IOException
+	private boolean isResolvableStackAccess(String esilMemAccessExpr)
+	{
+		if(esilMemAccessExpr == null)
+			return false;
+
+		String bpName = emulator.getBasePointerRegisterName();
+		String spName = emulator.getStackPointerRegisterName();
+
+		if(!esilMemAccessExpr.contains(bpName) && !esilMemAccessExpr.contains(spName))
+			return false;
+
+		// register + constant
+
+		String pattern = String.format("(0x)?\\d+,(%s|%s),(\\+|\\-),.*", bpName, spName);
+		if(Pattern.matches(pattern, esilMemAccessExpr))
+			return true;
+
+
+//		String pattern2 = String.format("^.*?,(%s|%s),=?\\[.*", bpName, spName);
+//		if(Pattern.matches(pattern2, esilMemAccessExpr))
+//			return true;
+
+		return false;
+	}
+
+	private MemoryAccess createMemoryAccessFromESILExpr(String esilMemAccessExpr, Instruction instr) throws IOException
 	{
 		MemoryAccess access = new MemoryAccess();
-		access.setEsilExpression(esilMemAccessExpr);
 
 		emulator.setStackState(stackState.getBasePtrValue(), stackState.getStackPtrValue());
 		String addr = emulator.runEsilCode(esilMemAccessExpr);
-		System.out.println(esilMemAccessExpr + ": " + addr);
+
+		access.setEsilExpression(esilMemAccessExpr);
+		access.setInstructionRepr((String)instr.getNode().getProperty("repr"));
+		access.setAddress(addr);
 
 		return access;
 	}
