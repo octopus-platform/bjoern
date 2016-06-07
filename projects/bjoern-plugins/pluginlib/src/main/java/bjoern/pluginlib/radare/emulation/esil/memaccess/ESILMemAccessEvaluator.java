@@ -20,6 +20,7 @@ public class ESILMemAccessEvaluator {
 
 	ESILEmulator emulator;
 	StackState stackState;
+	boolean isEmpty = false;
 
 	private static final Set<String> POKE_TOKENS =
 			new HashSet<String>(Arrays.asList(
@@ -62,6 +63,7 @@ public class ESILMemAccessEvaluator {
 
 		} catch(RuntimeException ex) {
 			System.err.println("Warning: function without entry block");
+			isEmpty = true;
 			return null;
 		}
 
@@ -72,11 +74,13 @@ public class ESILMemAccessEvaluator {
 	}
 
 
-	public List<MemoryAccess> extractMemoryAccesses(String esilCode)
+	public List<MemoryAccess> extractMemoryAccesses(String esilCode) throws IOException
 	{
 		ESILTokenStream stream = new ESILTokenStream(esilCode);
-
 		List<MemoryAccess> retList = new LinkedList<MemoryAccess>();
+
+		if(isEmpty)
+			return retList;
 
 		int index;
 		while((index = stream.skipUntilToken(MEM_ACCESS_TOKENS)) !=
@@ -88,11 +92,22 @@ public class ESILMemAccessEvaluator {
 			if(esilMemAccessExpr == null && !esilCode.contains(bpName))
 				continue;
 
-			MemoryAccess access = new MemoryAccess();
-			access.setEsilExpression(esilMemAccessExpr);
+			MemoryAccess access = createMemoryAccessFromESILExpr(esilMemAccessExpr);
 			retList.add(access);
 		}
 		return retList;
+	}
+
+	private MemoryAccess createMemoryAccessFromESILExpr(String esilMemAccessExpr) throws IOException
+	{
+		MemoryAccess access = new MemoryAccess();
+		access.setEsilExpression(esilMemAccessExpr);
+
+		emulator.setStackState(stackState.getBasePtrValue(), stackState.getStackPtrValue());
+		String addr = emulator.runEsilCode(esilMemAccessExpr);
+		System.out.println(addr);
+
+		return access;
 	}
 
 }

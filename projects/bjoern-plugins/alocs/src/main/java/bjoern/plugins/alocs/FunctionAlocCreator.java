@@ -22,12 +22,11 @@ import bjoern.structures.edges.EdgeTypes;
 
 public class FunctionAlocCreator {
 
-	Map<String,Vertex> registerToVertex = new HashMap<String,Vertex>();
+	private Map<String,Vertex> registerToVertex = new HashMap<String,Vertex>();
 	private Radare radare;
 	private OrientGraphNoTx graph;
 	private Vertex functionVertex;
-
-	ESILMemAccessEvaluator memAccessEvaluator;
+	private ESILMemAccessEvaluator memAccessEvaluator;
 
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
 	{

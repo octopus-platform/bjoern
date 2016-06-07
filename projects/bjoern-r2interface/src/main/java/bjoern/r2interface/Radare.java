@@ -196,9 +196,9 @@ public class Radare
 		r2Pipe.cmd("aeim");
 	}
 
-	public void runEsilCode(String esilCode) throws IOException
+	public String runEsilCode(String esilCode) throws IOException
 	{
-		r2Pipe.cmd(String.format("\"ae %s\"", esilCode));
+		return r2Pipe.cmd(String.format("\"ae %s\"", esilCode));
 	}
 
 	public String getRegisterValue(String registerStr) throws IOException

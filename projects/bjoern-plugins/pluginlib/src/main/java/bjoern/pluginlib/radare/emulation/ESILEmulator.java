@@ -10,11 +10,11 @@ import bjoern.r2interface.architectures.Architecture;
 public class ESILEmulator {
 
 	Architecture architecture;
-	Radare wrappedRadare;
+	Radare radare;
 
 	public ESILEmulator(Radare radare) throws IOException
 	{
-		wrappedRadare = radare;
+		this.radare = radare;
 		setArchitecture(radare.getArchitecture());
 
 		reset();
@@ -33,8 +33,22 @@ public class ESILEmulator {
 	public void emulateWithoutCalls(Iterable<Instruction> instructions) throws IOException
 	{
 		String esilSeq = createEsilSequenceWithoutCalls(instructions);
-		wrappedRadare.resetEsilState();
-		wrappedRadare.runEsilCode(esilSeq);
+		radare.resetEsilState();
+		runEsilCode(esilSeq);
+	}
+
+	public void setStackState(long basePointer, long stackPointer) throws IOException
+	{
+		String bpName = getBasePointerRegisterName();
+		String spName = getStackPointerRegisterName();
+
+		runEsilCode(String.format("%d,%s,=", stackPointer, spName));
+		runEsilCode(String.format("%d,%s,=", basePointer, bpName));
+	}
+
+	public String runEsilCode(String esilCode) throws IOException
+	{
+		return radare.runEsilCode(esilCode);
 	}
 
 	public long getStackPointerValue() throws IOException
@@ -51,7 +65,7 @@ public class ESILEmulator {
 
 	public long getRegisterValue(String registerName) throws IOException
 	{
-		String registerValueStr = wrappedRadare.getRegisterValue(registerName);
+		String registerValueStr = radare.getRegisterValue(registerName);
 		if(registerValueStr == null)
 			return 0;
 
