@@ -12,6 +12,7 @@ import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.GraphOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.radare.emulation.esil.memaccess.ESILMemAccessEvaluator;
+import bjoern.pluginlib.radare.emulation.esil.memaccess.MemoryAccess;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.pluginlib.structures.Node;
 import bjoern.r2interface.Radare;
@@ -26,19 +27,19 @@ public class FunctionAlocCreator {
 	private OrientGraphNoTx graph;
 	private Vertex functionVertex;
 
-	ESILMemAccessEvaluator esilMemAccessEvaluator;
+	ESILMemAccessEvaluator memAccessEvaluator;
 
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
 	{
 		this.radare = radare;
 		this.graph = graph;
-		this.esilMemAccessEvaluator = new ESILMemAccessEvaluator(radare);
+		this.memAccessEvaluator = new ESILMemAccessEvaluator(radare);
 	}
 
 	public void createAlocsForFunction(Vertex function) throws IOException
 	{
 		functionVertex = function;
-		esilMemAccessEvaluator.initializeForFunction(function);
+		memAccessEvaluator.initializeForFunction(function);
 		createAlocsForAllInstructions();
 	}
 
@@ -69,9 +70,9 @@ public class FunctionAlocCreator {
 	{
 		String esilCode = instr.getEsilCode();
 
-		List<String> access = esilMemAccessEvaluator.extractMemoryAccesses(esilCode);
-		for(String a : access){
-			createAloc(a);
+		List<MemoryAccess> access = memAccessEvaluator.extractMemoryAccesses(esilCode);
+		for(MemoryAccess m : access){
+			createAloc(m.getEsilExpression());
 		}
 	}
 

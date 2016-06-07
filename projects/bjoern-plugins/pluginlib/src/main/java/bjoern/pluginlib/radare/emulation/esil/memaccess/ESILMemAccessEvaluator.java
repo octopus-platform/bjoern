@@ -72,11 +72,11 @@ public class ESILMemAccessEvaluator {
 	}
 
 
-	public List<String> extractMemoryAccesses(String esilCode)
+	public List<MemoryAccess> extractMemoryAccesses(String esilCode)
 	{
 		ESILTokenStream stream = new ESILTokenStream(esilCode);
 
-		List<String> retList = new LinkedList<String>();
+		List<MemoryAccess> retList = new LinkedList<MemoryAccess>();
 
 		int index;
 		while((index = stream.skipUntilToken(MEM_ACCESS_TOKENS)) !=
@@ -84,9 +84,13 @@ public class ESILMemAccessEvaluator {
 		{
 			String bpName = emulator.getBasePointerRegisterName();
 
-			String esilMemAccessCode = ESILAccessParser.parse(stream, index);
-			if(esilMemAccessCode != null && esilCode.contains(bpName))
-				retList.add(esilMemAccessCode);
+			String esilMemAccessExpr = ESILAccessParser.parse(stream, index);
+			if(esilMemAccessExpr == null && !esilCode.contains(bpName))
+				continue;
+
+			MemoryAccess access = new MemoryAccess();
+			access.setEsilExpression(esilMemAccessExpr);
+			retList.add(access);
 		}
 		return retList;
 	}
