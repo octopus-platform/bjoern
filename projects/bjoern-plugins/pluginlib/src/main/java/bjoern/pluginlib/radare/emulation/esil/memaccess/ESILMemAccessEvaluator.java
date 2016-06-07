@@ -89,7 +89,7 @@ public class ESILMemAccessEvaluator {
 			String bpName = emulator.getBasePointerRegisterName();
 
 			String esilMemAccessExpr = ESILAccessParser.parse(stream, index);
-			if(esilMemAccessExpr == null && !esilCode.contains(bpName))
+			if(esilMemAccessExpr == null || !esilCode.contains(bpName))
 				continue;
 
 			MemoryAccess access = createMemoryAccessFromESILExpr(esilMemAccessExpr);
@@ -105,7 +105,7 @@ public class ESILMemAccessEvaluator {
 
 		emulator.setStackState(stackState.getBasePtrValue(), stackState.getStackPtrValue());
 		String addr = emulator.runEsilCode(esilMemAccessExpr);
-		System.out.println(addr);
+		System.out.println(esilMemAccessExpr + ": " + addr);
 
 		return access;
 	}
