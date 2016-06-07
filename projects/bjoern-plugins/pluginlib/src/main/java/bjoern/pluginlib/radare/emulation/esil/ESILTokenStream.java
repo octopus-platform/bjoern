@@ -73,10 +73,4 @@ public class ESILTokenStream {
 		return TOKEN_NOT_FOUND;
 	}
 
-	public String getEsilCodeForAccess(int index)
-	{
-		return ESILAccessExtractor.extract(this, index);
-	}
-
-
 }

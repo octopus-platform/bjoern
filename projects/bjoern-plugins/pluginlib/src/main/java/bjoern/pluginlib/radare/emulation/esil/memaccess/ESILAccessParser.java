@@ -1,6 +1,9 @@
-package bjoern.pluginlib.radare.emulation.esil;
+package bjoern.pluginlib.radare.emulation.esil.memaccess;
 
-public class ESILAccessExtractor
+import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
+import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
+
+public class ESILAccessParser
 {
 
 	private static class ExtractorState{
@@ -15,7 +18,7 @@ public class ESILAccessExtractor
 		String expr;
 	}
 
-	public static String extract(ESILTokenStream tokenStream, int index)
+	public static String parse(ESILTokenStream tokenStream, int index)
 	{
 		ExtractorState state = extract_(tokenStream, index);
 		return state.expr;

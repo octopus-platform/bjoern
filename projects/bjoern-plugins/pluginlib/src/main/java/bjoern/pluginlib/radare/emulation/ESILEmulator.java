@@ -7,12 +7,12 @@ import bjoern.pluginlib.structures.Instruction;
 import bjoern.r2interface.Radare;
 import bjoern.r2interface.architectures.Architecture;
 
-public class EsilEmulator {
+public class ESILEmulator {
 
 	Architecture architecture;
 	Radare wrappedRadare;
 
-	public EsilEmulator(Radare radare) throws IOException
+	public ESILEmulator(Radare radare) throws IOException
 	{
 		wrappedRadare = radare;
 		setArchitecture(radare.getArchitecture());
@@ -39,13 +39,13 @@ public class EsilEmulator {
 
 	public long getStackPointerValue() throws IOException
 	{
-		String stackRegisterName = architecture.getStackRegisterName();
+		String stackRegisterName = getStackPointerRegisterName();
 		return getRegisterValue(stackRegisterName);
 	}
 
 	public long getBasePointerValue() throws IOException
 	{
-		String baseRegisterName = architecture.getBaseRegisterName();
+		String baseRegisterName = getBasePointerRegisterName();
 		return getRegisterValue(baseRegisterName);
 	}
 
@@ -57,6 +57,16 @@ public class EsilEmulator {
 
 		registerValueStr = registerValueStr.substring(2, registerValueStr.length() -1);
 		return Long.parseUnsignedLong(registerValueStr, 16);
+	}
+
+	public String getBasePointerRegisterName()
+	{
+		return architecture.getBaseRegisterName();
+	}
+
+	public String getStackPointerRegisterName()
+	{
+		return architecture.getStackRegisterName();
 	}
 
 	private String createEsilSequenceWithoutCalls(Iterable<Instruction> instructions)

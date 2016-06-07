@@ -1,4 +1,4 @@
-package bjoern.plugins.alocs;
+package bjoern.pluginlib.radare.emulation.esil.memaccess;
 
 public class StackState {
 

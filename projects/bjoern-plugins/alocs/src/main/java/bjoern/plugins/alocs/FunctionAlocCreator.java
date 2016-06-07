@@ -11,9 +11,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.GraphOperations;
 import bjoern.pluginlib.Traversals;
-import bjoern.pluginlib.radare.emulation.EsilEmulator;
-import bjoern.pluginlib.radare.emulation.esil.ESILParser;
-import bjoern.pluginlib.structures.BasicBlock;
+import bjoern.pluginlib.radare.emulation.esil.memaccess.ESILMemAccessEvaluator;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.pluginlib.structures.Node;
 import bjoern.r2interface.Radare;
@@ -26,50 +24,59 @@ public class FunctionAlocCreator {
 	Map<String,Vertex> registerToVertex = new HashMap<String,Vertex>();
 	private Radare radare;
 	private OrientGraphNoTx graph;
-	Vertex functionVertex;
-	EsilEmulator emulator;
-	ESILParser esilParser = new ESILParser();
+	private Vertex functionVertex;
+
+	ESILMemAccessEvaluator esilMemAccessEvaluator;
 
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
 	{
 		this.radare = radare;
 		this.graph = graph;
-		this.emulator = new EsilEmulator(radare);
+		this.esilMemAccessEvaluator = new ESILMemAccessEvaluator(radare);
 	}
 
 	public void createAlocsForFunction(Vertex function) throws IOException
 	{
 		functionVertex = function;
-
-		StackState stackState = emulateFirstBasicBlock(function);
-		createAlocsForAllInstructions(stackState);
+		esilMemAccessEvaluator.initializeForFunction(function);
+		createAlocsForAllInstructions();
 	}
 
-	private void createAlocsForAllInstructions(StackState stackState) throws IOException
+	private void createAlocsForAllInstructions() throws IOException
 	{
 		List<Instruction> instructions = Traversals.functionToInstructions(functionVertex);
 		for(Instruction instr : instructions){
-			createAlocsForInstruction(instr, stackState);
+			createAlocsForInstruction(instr);
 		}
 	}
 
-	private void createAlocsForInstruction(Instruction instr, StackState stackState) throws IOException
+	private void createAlocsForInstruction(Instruction instr) throws IOException
 	{
 		long address = instr.getAddress();
 		createAlocsForRegisters(instr, address);
 		createAlocsForMemoryAccesses(instr, address);
-
 	}
 
 	private void createAlocsForRegisters(Instruction instr, long address) throws IOException
 	{
 		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
-		createAlocsForRegisters(instr, registersRead, EdgeTypes.READ);
+		createAlocsForRegisterList(instr, registersRead, EdgeTypes.READ);
 		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
-		createAlocsForRegisters(instr, registersWritten, EdgeTypes.WRITE);
+		createAlocsForRegisterList(instr, registersWritten, EdgeTypes.WRITE);
 	}
 
-	private void createAlocsForRegisters(Instruction instr, List<String> registersRead, String edgeType) throws IOException {
+	private void createAlocsForMemoryAccesses(Instruction instr, long address) throws IOException
+	{
+		String esilCode = instr.getEsilCode();
+
+		List<String> access = esilMemAccessEvaluator.extractMemoryAccesses(esilCode);
+		for(String a : access){
+			createAloc(a);
+		}
+	}
+
+	private void createAlocsForRegisterList(Instruction instr, List<String> registersRead, String edgeType) throws IOException
+	{
 		for(String registerStr : registersRead){
 
 			Vertex registerVertex = registerToVertex.get(registerStr);
@@ -77,17 +84,6 @@ public class FunctionAlocCreator {
 				registerVertex = createAloc(registerStr);
 			}
 		}
-	}
-
-	private void createAlocsForMemoryAccesses(Instruction instr, long address) throws IOException
-	{
-		String esilCode = instr.getEsilCode();
-
-		List<String> access = esilParser.extractMemoryAccesses(esilCode);
-		for(String a : access){
-			createAloc(a);
-		}
-
 	}
 
 	private Vertex createAloc(String alocName) throws IOException
@@ -129,24 +125,6 @@ public class FunctionAlocCreator {
 		Node alocNode = new Node(alocVertex);
 
 		GraphOperations.addEdge(graph, functionNode, alocNode, GraphOperations.ALOC_USE_EDGE);
-	}
-
-	private StackState emulateFirstBasicBlock(Vertex function) throws IOException
-	{
-		BasicBlock entryBlock;
-		try{
-			entryBlock = Traversals.functionToEntryBlock(function);
-
-		} catch(RuntimeException ex) {
-			System.err.println("Warning: function without entry block");
-			return null;
-		}
-
-		emulator.emulateWithoutCalls(entryBlock.getInstructions());
-		long basePtrValue = emulator.getBasePointerValue();
-		long stackPtrValue = emulator.getStackPointerValue();
-		return new StackState(basePtrValue, stackPtrValue);
-
 	}
 
 }
