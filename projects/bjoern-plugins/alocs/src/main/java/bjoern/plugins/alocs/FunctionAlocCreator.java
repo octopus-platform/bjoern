@@ -76,7 +76,6 @@ public class FunctionAlocCreator {
 			if(registerVertex == null){
 				registerVertex = createAloc(registerStr);
 			}
-			GraphOperations.addEdge(graph, instr, new Node(registerVertex), edgeType);
 		}
 	}
 
@@ -86,9 +85,7 @@ public class FunctionAlocCreator {
 
 		List<String> access = esilParser.extractMemoryAccesses(esilCode);
 		for(String a : access){
-			Vertex aloc = createAloc(a);
-			// TODO: need to find out whether this is a read or write access.
-			GraphOperations.addEdge(graph, instr, new Node(aloc), EdgeTypes.READ);
+			createAloc(a);
 		}
 
 	}
@@ -106,7 +103,7 @@ public class FunctionAlocCreator {
 
 		Vertex alocVertex = GraphOperations.addNode(graph, properties);
 		registerToVertex.put(alocName, alocVertex);
-		linkFunctionAndRegister(alocVertex);
+		linkFunctionAndAloc(alocVertex);
 		return alocVertex;
 	}
 
@@ -126,7 +123,7 @@ public class FunctionAlocCreator {
 		return AlocTypes.UNKNOWN;
 	}
 
-	private void linkFunctionAndRegister(Vertex alocVertex)
+	private void linkFunctionAndAloc(Vertex alocVertex)
 	{
 		Node functionNode = new Node(functionVertex);
 		Node alocNode = new Node(alocVertex);
