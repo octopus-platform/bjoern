@@ -3,9 +3,27 @@ package bjoern.r2interface.architectures;
 public class X64Architecture extends Architecture {
 
 	@Override
-	public boolean isCall(String esilCode)
+	public boolean isCall(String repr)
 	{
-		return esilCode.startsWith("rip,8,rsp,-=,rsp,=[],");
+		return repr.startsWith("call");
+	}
+
+	@Override
+	public boolean isRet(String repr)
+	{
+		return repr.startsWith("ret");
+	}
+
+	@Override
+	public boolean isPop(String repr)
+	{
+		return repr.startsWith("pop");
+	}
+
+	@Override
+	public boolean isPush(String repr)
+	{
+		return repr.startsWith("push");
 	}
 
 	@Override

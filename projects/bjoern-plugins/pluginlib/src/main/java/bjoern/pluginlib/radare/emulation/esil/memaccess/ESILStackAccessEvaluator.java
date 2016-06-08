@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import com.tinkerpop.blueprints.Vertex;
 
@@ -17,6 +16,7 @@ import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.r2interface.Radare;
+import bjoern.r2interface.architectures.Architecture;
 
 public class ESILStackAccessEvaluator {
 
@@ -78,13 +78,13 @@ public class ESILStackAccessEvaluator {
 
 	public List<MemoryAccess> extractMemoryAccesses(Instruction instr) throws IOException
 	{
+		List<MemoryAccess> retList = new LinkedList<MemoryAccess>();
 		String esilCode = instr.getEsilCode();
 
-		ESILTokenStream stream = new ESILTokenStream(esilCode);
-		List<MemoryAccess> retList = new LinkedList<MemoryAccess>();
-
-		if(isEmpty)
+		if(isEmpty || isUnconsideredStackAccess(instr))
 			return retList;
+
+		ESILTokenStream stream = new ESILTokenStream(esilCode);
 
 		int index;
 		while((index = stream.skipUntilToken(MEM_ACCESS_TOKENS)) !=
@@ -101,6 +101,13 @@ public class ESILStackAccessEvaluator {
 		return retList;
 	}
 
+	private boolean isUnconsideredStackAccess(Instruction instr)
+	{
+		String code = instr.getCode();
+		Architecture arch = emulator.getArchitecture();
+		return (arch.isCall(code) || arch.isPush(code) || arch.isPop(code) || arch.isRet(code));
+	}
+
 	private boolean isResolvableStackAccess(String esilMemAccessExpr)
 	{
 		if(esilMemAccessExpr == null)
@@ -114,16 +121,17 @@ public class ESILStackAccessEvaluator {
 
 		// register + constant
 
-		String pattern = String.format("(0x)?\\d+,(%s|%s),(\\+|\\-),.*", bpName, spName);
-		if(Pattern.matches(pattern, esilMemAccessExpr))
-			return true;
+		// String pattern = String.format("(0x)?\\d+,(%s|%s),(\\+|\\-),.*", bpName, spName);
+		// if(Pattern.matches(pattern, esilMemAccessExpr))
+		//	return true;
+		return true;
 
 
 //		String pattern2 = String.format("^.*?,(%s|%s),=?\\[.*", bpName, spName);
 //		if(Pattern.matches(pattern2, esilMemAccessExpr))
 //			return true;
 
-		return false;
+		// return false;
 	}
 
 	private MemoryAccess createMemoryAccessFromESILExpr(String esilMemAccessExpr, Instruction instr) throws IOException
@@ -135,6 +143,7 @@ public class ESILStackAccessEvaluator {
 
 		access.setEsilExpression(esilMemAccessExpr);
 		access.setInstructionRepr((String)instr.getNode().getProperty("repr"));
+		access.setCompleteEsilExpression(instr.getEsilCode());
 		access.setAddress(addr);
 
 		return access;

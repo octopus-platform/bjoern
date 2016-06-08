@@ -1,8 +1,8 @@
 package bjoern.pluginlib.structures;
 
-import bjoern.nodeStore.NodeTypes;
 import com.tinkerpop.blueprints.Vertex;
 
+import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.BjoernNodeProperties;
 
 public class Instruction extends Node implements Comparable<Instruction>
@@ -36,5 +36,10 @@ public class Instruction extends Node implements Comparable<Instruction>
 		{
 			return 0;
 		}
+	}
+
+	public String getCode()
+	{
+		return this.getNode().getProperty("repr");
 	}
 }

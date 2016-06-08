@@ -85,7 +85,7 @@ public class ESILEmulator {
 
 	private String createEsilSequenceWithoutCalls(Iterable<Instruction> instructions)
 	{
-		Predicate<Instruction> isNotCall = p -> !architecture.isCall(p.getEsilCode());
+		Predicate<Instruction> isNotCall = p -> !architecture.isCall(p.getCode());
 		return createEsilSequence(instructions, isNotCall);
 	}
 
@@ -109,6 +109,11 @@ public class ESILEmulator {
 		String instructionSeq = builder.toString();
 		instructionSeq = instructionSeq.substring(0, instructionSeq.length() -1);
 		return instructionSeq;
+	}
+
+	public Architecture getArchitecture()
+	{
+		return this.architecture;
 	}
 
 
