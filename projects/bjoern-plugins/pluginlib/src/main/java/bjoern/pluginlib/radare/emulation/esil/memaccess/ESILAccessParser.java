@@ -20,7 +20,7 @@ public class ESILAccessParser
 
 	public static String parse(ESILTokenStream tokenStream, int index)
 	{
-		ExtractorState state = extract_(tokenStream, index);
+		ExtractorState state = extract_(tokenStream, index -1);
 		return state.expr;
 	}
 

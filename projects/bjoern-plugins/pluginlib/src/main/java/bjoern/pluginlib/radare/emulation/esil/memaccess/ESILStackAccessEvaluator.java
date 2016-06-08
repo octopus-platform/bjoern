@@ -119,19 +119,7 @@ public class ESILStackAccessEvaluator {
 		if(!esilMemAccessExpr.contains(bpName) && !esilMemAccessExpr.contains(spName))
 			return false;
 
-		// register + constant
-
-		// String pattern = String.format("(0x)?\\d+,(%s|%s),(\\+|\\-),.*", bpName, spName);
-		// if(Pattern.matches(pattern, esilMemAccessExpr))
-		//	return true;
 		return true;
-
-
-//		String pattern2 = String.format("^.*?,(%s|%s),=?\\[.*", bpName, spName);
-//		if(Pattern.matches(pattern2, esilMemAccessExpr))
-//			return true;
-
-		// return false;
 	}
 
 	private MemoryAccess createMemoryAccessFromESILExpr(String esilMemAccessExpr, Instruction instr) throws IOException
