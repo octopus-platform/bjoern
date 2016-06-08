@@ -129,6 +129,11 @@ public class ESILStackAccessEvaluator {
 		emulator.setStackState(stackState.getBasePtrValue(), stackState.getStackPtrValue());
 		String addr = emulator.runEsilCode(esilMemAccessExpr);
 
+		if(addr.startsWith(emulator.getBasePointerRegisterName()))
+			addr = String.format("%d", stackState.getBasePtrValue());
+		else if((addr.startsWith(emulator.getStackPointerRegisterName())))
+			addr = String.format("%d", stackState.getStackPtrValue());
+
 		access.setEsilExpression(esilMemAccessExpr);
 		access.setInstructionRepr((String)instr.getNode().getProperty("repr"));
 		access.setCompleteEsilExpression(instr.getEsilCode());
