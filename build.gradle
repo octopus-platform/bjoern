@@ -11,6 +11,7 @@ task deploy(dependsOn: build) << {
         into "projects/octopus/plugins"
         from fileTree("projects/bjoern-plugins").files
         include '**/*.jar'
+        exclude '**/*-plain.jar'
         includeEmptyDirs = false
     }
 }
