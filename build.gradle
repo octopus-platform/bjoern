@@ -1,3 +1,16 @@
+def reguiredGradleVersionMajor = 2
+def requiredGradleVersionMinor = 0
+def (gradleVersionMajor, gradleVersionMinor) =
+    getGradle().gradleVersion.tokenize('.').collect {it.toInteger()}
+
+if ( gradleVersionMajor < reguiredGradleVersionMajor ||
+        (gradleVersionMajor == reguiredGradleVersionMajor &&
+        gradleVersionMinor < requiredGradleVersionMinor))
+{
+    throw new GradleException("Gradle version " +
+            "$reguiredGradleVersionMajor.$requiredGradleVersionMinor and higher required.")
+}
+
 allprojects {
     apply plugin: 'java'
 
@@ -11,8 +24,28 @@ task deploy(dependsOn: build) << {
         into "projects/octopus/plugins"
         from fileTree("projects/bjoern-plugins").files
         include '**/*.jar'
+        exclude '**/*-plain.jar'
         includeEmptyDirs = false
     }
 }
 
 build.dependsOn subprojects.build
+
+configure(project(':projects:bjoern-plugins').subprojects - project(':projects:bjoern-plugins:pluginlib')) {
+    task jarWithDep(type: Jar) {
+        doFirst {
+            def pluginJars = configurations.runtime.minus(project(':projects:octopus').configurations.runtime).asCollection()
+            pluginJars.remove(new File(project(':projects:octopus').buildDir.toString() + '/libs/octopus.jar'))
+            pluginJars.add(new File(project.buildDir.toString() + '/libs/' + project.name + '-plain.jar'))
+            baseName = project.name
+            from { pluginJars.collect { it.isDirectory() ? it : zipTree(it) } }
+            with jar
+        }
+    }
+    jar {
+        baseName = project.name + '-plain'
+    }
+
+    jarWithDep.dependsOn(jar)
+    assemble.dependsOn(jarWithDep)
+}

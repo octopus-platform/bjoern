@@ -8,11 +8,3 @@ dependencies {
     compile project(':projects:bjoern-structures')
     compile project(':projects:bjoern-r2interface')
 }
-
-task copyPluginlib(type: Copy) {
-    into "../../octopus/jars"
-    from "$buildDir/libs/pluginlib.jar"
-}
-
-build.dependsOn copyPluginlib
-copyPluginlib.dependsOn compileJava
