@@ -5,6 +5,7 @@ dependencies{
   compile group: 'commons-io', name: 'commons-io', version: '2.5'
   compile group: 'org.json', name: 'json', version: '20141113'
   compile group: 'com.orientechnologies', name: 'orientdb-graphdb', version: '2.1.5'
+  compile group: 'com.orientechnologies', name: 'orientdb-lucene', version: '2.1.5'
 
   compile project(':projects:orientdbimporter') 
 
@@ -22,31 +23,28 @@ task downloadAndExtractOrientDB << {
      def ARCHIVE_FILENAME = "$OCTOPUS_PATH/orientdb.tar.gz"
      def f = new File(ARCHIVE_FILENAME) 
      
-     if (f.exists()){
-     	println 'OrientDB already downloaded.';
-	return
+     if (!f.exists()){
+         println 'Download OrientDB ...'
+         println "wget http://orientdb.com/download.php?file=orientdb-community-2.1.5.tar.gz&os=multi -O $ARCHIVE_FILENAME".execute().text
+
+         f = new File(ARCHIVE_FILENAME)
+         if(!f.exists()){
+             throw new RuntimeException("Error downloading OrientDB.")
+         }
+     }
+     else {
+         println 'OrientDB already downloaded.';
      }
 
-     println 'Download OrientDB ...'
-     println "wget http://orientdb.com/download.php?file=orientdb-community-2.1.5.tar.gz&os=multi -O $ARCHIVE_FILENAME".execute().text
+     f = new File("$OCTOPUS_PATH/orientdb/readme.txt")
+     if (!f.exists()) {
+         println "mkdir $OCTOPUS_PATH/orientdb".execute().text
+         println "tar xfzv $ARCHIVE_FILENAME -C $OCTOPUS_PATH/orientdb --strip-components 1".execute().text
+     }
+    else {
+         println 'OrientDB already extracted.'
+     }
      
-     f = new File(ARCHIVE_FILENAME)
-     if(!f.exists()){
-	throw new RuntimeException("Error downloading OrientDB.")
-     }	
-
-     println "tar xfzv $ARCHIVE_FILENAME -C $OCTOPUS_PATH".execute().text
-     
-}
-
-task copyConfigFilesToOrientDB(type:Copy){
-    into "${project.projectDir}/orientdb-community-2.1.5/config"
-    from "${project.projectDir}/conf/orientdb-server-config.xml"
-}
-
-task copyServerSh(type:Copy){
-    into "${project.projectDir}/orientdb-community-2.1.5/bin"
-    from "${project.projectDir}/conf/server.sh"
 }
 
 task copyToLib(type: Copy) {     
@@ -60,15 +58,9 @@ task copyOctopus(type:Copy) {
 }
 
 compileJava.dependsOn downloadAndExtractOrientDB
-compileJava.dependsOn copyConfigFilesToOrientDB
 
 build.dependsOn copyToLib
-build.dependsOn copyServerSh
 build.dependsOn copyOctopus
 
-copyServerSh.dependsOn downloadAndExtractOrientDB
-copyConfigFilesToOrientDB.dependsOn downloadAndExtractOrientDB
-
 copyToLib.dependsOn compileJava
-copyServerSh.dependsOn compileJava
 copyOctopus.dependsOn compileJava
