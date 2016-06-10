@@ -13,17 +13,6 @@ public class OctopusMain {
     {
         OctopusMain main = new OctopusMain();
         main.startOrientdb();
-
-//        CSVBatchImporter importer = new CSVBatchImporter();
-//
-//        importer.setDbName("abc");
-//        try {
-//            importer.importCSVFiles("nodes.csv", "edges.csv");
-//        }
-//        catch (OSchemaException exception) {
-//            exception.printStackTrace();
-//            throw exception;
-//        }
     }
 
     public void startOrientdb() throws java.lang.Exception
