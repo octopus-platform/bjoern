@@ -11,13 +11,8 @@ public class OctopusMain {
 
     public static void main(String[] args) throws java.lang.Exception
     {
-        System.setProperty("ORIENTDB_HOME","orientdb");
-        System.setProperty("orientdb.www.path","orientdb/www");
-        System.setProperty("orientdb.config.file","conf/orientdb-server-config.xml");
-        
-        OServer server = OServerMain.create();
-        server.startup();
-        server.activate();
+        OctopusMain main = new OctopusMain();
+        main.startOrientdb();
 
 //        CSVBatchImporter importer = new CSVBatchImporter();
 //
@@ -29,5 +24,23 @@ public class OctopusMain {
 //            exception.printStackTrace();
 //            throw exception;
 //        }
+    }
+
+    public void startOrientdb() throws java.lang.Exception
+    {
+        String octopusHome = System.getProperty("OCTOPUS_HOME");
+
+        if (octopusHome == null)
+        {
+            throw new RuntimeException("System property OCTOPUS_HOME not defined.");
+        }
+
+        System.setProperty("ORIENTDB_HOME",octopusHome + "/orientdb");
+        System.setProperty("orientdb.www.path",octopusHome +"/orientdb/www");
+        System.setProperty("orientdb.config.file", octopusHome + "/conf/orientdb-server-config.xml");
+
+        OServer server = OServerMain.create();
+        server.startup();
+        server.activate();
     }
 }

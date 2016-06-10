@@ -39,7 +39,7 @@ public class ExecutePluginCommand extends OServerCommandAbstract
 			switch (param.name)
 			{
 				case "dir":
-					pluginDir = param.value;
+					pluginDir = System.getProperty("OCTOPUS_HOME") + "/" + param.value;
 					break;
 			}
 		}

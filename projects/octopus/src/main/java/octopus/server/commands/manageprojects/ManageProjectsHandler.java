@@ -33,7 +33,7 @@ public class ManageProjectsHandler extends OServerCommandAbstract
 			switch (param.name)
 			{
 				case "dir":
-					projectsDir = param.value;
+					projectsDir = System.getProperty("OCTOPUS_HOME") + "/" + param.value;
 					break;
 			}
 		}
