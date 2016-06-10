@@ -14,7 +14,7 @@ public class OrientDBConnector {
 	public void connect(String databaseName)
 	{
 		graphFactory = new OrientGraphFactory(
-				Constants.PLOCAL_REL_PATH_TO_DBS + databaseName)
+				"plocal:" + System.getProperty("ORIENTDB_HOME") + "/databases/" + databaseName)
 				.setupPool(1, MAX_POOL_SIZE);
 	}
 

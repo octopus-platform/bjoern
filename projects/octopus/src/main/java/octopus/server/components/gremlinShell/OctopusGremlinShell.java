@@ -46,7 +46,7 @@ public class OctopusGremlinShell
 	{
 		try
 		{
-			loadRecursively(Constants.QUERY_LIB_DIR);
+			loadRecursively(System.getProperty("OCTOPUS_HOME") + "/querylib/");
 		}
 		catch (IOException e)
 		{
@@ -70,7 +70,7 @@ public class OctopusGremlinShell
 		// TODO: We should check whether the database exists
 
 		OrientGraphNoTx g = new OrientGraphNoTx(
-				Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
+				"plocal:" + System.getProperty("ORIENTDB_HOME") + "/databases/" + dbName);
 		this.shell.setVariable("g", g);
 	}
 

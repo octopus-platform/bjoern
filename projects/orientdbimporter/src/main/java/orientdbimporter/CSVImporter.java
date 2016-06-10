@@ -44,7 +44,8 @@ public abstract class CSVImporter
 		OGlobalConfiguration.USE_WAL.setValue(false);
 		OGlobalConfiguration.WAL_SYNC_ON_PAGE_FLUSH.setValue(false);
 
-		noTx = new OrientGraphNoTx(Constants.PLOCAL_REL_PATH_TO_DBS + dbName);
+		noTx = new OrientGraphNoTx(
+				"plocal:" + System.getProperty("ORIENTDB_HOME") + "/databases/" + dbName);
 		noTx.declareIntent(new OIntentMassiveInsert());
 	}
 
