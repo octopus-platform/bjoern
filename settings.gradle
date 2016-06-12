@@ -1,7 +1,10 @@
-include 'projects:orientdbimporter'
+
+include 'projects:octopus:orientdbimporter'
+include 'projects:octopus:octopus-server'
+include 'projects:octopus:octopus-lang'
+
 include 'projects:radare2csv'
 include 'projects:bjoern-r2interface'
-include 'projects:octopus-server'
 
 include 'projects:bjoern-plugins:pluginlib'
 include 'projects:bjoern-plugins:functionexport'
@@ -11,6 +14,5 @@ include 'projects:bjoern-plugins:paramdetect'
 include 'projects:bjoern-plugins:alocs'
 include 'projects:bjoern-plugins:vsa'
 
-include 'projects:octopus-lang'
 include 'projects:bjoern-lang'
 include 'projects:bjoern-structures'

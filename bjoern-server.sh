@@ -11,4 +11,4 @@ done
 
 export JAVA_OPTS
 
-$BASEDIR/projects/octopus/octopus-server.sh
+$BASEDIR/projects/octopus/octopus-server/octopus-server.sh

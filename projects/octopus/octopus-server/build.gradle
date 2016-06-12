@@ -7,7 +7,7 @@ dependencies{
   compile group: 'com.orientechnologies', name: 'orientdb-graphdb', version: '2.1.5'
   compile group: 'com.orientechnologies', name: 'orientdb-lucene', version: '2.1.5'
 
-  compile project(':projects:orientdbimporter') 
+  compile project(':projects:octopus:orientdbimporter') 
 
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
     
