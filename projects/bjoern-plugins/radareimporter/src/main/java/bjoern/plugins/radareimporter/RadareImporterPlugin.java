@@ -17,8 +17,8 @@ public class RadareImporterPlugin extends BjoernProjectPlugin {
 
 	private void extractCSVFilesFromBinary()
 	{
-		String pathToBinary = bjoernProjectConnector.getProject().getPathToBinary();
-		String pathToProjectDir = bjoernProjectConnector.getProject().getPathToProjectDir();
+		String pathToBinary = getBjoernProjectConnector().getProject().getPathToBinary();
+		String pathToProjectDir = getBjoernProjectConnector().getProject().getPathToProjectDir();
 		RadareExporter radareExporter = new RadareExporter();
 		radareExporter.tryToExport(pathToBinary, pathToProjectDir, null);
 	}
@@ -31,9 +31,9 @@ public class RadareImporterPlugin extends BjoernProjectPlugin {
 
 	private ImportJob createImportJobForProject()
 	{
-		String dbName = bjoernProjectConnector.getProject().getDatabaseName();
-		String nodeFilename = bjoernProjectConnector.getProject().getNodeFilename();
-		String edgeFilename = bjoernProjectConnector.getProject().getEdgeFilename();
+		String dbName = getBjoernProjectConnector().getProject().getDatabaseName();
+		String nodeFilename = getBjoernProjectConnector().getProject().getNodeFilename();
+		String edgeFilename = getBjoernProjectConnector().getProject().getEdgeFilename();
 		return new ImportJob(nodeFilename, edgeFilename, dbName);
 	}
 

@@ -1,6 +1,7 @@
 package bjoern.pluginlib;
 
 import bjoern.nodeStore.NodeTypes;
+import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
@@ -83,6 +84,16 @@ public class Traversals
 				.getVertices(Direction.OUT, GraphOperations.INSTR_CFLOW_EDGE)
 				.spliterator(), false)
 				.map(Instruction::new).collect(Collectors.toList());
+	}
+
+	public static List<Aloc> functionToAlocs(Function function)
+	{
+		GremlinPipeline<Vertex, Vertex> pipe = new GremlinPipeline<>();
+		pipe.start(function.getNode()).as("loop")
+				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
+				.loop("loop", v -> true,
+						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(NodeTypes.ALOC));
+		return pipe.toList().stream().map(Aloc::new).collect(Collectors.toList());
 	}
 
 }

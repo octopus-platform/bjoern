@@ -12,18 +12,18 @@ import orientdbimporter.Constants;
 
 public class BjoernProjectPlugin extends Plugin {
 
-	protected BjoernProjectConnector bjoernProjectConnector = new BjoernProjectConnector();
+	private BjoernProjectConnector bjoernProjectConnector = new BjoernProjectConnector();
 
 	@Override
 	public void configure(JSONObject settings)
 	{
 		String projectName = settings.getString("projectName");
-		bjoernProjectConnector.connect(projectName);
+		getBjoernProjectConnector().connect(projectName);
 	}
 
 	protected void raiseIfDatabaseForProjectExists()
 	{
-		String dbName = bjoernProjectConnector.getProject().getDatabaseName();
+		String dbName = getBjoernProjectConnector().getProject().getDatabaseName();
 
 		boolean databaseExists = doesDatabaseExist(dbName);
 		if(databaseExists)
@@ -39,6 +39,14 @@ public class BjoernProjectPlugin extends Plugin {
 		} catch (IOException e) {
 			throw new RuntimeException("Error determining whether database exists");
 		}
+	}
+
+	protected BjoernProjectConnector getBjoernProjectConnector() {
+		return bjoernProjectConnector;
+	}
+
+	protected void setBjoernProjectConnector(BjoernProjectConnector bjoernProjectConnector) {
+		this.bjoernProjectConnector = bjoernProjectConnector;
 	}
 
 

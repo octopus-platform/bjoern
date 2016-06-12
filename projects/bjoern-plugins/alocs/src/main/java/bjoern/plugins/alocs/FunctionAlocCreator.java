@@ -11,7 +11,8 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.GraphOperations;
 import bjoern.pluginlib.Traversals;
-import bjoern.pluginlib.structures.BasicBlock;
+import bjoern.pluginlib.radare.emulation.esil.memaccess.ESILStackAccessEvaluator;
+import bjoern.pluginlib.radare.emulation.esil.memaccess.MemoryAccess;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.pluginlib.structures.Node;
 import bjoern.r2interface.Radare;
@@ -21,57 +22,67 @@ import bjoern.structures.edges.EdgeTypes;
 
 public class FunctionAlocCreator {
 
-	Map<String,Vertex> registerToVertex = new HashMap<String,Vertex>();
+	private Map<String,Vertex> registerToVertex = new HashMap<String,Vertex>();
 	private Radare radare;
 	private OrientGraphNoTx graph;
-	Vertex functionVertex;
+	private Vertex functionVertex;
+	private ESILStackAccessEvaluator memAccessEvaluator;
 
-	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph)
+	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
 	{
 		this.radare = radare;
 		this.graph = graph;
+		this.memAccessEvaluator = new ESILStackAccessEvaluator(radare);
 	}
 
 	public void createAlocsForFunction(Vertex function) throws IOException
 	{
 		functionVertex = function;
-
-		createRegisterAlocs();
-
-		try{
-			BasicBlock entryBlock = Traversals.functionToEntryBlock(function);
-		} catch(RuntimeException ex) {
-			System.err.println("Warning: function without entry block");
-			return;
-		}
+		memAccessEvaluator.initializeForFunction(function);
+		createAlocsForAllInstructions();
 	}
 
-	private void createRegisterAlocs() throws IOException
+	private void createAlocsForAllInstructions() throws IOException
 	{
 		List<Instruction> instructions = Traversals.functionToInstructions(functionVertex);
 		for(Instruction instr : instructions){
-			createRegisterAlocsForInstruction(instr);
+			createAlocsForInstruction(instr);
 		}
 	}
 
-	private void createRegisterAlocsForInstruction(Instruction instr) throws IOException
+	private void createAlocsForInstruction(Instruction instr) throws IOException
 	{
 		long address = instr.getAddress();
-		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
-		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
-
-		createAlocsForRegisters(instr, registersRead, EdgeTypes.READ);
-		createAlocsForRegisters(instr, registersWritten, EdgeTypes.WRITE);
+		createAlocsForRegisters(instr, address);
+		createAlocsForMemoryAccesses(instr, address);
 	}
 
-	private void createAlocsForRegisters(Instruction instr, List<String> registersRead, String edgeType) throws IOException {
+	private void createAlocsForRegisters(Instruction instr, long address) throws IOException
+	{
+		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
+		createAlocsForRegisterList(instr, registersRead, EdgeTypes.READ);
+		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
+		createAlocsForRegisterList(instr, registersWritten, EdgeTypes.WRITE);
+	}
+
+	private void createAlocsForMemoryAccesses(Instruction instr, long address) throws IOException
+	{
+
+		List<MemoryAccess> access = memAccessEvaluator.extractMemoryAccesses(instr);
+		for(MemoryAccess m : access){
+			createAloc(m.getEsilExpression());
+			m.debugOut();
+		}
+	}
+
+	private void createAlocsForRegisterList(Instruction instr, List<String> registersRead, String edgeType) throws IOException
+	{
 		for(String registerStr : registersRead){
 
 			Vertex registerVertex = registerToVertex.get(registerStr);
 			if(registerVertex == null){
 				registerVertex = createAloc(registerStr);
 			}
-			GraphOperations.addEdge(graph, instr, new Node(registerVertex), edgeType);
 		}
 	}
 
@@ -88,7 +99,7 @@ public class FunctionAlocCreator {
 
 		Vertex alocVertex = GraphOperations.addNode(graph, properties);
 		registerToVertex.put(alocName, alocVertex);
-		linkFunctionAndRegister(alocVertex);
+		linkFunctionAndAloc(alocVertex);
 		return alocVertex;
 	}
 
@@ -108,7 +119,7 @@ public class FunctionAlocCreator {
 		return AlocTypes.UNKNOWN;
 	}
 
-	private void linkFunctionAndRegister(Vertex alocVertex)
+	private void linkFunctionAndAloc(Vertex alocVertex)
 	{
 		Node functionNode = new Node(functionVertex);
 		Node alocNode = new Node(alocVertex);

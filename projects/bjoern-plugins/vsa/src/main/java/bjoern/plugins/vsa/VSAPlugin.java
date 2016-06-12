@@ -1,5 +1,17 @@
 package bjoern.plugins.vsa;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Queue;
+
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
@@ -12,16 +24,10 @@ import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
-import bjoern.plugins.vsa.transformer.esil.ESILTransformer;
+import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.structures.BjoernEdgeProperties;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-
-import java.util.*;
 
 public class VSAPlugin extends OrientGraphConnectionPlugin
 {
@@ -63,7 +69,7 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 			Instruction n = worklist.remove();
 			try
 			{
-				out = transformer.transform(n, getAbstractEnvironment(n));
+				out = transformer.transform(n.getEsilCode(), getAbstractEnvironment(n));
 			} catch (ESILTransformationException e)
 			{
 				getLogger().error(e.getMessage());
