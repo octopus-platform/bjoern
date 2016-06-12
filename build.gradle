@@ -21,7 +21,7 @@ allprojects {
 
 task deploy(dependsOn: build) << {
     copy {
-        into "projects/octopus/plugins"
+        into "projects/octopus-server/plugins"
         from fileTree("projects/bjoern-plugins").files
         include '**/*.jar'
         exclude '**/*-plain.jar'
@@ -34,8 +34,8 @@ build.dependsOn subprojects.build
 configure(project(':projects:bjoern-plugins').subprojects - project(':projects:bjoern-plugins:pluginlib')) {
     task jarWithDep(type: Jar) {
         doFirst {
-            def pluginJars = configurations.runtime.minus(project(':projects:octopus').configurations.runtime).asCollection()
-            pluginJars.remove(new File(project(':projects:octopus').buildDir.toString() + '/libs/octopus.jar'))
+            def pluginJars = configurations.runtime.minus(project(':projects:octopus-server').configurations.runtime).asCollection()
+            pluginJars.remove(new File(project(':projects:octopus-server').buildDir.toString() + '/libs/octopus-server.jar'))
             pluginJars.add(new File(project.buildDir.toString() + '/libs/' + project.name + '-plain.jar'))
             baseName = project.name
             from { pluginJars.collect { it.isDirectory() ? it : zipTree(it) } }

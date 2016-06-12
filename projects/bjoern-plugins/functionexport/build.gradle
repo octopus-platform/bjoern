@@ -5,7 +5,7 @@ dependencies {
     compile group: 'org.json', name: 'json', version: '20141113'
 
     compile project(':projects:bjoern-plugins:pluginlib')
-    compile project(':projects:octopus')
+    compile project(':projects:octopus-server')
 
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
 

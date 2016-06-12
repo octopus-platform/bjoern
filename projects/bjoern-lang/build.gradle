@@ -1,7 +1,7 @@
 
 task copyLang(type:Copy) {
   from "${project.projectDir}/src/main/groovy/"
-  into "${project.projectDir}/../octopus/querylib/bjoern/"
+  into "${project.projectDir}/../octopus-server/querylib/bjoern/"
 }
 
 build.dependsOn copyLang

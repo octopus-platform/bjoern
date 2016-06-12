@@ -13,3 +13,4 @@ gradlew
 gradlew.bat
 
 .idea/
+/bin/

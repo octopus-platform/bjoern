@@ -54,7 +54,7 @@ task copyToLib(type: Copy) {
 
 task copyOctopus(type:Copy) {
    into "${project.projectDir}/jars"
-   from "$buildDir/libs/octopus.jar"
+   from "$buildDir/libs/octopus-server.jar"
 }
 
 compileJava.dependsOn downloadAndExtractOrientDB

@@ -1,7 +1,7 @@
 include 'projects:orientdbimporter'
 include 'projects:radare2csv'
 include 'projects:bjoern-r2interface'
-include 'projects:octopus'
+include 'projects:octopus-server'
 
 include 'projects:bjoern-plugins:pluginlib'
 include 'projects:bjoern-plugins:functionexport'
