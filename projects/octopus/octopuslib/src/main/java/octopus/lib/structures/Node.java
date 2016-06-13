@@ -1,6 +1,5 @@
-package bjoern.pluginlib.structures;
+package octopus.lib.structures;
 
-import bjoern.structures.BjoernNodeProperties;
 import com.tinkerpop.blueprints.Vertex;
 
 public class Node
@@ -18,10 +17,10 @@ public class Node
 
 	public Node(Vertex vertex, String nodeType)
 	{
-		if (!vertex.getProperty(BjoernNodeProperties.TYPE).equals(nodeType))
+		if (!vertex.getProperty(OctopusNodeProperties.TYPE).equals(nodeType))
 		{
 			throw new IllegalArgumentException("Invalid node. Expected a node of type " + nodeType + " was " + vertex
-					.getProperty(BjoernNodeProperties.TYPE));
+					.getProperty(OctopusNodeProperties.TYPE));
 		}
 		node = vertex;
 	}
@@ -59,7 +58,7 @@ public class Node
 	{
 		String delimiter = ", ";
 		StringBuilder builder = new StringBuilder();
-		builder.append(getNode().getProperty(BjoernNodeProperties.TYPE) + "(");
+		builder.append(getNode().getProperty(OctopusNodeProperties.TYPE) + "(");
 		for (String property : getNode().getPropertyKeys())
 		{
 			builder.append(property + ":" + getNode().getProperty(property));

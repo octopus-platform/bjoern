@@ -2,10 +2,11 @@ package bjoern.plugins.functionexporter;
 
 import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.LookupOperations;
-import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
 import bjoern.plugins.functionexporter.io.dot.DotWriter;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
+import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
+
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;

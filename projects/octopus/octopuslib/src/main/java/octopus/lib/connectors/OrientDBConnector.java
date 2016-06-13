@@ -1,10 +1,9 @@
-package bjoern.pluginlib.connectors;
+package octopus.lib.connectors;
 
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
-import octopus.server.Constants;
 
 public class OrientDBConnector {
 

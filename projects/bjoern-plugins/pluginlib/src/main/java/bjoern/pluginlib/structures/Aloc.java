@@ -2,6 +2,8 @@ package bjoern.pluginlib.structures;
 
 import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.BjoernNodeProperties;
+import octopus.lib.structures.Node;
+
 import com.tinkerpop.blueprints.Vertex;
 
 public class Aloc extends Node

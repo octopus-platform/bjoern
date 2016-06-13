@@ -1,8 +1,8 @@
-package bjoern.pluginlib.plugintypes;
+package octopus.lib.plugintypes;
 
 import org.json.JSONObject;
 
-import bjoern.pluginlib.connectors.OrientDBConnector;
+import octopus.lib.connectors.OrientDBConnector;
 import octopus.server.components.pluginInterface.Plugin;
 
 public abstract class OrientGraphConnectionPlugin extends Plugin

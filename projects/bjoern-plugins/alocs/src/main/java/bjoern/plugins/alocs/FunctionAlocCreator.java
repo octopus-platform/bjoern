@@ -9,16 +9,16 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import bjoern.nodeStore.NodeTypes;
-import bjoern.pluginlib.GraphOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.radare.emulation.esil.memaccess.ESILStackAccessEvaluator;
 import bjoern.pluginlib.radare.emulation.esil.memaccess.MemoryAccess;
 import bjoern.pluginlib.structures.Instruction;
-import bjoern.pluginlib.structures.Node;
 import bjoern.r2interface.Radare;
 import bjoern.r2interface.architectures.Architecture;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
+import octopus.lib.GraphOperations;
+import octopus.lib.structures.Node;
 
 public class FunctionAlocCreator {
 
@@ -124,7 +124,7 @@ public class FunctionAlocCreator {
 		Node functionNode = new Node(functionVertex);
 		Node alocNode = new Node(alocVertex);
 
-		GraphOperations.addEdge(graph, functionNode, alocNode, GraphOperations.ALOC_USE_EDGE);
+		GraphOperations.addEdge(graph, functionNode, alocNode, Traversals.ALOC_USE_EDGE);
 	}
 
 }

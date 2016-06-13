@@ -1,11 +1,10 @@
 package bjoern.structures;
 
-public class BjoernNodeProperties
+import octopus.lib.structures.OctopusNodeProperties;
+
+public class BjoernNodeProperties extends OctopusNodeProperties
 {
 
-	public static final String TYPE = "nodeType";
-	public static final String SUBTYPE = "subType";
-	public static final String KEY = "key";
 	public static final String NAME = "name";
 	public static final String REPR = "repr";
 	public static final String CODE = "code";

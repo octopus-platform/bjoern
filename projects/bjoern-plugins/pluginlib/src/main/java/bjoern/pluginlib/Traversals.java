@@ -1,5 +1,13 @@
 package bjoern.pluginlib;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
+
 import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.BasicBlock;
@@ -7,16 +15,12 @@ import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class Traversals
 {
+
+	public final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
+	public final static String ALOC_USE_EDGE = "ALOC_USE_EDGE";
 
 	public static BasicBlock functionToEntryBlock(Vertex func)
 	{
@@ -81,7 +85,7 @@ public class Traversals
 	public static List<Instruction> instructionToSuccessors(Instruction instruction)
 	{
 		return StreamSupport.stream(instruction.getNode()
-				.getVertices(Direction.OUT, GraphOperations.INSTR_CFLOW_EDGE)
+				.getVertices(Direction.OUT, INSTR_CFLOW_EDGE)
 				.spliterator(), false)
 				.map(Instruction::new).collect(Collectors.toList());
 	}

@@ -3,7 +3,7 @@ package bjoern.pluginlib.plugintypes;
 import org.json.JSONObject;
 
 import bjoern.pluginlib.connectors.BjoernProjectConnector;
-import bjoern.pluginlib.connectors.OrientDBConnector;
+import octopus.lib.connectors.OrientDBConnector;
 import octopus.server.components.pluginInterface.Plugin;
 
 public abstract class RadareOrientGraphPlugin extends Plugin {

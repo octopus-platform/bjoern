@@ -9,6 +9,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
 import bjoern.structures.edges.EdgeTypes;
+import octopus.lib.structures.Node;
 
 public class BasicBlock extends Node
 {

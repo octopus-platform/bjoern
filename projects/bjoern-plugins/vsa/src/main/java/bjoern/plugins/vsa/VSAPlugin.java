@@ -14,7 +14,6 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
-import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
@@ -28,6 +27,7 @@ import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.structures.BjoernEdgeProperties;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
+import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
 
 public class VSAPlugin extends OrientGraphConnectionPlugin
 {

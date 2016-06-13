@@ -1,4 +1,4 @@
-package bjoern.pluginlib;
+package octopus.lib;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,14 +8,10 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 
-import bjoern.pluginlib.structures.Node;
+import octopus.lib.structures.Node;
 
 public class GraphOperations
 {
-
-	public final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
-	public final static String ALOC_USE_EDGE = "ALOC_USE_EDGE";
-
 
 	/**
 	 * Add an edge from the node src to the node dst if it does

@@ -2,7 +2,7 @@ package bjoern.plugins.paramdetect;
 
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
-import bjoern.pluginlib.plugintypes.OrientGraphConnectionPlugin;
+import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
 
 public class ParamDetectPlugin extends OrientGraphConnectionPlugin {
 

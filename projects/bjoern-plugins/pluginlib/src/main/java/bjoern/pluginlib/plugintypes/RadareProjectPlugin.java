@@ -3,8 +3,8 @@ package bjoern.pluginlib.plugintypes;
 import java.io.IOException;
 
 import bjoern.pluginlib.BjoernProject;
-import bjoern.pluginlib.connectors.OrientDBConnector;
 import bjoern.r2interface.Radare;
+import octopus.lib.connectors.OrientDBConnector;
 
 public class RadareProjectPlugin extends BjoernProjectPlugin {
 

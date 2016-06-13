@@ -4,6 +4,7 @@ import com.tinkerpop.blueprints.Vertex;
 
 import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.BjoernNodeProperties;
+import octopus.lib.structures.Node;
 
 public class Instruction extends Node implements Comparable<Instruction>
 {
