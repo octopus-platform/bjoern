@@ -31,7 +31,7 @@ task deploy(dependsOn: build) << {
 
 build.dependsOn subprojects.build
 
-configure(project(':projects:bjoern-plugins').subprojects - project(':projects:bjoern-plugins:pluginlib')) {
+configure(project(':projects:bjoern-plugins').subprojects) {
     task jarWithDep(type: Jar) {
         doFirst {
             def pluginJars = configurations.runtime.minus(project(':projects:octopus:octopus-server').configurations.runtime).asCollection()

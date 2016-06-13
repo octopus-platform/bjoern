@@ -7,7 +7,7 @@ include 'projects:octopus:octopuslib'
 include 'projects:radare2csv'
 include 'projects:bjoern-r2interface'
 
-include 'projects:bjoern-plugins:pluginlib'
+include 'projects:bjoern-pluginlib'
 include 'projects:bjoern-plugins:functionexport'
 include 'projects:bjoern-plugins:instructionlinker'
 include 'projects:bjoern-plugins:radareimporter'

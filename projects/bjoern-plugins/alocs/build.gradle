@@ -1,7 +1,7 @@
 
 dependencies{
 
-  compile project(':projects:bjoern-plugins:pluginlib')
+  compile project(':projects:bjoern-pluginlib')
   compile project(':projects:bjoern-r2interface')
   compile project(':projects:bjoern-structures')
   compile project(':projects:octopus:octopus-server')
