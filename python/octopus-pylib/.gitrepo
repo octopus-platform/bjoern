@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:octopus-platform/octopus-pylib.git
+	branch = master
+	commit = 5caa0260605bed2c6b82dc3bc6ff3e92969bb66e
+	parent = fcf161b13b840396050dab6c16ca109988608392
+	cmdver = 0.3.0
