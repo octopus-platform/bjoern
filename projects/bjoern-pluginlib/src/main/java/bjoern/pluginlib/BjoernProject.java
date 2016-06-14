@@ -5,7 +5,7 @@ import java.io.File;
 import octopus.server.components.projectmanager.OctopusProject;
 import octopus.lib.OctopusProjectWrapper;
 
-public class BjoernProject extens OctopusProjectWrapper {
+public class BjoernProject extends OctopusProjectWrapper {
 
 	public String getPathToBinary()
 	{
