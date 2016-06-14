@@ -23,7 +23,7 @@ public class BjoernProjectPlugin extends Plugin {
 
 	protected void raiseIfDatabaseForProjectExists()
 	{
-		String dbName = getBjoernProjectConnector().getProject().getDatabaseName();
+		String dbName = getBjoernProjectConnector().getWrapper().getDatabaseName();
 
 		boolean databaseExists = doesDatabaseExist(dbName);
 		if(databaseExists)

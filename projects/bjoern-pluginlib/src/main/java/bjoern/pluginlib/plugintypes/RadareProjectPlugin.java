@@ -21,7 +21,7 @@ public class RadareProjectPlugin extends BjoernProjectPlugin {
 
 	private void loadR2Project() throws IOException
 	{
-		setProject(getBjoernProjectConnector().getProject());
+		setProject((BjoernProject) getBjoernProjectConnector().getWrapper());
 		String r2ProjectFilename = getProject().getR2ProjectFilename();
 		String pathToBinary = getProject().getPathToBinary();
 		getRadare().loadBinary(pathToBinary);

@@ -2,7 +2,6 @@ package bjoern.pluginlib;
 
 import java.io.File;
 
-import octopus.server.components.projectmanager.OctopusProject;
 import octopus.lib.OctopusProjectWrapper;
 
 public class BjoernProject extends OctopusProjectWrapper {

@@ -1,37 +1,17 @@
 package bjoern.pluginlib.connectors;
 
 import bjoern.pluginlib.BjoernProject;
+import octopus.lib.OctopusProjectWrapper;
+import octopus.lib.connectors.OctopusProjectConnector;
 import octopus.server.components.projectmanager.OctopusProject;
-import octopus.server.components.projectmanager.ProjectManager;
 
-public class BjoernProjectConnector {
+public class BjoernProjectConnector extends OctopusProjectConnector {
 
-	BjoernProject project;
-
-	public void connect(String projectName)
+	@Override
+	protected OctopusProjectWrapper createNewProject(OctopusProject oProject)
 	{
-		project = openProject(projectName);
-	}
-
-	protected BjoernProject openProject(String projectName)
-	{
-		OctopusProject oProject = ProjectManager.getProjectByName(projectName);
-		if(oProject == null)
-			throw new RuntimeException("Error: project does not exist");
-
 		BjoernProject bjoernProject = new BjoernProject();
 		bjoernProject.setWrappedProject(oProject);
 		return bjoernProject;
 	}
-
-	public void disconnect()
-	{
-		// TODO Auto-generated method stub
-	}
-
-	public BjoernProject getProject()
-	{
-		return project;
-	}
-
 }

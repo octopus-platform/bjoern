@@ -1,6 +1,7 @@
 package bjoern.plugins.radareimporter;
 
 import bjoern.input.radare.RadareExporter;
+import bjoern.pluginlib.BjoernProject;
 import bjoern.pluginlib.plugintypes.BjoernProjectPlugin;
 import octopus.server.components.orientdbImporter.ImportCSVRunnable;
 import octopus.server.components.orientdbImporter.ImportJob;
@@ -17,8 +18,10 @@ public class RadareImporterPlugin extends BjoernProjectPlugin {
 
 	private void extractCSVFilesFromBinary()
 	{
-		String pathToBinary = getBjoernProjectConnector().getProject().getPathToBinary();
-		String pathToProjectDir = getBjoernProjectConnector().getProject().getPathToProjectDir();
+		BjoernProject bjoernProject = (BjoernProject) getBjoernProjectConnector().getWrapper();
+
+		String pathToBinary = bjoernProject.getPathToBinary();
+		String pathToProjectDir = bjoernProject.getPathToProjectDir();
 		RadareExporter radareExporter = new RadareExporter();
 		radareExporter.tryToExport(pathToBinary, pathToProjectDir, null);
 	}
@@ -31,9 +34,11 @@ public class RadareImporterPlugin extends BjoernProjectPlugin {
 
 	private ImportJob createImportJobForProject()
 	{
-		String dbName = getBjoernProjectConnector().getProject().getDatabaseName();
-		String nodeFilename = getBjoernProjectConnector().getProject().getNodeFilename();
-		String edgeFilename = getBjoernProjectConnector().getProject().getEdgeFilename();
+		BjoernProject bjoernProject = (BjoernProject) getBjoernProjectConnector().getWrapper();
+
+		String dbName = bjoernProject.getDatabaseName();
+		String nodeFilename = bjoernProject.getNodeFilename();
+		String edgeFilename = bjoernProject.getEdgeFilename();
 		return new ImportJob(nodeFilename, edgeFilename, dbName);
 	}
 

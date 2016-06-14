@@ -24,7 +24,7 @@ public abstract class RadareOrientGraphPlugin extends Plugin {
 	public void beforeExecution() throws Exception
 	{
 		bjoernProjectConnector.connect(projectName);
-		databaseName = bjoernProjectConnector.getProject().getDatabaseName();
+		databaseName = bjoernProjectConnector.getWrapper().getDatabaseName();
 		orientConnector.connect(databaseName);
 	}
 
