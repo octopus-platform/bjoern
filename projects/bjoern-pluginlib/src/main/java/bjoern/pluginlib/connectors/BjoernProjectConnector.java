@@ -19,7 +19,9 @@ public class BjoernProjectConnector {
 		if(oProject == null)
 			throw new RuntimeException("Error: project does not exist");
 
-		return new BjoernProject(oProject);
+		BjoernProject bjoernProject = new BjoernProject();
+		bjoernProject.setWrappedProject(oProject);
+		return bjoernProject;
 	}
 
 	public void disconnect()

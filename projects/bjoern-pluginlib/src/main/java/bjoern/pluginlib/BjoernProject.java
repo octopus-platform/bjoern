@@ -3,25 +3,9 @@ package bjoern.pluginlib;
 import java.io.File;
 
 import octopus.server.components.projectmanager.OctopusProject;
+import octopus.lib.OctopusProjectWrapper;
 
-public class BjoernProject {
-
-	private OctopusProject oProject;
-
-	public BjoernProject(OctopusProject octopusProject)
-	{
-		oProject = octopusProject;
-	}
-
-	public String getPathToProjectDir()
-	{
-		return oProject.getPathToProjectDir();
-	}
-
-	public String getDatabaseName()
-	{
-		return oProject.getDatabaseName();
-	}
+public class BjoernProject extens OctopusProjectWrapper {
 
 	public String getPathToBinary()
 	{
