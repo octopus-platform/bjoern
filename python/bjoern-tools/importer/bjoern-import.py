@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
-import sys, os
-import base64
-import http.client
-import urllib
+import sys
+import os
 
-SERVER_HOST = 'localhost'
-SERVER_PORT = '2480'
+BASEDIR = os.path.dirname(__file__)
+OCTOPUS_PYLIB = 'octopus-pylib'
+OCTOPUS_PYLIB_DIR = os.path.join(BASEDIR, 'python', OCTOPUS_PYLIB)
+sys.path.append(OCTOPUS_PYLIB_DIR)
+
+from importer.OctopusImporter import OctopusImporter
 
 importerPluginJSON ="""{
     "plugin": "radareimporter.jar",
@@ -17,38 +19,7 @@ importerPluginJSON ="""{
 }
 """
 
-class BjoernRadareImporter:
-    def __init__(self):
-        pass
-
-    def importBinary(self, filename):
-        self.filename = filename
-        self.createProject()
-        self.uploadBinary()
-        self.executeImporterPlugin()
-
-    def createProject(self):
-        self.projectName = os.path.split(self.filename)[-1]
-        print('Creating project: %s' % (self.projectName))
-
-        conn = self._getConnectionToServer()
-        conn.request("GET", "/manageprojects/create/%s" % (self.projectName))
-
-    def _getConnectionToServer(self):
-        return http.client.HTTPConnection(SERVER_HOST + ":" + SERVER_PORT)
-
-    def uploadBinary(self):
-        print('Uploading binary: %s' % (self.filename))
-
-        with open(self.filename, mode='rb') as file:
-            fileContent = file.read()
-
-        base64Content = base64.b64encode(fileContent)
-
-        headers = {"Content-type": "text/plain;charset=us/ascii"}
-        conn = self._getConnectionToServer()
-        conn.request("POST", "/uploadfile/%s/binary" % (self.projectName), base64Content, headers)
-        response = conn.getresponse()
+class BjoernRadareImporter(OctopusImporter):
 
     def executeImporterPlugin(self):
         print('Executing importer plugin')
@@ -58,7 +29,7 @@ class BjoernRadareImporter:
 
 def main(filename):
     importer = BjoernRadareImporter()
-    importer.importBinary(filename)
+    importer.importFile(filename)
 
 def usage():
     print('%s <filename>' % (sys.argv[0]))
