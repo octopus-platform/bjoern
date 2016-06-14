@@ -1,53 +1,12 @@
 package bjoern.pluginlib.plugintypes;
 
-import java.io.IOException;
-
-import org.json.JSONObject;
-
-import com.orientechnologies.orient.client.remote.OServerAdmin;
-
 import bjoern.pluginlib.connectors.BjoernProjectConnector;
-import octopus.server.components.pluginInterface.Plugin;
-import orientdbimporter.Constants;
+import octopus.lib.plugintypes.OctopusProjectPlugin;
 
-public class BjoernProjectPlugin extends Plugin {
+public class BjoernProjectPlugin extends OctopusProjectPlugin {
 
-	private BjoernProjectConnector bjoernProjectConnector = new BjoernProjectConnector();
-
-	@Override
-	public void configure(JSONObject settings)
+	public BjoernProjectPlugin()
 	{
-		String projectName = settings.getString("projectName");
-		getBjoernProjectConnector().connect(projectName);
+		setProjectConnector(new BjoernProjectConnector());
 	}
-
-	protected void raiseIfDatabaseForProjectExists()
-	{
-		String dbName = getBjoernProjectConnector().getWrapper().getDatabaseName();
-
-		boolean databaseExists = doesDatabaseExist(dbName);
-		if(databaseExists)
-			throw new RuntimeException("Database already exists. Skipping.");
-	}
-
-	private boolean doesDatabaseExist(String dbName)
-	{
-		try {
-			return new OServerAdmin("localhost/" + dbName).connect(
-					Constants.DB_USERNAME, Constants.DB_PASSWORD).existsDatabase();
-
-		} catch (IOException e) {
-			throw new RuntimeException("Error determining whether database exists");
-		}
-	}
-
-	protected BjoernProjectConnector getBjoernProjectConnector() {
-		return bjoernProjectConnector;
-	}
-
-	protected void setBjoernProjectConnector(BjoernProjectConnector bjoernProjectConnector) {
-		this.bjoernProjectConnector = bjoernProjectConnector;
-	}
-
-
 }
