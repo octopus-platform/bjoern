@@ -6,6 +6,6 @@
 [subrepo]
 	remote = git@github.com:octopus-platform/octopus-pylib.git
 	branch = master
-	commit = 17cac07d4166a30d744bc7e268f8827676967e01
-	parent = cd57be35e8b326047ea6e0b1fd70b7f922ea493c
+	commit = 0bc5894e76105d778c541ed14c65568faf2107cd
+	parent = ac8df62523aed8cc75c8e13586e19c86fcb7006c
 	cmdver = 0.3.0
