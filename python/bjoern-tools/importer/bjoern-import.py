@@ -10,22 +10,17 @@ sys.path.append(OCTOPUS_PYLIB_DIR)
 
 from importer.OctopusImporter import OctopusImporter
 
-importerPluginJSON ="""{
-    "plugin": "radareimporter.jar",
-    "class": "bjoern.plugins.radareimporter.RadareImporterPlugin",
-    "settings": {
-        "projectName": "%s",
-    }
-}
-"""
 
 class BjoernRadareImporter(OctopusImporter):
 
-    def executeImporterPlugin(self):
-        print('Executing importer plugin')
-        conn = self._getConnectionToServer()
-        conn.request("POST", "/executeplugin/", importerPluginJSON % (self.projectName))
-        response = conn.getresponse()
+    def __init__(self):
+        self.importerPluginJSON ="""{
+        "plugin": "radareimporter.jar",
+        "class": "bjoern.plugins.radareimporter.RadareImporterPlugin",
+        "settings": {
+        "projectName": "%s",
+        }}
+        """
 
 def main(filename):
     importer = BjoernRadareImporter()
