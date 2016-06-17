@@ -1,11 +1,11 @@
 build/
 jars/
 
-projects/octopus/plugins/
 projects/octopus/projects/
-projects/octopus/querylib/
-projects/octopus/orientdb-community-2.1.5/
-projects/octopus/orientdb.tar.gz
+projects/octopus/octopus-server/plugins/
+projects/octopus/octopus-server/querylib/
+projects/octopus/octopus-server/orientdb/
+projects/octopus/octopus-server/orientdb.tar.gz
 
 .gradle/
 gradle/
