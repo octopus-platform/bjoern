@@ -1,7 +1,7 @@
 build/
 jars/
 
-projects/octopus/projects/
+projects/octopus/octopus-server/projects/
 projects/octopus/octopus-server/plugins/
 projects/octopus/octopus-server/querylib/
 projects/octopus/octopus-server/orientdb/
@@ -13,4 +13,8 @@ gradlew
 gradlew.bat
 
 .idea/
+*.iml
+*.ipr
+*.iws
+
 /bin/
