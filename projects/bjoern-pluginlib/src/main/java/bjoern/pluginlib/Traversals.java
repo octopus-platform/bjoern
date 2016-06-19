@@ -21,6 +21,7 @@ public class Traversals
 
 	public final static String INSTR_CFLOW_EDGE = "NEXT_INSTR";
 	public final static String ALOC_USE_EDGE = "ALOC_USE_EDGE";
+	public static final String INSTR_CFLOW_TRANSITIVE_EDGE = "NEXT_INSTR_TRANSITIVE";
 
 	public static BasicBlock functionToEntryBlock(Vertex func)
 	{

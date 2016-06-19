@@ -1,9 +1,10 @@
 package bjoern.pluginlib.structures;
 
-import com.tinkerpop.blueprints.Vertex;
-
 import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.edges.EdgeTypes;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Vertex;
 import octopus.lib.structures.Node;
 
 public class Instruction extends Node implements Comparable<Instruction>
@@ -42,5 +43,10 @@ public class Instruction extends Node implements Comparable<Instruction>
 	public String getCode()
 	{
 		return this.getNode().getProperty("repr");
+	}
+
+	public boolean isCall()
+	{
+		return getNode().getEdges(Direction.OUT, EdgeTypes.CALL).iterator().hasNext();
 	}
 }

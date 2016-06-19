@@ -1,13 +1,13 @@
 package bjoern.plugins.instructionlinker;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.structures.edges.EdgeTypes;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import octopus.lib.GraphOperations;
 import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
 
@@ -51,7 +51,18 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	{
 		Instruction src = srcBlock.getExit();
 		Instruction dst = dstBlock.getEntry();
-		GraphOperations.addEdge(graph, src, dst, Traversals.INSTR_CFLOW_EDGE);
+		linkInstructions(src, dst);
+	}
+
+	private void linkInstructions(Instruction src, Instruction dst)
+	{
+		if (src.isCall())
+		{
+			GraphOperations.addEdge(graph, src, dst, Traversals.INSTR_CFLOW_TRANSITIVE_EDGE);
+		} else
+		{
+			GraphOperations.addEdge(graph, src, dst, Traversals.INSTR_CFLOW_EDGE);
+		}
 	}
 
 	/**
@@ -70,7 +81,7 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 		{
 			Instruction src = block.getInstructions().get(i - 1);
 			Instruction dst = block.getInstructions().get(i);
-			GraphOperations.addEdge(graph, src, dst, Traversals.INSTR_CFLOW_EDGE);
+			linkInstructions(src, dst);
 		}
 	}
 
