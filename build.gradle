@@ -13,11 +13,13 @@ if ( gradleVersionMajor < reguiredGradleVersionMajor ||
 
 allprojects {
     apply plugin: 'java'
+    apply plugin: 'idea'
 
     repositories {
         mavenCentral()
     }
 }
+
 
 task deploy(dependsOn: build) << {
     copy {
