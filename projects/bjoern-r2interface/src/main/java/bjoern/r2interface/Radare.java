@@ -244,7 +244,7 @@ public class Radare
 		CallRef xref = new CallRef();
 		xref.setType(EdgeTypes.CALL);
 		xref.setSourceKey(new NodeKey(source, NodeTypes.INSTRUCTION));
-		xref.setDestKey(new NodeKey(dest, NodeTypes.ROOT));
+		xref.setDestKey(new NodeKey(dest, NodeTypes.INSTRUCTION));
 		return xref;
 	}
 
