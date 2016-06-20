@@ -69,7 +69,7 @@ public class ESILStackAccessEvaluator {
 			return null;
 		}
 
-		emulator.emulateWithoutCalls(entryBlock.getInstructions());
+		emulator.emulateWithoutCalls(entryBlock.orderedInstructions());
 		long basePtrValue = emulator.getBasePointerValue();
 		long stackPtrValue = emulator.getStackPointerValue();
 		return new StackState(basePtrValue, stackPtrValue);
