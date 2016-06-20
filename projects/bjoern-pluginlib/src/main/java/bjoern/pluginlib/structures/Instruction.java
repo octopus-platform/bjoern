@@ -5,9 +5,9 @@ import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
-import octopus.lib.structures.Node;
+import octopus.lib.structures.OctopusNode;
 
-public class Instruction extends Node implements Comparable<Instruction>
+public class Instruction extends OctopusNode implements Comparable<Instruction>
 {
 
 	public Instruction(Vertex vertex)

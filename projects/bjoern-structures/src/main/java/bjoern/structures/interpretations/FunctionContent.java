@@ -64,7 +64,7 @@ public class FunctionContent
 		BasicBlock block = getBasicBlockAtAddress(addr);
 
 		if (block != null)
-			throw new RuntimeException("Duplicate Node");
+			throw new RuntimeException("Duplicate OctopusNode");
 
 		addBasicBlock(addr, node);
 	}

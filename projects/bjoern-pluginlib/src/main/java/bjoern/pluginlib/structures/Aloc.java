@@ -2,11 +2,11 @@ package bjoern.pluginlib.structures;
 
 import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.BjoernNodeProperties;
-import octopus.lib.structures.Node;
+import octopus.lib.structures.OctopusNode;
 
 import com.tinkerpop.blueprints.Vertex;
 
-public class Aloc extends Node
+public class Aloc extends OctopusNode
 {
 	public Aloc(Vertex vertex)
 	{

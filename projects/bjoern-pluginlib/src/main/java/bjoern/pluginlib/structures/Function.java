@@ -8,9 +8,9 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
 import bjoern.structures.edges.EdgeTypes;
-import octopus.lib.structures.Node;
+import octopus.lib.structures.OctopusNode;
 
-public class Function extends Node
+public class Function extends OctopusNode
 {
 
 	private List<BasicBlock> blocks;

@@ -2,20 +2,20 @@ package octopus.lib.structures;
 
 import com.tinkerpop.blueprints.Vertex;
 
-public class Node
+public class OctopusNode
 {
 	private final Vertex node;
 
-	public Node(Vertex vertex)
+	public OctopusNode(Vertex vertex)
 	{
 		if (vertex == null)
 		{
-			throw new IllegalArgumentException("Node must not be null.");
+			throw new IllegalArgumentException("OctopusNode must not be null.");
 		}
 		node = vertex;
 	}
 
-	public Node(Vertex vertex, String nodeType)
+	public OctopusNode(Vertex vertex, String nodeType)
 	{
 		if (!vertex.getProperty(OctopusNodeProperties.TYPE).equals(nodeType))
 		{
@@ -38,12 +38,12 @@ public class Node
 	@Override
 	public boolean equals(Object o)
 	{
-		if (!(o instanceof Node))
+		if (!(o instanceof OctopusNode))
 		{
 			return false;
 		}
 
-		Node other = (Node) o;
+		OctopusNode other = (OctopusNode) o;
 		return getNode().getId().equals(other.getNode().getId());
 	}
 

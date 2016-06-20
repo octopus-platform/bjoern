@@ -18,7 +18,7 @@ import bjoern.r2interface.architectures.Architecture;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
 import octopus.lib.GraphOperations;
-import octopus.lib.structures.Node;
+import octopus.lib.structures.OctopusNode;
 
 public class FunctionAlocCreator {
 
@@ -121,8 +121,8 @@ public class FunctionAlocCreator {
 
 	private void linkFunctionAndAloc(Vertex alocVertex)
 	{
-		Node functionNode = new Node(functionVertex);
-		Node alocNode = new Node(alocVertex);
+		OctopusNode functionNode = new OctopusNode(functionVertex);
+		OctopusNode alocNode = new OctopusNode(alocVertex);
 
 		GraphOperations.addEdge(graph, functionNode, alocNode, Traversals.ALOC_USE_EDGE);
 	}
