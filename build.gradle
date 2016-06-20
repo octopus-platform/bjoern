@@ -1,12 +1,11 @@
 def reguiredGradleVersionMajor = 2
 def requiredGradleVersionMinor = 0
 def (gradleVersionMajor, gradleVersionMinor) =
-    getGradle().gradleVersion.tokenize('.').collect {it.toInteger()}
+getGradle().gradleVersion.tokenize('.').collect { it.toInteger() }
 
-if ( gradleVersionMajor < reguiredGradleVersionMajor ||
+if (gradleVersionMajor < reguiredGradleVersionMajor ||
         (gradleVersionMajor == reguiredGradleVersionMajor &&
-        gradleVersionMinor < requiredGradleVersionMinor))
-{
+                gradleVersionMinor < requiredGradleVersionMinor)) {
     throw new GradleException("Gradle version " +
             "$reguiredGradleVersionMajor.$requiredGradleVersionMinor and higher required.")
 }
@@ -20,6 +19,20 @@ allprojects {
     }
 }
 
+task octopusPylib(type: Exec) {
+    workingDir './python/octopus-pylib'
+    commandLine 'python3', 'setup.py', 'install', '--user'
+}
+
+task octopusTools(type: Exec, dependsOn: octopusPylib) {
+    workingDir './python/octopus-tools'
+    commandLine 'python3', 'setup.py', 'install', '--user'
+}
+
+task bjoernTools(type: Exec, dependsOn: octopusPylib) {
+    workingDir './python/bjoern-tools'
+    commandLine 'python3', 'setup.py', 'install', '--user'
+}
 
 task deploy(dependsOn: build) << {
     copy {
