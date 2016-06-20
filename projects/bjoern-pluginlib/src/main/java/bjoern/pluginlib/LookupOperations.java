@@ -1,22 +1,18 @@
 package bjoern.pluginlib;
 
+import bjoern.nodeStore.NodeTypes;
+import bjoern.pluginlib.structures.Function;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
-import bjoern.nodeStore.NodeTypes;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-public class LookupOperations {
+public class LookupOperations
+{
 
-	public static Iterable<Vertex> getAllBasicBlocks(OrientGraphNoTx graph)
-	{
-		String luceneQuery = "nodeType:" + NodeTypes.BASIC_BLOCK;
-		OCommandRequest cmd = graph.command(BjoernConstants.LUCENE_QUERY);
-		Iterable<Vertex> iterable = cmd.execute(luceneQuery);
-
-		return iterable;
-	}
-
+	@Deprecated
 	public static Iterable<Vertex> getAllFunctions(OrientGraphNoTx graph)
 	{
 		Iterable<Vertex> functions = graph.command(
@@ -24,4 +20,12 @@ public class LookupOperations {
 		return functions;
 	}
 
+	public static Iterable<Function> getFunctions(OrientGraphNoTx graph)
+	{
+		boolean parallel = true;
+		Iterable<Vertex> functions = graph.command(BjoernConstants.LUCENE_QUERY)
+				.execute("nodeType:" + NodeTypes.FUNCTION);
+		return StreamSupport.stream(functions.spliterator(), parallel).map(Function::new)
+				.collect(Collectors.toList());
+	}
 }
