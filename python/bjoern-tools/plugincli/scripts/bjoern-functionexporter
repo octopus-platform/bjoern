@@ -1,5 +1,0 @@
-#!python
-
-from bjoern.plugins.cli import function_exporter_cli
-
-function_exporter_cli.FunctionExporterCLI().run()

@@ -1,0 +1,62 @@
+#!python
+
+import argparse
+import os
+
+from octopus.server.orientdb.orientdb_plugin_executor import OrientDBPluginExecutor
+
+from bjoern.plugins.function_exporter import FunctionExporter
+
+parser = argparse.ArgumentParser(description="Function export plugin.")
+parser.add_argument(
+    "-s", "--server-host",
+    type=str,
+    default="localhost",
+    help="set the hostname of the octopus server")
+
+parser.add_argument(
+    "-p", "--server-port",
+    type=int,
+    default=2480,
+    help="set the port number of the octopus server")
+
+parser.add_argument(
+    "project",
+    type=str,
+    help="run the plugin for this project")
+
+parser.add_argument(
+    "-f", "--format",
+    type=str,
+    default="graphml",
+    choices=["graphml", "dot", "gml"],
+    help="export graphs in this format")
+
+parser.add_argument(
+    "-o", "--outdir",
+    type=str,
+    default=os.getcwd(),
+    help="write graphs to this directory")
+
+parser.add_argument(
+    "-n", "--nodes",
+    type=str,
+    nargs="+",
+    help="export nodes of the given types")
+
+parser.add_argument(
+    "-e", "--edges",
+    type=str,
+    nargs="+",
+    help="export edges of the given types")
+
+args = parser.parse_args()
+
+plugin_executor = OrientDBPluginExecutor(args.server_host, args.server_port)
+plugin = FunctionExporter(plugin_executor)
+plugin.project = args.project
+plugin.format = args.format
+plugin.outdir = args.outdir
+plugin.nodes = args.nodes
+plugin.edges = args.edges
+plugin.execute()
