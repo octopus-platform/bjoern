@@ -15,11 +15,11 @@ public class Aloc extends OctopusNode
 
 	public String getName()
 	{
-		return getNode().getProperty(BjoernNodeProperties.NAME).toString();
+		return getProperty(BjoernNodeProperties.NAME).toString();
 	}
 
 	public boolean isFlag()
 	{
-		return getNode().getProperty(BjoernNodeProperties.SUBTYPE).toString().equals("flag");
+		return getProperty(BjoernNodeProperties.SUBTYPE).toString().equals("flag");
 	}
 }

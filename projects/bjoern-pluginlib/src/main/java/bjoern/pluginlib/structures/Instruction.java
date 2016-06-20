@@ -17,12 +17,12 @@ public class Instruction extends OctopusNode implements Comparable<Instruction>
 
 	public long getAddress()
 	{
-		return Long.parseLong(getNode().getProperty(BjoernNodeProperties.ADDR).toString());
+		return Long.parseLong(getProperty(BjoernNodeProperties.ADDR).toString());
 	}
 
 	public String getEsilCode()
 	{
-		return getNode().getProperty(BjoernNodeProperties.ESIL);
+		return getProperty(BjoernNodeProperties.ESIL);
 	}
 
 	@Override
@@ -42,11 +42,11 @@ public class Instruction extends OctopusNode implements Comparable<Instruction>
 
 	public String getCode()
 	{
-		return this.getNode().getProperty("repr");
+		return getProperty("repr");
 	}
 
 	public boolean isCall()
 	{
-		return getNode().getEdges(Direction.OUT, EdgeTypes.CALL).iterator().hasNext();
+		return getEdges(Direction.OUT, EdgeTypes.CALL).iterator().hasNext();
 	}
 }

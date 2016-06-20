@@ -71,7 +71,7 @@ public class Traversals
 		GremlinPipeline<Vertex, Vertex> pipeline = createNewGremlinPipe();
 
 		Vertex vertex;
-		pipeline.start(function.getNode()).in(EdgeTypes.INTERPRETATION).out(EdgeTypes.INTERPRETATION)
+		pipeline.start(function).in(EdgeTypes.INTERPRETATION).out(EdgeTypes.INTERPRETATION)
 				.filter(v -> v.getProperty(BjoernNodeProperties.TYPE).equals(NodeTypes.INSTRUCTION));
 
 		if (pipeline.hasNext())
@@ -85,7 +85,7 @@ public class Traversals
 
 	public static List<Instruction> instructionToSuccessors(Instruction instruction)
 	{
-		return StreamSupport.stream(instruction.getNode()
+		return StreamSupport.stream(instruction
 				.getVertices(Direction.OUT, INSTR_CFLOW_EDGE)
 				.spliterator(), false)
 				.map(Instruction::new).collect(Collectors.toList());
@@ -94,7 +94,7 @@ public class Traversals
 	public static List<Aloc> functionToAlocs(Function function)
 	{
 		GremlinPipeline<Vertex, Vertex> pipe = new GremlinPipeline<>();
-		pipe.start(function.getNode()).as("loop")
+		pipe.start(function).as("loop")
 				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
 				.loop("loop", v -> true,
 						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(NodeTypes.ALOC));

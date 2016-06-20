@@ -30,7 +30,7 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 		{
 			BasicBlock block = new BasicBlock(v);
 			linkInstructions(block);
-			for (Vertex nextBasicBlock : block.getNode().getVertices(
+			for (Vertex nextBasicBlock : block.getVertices(
 					Direction.OUT, CFLOW_EDGES))
 			{
 				linkInstructions(block, new BasicBlock(nextBasicBlock));

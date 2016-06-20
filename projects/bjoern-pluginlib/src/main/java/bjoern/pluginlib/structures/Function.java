@@ -25,7 +25,7 @@ public class Function extends OctopusNode
 		if (blocks == null)
 		{
 			blocks = new ArrayList<BasicBlock>();
-			for (Vertex block : getNode().getVertices(Direction.OUT,
+			for (Vertex block : getVertices(Direction.OUT,
 					EdgeTypes.IS_FUNCTION_OF))
 			{
 				blocks.add(new BasicBlock(block));

@@ -26,7 +26,7 @@ public class BasicBlock extends OctopusNode
 		if (instructions == null)
 		{
 			instructions = new ArrayList<Instruction>();
-			for (Vertex instruction : getNode().getVertices(Direction.OUT,
+			for (Vertex instruction : getVertices(Direction.OUT,
 					EdgeTypes.IS_BB_OF))
 			{
 

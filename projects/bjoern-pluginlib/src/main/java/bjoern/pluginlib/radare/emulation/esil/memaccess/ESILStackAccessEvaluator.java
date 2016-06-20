@@ -135,7 +135,7 @@ public class ESILStackAccessEvaluator {
 			addr = String.format("%d", stackState.getStackPtrValue());
 
 		access.setEsilExpression(esilMemAccessExpr);
-		access.setInstructionRepr((String)instr.getNode().getProperty("repr"));
+		access.setInstructionRepr((String)instr.getProperty("repr"));
 		access.setCompleteEsilExpression(instr.getEsilCode());
 		access.setAddress(addr);
 

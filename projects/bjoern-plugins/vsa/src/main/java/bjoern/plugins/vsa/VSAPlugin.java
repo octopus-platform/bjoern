@@ -103,7 +103,7 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		{
 			getLogger().info(instr.getEsilCode());
 			getLogger().info(assignment.get(instr).toString());
-			for (Edge edge : instr.getNode().getEdges(Direction.OUT, EdgeTypes.READ))
+			for (Edge edge : instr.getEdges(Direction.OUT, EdgeTypes.READ))
 			{
 				String aloc = edge.getVertex(Direction.IN).getProperty(BjoernNodeProperties.NAME);
 				if (isFlag(aloc))
