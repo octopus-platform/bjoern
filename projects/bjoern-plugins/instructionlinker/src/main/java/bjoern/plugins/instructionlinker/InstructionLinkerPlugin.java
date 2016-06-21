@@ -6,11 +6,14 @@ import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
 import octopus.lib.GraphOperations;
 import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
 
 public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 {
+	public static final String RETURN = "RETURN";
+
 	private OrientGraphNoTx graph;
 
 	@Override
@@ -28,6 +31,31 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 				for (BasicBlock nextBasicBlock : block.cflow())
 				{
 					linkBlocks(block, nextBasicBlock);
+				}
+			}
+		}
+
+		for (Function function : functions)
+		{
+			for (BasicBlock block : function.basicBlocks())
+			{
+				for (Instruction instruction : block.instructions())
+				{
+					if (instruction.isCall())
+					{
+						for (Instruction entry : instruction.call())
+						{
+							for (Instruction exit : entry.exits())
+							{
+								for (Instruction dst : new GremlinPipeline<>(instruction.getBaseVertex())
+										.out(Traversals.INSTR_CFLOW_TRANSITIVE_EDGE)
+										.transform(Instruction::new))
+								{
+									GraphOperations.addEdge(graph, exit, dst, RETURN);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
