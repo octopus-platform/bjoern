@@ -1,16 +1,10 @@
 package bjoern.input.common.outputModules.CSV;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import bjoern.input.common.outputModules.OutputModule;
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.r2interface.creators.RadareInstructionCreator;
-import bjoern.input.common.outputModules.OutputModule;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.RootNode;
 import bjoern.structures.annotations.Flag;
@@ -18,11 +12,9 @@ import bjoern.structures.annotations.VariableOrArgument;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.DirectedEdge;
 import bjoern.structures.edges.EdgeTypes;
-import bjoern.structures.interpretations.BasicBlock;
-import bjoern.structures.interpretations.DisassemblyLine;
-import bjoern.structures.interpretations.Function;
-import bjoern.structures.interpretations.FunctionContent;
-import bjoern.structures.interpretations.Instruction;
+import bjoern.structures.interpretations.*;
+
+import java.util.*;
 
 public class CSVOutputModule implements OutputModule
 {
@@ -227,6 +219,7 @@ public class CSVOutputModule implements OutputModule
 			return;
 
 		properties.put(BjoernNodeProperties.COMMENT, line.getComment());
+		properties.put(BjoernNodeProperties.REPR, line.getInstruction());
 
 		DisassemblyLine esilLine = content.getDisassemblyEsilLineForAddr(address);
 		if (esilLine == null)
