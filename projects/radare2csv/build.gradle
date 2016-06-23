@@ -20,5 +20,6 @@ task copyToLib(type: Copy) {
     from configurations.runtime 
 }
 
+clean.dependsOn cleanCopyToLib
 copyToLib.dependsOn compileJava
 build.dependsOn copyToLib
