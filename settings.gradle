@@ -2,7 +2,6 @@
 include 'projects:octopus:orientdbimporter'
 include 'projects:octopus:octopus-server'
 include 'projects:octopus:octopus-lang'
-include 'projects:octopus:octopuslib'
 
 include 'projects:radare2csv'
 include 'projects:bjoern-r2interface'
