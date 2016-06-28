@@ -6,6 +6,6 @@
 [subrepo]
 	remote = git@github.com:octopus-platform/bjoern-tools.git
 	branch = master
-	commit = 53a4eb68b94367815467c93b2d67189777be8bb8
-	parent = 93f3ed365172ea7d0bf6cf1dde1b87874f5d61e2
+	commit = 186e36e620cd41e32fee90fdadb47e877f1bef56
+	parent = e824c685b41d574d766b5bfba13651b7230c5f06
 	cmdver = 0.3.0

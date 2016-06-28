@@ -1,0 +1,144 @@
+#!python
+
+import argparse
+import sys
+
+from octopus.server.orientdb.orientdb_shell_mananger import OrientDBShellManager
+from octopus.shell.octopus_shell import OctopusShellConnection
+
+from bjoern.shell.bjoern_console import BjoernInteractiveConsole
+from bjoern.shell.config.config import config
+
+
+def connect(host, port, script=None):
+    octopus_shell = OctopusShellConnection(host, port)
+    octopus_shell.connect()
+
+    try:
+        if script:
+            bjosh = BjoernInteractiveConsole(octopus_shell)
+            bjosh.runsource(script.read())
+        else:
+            bjosh = BjoernInteractiveConsole(octopus_shell)
+            bjosh.interact()
+    except SystemExit:
+        pass
+
+    octopus_shell.close()
+
+
+def printshells(shells, file=sys.stdout):
+    for port, dbname in shells:
+        print(port, dbname, file=file)
+
+
+parser = argparse.ArgumentParser(
+    description=("bjosh -- an interactive shell for bjoern. "
+                 "bjosh can create, list, and connect to shells on the server."))
+
+parser.add_argument(
+    "-s", "--server",
+    default=config['bjoern']['host'],
+    help="the host name of the server")
+
+parser.add_argument(
+    "-p", "--port",
+    type=int,
+    default=config['bjoern']['port'],
+    help="the port number of the server")
+
+subparsers = parser.add_subparsers(
+    title="available commands",
+    description=("bjosh's functionality is split into multiple commands. "
+                 "Use 'bjosh <command> --help' to read about a specific command."),
+    dest='subcommand')
+
+connect_parser = subparsers.add_parser(
+    "connect",
+    aliases=["co"],
+    description=("Connect to a gremlin shell on an octopus server. "
+                 "If a port is specified, bjosh directly connects to that port. "
+                 "If a database name is specified, bjosh connects to the "
+                 "corresponding port only if it is unique. "
+                 "Otherwise all open ports for that database are shown. "
+                 "If no port and no database name is specified and only a "
+                 "single port is open, bjosh connects to that port. "
+                 "Otherwise all open ports are shown."),
+    help="connect to shell")
+
+group = connect_parser.add_mutually_exclusive_group()
+
+group.add_argument(
+    "-d", "--dbname",
+    type=str,
+    default=None,
+    help="connect to this database")
+
+group.add_argument(
+    "-q", "--shellport",
+    type=int,
+    default=None,
+    help="directly connect to this port")
+
+connect_parser.add_argument(
+    "script",
+    type=argparse.FileType('r'),
+    nargs="?",
+    default=None,
+    help="read and execute script from this file")
+
+list_parser = subparsers.add_parser(
+    "list",
+    aliases=["ls"],
+    description="List all open shells on the server.",
+    help="list open shells")
+
+list_parser.add_argument(
+    "-d", "--dbname",
+    type=str,
+    help="list only shells connected to this database")
+
+create_parser = subparsers.add_parser(
+    "create",
+    aliases=["cr"],
+    description=("Open a new gremlin shell at the octopus server. "
+                 "If no database name is specified, bjosh reads the default "
+                 "database name from the configuration file."),
+    help="create new shell")
+
+create_parser.add_argument(
+    "-d", "--dbname",
+    type=str,
+    default=config['bjoern']['defaultdb'],
+    help="create shell for this database")
+
+args = parser.parse_args()
+
+shell_manager = OrientDBShellManager(args.server, args.port)
+
+if args.subcommand in ['connect', 'co']:
+    shells = list(shell_manager.list(args.dbname, args.shellport))
+
+    if len(shells) == 0 and args.shellport:
+        print("No matching shells found.", file=sys.stderr)
+    elif len(shells) == 0 and not args.shellport:
+        if args.dbname:
+            dbname = args.dbname
+        else:
+            dbname = config['bjoern']['defaultdb']
+        shellport = shell_manager.create(dbname)
+        print("Connecting to database '{}' on port {}.".format(dbname, shellport), file=sys.stderr)
+        connect(args.server, shellport, args.script)
+    elif len(shells) == 1:
+        shellport, dbname = shells[0]
+        print("Connecting to database '{}' on port {}.".format(dbname, shellport), file=sys.stderr)
+        connect(args.server, shellport, args.script)
+    else:
+        print("Found {} shells.".format(len(shells)), file=sys.stderr)
+        printshells(shells, sys.stderr)
+elif args.subcommand in ['list', 'ls']:
+    printshells(shell_manager.list(args.dbname))
+elif args.subcommand in ['create', 'cr']:
+    shell_manager.create(args.dbname)
+else:
+    parser.print_help()
