@@ -1,12 +1,10 @@
-package octopus.server.commands.shellmanager;
+package octopus.server.commands.manageshells;
 
-import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
-import octopus.server.Constants;
 import octopus.server.components.gremlinShell.OctopusGremlinShell;
 import octopus.server.components.gremlinShell.ShellRunnable;
 import octopus.server.components.shellmanager.ShellManager;

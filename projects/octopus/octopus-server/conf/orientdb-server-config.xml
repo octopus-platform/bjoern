@@ -51,7 +51,7 @@
 					</command>
 					<command implementation="octopus.server.commands.importcsv.ImportCSVHandler"
 						pattern="GET|importcsv/*" />
-					<command implementation="octopus.server.commands.shellmanager.ManageShellsHandler"
+					<command implementation="octopus.server.commands.manageshells.ManageShellsHandler"
 						pattern="GET|manageshells/*" />
 					<command
 						implementation="com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStaticContent"
