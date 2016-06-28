@@ -9,13 +9,10 @@ import octopus.server.components.gremlinShell.OctopusGremlinShell;
 import octopus.server.components.gremlinShell.ShellRunnable;
 import octopus.server.components.shellmanager.ShellManager;
 
-/**
- * Created by alwin on 6/27/16.
- */
+import java.io.IOException;
+
 public class ManageShellsHandler extends OServerCommandAbstract
 {
-	private String dbName;
-
 	public ManageShellsHandler(final OServerCommandConfiguration iConfiguration)
 	{
 	}
@@ -58,15 +55,16 @@ public class ManageShellsHandler extends OServerCommandAbstract
 	private boolean executeCreate(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception
 	{
 		String[] urlParts = checkSyntax(iRequest.url, 3, "Syntax error: manageshells/create/projectName");
-		startShellThread(urlParts[2]);
-		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "", null);
+		int port = ShellManager.createNewShell(urlParts[2]);
+		OctopusGremlinShell shell = ShellManager.getShellForPort(port);
+		startShellThread(shell);
+		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, port + "\n", null);
 		return false;
 	}
 
-	private void startShellThread(String databaseName)
+	private void startShellThread(OctopusGremlinShell shell) throws IOException
 	{
-		ShellRunnable runnable = new ShellRunnable();
-		runnable.setDbName(databaseName);
+		ShellRunnable runnable = new ShellRunnable(shell);
 		Thread thread = new Thread(runnable);
 		thread.start();
 	}
