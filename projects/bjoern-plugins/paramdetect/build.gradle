@@ -2,6 +2,5 @@
 dependencies{
 
   compile project(':projects:bjoern-pluginlib')
-  compile project(':projects:octopus:octopus-server')
 
 }

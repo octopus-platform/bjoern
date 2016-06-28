@@ -5,7 +5,6 @@ dependencies {
   compile group: 'com.orientechnologies', name: 'orientdb-graphdb', version: '2.1.5'
 
   compile project(':projects:bjoern-pluginlib')
-  compile project(':projects:octopus:octopus-server')
 
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
     
