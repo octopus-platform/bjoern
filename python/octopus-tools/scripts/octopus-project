@@ -73,3 +73,5 @@ elif args.subcommand == 'upload':
     manager.upload_file(args.project, args.file)
 elif args.subcommand == "list":
     print(manager.list())
+else:
+    parser.print_usage()

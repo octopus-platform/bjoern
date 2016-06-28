@@ -19,17 +19,12 @@ allprojects {
     }
 }
 
-task octopusPylib(type: Exec) {
-    workingDir './python/octopus-pylib'
-    commandLine 'python3', 'setup.py', 'install', '--user'
-}
-
-task octopusTools(type: Exec, dependsOn: octopusPylib) {
+task octopusTools(type: Exec) {
     workingDir './python/octopus-tools'
     commandLine 'python3', 'setup.py', 'install', '--user'
 }
 
-task bjoernTools(type: Exec, dependsOn: octopusPylib) {
+task bjoernTools(type: Exec, dependsOn: octopusTools) {
     workingDir './python/bjoern-tools'
     commandLine 'python3', 'setup.py', 'install', '--user'
 }
