@@ -141,4 +141,4 @@ elif args.subcommand in ['list', 'ls']:
 elif args.subcommand in ['create', 'cr']:
     shell_manager.create(args.dbname)
 else:
-    parser.print_help()
+    parser.print_usage()
