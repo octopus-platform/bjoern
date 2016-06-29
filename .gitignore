@@ -7,6 +7,8 @@ projects/octopus/octopus-server/querylib/
 projects/octopus/octopus-server/orientdb/
 projects/octopus/octopus-server/orientdb.tar.gz
 
+projects/octopus/octopus-server/src/main/resources/logback-test.xml
+
 .gradle/
 gradle/
 gradlew
