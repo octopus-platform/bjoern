@@ -1,17 +1,5 @@
 package bjoern.plugins.vsa;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Queue;
-
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.structures.Function;
@@ -21,16 +9,26 @@ import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.domain.region.LocalRegion;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
+import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
-import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.structures.BjoernEdgeProperties;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class VSAPlugin extends OrientGraphConnectionPlugin
 {
+
+	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
 
 	private Map<Instruction, AbstractEnvironment> assignment;
 	private Map<Instruction, Integer> mycounter;
@@ -43,7 +41,7 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		for (Vertex v : functions)
 		{
 			Function function = new Function(v);
-			getLogger().info(function.toString());
+			logger.info(function.toString());
 			performIntraProceduralVSA(function);
 		}
 		graph.shutdown();
@@ -72,11 +70,11 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 				out = transformer.transform(n.getEsilCode(), getAbstractEnvironment(n));
 			} catch (ESILTransformationException e)
 			{
-				getLogger().error(e.getMessage());
+				logger.error(e.getMessage());
 				out = new AbstractEnvironment();
 			} catch (NoSuchElementException e)
 			{
-				getLogger().error("Invalid esil stack");
+				logger.error("Invalid esil stack");
 				out = new AbstractEnvironment();
 			}
 			List<Instruction> successors = Traversals.instructionToSuccessors(n);
@@ -101,8 +99,8 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 	{
 		for (Instruction instr : assignment.keySet())
 		{
-			getLogger().info(instr.getEsilCode());
-			getLogger().info(assignment.get(instr).toString());
+			logger.info(instr.getEsilCode());
+			logger.info(assignment.get(instr).toString());
 			for (Edge edge : instr.getEdges(Direction.OUT, EdgeTypes.READ))
 			{
 				String aloc = edge.getVertex(Direction.IN).getProperty(BjoernNodeProperties.NAME);
@@ -166,7 +164,7 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 
 	private void performWidening(AbstractEnvironment newEnv, AbstractEnvironment oldEnv)
 	{
-		getLogger().info("Performing widening: " + oldEnv + " [<=>] " + newEnv);
+		logger.info("Performing widening: " + oldEnv + " [<=>] " + newEnv);
 		for (String register : newEnv.getRegisters())
 		{
 			newEnv.setValueSetOfRegister(register,

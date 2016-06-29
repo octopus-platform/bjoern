@@ -1,12 +1,12 @@
 package bjoern.pluginlib.plugintypes;
 
-import org.json.JSONObject;
-
 import bjoern.pluginlib.connectors.BjoernProjectConnector;
 import octopus.lib.connectors.OrientDBConnector;
 import octopus.server.components.pluginInterface.Plugin;
+import org.json.JSONObject;
 
-public abstract class RadareOrientGraphPlugin extends Plugin {
+public abstract class RadareOrientGraphPlugin implements Plugin
+{
 
 	OrientDBConnector orientConnector = new OrientDBConnector();
 	BjoernProjectConnector bjoernProjectConnector = new BjoernProjectConnector();

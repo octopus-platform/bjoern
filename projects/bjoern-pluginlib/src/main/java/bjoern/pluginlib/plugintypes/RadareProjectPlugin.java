@@ -6,7 +6,8 @@ import bjoern.pluginlib.BjoernProject;
 import bjoern.r2interface.Radare;
 import octopus.lib.connectors.OrientDBConnector;
 
-public class RadareProjectPlugin extends BjoernProjectPlugin {
+public abstract class RadareProjectPlugin extends BjoernProjectPlugin
+{
 
 	private Radare radare = new Radare();
 	private BjoernProject project;
@@ -41,27 +42,33 @@ public class RadareProjectPlugin extends BjoernProjectPlugin {
 		getRadare().shutdown();
 	}
 
-	protected Radare getRadare(){
+	protected Radare getRadare()
+	{
 		return radare;
 	}
 
-	protected void setRadare(Radare radare) {
+	protected void setRadare(Radare radare)
+	{
 		this.radare = radare;
 	}
 
-	protected BjoernProject getProject() {
+	protected BjoernProject getProject()
+	{
 		return project;
 	}
 
-	protected void setProject(BjoernProject project) {
+	protected void setProject(BjoernProject project)
+	{
 		this.project = project;
 	}
 
-	protected OrientDBConnector getOrientConnector() {
+	protected OrientDBConnector getOrientConnector()
+	{
 		return orientConnector;
 	}
 
-	protected void setOrientConnector(OrientDBConnector orientConnector) {
+	protected void setOrientConnector(OrientDBConnector orientConnector)
+	{
 		this.orientConnector = orientConnector;
 	}
 
