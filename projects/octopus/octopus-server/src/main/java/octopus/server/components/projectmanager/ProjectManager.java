@@ -6,7 +6,9 @@ import orientdbimporter.Constants;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,39 +16,45 @@ import java.util.Map;
 public class ProjectManager
 {
 
-	private static String projectsDir;
+	private static Path projectsDir;
 	private static Map<String, OctopusProject> nameToProject = new HashMap<String, OctopusProject>();
 
-	public static void setProjectDir(String newProjectsDir) throws IOException
+	public static void setProjectDir(Path newProjectsDir) throws IOException
 	{
-		projectsDir = new File(newProjectsDir).getCanonicalPath();
+		if (!newProjectsDir.isAbsolute())
+		{
+			newProjectsDir = newProjectsDir.toAbsolutePath();
+		}
+		projectsDir = newProjectsDir.normalize();
 		openProjectsDir();
 		loadProjects();
 	}
 
-	private static void openProjectsDir()
+	private static void openProjectsDir() throws IOException
 	{
-		if (Files.notExists(Paths.get(projectsDir)))
+		if (Files.notExists(projectsDir))
 		{
-			new File(projectsDir).mkdirs();
+			Files.createDirectories(projectsDir);
 		}
 	}
 
-	private static void loadProjects()
+	private static void loadProjects() throws IOException
 	{
-		File projectsDirHandle = new File(projectsDir);
-		File[] files = projectsDirHandle.listFiles();
-		for (File projectDir : files)
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(projectsDir))
 		{
-			if (!projectDir.isDirectory())
-				continue;
-			loadProject(projectDir);
+			for (Path path : stream)
+			{
+				if (Files.isDirectory(path))
+				{
+					loadProject(path);
+				}
+			}
 		}
 	}
 
-	private static void loadProject(File projectDir)
+	private static void loadProject(Path projectDir)
 	{
-		String projectName = projectDir.getName();
+		String projectName = projectDir.getFileName().toString();
 		OctopusProject newProject = createOctopusProjectForName(projectName);
 		nameToProject.put(projectName, newProject);
 	}
@@ -63,7 +71,7 @@ public class ProjectManager
 
 	public static String getPathToProject(String name)
 	{
-		return projectsDir + File.separator + name;
+		return Paths.get(projectsDir.toString(), name).toString();
 	}
 
 	public static void create(String name)

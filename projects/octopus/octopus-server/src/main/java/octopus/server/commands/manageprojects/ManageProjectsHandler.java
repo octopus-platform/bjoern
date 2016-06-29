@@ -1,21 +1,21 @@
 package octopus.server.commands.manageprojects;
 
-import java.io.IOException;
-
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestException;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
-
 import octopus.server.components.projectmanager.ProjectManager;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ManageProjectsHandler extends OServerCommandAbstract
 {
 
-	String projectsDir;
+	Path projectsDir;
 
 	public ManageProjectsHandler(final OServerCommandConfiguration iConfiguration)
 	{
@@ -36,7 +36,7 @@ public class ManageProjectsHandler extends OServerCommandAbstract
 			switch (param.name)
 			{
 				case "dir":
-					projectsDir = System.getProperty("OCTOPUS_HOME") + "/" + param.value;
+					projectsDir = Paths.get(System.getProperty("OCTOPUS_HOME"), param.value);
 					break;
 			}
 		}
