@@ -1,0 +1,22 @@
+sourceSets {
+    intTest {
+        java {
+            srcDir 'test/src/java'
+        }
+    }
+}
+
+dependencies {
+    intTestCompile group: 'org.testng', name: 'testng', version: '6.9.10'
+
+    intTestCompile project(':projects:octopus:orientdbimporter')
+    intTestCompile project(':projects:bjoern-plugins:instructionlinker')
+    intTestCompile project(':projects:octopus:octopus-server')
+}
+
+task integrationTest(type:Test) {
+    useTestNG()
+    testLogging.showStandardStreams = true
+    testClassesDir = sourceSets.intTest.output.classesDir
+    classpath = sourceSets.intTest.runtimeClasspath
+}

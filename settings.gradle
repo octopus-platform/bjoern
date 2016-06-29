@@ -16,3 +16,5 @@ include 'projects:bjoern-plugins:vsa'
 
 include 'projects:bjoern-lang'
 
+include 'integrationTest'
+
