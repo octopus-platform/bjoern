@@ -37,12 +37,18 @@ Building bjoern (step-by-step)
 	cd bjoern
 	gradle deploy
 
-Installing the bjoern-shell
----------------------------
+This will build the bjoern-server and install python utilities into
+the user site-packages directory (typically `~/.local/`). To test your
+installation, try running
 
 .. code-block:: none
 
-	git clone https://github.com/a0x77n/bjoern-shell
-	cd bjoern-shell
-	python3 setup.py install
-	bjosh
+	bjoern-import
+
+If this command is unavailable, please make sure the script directory
+(typically `~/.local/bin/`) is in the path, e.g., by adding the
+following to your `~/.bashrc`:
+
+.. code-block:: none
+
+	export PATH=$PATH:~/.local/bin
