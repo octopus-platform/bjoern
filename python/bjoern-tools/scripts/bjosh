@@ -130,7 +130,7 @@ if args.subcommand in ['connect', 'co']:
         print("Connecting to database '{}' on port {}.".format(dbname, shellport), file=sys.stderr)
         connect(args.server, shellport, args.script)
     elif len(shells) == 1:
-        shellport, dbname = shells[0]
+        shellport, dbname, name = shells[0]
         print("Connecting to database '{}' on port {}.".format(dbname, shellport), file=sys.stderr)
         connect(args.server, shellport, args.script)
     else:
