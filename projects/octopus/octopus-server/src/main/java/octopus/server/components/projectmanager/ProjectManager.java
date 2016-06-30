@@ -1,10 +1,8 @@
 package octopus.server.components.projectmanager;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import org.apache.commons.io.FileUtils;
 import orientdbimporter.Constants;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -52,7 +50,7 @@ public class ProjectManager
 		}
 	}
 
-	private static void loadProject(Path projectDir)
+	private static void loadProject(Path projectDir) throws IOException
 	{
 		String projectName = projectDir.getFileName().toString();
 		OctopusProject newProject = createOctopusProjectForName(projectName);
@@ -69,15 +67,18 @@ public class ProjectManager
 		return nameToProject.get(name);
 	}
 
-	public static String getPathToProject(String name)
-	{
-		return Paths.get(projectsDir.toString(), name).toString();
-	}
-
-	public static void create(String name)
+	public static Path getPathToProject(String name)
 	{
 		if (projectsDir == null)
-			throw new RuntimeException("Error: projectDir not set");
+			throw new IllegalStateException("Error: projectDir not set");
+
+		return Paths.get(projectsDir.toString(), name);
+	}
+
+	public static void create(String name) throws IOException
+	{
+		if (projectsDir == null)
+			throw new IllegalStateException("Error: projectDir not set");
 
 		if (doesProjectExist(name))
 			throw new RuntimeException("Project already exists");
@@ -86,10 +87,10 @@ public class ProjectManager
 		nameToProject.put(name, project);
 	}
 
-	public static void delete(String name)
+	public static void delete(String name) throws IOException
 	{
 		if (projectsDir == null)
-			throw new RuntimeException("Error: projectDir not set");
+			throw new IllegalStateException("Error: projectDir not set");
 
 		deleteProjectWithName(name);
 	}
@@ -97,41 +98,34 @@ public class ProjectManager
 	public static Iterable<String> listProjects()
 	{
 		return nameToProject.keySet();
-
 	}
 
-	private static OctopusProject createOctopusProjectForName(String name)
+	private static OctopusProject createOctopusProjectForName(String name) throws IOException
 	{
-		String pathToProject = getPathToProject(name);
-		File dir = new File(pathToProject);
-		dir.mkdirs();
+		Path pathToProject = getPathToProject(name);
+		Files.createDirectories(pathToProject);
 
-		OctopusProject newProject = new OctopusProject();
-		newProject.setPathToProjectDir(pathToProject);
-		newProject.setDatabaseName(name);
+		OctopusProject newProject = new OctopusProject(pathToProject.toString(), name);
 		return newProject;
 	}
 
-	private static void deleteProjectWithName(String name)
+	private static void deleteProjectWithName(String name) throws IOException
 	{
-		File dir = new File(getPathToProject(name));
-		try
-		{
-			FileUtils.deleteDirectory(dir);
-			nameToProject.remove(name);
-			removeDatabase(name);
-		} catch (IOException e)
-		{
-			throw new RuntimeException("IO Exception on delete");
-		}
+		Path pathToProject = getPathToProject(name);
+		Files.deleteIfExists(pathToProject);
+		nameToProject.remove(name);
+		removeDatabaseIfExists(name);
 	}
 
-	private static void removeDatabase(String dbName) throws IOException
+	private static void removeDatabaseIfExists(String dbName) throws IOException
 	{
 		OServerAdmin admin;
 		admin = new OServerAdmin("localhost/" + dbName).connect(
 				Constants.DB_USERNAME, Constants.DB_PASSWORD);
-		admin.dropDatabase("plocal");
+		if (admin.existsDatabase())
+		{
+			admin.dropDatabase("plocal");
+		}
 	}
 
 }

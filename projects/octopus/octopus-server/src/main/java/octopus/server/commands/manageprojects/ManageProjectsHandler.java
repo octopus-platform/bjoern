@@ -8,7 +8,6 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
 import octopus.server.components.projectmanager.ProjectManager;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -84,8 +83,8 @@ public class ManageProjectsHandler extends OServerCommandAbstract
 		String projectName = urlParts[2];
 		String relativePath = urlParts[3];
 
-		String pathToProject = ProjectManager.getPathToProject(projectName);
-		Path dstFilename = Paths.get(pathToProject, relativePath);
+		Path pathToProject = ProjectManager.getPathToProject(projectName);
+		Path dstFilename = Paths.get(pathToProject.toString(), relativePath);
 		byte[] decodedData = Base64.getMimeDecoder().decode(iRequest.content);
 
 		writeDataToFile(dstFilename, decodedData);
@@ -106,16 +105,30 @@ public class ManageProjectsHandler extends OServerCommandAbstract
 	private boolean executeCreate(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception
 	{
 		String[] urlParts = checkSyntax(iRequest.url, 3, "Syntax error: manageprojects/create/projectName");
-		ProjectManager.create(urlParts[2]);
-		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "", null);
+		String projectName = urlParts[2];
+		if (ProjectManager.doesProjectExist(projectName))
+		{
+			iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "Project already exists.", null);
+		} else
+		{
+			ProjectManager.create(projectName);
+			iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "Project created.", null);
+		}
 		return false;
 	}
 
 	private boolean executeDelete(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception
 	{
 		String[] urlParts = checkSyntax(iRequest.url, 3, "Syntax error: manageprojects/delete/projectName");
-		ProjectManager.delete(urlParts[2]);
-		iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "", null);
+		String projectName = urlParts[2];
+		if (ProjectManager.doesProjectExist(projectName))
+		{
+			ProjectManager.delete(projectName);
+			iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "Project deleted.", null);
+		} else
+		{
+			iResponse.send(OHttpUtils.STATUS_OK_CODE, "OK", null, "Project does not exist.", null);
+		}
 		return false;
 	}
 
