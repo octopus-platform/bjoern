@@ -15,6 +15,7 @@ public class OctopusGremlinShell
 	private GroovyShell shell;
 	private int port;
 	private final String dbName;
+	private String name;
 
 	static
 	{
@@ -111,4 +112,15 @@ public class OctopusGremlinShell
 	{
 		return shell;
 	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public String getName()
+	{
+		return this.name;
+	}
+
 }

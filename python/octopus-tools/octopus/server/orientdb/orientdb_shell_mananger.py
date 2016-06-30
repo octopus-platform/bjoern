@@ -16,7 +16,7 @@ class OrientDBShellManager(ShellManager):
         if not response:
             return
         for shell in response.split('\n'):
-            port, name = shell.split('\t')
+            port, dbName, name = shell.split('\t')
             port = int(port)
             if (not project_name or name == project_name) and (not shell_port or port == shell_port):
-                yield port, name
+                yield port, dbName, name

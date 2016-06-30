@@ -28,8 +28,8 @@ def connect(host, port, script=None):
 
 
 def printshells(shells, file=sys.stdout):
-    for port, dbname in shells:
-        print(port, dbname, file=file)
+    for port, dbname, name in shells:
+        print(port, dbname, name, file=file)
 
 
 parser = argparse.ArgumentParser(
