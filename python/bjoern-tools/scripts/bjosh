@@ -28,8 +28,8 @@ def connect(host, port, script=None):
 
 
 def printshells(shells, file=sys.stdout):
-    for port, dbname, name in shells:
-        print(port, dbname, name, file=file)
+    for port, dbname, name, occupied in shells:
+        print(port, dbname, name, occupied, file=file)
 
 
 parser = argparse.ArgumentParser(
@@ -130,7 +130,7 @@ if args.subcommand in ['connect', 'co']:
         print("Connecting to database '{}' on port {}.".format(dbname, shellport), file=sys.stderr)
         connect(args.server, shellport, args.script)
     elif len(shells) == 1:
-        shellport, dbname, name = shells[0]
+        shellport, dbname, name, occupied = shells[0]
         print("Connecting to database '{}' on port {}.".format(dbname, shellport), file=sys.stderr)
         connect(args.server, shellport, args.script)
     else:

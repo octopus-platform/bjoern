@@ -63,7 +63,11 @@ public class ShellRunnable implements Runnable
 			{
 				acceptNewClient();
 				closeListeningSocket();
+
+				markShellAsOccupied();
 				handleClient();
+				markShellAsFree();
+
 				createLocalListeningSocket();
 			} catch (IOException e)
 			{
@@ -75,6 +79,17 @@ public class ShellRunnable implements Runnable
 		ShellManager.destroyShell(shell.getPort());
 		serverSocket.close();
 	}
+
+	private void markShellAsOccupied()
+	{
+		shell.markAsOccupied();
+	}
+
+	private void markShellAsFree()
+	{
+		shell.markAsFree();
+	}
+
 
 	private void closeListeningSocket() throws IOException
 	{

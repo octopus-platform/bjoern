@@ -16,6 +16,7 @@ public class OctopusGremlinShell
 	private int port;
 	private final String dbName;
 	private String name;
+	private boolean occupied = false;
 
 	static
 	{
@@ -121,6 +122,21 @@ public class OctopusGremlinShell
 	public String getName()
 	{
 		return this.name;
+	}
+
+	public void markAsOccupied()
+	{
+		occupied = true;
+	}
+
+	public void markAsFree()
+	{
+		occupied = false;
+	}
+
+	public boolean isOccupied()
+	{
+		return occupied;
 	}
 
 }

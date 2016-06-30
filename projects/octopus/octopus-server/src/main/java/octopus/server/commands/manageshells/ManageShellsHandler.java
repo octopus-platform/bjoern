@@ -77,7 +77,7 @@ public class ManageShellsHandler extends OServerCommandAbstract
 
 	private Object rowForShell(OctopusGremlinShell shell)
 	{
-		return String.format("%d\t%s\t%s", shell.getPort(), shell.getDbName(), shell.getName());
+		return String.format("%d\t%s\t%s\t%s", shell.getPort(), shell.getDbName(), shell.getName(), shell.isOccupied());
 	}
 
 	@Override

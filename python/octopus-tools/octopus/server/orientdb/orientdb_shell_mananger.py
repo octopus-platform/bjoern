@@ -16,7 +16,7 @@ class OrientDBShellManager(ShellManager):
         if not response:
             return
         for shell in response.split('\n'):
-            port, dbName, name = shell.split('\t')
+            port, dbName, name, occupied = shell.split('\t')
             port = int(port)
             if (not project_name or name == project_name) and (not shell_port or port == shell_port):
-                yield port, dbName, name
+                yield port, dbName, name, ('occupied' if occupied == 'true' else 'free')
