@@ -35,6 +35,6 @@ plugin_executor = OrientDBPluginExecutor(args.server_host, args.server_port)
 importer = RadareImporter(plugin_executor)
 importer.project = project
 
-manager.create(project)
-manager.upload_file(project, args.binary)
-importer.execute()
+print(manager.create(project))
+print(manager.upload_file(project, args.binary))
+print(importer.execute())
