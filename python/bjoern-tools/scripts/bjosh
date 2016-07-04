@@ -3,28 +3,30 @@
 import argparse
 import sys
 
+from bjoern.shell.bjoern_console import BjoernInteractiveConsole
+from bjoern.shell.config.config import config
 from octopus.server.orientdb.orientdb_shell_mananger import OrientDBShellManager
 from octopus.shell.octopus_shell import OctopusShellConnection
 
-from bjoern.shell.bjoern_console import BjoernInteractiveConsole
-from bjoern.shell.config.config import config
-
 
 def connect(host, port, script=None):
-    octopus_shell = OctopusShellConnection(host, port)
-    octopus_shell.connect()
-
     try:
-        if script:
-            bjosh = BjoernInteractiveConsole(octopus_shell)
-            bjosh.runsource(script.read())
-        else:
-            bjosh = BjoernInteractiveConsole(octopus_shell)
-            bjosh.interact()
-    except SystemExit:
-        pass
+        octopus_shell = OctopusShellConnection(host, port)
+        octopus_shell.connect()
 
-    octopus_shell.close()
+        try:
+            if script:
+                bjosh = BjoernInteractiveConsole(octopus_shell)
+                bjosh.runsource(script.read())
+            else:
+                bjosh = BjoernInteractiveConsole(octopus_shell)
+                bjosh.interact()
+        except SystemExit:
+            pass
+
+        octopus_shell.close()
+    except ConnectionRefusedError:
+        print("Connection refused", file=sys.stderr)
 
 
 def printshells(shells, file=sys.stdout):
@@ -96,6 +98,7 @@ list_parser = subparsers.add_parser(
 list_parser.add_argument(
     "-d", "--dbname",
     type=str,
+    default=None,
     help="list only shells connected to this database")
 
 create_parser = subparsers.add_parser(
@@ -107,9 +110,8 @@ create_parser = subparsers.add_parser(
     help="create new shell")
 
 create_parser.add_argument(
-    "-d", "--dbname",
+    "dbname",
     type=str,
-    default=config['bjoern']['defaultdb'],
     help="create shell for this database")
 
 args = parser.parse_args()
@@ -117,17 +119,13 @@ args = parser.parse_args()
 shell_manager = OrientDBShellManager(args.server, args.port)
 
 if args.subcommand in ['connect', 'co']:
-    shells = list(shell_manager.list(args.dbname, args.shellport))
+    shells = list(shell_manager.list(project_name=args.dbname, shell_port=args.shellport, filter_occupied=True))
 
-    if len(shells) == 0 and args.shellport:
+    if len(shells) == 0 and not args.dbname:
         print("No matching shells found.", file=sys.stderr)
-    elif len(shells) == 0 and not args.shellport:
-        if args.dbname:
-            dbname = args.dbname
-        else:
-            dbname = config['bjoern']['defaultdb']
-        shellport = shell_manager.create(dbname)
-        print("Connecting to database '{}' on port {}.".format(dbname, shellport), file=sys.stderr)
+    elif len(shells) == 0 and args.dbname:
+        shellport = shell_manager.create(args.dbname)
+        print("Connecting to database '{}' on port {}.".format(args.dbname, shellport), file=sys.stderr)
         connect(args.server, shellport, args.script)
     elif len(shells) == 1:
         shellport, dbname, name, occupied = shells[0]
