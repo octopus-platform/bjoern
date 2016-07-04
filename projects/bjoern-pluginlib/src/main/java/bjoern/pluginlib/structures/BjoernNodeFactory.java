@@ -18,7 +18,7 @@ public class BjoernNodeFactory
 			case NodeTypes.FUNCTION:
 				return new Function(vertex);
 			case NodeTypes.INSTRUCTION:
-				return new Function(vertex);
+				return new Instruction(vertex);
 			default:
 				return new BjoernNode(vertex);
 		}
