@@ -6,7 +6,7 @@ import octopus.lib.structures.OctopusNode;
 
 import com.tinkerpop.blueprints.Vertex;
 
-public class Aloc extends OctopusNode
+public class Aloc extends BjoernNode
 {
 	public Aloc(Vertex vertex)
 	{

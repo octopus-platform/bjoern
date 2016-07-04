@@ -8,7 +8,7 @@ import octopus.lib.structures.OctopusNode;
 
 import java.util.Iterator;
 
-public class BasicBlock extends OctopusNode
+public class BasicBlock extends BjoernNode
 {
 
 	private static final String[] CFLOW_EDGES = {EdgeTypes.CFLOW, EdgeTypes.CFLOW_TRUE, EdgeTypes.CFLOW_FALSE};

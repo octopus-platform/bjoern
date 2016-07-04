@@ -4,9 +4,8 @@ import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
-import octopus.lib.structures.OctopusNode;
 
-public class Function extends OctopusNode
+public class Function extends BjoernNode
 {
 
 	public Function(Vertex vertex)

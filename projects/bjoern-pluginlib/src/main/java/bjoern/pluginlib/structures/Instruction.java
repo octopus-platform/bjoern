@@ -8,7 +8,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import octopus.lib.structures.OctopusNode;
 
-public class Instruction extends OctopusNode implements Comparable<Instruction>
+public class Instruction extends BjoernNode implements Comparable<Instruction>
 {
 
 	public Instruction(Vertex vertex)
