@@ -19,7 +19,6 @@ public class DisassembledFunction
 
 	public void addVarOrArg(VariableOrArgument parsedVarOrArg)
 	{
-		parsedVarOrArg.setAddr(funcAddress);
 		varsAndArgs.add(parsedVarOrArg);
 	}
 

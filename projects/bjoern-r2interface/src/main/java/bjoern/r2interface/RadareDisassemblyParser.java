@@ -1,13 +1,13 @@
 package bjoern.r2interface;
 
-import java.math.BigInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import bjoern.r2interface.exceptions.EmptyDisassembly;
 import bjoern.structures.annotations.VariableOrArgument;
 import bjoern.structures.interpretations.DisassembledFunction;
 import bjoern.structures.interpretations.DisassemblyLine;
+
+import java.math.BigInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RadareDisassemblyParser
 {
@@ -24,8 +24,9 @@ public class RadareDisassemblyParser
 	/**
 	 * Receives a disassembly for a function obtained via `pdf`,
 	 * along with the corresponding start address of the function.
+	 *
 	 * @param functionAddr
-	 * */
+	 */
 
 	public DisassembledFunction parseFunction(String disassembly, long functionAddr) throws EmptyDisassembly
 	{
@@ -37,23 +38,19 @@ public class RadareDisassemblyParser
 		return retval;
 	}
 
-	public VariableOrArgument parseVarOrArg(Matcher matcher)
+	private void parseVarOrArg(Matcher matcher, VariableOrArgument varOrArg)
 	{
-		VariableOrArgument parsedVarOrArg = new VariableOrArgument();
-
-		parsedVarOrArg.setType(matcher.group(1));
-		parsedVarOrArg.setVarType(matcher.group(2));
-		parsedVarOrArg.setName(matcher.group(3));
-		parsedVarOrArg.setRegPlusOffset(matcher.group(4));
-
-		return parsedVarOrArg;
+		varOrArg.setType(matcher.group(1));
+		varOrArg.setVarType(matcher.group(2));
+		varOrArg.setName(matcher.group(3));
+		varOrArg.setRegPlusOffset(matcher.group(4));
 	}
 
 	/**
 	 * Parses a single line of the disassembly output, which
 	 * is expected to be of the format
 	 * Address	Instruction	Comment
-	 * */
+	 */
 
 	public DisassemblyLine parseInstruction(String line)
 	{
@@ -61,12 +58,14 @@ public class RadareDisassemblyParser
 		// characters. We skip to the first character
 		// after the last newline.
 		int lastNewLine = line.lastIndexOf("\n");
-		if(lastNewLine != -1){
+		if (lastNewLine != -1)
+		{
 			line = line.substring(lastNewLine + 1);
 		}
 
 		Matcher matcher = instructionPattern.matcher(line);
-		if (!matcher.matches()){
+		if (!matcher.matches())
+		{
 			return null;
 		}
 
@@ -105,17 +104,14 @@ public class RadareDisassemblyParser
 
 	private void parseLine(DisassembledFunction retval, String line)
 	{
-		if (isLineInstruction(line)){
+		if (isLineInstruction(line))
+		{
 			DisassemblyLine disasmLine = parseInstruction(line);
-			if(disasmLine != null)
+			if (disasmLine != null)
 				retval.addLine(disasmLine);
-		}
-		else if (isLineComment(line)){
-			VariableOrArgument varOrArg = handleComment(line);
-			if(varOrArg != null){
-				varOrArg.setAddr(retval.getAddress());
-				retval.addVarOrArg(varOrArg);
-			}
+		} else if (isLineComment(line))
+		{
+			handleComment(retval, line);
 		}
 	}
 
@@ -129,14 +125,15 @@ public class RadareDisassemblyParser
 		return line.startsWith(";");
 	}
 
-	private VariableOrArgument handleComment(String line)
+	private void handleComment(DisassembledFunction retval, String line)
 	{
 		Matcher matcher = varAndArgPattern.matcher(line);
 		if (matcher.matches())
 		{
-			return parseVarOrArg(matcher);
+			VariableOrArgument varOrArg = new VariableOrArgument(retval.getAddress());
+			parseVarOrArg(matcher, varOrArg);
+			retval.addVarOrArg(varOrArg);
 		}
-		return null;
 	}
 
 	private String nextLine()

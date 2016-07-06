@@ -1,13 +1,9 @@
 package bjoern.structures.interpretations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeTypes;
+
+import java.util.*;
 
 
 public class BasicBlock extends Node
@@ -16,9 +12,9 @@ public class BasicBlock extends Node
 	HashMap<Long, Instruction> instructions = new HashMap<Long, Instruction>();
 	List<Instruction> sortedInstructions = null;
 
-	public BasicBlock()
+	public BasicBlock(long address)
 	{
-		this.setType(NodeTypes.BASIC_BLOCK);
+		super(address, NodeTypes.BASIC_BLOCK);
 	}
 
 	public void addInstruction(Instruction instr)

@@ -34,31 +34,6 @@ public class CSVOutputModule implements OutputModule
 	}
 
 	@Override
-	public void writeFlag(Flag flag)
-	{
-		createRootNodeForNode(flag);
-
-		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(BjoernNodeProperties.CODE, flag.getValue());
-		properties.put(BjoernNodeProperties.KEY, flag.getKey());
-		properties.put(BjoernNodeProperties.TYPE, flag.getType());
-		properties.put(BjoernNodeProperties.ADDR, flag.getAddressAsHexString());
-		// Skipping length-field for now, let's see if we need it.
-		CSVWriter.addNode(flag, properties);
-	}
-
-	private void createRootNodeForNode(Node node)
-	{
-		Node rootNode = new RootNode();
-		rootNode.setAddr(node.getAddress());
-		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(BjoernNodeProperties.KEY, rootNode.getKey());
-		properties.put(BjoernNodeProperties.ADDR, rootNode.getAddressAsHexString());
-		properties.put(BjoernNodeProperties.TYPE, rootNode.getType());
-		CSVWriter.addNoReplaceNode(rootNode, properties);
-	}
-
-	@Override
 	public void writeFunctionNodes(Function function)
 	{
 		createRootNodeForNode(function);
@@ -73,6 +48,12 @@ public class CSVOutputModule implements OutputModule
 	}
 
 	@Override
+	public void writeReferencesToFunction(Function function)
+	{
+		addEdgeFromRootNode(function, EdgeTypes.INTERPRETATION);
+	}
+
+	@Override
 	public void writeFunctionContent(Function function)
 	{
 		setCurrentFunction(function);
@@ -82,6 +63,45 @@ public class CSVOutputModule implements OutputModule
 		writeCFGEdges();
 
 		setCurrentFunction(null);
+	}
+
+	@Override
+	public void writeBasicBlock(BasicBlock block)
+	{
+		createRootNodeForNode(block);
+		writeNodeForBasicBlock(block);
+		addEdgeFromRootNode(block, EdgeTypes.INTERPRETATION);
+		writeInstructions(block);
+	}
+
+	@Override
+	public void writeFlag(Flag flag)
+	{
+		createRootNodeForNode(flag);
+
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put(BjoernNodeProperties.CODE, flag.getValue());
+		properties.put(BjoernNodeProperties.KEY, flag.getKey());
+		properties.put(BjoernNodeProperties.TYPE, flag.getType());
+		properties.put(BjoernNodeProperties.ADDR, flag.getAddressAsHexString());
+		// Skipping length-field for now, let's see if we need it.
+		CSVWriter.addNode(flag, properties);
+	}
+
+	@Override
+	public void attachFlagsToRootNodes(Flag flag)
+	{
+		addEdgeFromRootNode(flag, EdgeTypes.ANNOTATION);
+	}
+
+	private void createRootNodeForNode(Node node)
+	{
+		Node rootNode = new RootNode(node.getAddress());
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put(BjoernNodeProperties.KEY, rootNode.getKey());
+		properties.put(BjoernNodeProperties.ADDR, rootNode.getAddressAsHexString());
+		properties.put(BjoernNodeProperties.TYPE, rootNode.getType());
+		CSVWriter.addNoReplaceNode(rootNode, properties);
 	}
 
 	private void writeArgumentsAndVariables()
@@ -148,15 +168,6 @@ public class CSVOutputModule implements OutputModule
 
 	}
 
-	@Override
-	public void writeBasicBlock(BasicBlock block)
-	{
-		createRootNodeForNode(block);
-		writeNodeForBasicBlock(block);
-		addEdgeFromRootNode(block, EdgeTypes.INTERPRETATION);
-		writeInstructions(block);
-	}
-
 	private void writeInstructions(BasicBlock block)
 	{
 		Collection<Instruction> instructions = block.getInstructions();
@@ -199,7 +210,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(BjoernNodeProperties.REPR, instr.getStringRepr());
 		properties.put(BjoernNodeProperties.CHILD_NUM, String.format("%d", childNum));
 		properties.put(BjoernNodeProperties.KEY, instr.getKey());
-		properties.put(BjoernNodeProperties.CODE,instr.getBytes());
+		properties.put(BjoernNodeProperties.CODE, instr.getBytes());
 
 		addDisassemblyProperties(properties, instr.getAddress());
 
@@ -256,12 +267,6 @@ public class CSVOutputModule implements OutputModule
 		}
 	}
 
-	@Override
-	public void writeReferencesToFunction(Function function)
-	{
-		addEdgeFromRootNode(function, EdgeTypes.INTERPRETATION);
-	}
-
 	private void writeEdge(DirectedEdge edge)
 	{
 
@@ -271,12 +276,6 @@ public class CSVOutputModule implements OutputModule
 		Map<String, Object> properties = new HashMap<String, Object>();
 		// TODO: add edge properties.
 		CSVWriter.addEdge(sourceKey, destKey, properties, type);
-	}
-
-	@Override
-	public void attachFlagsToRootNodes(Flag flag)
-	{
-		addEdgeFromRootNode(flag, EdgeTypes.ANNOTATION);
 	}
 
 	private void addEdgeFromRootNode(Node node, String type)
@@ -300,7 +299,7 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeSourceNode(DirectedEdge xref)
 	{
-		if(!(xref instanceof CallRef))
+		if (!(xref instanceof CallRef))
 			return;
 
 		CallRef callRef = (CallRef) xref;
@@ -318,7 +317,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(BjoernNodeProperties.TYPE, instruction.getType());
 		properties.put(BjoernNodeProperties.REPR, instruction.getStringRepr());
 		properties.put(BjoernNodeProperties.KEY, instruction.getKey());
-		properties.put(BjoernNodeProperties.CODE,instruction.getBytes());
+		properties.put(BjoernNodeProperties.CODE, instruction.getBytes());
 		properties.put(BjoernNodeProperties.COMMENT, disassemblyLine.getComment());
 
 		CSVWriter.addNode(instruction, properties);

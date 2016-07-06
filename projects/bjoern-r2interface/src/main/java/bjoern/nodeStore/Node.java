@@ -1,14 +1,17 @@
 package bjoern.nodeStore;
 
-public class Node
+public abstract class Node
 {
-
-	public static final Long INVALID_ADDRESS = Long.MAX_VALUE;
-
 	private long address;
-	private String type = "";
+	private String type;
 
-	public void setAddr(long addr)
+	public Node(long address, String type)
+	{
+		setAddr(address);
+		setType(type);
+	}
+
+	private void setAddr(long addr)
 	{
 		address = addr;
 	}
@@ -28,24 +31,20 @@ public class Node
 		return type;
 	}
 
-	public void setType(String type)
+	private void setType(String type)
 	{
 		this.type = type;
 	}
 
 	public NodeKey createKey()
 	{
-		NodeKey key = new NodeKey();
-		key.setType(getType());
-		key.setAddress(getAddress());
+		NodeKey key = new NodeKey(getAddress(), getType());
 		return key;
 	}
 
 	public NodeKey createEpsilonKey()
 	{
-		NodeKey key = new NodeKey();
-		key.setType(NodeTypes.ROOT);
-		key.setAddress(getAddress());
+		NodeKey key = new NodeKey(getAddress(), NodeTypes.ROOT);
 		return key;
 	}
 

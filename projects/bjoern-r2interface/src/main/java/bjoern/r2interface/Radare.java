@@ -1,16 +1,5 @@
 package bjoern.r2interface;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.r2interface.architectures.Architecture;
@@ -20,6 +9,16 @@ import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.EdgeTypes;
 import bjoern.structures.edges.Xref;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Radare
 {
@@ -90,8 +89,7 @@ public class Radare
 		try
 		{
 			jsonArray = new JSONArray(jsonStr);
-		}
-		catch (JSONException ex)
+		} catch (JSONException ex)
 		{
 			return null;
 		}
@@ -137,20 +135,17 @@ public class Radare
 
 	private Flag createFlagFromLine(String line)
 	{
-		Flag flag = new Flag();
-
 		String[] parts = line.split(" ");
+		long addr = Long.decode(parts[0]);
+		Flag flag = new Flag(addr);
 		if (parts.length != 3)
 		{
 			logger.info("Returning empty flag for line: {}", line);
 			return flag;
 		}
 
-		long addr = Long.decode(parts[0]);
 		int length = Integer.parseInt(parts[1]);
 		String value = parts[2];
-
-		flag.setAddr(addr);
 		flag.setLength(length);
 		flag.setValue(value);
 
@@ -166,13 +161,14 @@ public class Radare
 
 	public List<Xref> getNextCrossReferences() throws IOException
 	{
-		while(true){
+		while (true)
+		{
 			String nextLine = r2Pipe.readNextLine();
 			if (nextLine.length() == 0 || nextLine.endsWith("\0"))
 				return null;
 			List<Xref> newXrefs = createXrefsFromLine(nextLine);
 
-			if(newXrefs == null)
+			if (newXrefs == null)
 				continue;
 
 			return newXrefs;
@@ -221,7 +217,7 @@ public class Radare
 		// ref.code.jmp
 		// xref.code.jmp
 
-		if(!type.equals("ref.code.call"))
+		if (!type.equals("ref.code.call"))
 			return null;
 
 		String destList = parts[1];
@@ -229,7 +225,7 @@ public class Radare
 		Long sourceId = Long.decode(parts[0].substring(lastDotPosition + 1));
 
 		LinkedList<Xref> retval = new LinkedList<Xref>();
-		for(String dest : destinations)
+		for (String dest : destinations)
 		{
 			Long destId = Long.decode(dest);
 			Xref xref = createCallRef(destId, sourceId);
@@ -264,7 +260,7 @@ public class Radare
 	private List<String> cmdAndSplitResultAtWhitespace(String cmd) throws IOException
 	{
 		String registers = r2Pipe.cmd(cmd).trim();
-		if(registers.length() == 0)
+		if (registers.length() == 0)
 			return new LinkedList<String>();
 
 		String[] registersAr = registers.split(" ");

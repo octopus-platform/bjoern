@@ -1,11 +1,10 @@
 package bjoern.r2interface.creators;
 
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import bjoern.structures.interpretations.BasicBlock;
 import bjoern.structures.interpretations.Instruction;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 public class RadareBasicBlockCreator
@@ -13,18 +12,10 @@ public class RadareBasicBlockCreator
 
 	public static BasicBlock createFromJSON(JSONObject block)
 	{
-
-		BasicBlock node = new BasicBlock();
-		initFromJSON(node, block);
-		return node;
-	}
-
-	public static void initFromJSON(BasicBlock node, JSONObject block)
-	{
 		long addr = block.getLong("offset");
-		node.setAddr(addr);
-
+		BasicBlock node = new BasicBlock(addr);
 		initInstructionsFromJSON(node, block);
+		return node;
 	}
 
 	private static void initInstructionsFromJSON(BasicBlock node,

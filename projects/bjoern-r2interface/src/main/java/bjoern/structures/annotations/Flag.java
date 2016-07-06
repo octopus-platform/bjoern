@@ -8,16 +8,16 @@ import bjoern.nodeStore.NodeTypes;
  * It's essentially an annotation attached to an address.
  * It has a fixed value and a length, that is, the flag
  * is associated with a sub string of the binary.
- * */
+ */
 
 public class Flag extends Node
 {
 	private String value;
 	private long length;
 
-	public Flag()
+	public Flag(long address)
 	{
-		this.setType(NodeTypes.FLAG);
+		super(address, NodeTypes.FLAG);
 	}
 
 	public String getValue()

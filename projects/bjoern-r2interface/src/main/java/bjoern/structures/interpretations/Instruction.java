@@ -8,9 +8,9 @@ public class Instruction extends Node
 	private String stringRepr;
 	private String bytes;
 
-	public Instruction()
+	public Instruction(long address)
 	{
-		this.setType(NodeTypes.INSTRUCTION);
+		super(address, NodeTypes.INSTRUCTION);
 	}
 
 	public String getStringRepr()

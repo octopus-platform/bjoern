@@ -1,9 +1,8 @@
 package bjoern.r2interface.creators;
 
 
-import org.json.JSONObject;
-
 import bjoern.structures.interpretations.Function;
+import org.json.JSONObject;
 
 
 public class RadareFunctionCreator
@@ -19,11 +18,9 @@ public class RadareFunctionCreator
 	}
 
 	private static void initFunctionInfo(JSONObject jsonFunction,
-			Function retval)
+										 Function retval)
 	{
-		long addr = jsonFunction.getLong("offset");
 		String name = jsonFunction.getString("name");
-		retval.setAddr(addr);
 		retval.setName(name);
 	}
 

@@ -3,11 +3,12 @@ package bjoern.structures;
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeTypes;
 
-public class RootNode extends Node {
+public class RootNode extends Node
+{
 
-	public RootNode()
+	public RootNode(long address)
 	{
-		this.setType(NodeTypes.ROOT);
+		super(address, NodeTypes.ROOT);
 	}
 
 }

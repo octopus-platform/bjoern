@@ -9,6 +9,11 @@ public class VariableOrArgument extends Node
 	private String varName;
 	private String regPlusOffset;
 
+	public VariableOrArgument(long address)
+	{
+		super(address, "");
+	}
+
 	public void setType(String varOrArg)
 	{
 		this.type = varOrArg;

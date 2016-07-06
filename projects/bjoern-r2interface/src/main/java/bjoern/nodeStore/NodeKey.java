@@ -6,20 +6,18 @@ public class NodeKey
 	private Long address = 0l;
 	private Integer counter = null;
 
-	public NodeKey() {}
-
 	public NodeKey(long address, String type)
 	{
 		setAddress(address);
 		setType(type);
 	}
 
-	public void setType(String type)
+	private void setType(String type)
 	{
 		this.type = type;
 	}
 
-	public void setAddress(Long address)
+	private void setAddress(Long address)
 	{
 		this.address = address;
 	}
