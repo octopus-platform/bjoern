@@ -5,7 +5,7 @@ BASEDIR=$(dirname "$0")
 while getopts :d: opt
 do
 	case $opt in
-		d) JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$OPTARG"
+		d) JAVA_OPTS="$JAVA_OPTS -ea -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$OPTARG"
 	esac
 done
 
