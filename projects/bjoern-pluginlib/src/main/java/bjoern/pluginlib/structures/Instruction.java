@@ -18,7 +18,7 @@ public class Instruction extends OctopusNode implements Comparable<Instruction>
 
 	public long getAddress()
 	{
-		return Long.parseLong(getProperty(BjoernNodeProperties.ADDR).toString());
+		return Long.parseLong(getProperty(BjoernNodeProperties.ADDR).toString(), 16);
 	}
 
 	public String getEsilCode()

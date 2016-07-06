@@ -18,6 +18,11 @@ public class Node
 		return address;
 	}
 
+	public String getAddressAsHexString()
+	{
+		return Long.toHexString(getAddress());
+	}
+
 	public String getType()
 	{
 		return type;
@@ -46,7 +51,7 @@ public class Node
 
 	public String getKey()
 	{
-		return getType() + "_" + getAddress().toString();
+		return getType() + "_" + getAddressAsHexString();
 	}
 
 }

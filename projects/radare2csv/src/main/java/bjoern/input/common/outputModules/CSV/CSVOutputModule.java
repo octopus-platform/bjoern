@@ -42,7 +42,7 @@ public class CSVOutputModule implements OutputModule
 		properties.put(BjoernNodeProperties.CODE, flag.getValue());
 		properties.put(BjoernNodeProperties.KEY, flag.getKey());
 		properties.put(BjoernNodeProperties.TYPE, flag.getType());
-		properties.put(BjoernNodeProperties.ADDR, flag.getAddress().toString());
+		properties.put(BjoernNodeProperties.ADDR, flag.getAddressAsHexString());
 		// Skipping length-field for now, let's see if we need it.
 		CSVWriter.addNode(flag, properties);
 	}
@@ -53,7 +53,7 @@ public class CSVOutputModule implements OutputModule
 		rootNode.setAddr(node.getAddress());
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(BjoernNodeProperties.KEY, rootNode.getKey());
-		properties.put(BjoernNodeProperties.ADDR, rootNode.getAddress().toString());
+		properties.put(BjoernNodeProperties.ADDR, rootNode.getAddressAsHexString());
 		properties.put(BjoernNodeProperties.TYPE, rootNode.getType());
 		CSVWriter.addNoReplaceNode(rootNode, properties);
 	}
@@ -64,7 +64,7 @@ public class CSVOutputModule implements OutputModule
 		createRootNodeForNode(function);
 
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(BjoernNodeProperties.ADDR, function.getAddress().toString());
+		properties.put(BjoernNodeProperties.ADDR, function.getAddressAsHexString());
 		properties.put(BjoernNodeProperties.TYPE, function.getType());
 		properties.put(BjoernNodeProperties.REPR, function.getName());
 		properties.put(BjoernNodeProperties.KEY, function.getKey());
@@ -110,7 +110,7 @@ public class CSVOutputModule implements OutputModule
 
 		properties.put(BjoernNodeProperties.KEY, varOrArg.getKey());
 		properties.put(BjoernNodeProperties.TYPE, varOrArg.getType());
-		properties.put(BjoernNodeProperties.ADDR, varOrArg.getAddress().toString());
+		properties.put(BjoernNodeProperties.ADDR, varOrArg.getAddressAsHexString());
 		properties.put(BjoernNodeProperties.NAME, varOrArg.getVarName());
 		properties.put(BjoernNodeProperties.REPR, varOrArg.getVarType());
 		properties.put(BjoernNodeProperties.CODE, varOrArg.getRegPlusOffset());
@@ -194,16 +194,14 @@ public class CSVOutputModule implements OutputModule
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
 
-		Long instrAddress = instr.getAddress();
-
-		properties.put(BjoernNodeProperties.ADDR, instrAddress.toString());
+		properties.put(BjoernNodeProperties.ADDR, instr.getAddressAsHexString());
 		properties.put(BjoernNodeProperties.TYPE, instr.getType());
 		properties.put(BjoernNodeProperties.REPR, instr.getStringRepr());
 		properties.put(BjoernNodeProperties.CHILD_NUM, String.format("%d", childNum));
 		properties.put(BjoernNodeProperties.KEY, instr.getKey());
 		properties.put(BjoernNodeProperties.CODE,instr.getBytes());
 
-		addDisassemblyProperties(properties, instrAddress);
+		addDisassemblyProperties(properties, instr.getAddress());
 
 		CSVWriter.addNode(instr, properties);
 	}
@@ -232,7 +230,7 @@ public class CSVOutputModule implements OutputModule
 	private void writeNodeForBasicBlock(BasicBlock block)
 	{
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(BjoernNodeProperties.ADDR, block.getAddress().toString());
+		properties.put(BjoernNodeProperties.ADDR, block.getAddressAsHexString());
 		properties.put(BjoernNodeProperties.TYPE, block.getType());
 		properties.put(BjoernNodeProperties.KEY, block.getKey());
 		properties.put(BjoernNodeProperties.REPR, block.getInstructionsStr());
@@ -314,7 +312,9 @@ public class CSVOutputModule implements OutputModule
 
 		Long instrAddress = callRef.getSourceKey().getAddress();
 
-		properties.put(BjoernNodeProperties.ADDR, instrAddress.toString());
+		assert instrAddress.equals(instruction.getAddress()) : "addresses not equal";
+
+		properties.put(BjoernNodeProperties.ADDR, instruction.getAddressAsHexString());
 		properties.put(BjoernNodeProperties.TYPE, instruction.getType());
 		properties.put(BjoernNodeProperties.REPR, instruction.getStringRepr());
 		properties.put(BjoernNodeProperties.KEY, instruction.getKey());
