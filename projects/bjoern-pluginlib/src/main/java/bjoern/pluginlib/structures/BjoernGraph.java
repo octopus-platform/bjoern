@@ -38,7 +38,7 @@ public class BjoernGraph<T extends Graph> implements Graph, WrapperGraph<T>
 			return null;
 		} else
 		{
-			return new BjoernNode(vertex);
+			return BjoernNodeFactory.create(vertex);
 		}
 	}
 
