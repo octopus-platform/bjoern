@@ -4,7 +4,7 @@ import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.r2interface.architectures.Architecture;
 import bjoern.r2interface.architectures.X64Architecture;
-import bjoern.r2interface.exceptions.InvalidRadareFunction;
+import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.EdgeTypes;
@@ -80,7 +80,7 @@ public class Radare
 	}
 
 	public JSONObject getJSONFunctionContentAt(Long addr)
-			throws InvalidRadareFunction, IOException
+			throws InvalidRadareFunctionException, IOException
 	{
 
 		String jsonStr = r2Pipe.cmd("agj " + Long.toUnsignedString(addr));
@@ -95,7 +95,7 @@ public class Radare
 		}
 
 		if (jsonArray.length() != 1)
-			throw new InvalidRadareFunction();
+			throw new InvalidRadareFunctionException();
 
 		return jsonArray.getJSONObject(0);
 	}

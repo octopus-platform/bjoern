@@ -1,18 +1,22 @@
 package bjoern.r2interface.creators;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeStore;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.r2interface.exceptions.BasicBlockWithoutAddress;
+import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.edges.EdgeTypes;
 import bjoern.structures.interpretations.BasicBlock;
 import bjoern.structures.interpretations.FunctionContent;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RadareFunctionContentCreator
 {
+
+	public static Logger logger = LoggerFactory.getLogger(RadareFunctionContentCreator.class);
 
 	public static FunctionContent createContentFromJSON(
 			JSONObject jsonFunctionContent, Long address)
@@ -45,17 +49,18 @@ public class RadareFunctionContentCreator
 			try
 			{
 				createBasicBlock(content, block);
-			}
-			catch (BasicBlockWithoutAddress e)
+			} catch (BasicBlockWithoutAddress e)
 			{
-				System.err.println("Skipping basic block without address");
-				continue;
+				logger.error("Skipping basic block without address:");
+			} catch (InvalidRadareFunctionException e)
+			{
+				logger.error(e.getMessage());
 			}
 		}
 	}
 
 	private static void createBasicBlock(FunctionContent content,
-			JSONObject jsonBlock) throws BasicBlockWithoutAddress
+			JSONObject jsonBlock) throws BasicBlockWithoutAddress, InvalidRadareFunctionException
 	{
 
 		Long address = JSONUtils.getLongFromObject(jsonBlock, "offset");
@@ -103,12 +108,12 @@ public class RadareFunctionContentCreator
 		NodeKey jumpBlockKey = getJumpTargetKey(jsonBlock, "jump");
 		NodeKey failBlockKey = getJumpTargetKey(jsonBlock, "fail");
 
-		if(jumpBlockKey == null)
+		if (jumpBlockKey == null)
 			return;
 
 
 		if (failBlockKey == null)
-			content.addEdge(fromBlockKey, jumpBlockKey , EdgeTypes.CFLOW);
+			content.addEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW);
 		else
 		{
 			content.addEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW_TRUE);

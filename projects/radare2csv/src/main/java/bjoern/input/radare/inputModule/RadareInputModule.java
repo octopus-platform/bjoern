@@ -16,7 +16,7 @@ import bjoern.r2interface.RadareDisassemblyParser;
 import bjoern.r2interface.creators.RadareFunctionContentCreator;
 import bjoern.r2interface.creators.RadareFunctionCreator;
 import bjoern.r2interface.exceptions.EmptyDisassembly;
-import bjoern.r2interface.exceptions.InvalidRadareFunction;
+import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.Xref;
@@ -89,7 +89,7 @@ public class RadareInputModule implements InputModule
 			esilDisassemblyStr = radare.getDisassemblyForFunctionAt(address);
 			radare.disableEsil();
 		}
-		catch (InvalidRadareFunction e)
+		catch (InvalidRadareFunctionException e)
 		{
 			return;
 		}

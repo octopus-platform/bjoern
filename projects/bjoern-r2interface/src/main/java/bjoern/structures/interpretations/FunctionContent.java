@@ -1,13 +1,14 @@
 package bjoern.structures.interpretations;
 
+import bjoern.nodeStore.NodeKey;
+import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
+import bjoern.structures.annotations.VariableOrArgument;
+import bjoern.structures.edges.DirectedEdge;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import bjoern.nodeStore.NodeKey;
-import bjoern.structures.annotations.VariableOrArgument;
-import bjoern.structures.edges.DirectedEdge;
 
 public class FunctionContent
 {
@@ -21,7 +22,7 @@ public class FunctionContent
 	{
 		this.functionAddr = functionAddr;
 	}
-	
+
 	public Collection<BasicBlock> getBasicBlocks()
 	{
 		return basicBlocks.values();
@@ -59,12 +60,12 @@ public class FunctionContent
 		basicBlocks.put(addr, node);
 	}
 
-	public void registerBasicBlock(long addr, BasicBlock node)
+	public void registerBasicBlock(long addr, BasicBlock node) throws InvalidRadareFunctionException
 	{
 		BasicBlock block = getBasicBlockAtAddress(addr);
 
 		if (block != null)
-			throw new RuntimeException("Duplicate OctopusNode");
+			throw new InvalidRadareFunctionException("Duplicate basic block in function");
 
 		addBasicBlock(addr, node);
 	}
@@ -91,5 +92,5 @@ public class FunctionContent
 		disassembledEsilFunction = func;
 	}
 
-	
+
 }
