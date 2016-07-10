@@ -6,6 +6,7 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.VertexQuery;
 import com.tinkerpop.blueprints.util.wrappers.WrapperVertexQuery;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
 import octopus.lib.structures.OctopusNode;
 
 public class BjoernNode extends OctopusNode
@@ -79,5 +80,20 @@ public class BjoernNode extends OctopusNode
 		sb.append(getProperty(BjoernNodeProperties.ADDR).toString());
 		sb.append(")");
 		return sb.toString();
+	}
+
+	public GremlinPipeline<BjoernNode, BjoernNode> start()
+	{
+		return new GremlinPipeline<>(this);
+	}
+
+	public Long getAddress()
+	{
+		return Long.parseLong(getProperty(BjoernNodeProperties.ADDR).toString(), 16);
+	}
+
+	public String getRepresentation()
+	{
+		return getProperty(BjoernNodeProperties.REPR).toString();
 	}
 }

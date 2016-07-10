@@ -85,7 +85,7 @@ public class ESILEmulator {
 
 	private String createEsilSequenceWithoutCalls(Iterable<Instruction> instructions)
 	{
-		Predicate<Instruction> isNotCall = p -> !architecture.isCall(p.getCode());
+		Predicate<Instruction> isNotCall = p -> !architecture.isCall(p.getRepresentation());
 		return createEsilSequence(instructions, isNotCall);
 	}
 

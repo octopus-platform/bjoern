@@ -103,7 +103,7 @@ public class ESILStackAccessEvaluator {
 
 	private boolean isUnconsideredStackAccess(Instruction instr)
 	{
-		String code = instr.getCode();
+		String code = instr.getRepresentation();
 		Architecture arch = emulator.getArchitecture();
 		return (arch.isCall(code) || arch.isPush(code) || arch.isPop(code) || arch.isRet(code));
 	}

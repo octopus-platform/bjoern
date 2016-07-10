@@ -4,9 +4,9 @@ import bjoern.nodeStore.NodeTypes;
 import bjoern.pluginlib.Traversals;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
+import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
-import octopus.lib.structures.OctopusNode;
 
 public class Instruction extends BjoernNode implements Comparable<Instruction>
 {
@@ -16,10 +16,7 @@ public class Instruction extends BjoernNode implements Comparable<Instruction>
 		super(vertex, NodeTypes.INSTRUCTION);
 	}
 
-	public long getAddress()
-	{
-		return Long.parseLong(getProperty(BjoernNodeProperties.ADDR).toString(), 16);
-	}
+
 
 	public String getEsilCode()
 	{
@@ -41,11 +38,6 @@ public class Instruction extends BjoernNode implements Comparable<Instruction>
 		}
 	}
 
-	public String getCode()
-	{
-		return getProperty("repr");
-	}
-
 	public boolean isCall()
 	{
 		return call().hasNext();
@@ -59,13 +51,14 @@ public class Instruction extends BjoernNode implements Comparable<Instruction>
 	public GremlinPipeline<?, Instruction> exits()
 	{
 		final int maxLoops = 10000;
+		final String[] EDGES = {Traversals.INSTR_CFLOW_EDGE, Traversals.INSTR_CFLOW_TRANSITIVE_EDGE};
 		return new GremlinPipeline<>(this.getBaseVertex()).as("start")
-				.out(Traversals.INSTR_CFLOW_EDGE, Traversals.INSTR_CFLOW_TRANSITIVE_EDGE).dedup().loop("start",
+				.out(EDGES).dedup().loop("start",
 						arg -> arg.getLoops() < maxLoops
-								&& !arg.getObject().getProperty(BjoernNodeProperties.REPR).equals("ret")
-								&& !arg.getObject().getProperty(BjoernNodeProperties.REPR).equals("jmp section..plt"),
-						arg -> arg.getObject().getProperty(BjoernNodeProperties.REPR).equals("ret")
-								|| arg.getObject().getProperty(BjoernNodeProperties.REPR).equals("jmp section..plt"))
+								&& arg.getObject().getEdges(Direction.OUT, EDGES).iterator().hasNext(),
+						arg -> arg.getLoops() < maxLoops
+								&& !arg.getObject().getEdges(Direction.OUT, EDGES).iterator().hasNext())
+				.dedup()
 				.transform(Instruction::new);
 	}
 }
