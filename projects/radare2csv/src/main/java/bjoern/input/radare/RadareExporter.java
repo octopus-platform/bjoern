@@ -49,8 +49,7 @@ public class RadareExporter extends Exporter
 	protected void export() throws IOException
 	{
 		loadAndOutputFlags();
-		loadAndOutputFunctionInfo();
-		loadAndOutputFunctionContent();
+		loadAndOutputFunctions();
 		loadAndOutputCrossReferences();
 	}
 
@@ -79,41 +78,22 @@ public class RadareExporter extends Exporter
 		for (Flag flag : flags)
 		{
 			getOutputModule().writeFlag(flag);
-			getOutputModule().attachFlagsToRootNodes(flag);
 		}
 	}
 
-	private void loadAndOutputFunctionInfo() throws IOException
+	private void loadAndOutputFunctions() throws IOException
 	{
 		functions = getInputModule().getFunctions();
 		for (Function function : functions)
 		{
-			getOutputModule().writeFunctionNodes(function);
-			getOutputModule().writeReferencesToFunction(function);
+			getInputModule().initializeFunctionContents(function);
+			getOutputModule().writeFunction(function);
+
+			// we clear the function content after writing it to free up some
+			// memory. In addition, we clear all references to nodes still present
+			// in caches.
+			function.deleteContent();
 		}
-	}
-
-	private void loadAndOutputFunctionContent() throws IOException
-	{
-		for (Function function : functions)
-		{
-			processFunction(function);
-		}
-	}
-
-	private void processFunction(Function function) throws IOException
-	{
-
-		if (function == null)
-			return;
-
-		getInputModule().initializeFunctionContents(function);
-		getOutputModule().writeFunctionContent(function);
-
-		// we clear the function content after writing it to free up some
-		// memory. In addition, we clear all references to nodes still present
-		// in caches.
-		function.deleteContent();
 	}
 
 }

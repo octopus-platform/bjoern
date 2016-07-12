@@ -23,12 +23,6 @@ public class CSVOutputModule implements OutputModule
 	Function currentFunction = null;
 
 	@Override
-	public void writeNode(Node node)
-	{
-		CSVWriter.addNoReplaceNode(node);
-	}
-
-	@Override
 	public void initialize(String outputDir)
 	{
 		CSVWriter.changeOutputDir(outputDir);
@@ -40,21 +34,52 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.finish();
 	}
 
+	public void writeEdge(DirectedEdge edge)
+	{
+
+		String sourceKey = edge.getSourceKey().toString();
+		String destKey = edge.getDestKey().toString();
+		String label = edge.getType();
+		Map<String, Object> properties = new HashMap<>();
+		// TODO: add edge properties.
+		CSVWriter.addEdge(sourceKey, destKey, properties, label);
+	}
+
 	@Override
-	public void writeFunctionNodes(Function function)
+	public void writeFunction(Function function)
+	{
+		writeFunctionNodes(function);
+		writeReferencesToFunction(function);
+		writeFunctionContent(function);
+	}
+
+	@Override
+	public void writeFlag(Flag flag)
+	{
+		createRootNodeForNode(flag);
+		CSVWriter.addNode(flag);
+		attachFlagsToRootNodes(flag);
+	}
+
+	@Override
+	public void writeCrossReference(DirectedEdge xref)
+	{
+		writeSourceNode(xref);
+		writeEdge(xref);
+	}
+
+	private void writeFunctionNodes(Function function)
 	{
 		createRootNodeForNode(function);
 		CSVWriter.addNoReplaceNode(function);
 	}
 
-	@Override
-	public void writeReferencesToFunction(Function function)
+	private void writeReferencesToFunction(Function function)
 	{
 		addEdgeFromRootNode(function, EdgeTypes.INTERPRETATION);
 	}
 
-	@Override
-	public void writeFunctionContent(Function function)
+	private void writeFunctionContent(Function function)
 	{
 		setCurrentFunction(function);
 
@@ -65,8 +90,7 @@ public class CSVOutputModule implements OutputModule
 		setCurrentFunction(null);
 	}
 
-	@Override
-	public void writeBasicBlock(BasicBlock block)
+	private void writeBasicBlock(BasicBlock block)
 	{
 		createRootNodeForNode(block);
 		writeNodeForBasicBlock(block);
@@ -74,22 +98,14 @@ public class CSVOutputModule implements OutputModule
 		writeInstructions(block);
 	}
 
-	@Override
-	public void writeFlag(Flag flag)
-	{
-		createRootNodeForNode(flag);
-		CSVWriter.addNode(flag);
-	}
-
-	@Override
-	public void attachFlagsToRootNodes(Flag flag)
+	private void attachFlagsToRootNodes(Flag flag)
 	{
 		addEdgeFromRootNode(flag, EdgeTypes.ANNOTATION);
 	}
 
 	private void createRootNodeForNode(Node node)
 	{
-		writeNode(new RootNode(node.getAddress()));
+		CSVWriter.addNoReplaceNode(new RootNode(node.getAddress()));
 	}
 
 	private void writeArgumentsAndVariables()
@@ -210,21 +226,10 @@ public class CSVOutputModule implements OutputModule
 			String srcId = from.toString();
 			String dstId = to.toString();
 
-			Map<String, Object> properties = new HashMap<String, Object>();
+			Map<String, Object> properties = new HashMap<>();
 			String edgeType = edge.getType();
 			CSVWriter.addEdge(srcId, dstId, properties, edgeType);
 		}
-	}
-
-	private void writeEdge(DirectedEdge edge)
-	{
-
-		String sourceKey = edge.getSourceKey().toString();
-		String destKey = edge.getDestKey().toString();
-		String type = edge.getType();
-		Map<String, Object> properties = new HashMap<String, Object>();
-		// TODO: add edge properties.
-		CSVWriter.addEdge(sourceKey, destKey, properties, type);
 	}
 
 	private void addEdgeFromRootNode(Node node, String type)
@@ -237,12 +242,6 @@ public class CSVOutputModule implements OutputModule
 		writeEdge(newEdge);
 	}
 
-	@Override
-	public void writeCrossReference(DirectedEdge xref)
-	{
-		writeSourceNode(xref);
-		writeEdge(xref);
-	}
 
 	private void writeSourceNode(DirectedEdge xref)
 	{
