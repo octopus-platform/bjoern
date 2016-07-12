@@ -1,5 +1,10 @@
 package bjoern.nodeStore;
 
+import bjoern.structures.BjoernNodeProperties;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class Node
 {
 	private long address;
@@ -51,6 +56,15 @@ public abstract class Node
 	public String getKey()
 	{
 		return getType() + "_" + getAddressAsHexString();
+	}
+
+	public Map<String, Object> getProperties()
+	{
+		Map<String, Object> properties = new HashMap<>();
+		properties.put(BjoernNodeProperties.KEY, getKey());
+		properties.put(BjoernNodeProperties.TYPE, getType());
+		properties.put(BjoernNodeProperties.ADDR, getAddressAsHexString());
+		return properties;
 	}
 
 }

@@ -2,6 +2,9 @@ package bjoern.structures.annotations;
 
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeProperties;
+
+import java.util.Map;
 
 /**
  * A flag is a concept from radare2.
@@ -38,5 +41,13 @@ public class Flag extends Node
 	public void setLength(long length)
 	{
 		this.length = length;
+	}
+
+	@Override
+	public Map<String, Object> getProperties()
+	{
+		Map<String, Object> properties = super.getProperties();
+		properties.put(BjoernNodeProperties.CODE, getValue());
+		return properties;
 	}
 }

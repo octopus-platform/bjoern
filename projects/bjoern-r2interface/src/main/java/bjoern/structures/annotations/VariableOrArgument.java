@@ -1,6 +1,9 @@
 package bjoern.structures.annotations;
 
 import bjoern.nodeStore.Node;
+import bjoern.structures.BjoernNodeProperties;
+
+import java.util.Map;
 
 public class VariableOrArgument extends Node
 {
@@ -54,4 +57,13 @@ public class VariableOrArgument extends Node
 		return regPlusOffset;
 	}
 
+	@Override
+	public Map<String, Object> getProperties()
+	{
+		Map<String, Object> properties = super.getProperties();
+		properties.put(BjoernNodeProperties.REPR, getVarType());
+		properties.put(BjoernNodeProperties.NAME, getVarName());
+		properties.put(BjoernNodeProperties.CODE, getRegPlusOffset());
+		return properties;
+	}
 }

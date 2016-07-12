@@ -2,6 +2,7 @@ package bjoern.structures.interpretations;
 
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeProperties;
 
 import java.util.*;
 
@@ -30,7 +31,7 @@ public class BasicBlock extends Node
 
 	private void generateSortedInstructions()
 	{
-		if(sortedInstructions != null)
+		if (sortedInstructions != null)
 			return;
 
 		Collection<Instruction> collection = instructions.values();
@@ -50,19 +51,29 @@ public class BasicBlock extends Node
 		generateSortedInstructions();
 
 		String retval = "";
-		for(Instruction instr : sortedInstructions)
+		for (Instruction instr : sortedInstructions)
 		{
 			retval += instr.getStringRepr() + "|";
 		}
 		return retval;
 	}
 
+	@Override
+	public Map<String, Object> getProperties()
+	{
+		Map<String, Object> properties = super.getProperties();
+		properties.put(BjoernNodeProperties.REPR, getInstructionsStr());
+		return properties;
+	}
+
 }
 
-class InstructionComparator implements Comparator<Instruction>{
+class InstructionComparator implements Comparator<Instruction>
+{
 
 	@Override
-	public int compare(Instruction o1, Instruction o2) {
+	public int compare(Instruction o1, Instruction o2)
+	{
 		return o1.getAddress().compareTo(o2.getAddress());
 	}
 

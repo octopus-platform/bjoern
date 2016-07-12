@@ -2,6 +2,9 @@ package bjoern.structures.interpretations;
 
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeProperties;
+
+import java.util.Map;
 
 public class Instruction extends Node
 {
@@ -23,7 +26,7 @@ public class Instruction extends Node
 		this.stringRepr = stringRepr;
 	}
 
-	public Object getBytes()
+	public String getBytes()
 	{
 		return this.bytes;
 	}
@@ -31,6 +34,15 @@ public class Instruction extends Node
 	public void setBytes(String bytes)
 	{
 		this.bytes = bytes;
+	}
+
+	@Override
+	public Map<String, Object> getProperties()
+	{
+		Map<String, Object> properties = super.getProperties();
+		properties.put(BjoernNodeProperties.REPR, getStringRepr());
+		properties.put(BjoernNodeProperties.CODE, getBytes());
+		return properties;
 	}
 
 }

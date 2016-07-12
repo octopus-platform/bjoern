@@ -2,6 +2,9 @@ package bjoern.structures.interpretations;
 
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeProperties;
+
+import java.util.Map;
 
 
 public class Function extends Node
@@ -42,4 +45,11 @@ public class Function extends Node
 		content = null;
 	}
 
+	@Override
+	public Map<String, Object> getProperties()
+	{
+		Map<String, Object> properties = super.getProperties();
+		properties.put(BjoernNodeProperties.REPR, getName());
+		return properties;
+	}
 }
