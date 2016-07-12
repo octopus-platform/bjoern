@@ -9,6 +9,7 @@ import java.util.Map;
 public class Instruction extends Node
 {
 	private String stringRepr;
+	private String esilCode;
 	private String bytes;
 
 	public Instruction(long address)
@@ -42,7 +43,17 @@ public class Instruction extends Node
 		Map<String, Object> properties = super.getProperties();
 		properties.put(BjoernNodeProperties.REPR, getStringRepr());
 		properties.put(BjoernNodeProperties.CODE, getBytes());
+		properties.put(BjoernNodeProperties.ESIL, getEsilCode());
 		return properties;
 	}
 
+	public String getEsilCode()
+	{
+		return esilCode;
+	}
+
+	public void setEsilCode(String esilCode)
+	{
+		this.esilCode = esilCode;
+	}
 }

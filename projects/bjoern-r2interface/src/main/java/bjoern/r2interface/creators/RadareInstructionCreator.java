@@ -20,6 +20,7 @@ public class RadareInstructionCreator
 	{
 		Instruction retval = new Instruction(line.getAddr());
 		retval.setStringRepr(line.getInstruction());
+		retval.setComment(line.getComment());
 		// TODO: bytes missing
 
 		return retval;

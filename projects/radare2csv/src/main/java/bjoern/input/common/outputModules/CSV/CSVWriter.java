@@ -1,29 +1,28 @@
 package bjoern.input.common.outputModules.CSV;
 
+import bjoern.nodeStore.Node;
+import bjoern.structures.BjoernNodeProperties;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import orientdbimporter.CSVCommands;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import bjoern.nodeStore.Node;
-import bjoern.structures.BjoernNodeProperties;
-import orientdbimporter.CSVCommands;
+import java.util.*;
 
 public class CSVWriter
 {
 	final static String SEPARATOR = "\t";
 
 	final static String[] nodeProperties = {
-			BjoernNodeProperties.KEY, BjoernNodeProperties.TYPE, BjoernNodeProperties.ADDR, BjoernNodeProperties.CHILD_NUM,
-			BjoernNodeProperties.REPR, BjoernNodeProperties.CODE, BjoernNodeProperties.COMMENT, BjoernNodeProperties.ESIL
+			BjoernNodeProperties.KEY,
+			BjoernNodeProperties.TYPE,
+			BjoernNodeProperties.ADDR,
+			BjoernNodeProperties.REPR,
+			BjoernNodeProperties.CODE,
+			BjoernNodeProperties.COMMENT,
+			BjoernNodeProperties.ESIL
 	};
 
 	final static String[] edgeProperties = {};
@@ -47,7 +46,8 @@ public class CSVWriter
 		List<String> arr = new ArrayList<String>(nodeLineSet);
 		Collections.sort(arr);
 		Collections.reverse(arr);
-		for(String csvLine : arr){
+		for (String csvLine : arr)
+		{
 			nodeWriter.write(csvLine);
 		}
 	}
@@ -57,7 +57,8 @@ public class CSVWriter
 		List<String> arr = new ArrayList<String>(edgeLineSet);
 		Collections.sort(arr);
 		Collections.reverse(arr);
-		for(String csvLine : arr){
+		for (String csvLine : arr)
+		{
 			edgeWriter.write(csvLine);
 		}
 
@@ -72,18 +73,17 @@ public class CSVWriter
 		openEdgeFile(dirNameForFileNode);
 	}
 
-	public static void addNode(Node node, Map<String, Object> properties)
+	public static void addNode(Node node)
 	{
 		String csvLine = CSVCommands.ADD;
-		csvLine += generateNodePropertyString(properties);
+		csvLine += generateNodePropertyString(node.getProperties());
 		nodeLineSet.add(csvLine);
 	}
 
-	public static void addNoReplaceNode(Node node,
-			Map<String, Object> properties)
+	public static void addNoReplaceNode(Node node)
 	{
 		String csvLine = CSVCommands.ADD_NO_REPLACE;
-		csvLine += generateNodePropertyString(properties);
+		csvLine += generateNodePropertyString(node.getProperties());
 		nodeLineSet.add(csvLine);
 	}
 
