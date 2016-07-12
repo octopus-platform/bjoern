@@ -2,6 +2,7 @@ package bjoern.input.radare;
 
 import bjoern.input.common.Exporter;
 import bjoern.input.common.outputModules.CSV.CSVOutputModule;
+import bjoern.input.common.outputModules.OutputModule;
 import bjoern.input.radare.inputModule.RadareInputModule;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.DirectedEdge;
@@ -27,13 +28,22 @@ public class RadareExporter extends Exporter
 
 	List<Function> functions;
 
-	@Override
-	protected void initialize()
+	public RadareExporter()
 	{
-		cmdLine = new CommandLineInterface();
-		inputModule = new RadareInputModule();
-		outputModule = new CSVOutputModule();
+		this(new CSVOutputModule());
 	}
+
+	public RadareExporter(OutputModule outputModule)
+	{
+		super(new RadareInputModule(), outputModule);
+	}
+
+	@Override
+	public RadareInputModule getInputModule()
+	{
+		return (RadareInputModule) super.getInputModule();
+	}
+
 
 	@Override
 	protected void export() throws IOException
@@ -49,10 +59,10 @@ public class RadareExporter extends Exporter
 		List<Reference> references;
 		try
 		{
-			references = inputModule.getCrossReferences();
+			references = getInputModule().getCrossReferences();
 			for (DirectedEdge xref : references)
 			{
-				outputModule.writeCrossReference(xref);
+				getOutputModule().writeCrossReference(xref);
 			}
 
 		} catch (IOException e)
@@ -65,21 +75,21 @@ public class RadareExporter extends Exporter
 
 	private void loadAndOutputFlags() throws IOException
 	{
-		List<Flag> flags = inputModule.getFlags();
+		List<Flag> flags = getInputModule().getFlags();
 		for (Flag flag : flags)
 		{
-			outputModule.writeFlag(flag);
-			outputModule.attachFlagsToRootNodes(flag);
+			getOutputModule().writeFlag(flag);
+			getOutputModule().attachFlagsToRootNodes(flag);
 		}
 	}
 
 	private void loadAndOutputFunctionInfo() throws IOException
 	{
-		functions = inputModule.getFunctions();
+		functions = getInputModule().getFunctions();
 		for (Function function : functions)
 		{
-			outputModule.writeFunctionNodes(function);
-			outputModule.writeReferencesToFunction(function);
+			getOutputModule().writeFunctionNodes(function);
+			getOutputModule().writeReferencesToFunction(function);
 		}
 	}
 
@@ -97,8 +107,8 @@ public class RadareExporter extends Exporter
 		if (function == null)
 			return;
 
-		inputModule.initializeFunctionContents(function);
-		outputModule.writeFunctionContent(function);
+		getInputModule().initializeFunctionContents(function);
+		getOutputModule().writeFunctionContent(function);
 
 		// we clear the function content after writing it to free up some
 		// memory. In addition, we clear all references to nodes still present

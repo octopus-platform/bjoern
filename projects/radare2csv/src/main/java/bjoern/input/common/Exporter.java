@@ -1,13 +1,12 @@
 package bjoern.input.common;
 
-import java.io.IOException;
-
+import bjoern.input.common.outputModules.OutputModule;
+import bjoern.input.radare.CommandLineInterface;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bjoern.input.common.outputModules.CSV.CSVOutputModule;
-import bjoern.input.radare.CommandLineInterface;
+import java.io.IOException;
 
 /**
  * Exporters extract information from binaries and make it available for later
@@ -19,20 +18,30 @@ import bjoern.input.radare.CommandLineInterface;
 
 public abstract class Exporter
 {
-	protected abstract void initialize();
-
 	protected abstract void export() throws IOException;
 
-	protected InputModule inputModule;
-	protected CSVOutputModule outputModule;
+	private final InputModule inputModule;
+	private final OutputModule outputModule;
 	protected CommandLineInterface cmdLine;
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(Exporter.class);
 
-	public Exporter()
+	public Exporter(InputModule inputModule, OutputModule outputModule)
 	{
-		initialize();
+		this.inputModule = inputModule;
+		this.outputModule = outputModule;
+		this.cmdLine = new CommandLineInterface();
+	}
+
+	public InputModule getInputModule()
+	{
+		return this.inputModule;
+	}
+
+	public OutputModule getOutputModule()
+	{
+		return this.outputModule;
 	}
 
 	public void run(String[] args)
