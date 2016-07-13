@@ -60,14 +60,14 @@ public class FunctionContent
 		basicBlocks.put(addr, node);
 	}
 
-	public void registerBasicBlock(long addr, BasicBlock node) throws InvalidRadareFunctionException
+	public void registerBasicBlock(BasicBlock node) throws InvalidRadareFunctionException
 	{
-		BasicBlock block = getBasicBlockAtAddress(addr);
+		BasicBlock block = getBasicBlockAtAddress(node.getAddress());
 
 		if (block != null)
 			throw new InvalidRadareFunctionException("Duplicate basic block in function");
 
-		addBasicBlock(addr, node);
+		addBasicBlock(node.getAddress(), node);
 	}
 
 	public void addEdge(NodeKey sourceKey, NodeKey destKey, String type)
@@ -85,6 +85,35 @@ public class FunctionContent
 	public void setDisassembledEsilFunction(DisassembledFunction func)
 	{
 		disassembledEsilFunction = func;
+	}
+
+
+	public void updateInstructionsFromDisassembly()
+	{
+		for (BasicBlock block : getBasicBlocks())
+		{
+			for (Instruction instruction : block.getInstructions())
+			{
+				addDisassemblyProperties(instruction, this);
+			}
+		}
+	}
+
+	private static void addDisassemblyProperties(Instruction instruction, FunctionContent content)
+	{
+		if (content == null)
+			return;
+		DisassemblyLine line = content.getDisassemblyLineForAddr(instruction.getAddress());
+		if (line == null)
+			return;
+
+		instruction.setComment(line.getComment());
+		instruction.setStringRepr(line.getInstruction());
+		DisassemblyLine esilLine = content.getDisassemblyEsilLineForAddr(instruction.getAddress());
+		if (esilLine == null)
+			return;
+
+		instruction.setEsilCode(esilLine.getInstruction());
 	}
 
 

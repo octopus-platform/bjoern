@@ -100,6 +100,8 @@ public class RadareInputModule implements InputModule
 		generateDisassembly(address, disassemblyStr, content);
 		generateESILDisassembly(address, esilDisassemblyStr, content);
 
+		content.updateInstructionsFromDisassembly();
+
 		function.setContent(content);
 
 	}

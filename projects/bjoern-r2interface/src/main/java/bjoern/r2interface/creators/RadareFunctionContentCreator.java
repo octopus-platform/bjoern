@@ -48,7 +48,8 @@ public class RadareFunctionContentCreator
 			JSONObject block = blocks.getJSONObject(i);
 			try
 			{
-				createBasicBlock(content, block);
+				BasicBlock node = createBasicBlock(block);
+				content.registerBasicBlock(node);
 			} catch (BasicBlockWithoutAddress e)
 			{
 				logger.error("Skipping basic block without address:");
@@ -59,7 +60,7 @@ public class RadareFunctionContentCreator
 		}
 	}
 
-	private static void createBasicBlock(FunctionContent content,
+	private static BasicBlock createBasicBlock(
 			JSONObject jsonBlock) throws BasicBlockWithoutAddress, InvalidRadareFunctionException
 	{
 
@@ -67,9 +68,7 @@ public class RadareFunctionContentCreator
 		if (address == null)
 			throw new BasicBlockWithoutAddress();
 
-		BasicBlock node = createBlockOrTakeExisting(jsonBlock, address);
-		content.registerBasicBlock(address, node);
-
+		return createBlockOrTakeExisting(jsonBlock, address);
 	}
 
 	private static BasicBlock createBlockOrTakeExisting(JSONObject block,

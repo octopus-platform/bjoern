@@ -20,8 +20,6 @@ import java.util.Map;
 public class CSVOutputModule implements OutputModule
 {
 
-	Function currentFunction = null;
-
 	@Override
 	public void initialize(String outputDir)
 	{
@@ -34,7 +32,7 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.finish();
 	}
 
-	public void writeEdge(DirectedEdge edge)
+	private void writeEdge(DirectedEdge edge)
 	{
 
 		String sourceKey = edge.getSourceKey().toString();
@@ -81,13 +79,9 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeFunctionContent(Function function)
 	{
-		setCurrentFunction(function);
-
-		writeArgumentsAndVariables();
-		writeBasicBlocks();
-		writeCFGEdges();
-
-		setCurrentFunction(null);
+		writeArgumentsAndVariables(function);
+		writeBasicBlocks(function);
+		writeCFGEdges(function);
 	}
 
 	private void writeBasicBlock(BasicBlock block)
@@ -108,9 +102,9 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.addNoReplaceNode(new RootNode(node.getAddress()));
 	}
 
-	private void writeArgumentsAndVariables()
+	private void writeArgumentsAndVariables(Function function)
 	{
-		FunctionContent content = currentFunction.getContent();
+		FunctionContent content = function.getContent();
 		List<VariableOrArgument> varsAndArgs = content
 				.getVariablesAndArguments();
 
@@ -120,7 +114,6 @@ public class CSVOutputModule implements OutputModule
 			createNodeForVarOrArg(varOrArg);
 			addEdgeFromRootNode(varOrArg, EdgeTypes.ANNOTATION);
 		}
-
 	}
 
 	private void createNodeForVarOrArg(VariableOrArgument varOrArg)
@@ -128,15 +121,8 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.addNode(varOrArg);
 	}
 
-	private void setCurrentFunction(Function function)
+	private void writeBasicBlocks(Function function)
 	{
-		currentFunction = function;
-	}
-
-	private void writeBasicBlocks()
-	{
-		Function function = currentFunction;
-
 		Collection<BasicBlock> basicBlocks = function.getContent()
 				.getBasicBlocks();
 		for (BasicBlock block : basicBlocks)
@@ -148,14 +134,12 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeEdgeFromFunctionToBasicBlock(Function function, BasicBlock block)
 	{
-
 		Map<String, Object> properties = new HashMap<String, Object>();
 
 		String srcId = function.getKey();
 		String dstId = block.getKey();
 
 		CSVWriter.addEdge(srcId, dstId, properties, EdgeTypes.IS_FUNCTION_OF);
-
 	}
 
 	private void writeInstructions(BasicBlock block)
@@ -186,27 +170,7 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeInstruction(Instruction instr)
 	{
-		addDisassemblyProperties(instr);
 		CSVWriter.addNode(instr);
-	}
-
-	private void addDisassemblyProperties(Instruction instruction)
-	{
-		FunctionContent content = currentFunction.getContent();
-		if (content == null)
-			return;
-		DisassemblyLine line = content.getDisassemblyLineForAddr(instruction.getAddress());
-		if (line == null)
-			return;
-
-
-		instruction.setComment(line.getComment());
-		instruction.setStringRepr(line.getInstruction());
-		DisassemblyLine esilLine = content.getDisassemblyEsilLineForAddr(instruction.getAddress());
-		if (esilLine == null)
-			return;
-
-		instruction.setEsilCode(esilLine.getInstruction());
 	}
 
 	private void writeNodeForBasicBlock(BasicBlock block)
@@ -214,9 +178,8 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.addNode(block);
 	}
 
-	private void writeCFGEdges()
+	private void writeCFGEdges(Function function)
 	{
-		Function function = currentFunction;
 		List<DirectedEdge> edges = function.getContent().getEdges();
 		for (DirectedEdge edge : edges)
 		{
