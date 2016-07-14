@@ -3,14 +3,15 @@ package bjoern.input.common.outputModules.CSV;
 import bjoern.input.common.outputModules.OutputModule;
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeKey;
-import bjoern.r2interface.creators.RadareInstructionCreator;
 import bjoern.structures.RootNode;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.annotations.VariableOrArgument;
-import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.DirectedEdge;
 import bjoern.structures.edges.EdgeTypes;
-import bjoern.structures.interpretations.*;
+import bjoern.structures.interpretations.BasicBlock;
+import bjoern.structures.interpretations.Function;
+import bjoern.structures.interpretations.FunctionContent;
+import bjoern.structures.interpretations.Instruction;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,7 +63,6 @@ public class CSVOutputModule implements OutputModule
 	@Override
 	public void writeCrossReference(DirectedEdge xref)
 	{
-		writeSourceNode(xref);
 		writeEdge(xref);
 	}
 
@@ -203,22 +203,6 @@ public class CSVOutputModule implements OutputModule
 		DirectedEdge newEdge = new DirectedEdge(srcKey, destKey, type);
 
 		writeEdge(newEdge);
-	}
-
-
-	private void writeSourceNode(DirectedEdge xref)
-	{
-		if (!(xref instanceof CallRef))
-			return;
-
-		CallRef callRef = (CallRef) xref;
-		DisassemblyLine disassemblyLine = callRef.getDisassemblyLine();
-
-		Instruction instruction = RadareInstructionCreator.createFromDisassemblyLine(disassemblyLine);
-		Long instrAddress = callRef.getSourceKey().getAddress();
-		assert instrAddress.equals(instruction.getAddress()) : "addresses not equal";
-
-		CSVWriter.addNode(instruction);
 	}
 
 }

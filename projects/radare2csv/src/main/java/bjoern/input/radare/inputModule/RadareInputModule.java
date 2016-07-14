@@ -5,13 +5,13 @@ import bjoern.r2interface.Radare;
 import bjoern.r2interface.RadareDisassemblyParser;
 import bjoern.r2interface.creators.RadareFunctionContentCreator;
 import bjoern.r2interface.creators.RadareFunctionCreator;
-import bjoern.r2interface.creators.RadareInstructionCreator;
 import bjoern.r2interface.exceptions.EmptyDisassembly;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.annotations.Flag;
-import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.Reference;
-import bjoern.structures.interpretations.*;
+import bjoern.structures.interpretations.DisassembledFunction;
+import bjoern.structures.interpretations.Function;
+import bjoern.structures.interpretations.FunctionContent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -165,23 +165,6 @@ public class RadareInputModule implements InputModule
 		{
 			crossReferences.addAll(xefs);
 		}
-
-		for (Reference r : crossReferences)
-		{
-			if (r instanceof CallRef)
-				initializeCallRefInstruction((CallRef) r);
-		}
-
 		return crossReferences;
 	}
-
-	private void initializeCallRefInstruction(CallRef callRef) throws IOException
-	{
-		long addr = callRef.getSourceKey().getAddress();
-		String line = radare.getDisassemblyForInstructionAtAddress(addr);
-		RadareDisassemblyParser parser = new RadareDisassemblyParser();
-		DisassemblyLine parsedInstruction = parser.parseInstruction(line);
-		callRef.setDisassemblyLine(parsedInstruction);
-	}
-
 }
