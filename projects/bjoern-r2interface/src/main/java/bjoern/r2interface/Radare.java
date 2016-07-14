@@ -101,8 +101,7 @@ public class Radare
 	public JSONObject getJSONFunctionContentAt(Long addr)
 			throws InvalidRadareFunctionException, IOException
 	{
-
-		String jsonStr = r2Pipe.cmd("agj " + Long.toUnsignedString(addr));
+		String jsonStr = r2Pipe.cmd("agj 0x" + Long.toHexString(addr));
 
 		JSONArray jsonArray;
 		try
@@ -114,18 +113,9 @@ public class Radare
 		}
 
 		if (jsonArray.length() != 1)
-			throw new InvalidRadareFunctionException("empty function at address " + Long.toHexString(addr));
+			throw new InvalidRadareFunctionException("empty function at address 0x" + Long.toHexString(addr));
 
 		return jsonArray.getJSONObject(0);
-	}
-
-	public String getDisassemblyForFunctionAt(Long addr)
-			throws IOException
-	{
-		// It would be much nicer if we could obtain an array representing the
-		// disassembly as opposed to a single string.
-		String cmd = "pdf @" + Long.toUnsignedString(addr);
-		return r2Pipe.cmd(cmd);
 	}
 
 	public void shutdown() throws Exception
