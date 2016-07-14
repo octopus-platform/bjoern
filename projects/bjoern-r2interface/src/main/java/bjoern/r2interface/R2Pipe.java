@@ -3,12 +3,12 @@ package bjoern.r2interface;
 // Adapted from:
 // https://github.com/radare/radare2-bindings/blob/master/r2pipe/java/org/radare/r2pipe/R2Pipe.java
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class R2Pipe
 {
@@ -55,7 +55,7 @@ class R2Pipe
 
 	public void cmdNoResponse(String cmd) throws IOException
 	{
-		logger.info("r2 command: {}", cmd);
+		logger.debug("r2 command: {}", cmd);
 		cmd += "\n";
 
 		stdin.write((cmd).getBytes());
