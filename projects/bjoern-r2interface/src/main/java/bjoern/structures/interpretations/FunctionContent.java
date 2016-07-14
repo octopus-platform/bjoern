@@ -1,8 +1,8 @@
 package bjoern.structures.interpretations;
 
-import bjoern.nodeStore.NodeKey;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.annotations.VariableOrArgument;
+import bjoern.structures.edges.ControlFlowEdge;
 import bjoern.structures.edges.DirectedEdge;
 
 import java.util.Collection;
@@ -14,7 +14,7 @@ public class FunctionContent
 {
 	private final long functionAddr;
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
-	List<DirectedEdge> edges = new LinkedList<DirectedEdge>();
+	List<DirectedEdge> controlFlowEdges = new LinkedList<DirectedEdge>();
 	DisassembledFunction disassembledFunction = new DisassembledFunction();
 	private DisassembledFunction disassembledEsilFunction = new DisassembledFunction();
 
@@ -28,9 +28,9 @@ public class FunctionContent
 		return basicBlocks.values();
 	}
 
-	public List<DirectedEdge> getEdges()
+	public List<DirectedEdge> getControlFlowEdges()
 	{
-		return edges;
+		return controlFlowEdges;
 	}
 
 	public BasicBlock getBasicBlockAtAddress(long addr)
@@ -70,10 +70,9 @@ public class FunctionContent
 		addBasicBlock(node.getAddress(), node);
 	}
 
-	public void addEdge(NodeKey sourceKey, NodeKey destKey, String type)
+	public void addControlFlowEdge(ControlFlowEdge edge)
 	{
-		DirectedEdge newEdge = new DirectedEdge(sourceKey, destKey, type);
-		edges.add(newEdge);
+		controlFlowEdges.add(edge);
 	}
 
 

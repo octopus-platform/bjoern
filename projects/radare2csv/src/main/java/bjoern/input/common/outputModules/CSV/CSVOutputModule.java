@@ -128,10 +128,9 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeCFGEdges(Function function)
 	{
-		List<DirectedEdge> edges = function.getContent().getEdges();
+		List<DirectedEdge> edges = function.getContent().getControlFlowEdges();
 		for (DirectedEdge edge : edges)
 		{
-
 			writeEdge(edge);
 		}
 	}

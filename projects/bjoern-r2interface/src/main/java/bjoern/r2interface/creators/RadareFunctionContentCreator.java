@@ -5,6 +5,7 @@ import bjoern.nodeStore.NodeStore;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.r2interface.exceptions.BasicBlockWithoutAddress;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
+import bjoern.structures.edges.ControlFlowEdge;
 import bjoern.structures.edges.EdgeTypes;
 import bjoern.structures.interpretations.BasicBlock;
 import bjoern.structures.interpretations.FunctionContent;
@@ -112,11 +113,11 @@ public class RadareFunctionContentCreator
 
 
 		if (failBlockKey == null)
-			content.addEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW);
+			content.addControlFlowEdge(new ControlFlowEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW));
 		else
 		{
-			content.addEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW_TRUE);
-			content.addEdge(fromBlockKey, failBlockKey, EdgeTypes.CFLOW_FALSE);
+			content.addControlFlowEdge(new ControlFlowEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW_TRUE));
+			content.addControlFlowEdge(new ControlFlowEdge(fromBlockKey, failBlockKey, EdgeTypes.CFLOW_FALSE));
 		}
 
 	}
