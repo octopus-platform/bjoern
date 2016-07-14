@@ -5,8 +5,7 @@ import bjoern.input.common.outputModules.CSV.CSVOutputModule;
 import bjoern.input.common.outputModules.OutputModule;
 import bjoern.input.radare.inputModule.RadareInputModule;
 import bjoern.structures.annotations.Flag;
-import bjoern.structures.edges.DirectedEdge;
-import bjoern.structures.edges.Reference;
+import bjoern.structures.edges.CallRef;
 import bjoern.structures.interpretations.Function;
 
 import java.io.IOException;
@@ -55,13 +54,11 @@ public class RadareExporter extends Exporter
 
 	private void loadAndOutputCrossReferences()
 	{
-		List<Reference> references;
 		try
 		{
-			references = getInputModule().getCrossReferences();
-			for (DirectedEdge xref : references)
+			for (CallRef call : getInputModule().getCallReferences())
 			{
-				getOutputModule().writeCrossReference(xref);
+				getOutputModule().writeEdge(call);
 			}
 
 		} catch (IOException e)

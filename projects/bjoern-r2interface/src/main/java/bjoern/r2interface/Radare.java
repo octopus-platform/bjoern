@@ -1,14 +1,9 @@
 package bjoern.r2interface;
 
-import bjoern.nodeStore.NodeKey;
-import bjoern.nodeStore.NodeTypes;
 import bjoern.r2interface.architectures.Architecture;
 import bjoern.r2interface.architectures.X64Architecture;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.annotations.Flag;
-import bjoern.structures.edges.CallRef;
-import bjoern.structures.edges.EdgeTypes;
-import bjoern.structures.edges.Reference;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +17,7 @@ import java.util.List;
 
 public class Radare
 {
-	R2Pipe r2Pipe;
+	private R2Pipe r2Pipe;
 
 	private static final Logger logger = LoggerFactory.getLogger(Radare.class);
 
@@ -133,12 +128,6 @@ public class Radare
 		return r2Pipe.cmd(cmd);
 	}
 
-	public String getDisassemblyForInstructionAtAddress(Long addr) throws IOException
-	{
-		String cmd = "pd 1 @" + Long.toUnsignedString(addr);
-		return r2Pipe.cmd(cmd).trim();
-	}
-
 	public void shutdown() throws Exception
 	{
 		r2Pipe.quit();
@@ -176,27 +165,37 @@ public class Radare
 		return flag;
 	}
 
-	public void askForCrossReferences() throws IOException
+	public JSONArray getReferences() throws IOException
+	{
+		askForCrossReferences();
+		JSONArray answer = new JSONArray();
+		while (true)
+		{
+			String line = r2Pipe.readNextLine();
+			if (line.length() == 0 || line.endsWith("\0"))
+				break;
+			answer.put(parseReferenceLine(line));
+		}
+		return answer;
+	}
+
+	private JSONObject parseReferenceLine(String line)
+	{
+		// line format "type0.type1.type2.source=destination0,destination1,...,destinationN
+		JSONObject answer = new JSONObject();
+		String[] split = line.split("\\.");
+		answer.put("type", split[0] + "." + split[1] + "." + split[2]);
+		String[] addresses = split[3].split("=");
+		answer.put("address", Long.decode(addresses[0]));
+		answer.put("locations", new JSONArray(Arrays.stream(addresses[1].split(",")).map(Long::decode).toArray()));
+		return answer;
+	}
+
+	private void askForCrossReferences() throws IOException
 	{
 		r2Pipe.cmdNoResponse("ax");
 		// skip first line
 		r2Pipe.readNextLine();
-	}
-
-	public List<Reference> getNextCrossReferences() throws IOException
-	{
-		while (true)
-		{
-			String nextLine = r2Pipe.readNextLine();
-			if (nextLine.length() == 0 || nextLine.endsWith("\0"))
-				return null;
-			List<Reference> newReferences = createXrefsFromLine(nextLine);
-
-			if (newReferences == null)
-				continue;
-
-			return newReferences;
-		}
 	}
 
 	public void enableEsil() throws IOException
@@ -226,46 +225,6 @@ public class Radare
 		return r2Pipe.cmd(String.format("ar %s", registerStr));
 	}
 
-	private List<Reference> createXrefsFromLine(String line)
-	{
-
-		String[] parts = line.split("=");
-		int lastDotPosition = parts[0].lastIndexOf(".");
-		String type = parts[0].substring(0, lastDotPosition);
-
-		// TODO: handle other types of edges here
-		// ref.data.mem
-		// xref.data.mem
-		// ref.code.call
-		// xref.code.call
-		// ref.code.jmp
-		// xref.code.jmp
-
-		if (!type.equals("ref.code.call"))
-			return null;
-
-		String destList = parts[1];
-		String[] destinations = destList.split(",");
-		Long sourceId = Long.decode(parts[0].substring(lastDotPosition + 1));
-
-		LinkedList<Reference> retval = new LinkedList<Reference>();
-		for (String dest : destinations)
-		{
-			Long destId = Long.decode(dest);
-			Reference reference = createCallRef(destId, sourceId);
-			retval.add(reference);
-		}
-
-		return retval;
-	}
-
-	private CallRef createCallRef(Long dest, Long source)
-	{
-		CallRef xref = new CallRef(new NodeKey(source, NodeTypes.INSTRUCTION),
-				new NodeKey(dest, NodeTypes.INSTRUCTION), EdgeTypes.CALL);
-		return xref;
-	}
-
 	public List<String> getRegistersWritten(String addr) throws IOException
 	{
 		String cmd = "aeaw @ " + addr;
@@ -283,7 +242,7 @@ public class Radare
 	{
 		String registers = r2Pipe.cmd(cmd).trim();
 		if (registers.length() == 0)
-			return new LinkedList<String>();
+			return new LinkedList<>();
 
 		String[] registersAr = registers.split(" ");
 		return Arrays.asList(registersAr);

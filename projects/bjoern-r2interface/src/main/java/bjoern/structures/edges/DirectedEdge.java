@@ -44,4 +44,10 @@ public class DirectedEdge
 	{
 		this.type = type;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "(" + sourceKey + ")--[" + type + "]-->(" + destKey + ")";
+	}
 }

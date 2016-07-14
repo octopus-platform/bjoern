@@ -4,8 +4,8 @@ import bjoern.nodeStore.NodeKey;
 
 public class CallRef extends Reference
 {
-	public CallRef(NodeKey sourceKey, NodeKey destKey, String type)
+	public CallRef(NodeKey sourceKey, NodeKey destKey)
 	{
-		super(sourceKey, destKey, type);
+		super(sourceKey, destKey, EdgeTypes.CALL);
 	}
 }

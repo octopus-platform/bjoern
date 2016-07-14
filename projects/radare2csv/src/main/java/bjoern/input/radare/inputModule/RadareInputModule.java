@@ -1,6 +1,8 @@
 package bjoern.input.radare.inputModule;
 
 import bjoern.input.common.InputModule;
+import bjoern.nodeStore.NodeKey;
+import bjoern.nodeStore.NodeTypes;
 import bjoern.r2interface.Radare;
 import bjoern.r2interface.RadareDisassemblyParser;
 import bjoern.r2interface.creators.RadareFunctionContentCreator;
@@ -8,7 +10,7 @@ import bjoern.r2interface.creators.RadareFunctionCreator;
 import bjoern.r2interface.exceptions.EmptyDisassembly;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.annotations.Flag;
-import bjoern.structures.edges.Reference;
+import bjoern.structures.edges.CallRef;
 import bjoern.structures.interpretations.DisassembledFunction;
 import bjoern.structures.interpretations.Function;
 import bjoern.structures.interpretations.FunctionContent;
@@ -155,16 +157,21 @@ public class RadareInputModule implements InputModule
 	}
 
 	@Override
-	public List<Reference> getCrossReferences() throws IOException
+	public List<CallRef> getCallReferences() throws IOException
 	{
-		List<Reference> crossReferences = new LinkedList<Reference>();
-		radare.askForCrossReferences();
-		List<Reference> xefs;
-
-		while ((xefs = radare.getNextCrossReferences()) != null)
+		List<CallRef> callReferences = new LinkedList<>();
+		JSONArray references = radare.getReferences();
+		for (int i = 0; i < references.length(); i++)
 		{
-			crossReferences.addAll(xefs);
+			JSONObject referenceJSONObject = references.getJSONObject(i);
+			if (referenceJSONObject.getString("type").equals("ref.code.call"))
+			{
+				NodeKey sourceKey = new NodeKey(referenceJSONObject.getLong("address"), NodeTypes.INSTRUCTION);
+				NodeKey destinationKey = new NodeKey(referenceJSONObject.getJSONArray("locations").getLong(0),
+						NodeTypes.INSTRUCTION);
+				callReferences.add(new CallRef(sourceKey, destinationKey));
+			}
 		}
-		return crossReferences;
+		return callReferences;
 	}
 }
