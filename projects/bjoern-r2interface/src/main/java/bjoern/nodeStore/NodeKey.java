@@ -1,32 +1,20 @@
 package bjoern.nodeStore;
 
-public class NodeKey
+public final class NodeKey
 {
-	private String type = "";
-	private Long address = 0l;
-	private Integer counter = null;
+	private final String type;
+	private final Long address;
 
 	public NodeKey(long address, String type)
 	{
-		setAddress(address);
-		setType(type);
-	}
-
-	private void setType(String type)
-	{
-		this.type = type;
-	}
-
-	private void setAddress(Long address)
-	{
 		this.address = address;
+		this.type = type;
 	}
 
 	@Override
 	public String toString()
 	{
-		String key = this.type + "_" + Long.toHexString(this.address);
-		return (counter == null) ? key : key + "_" + counter.toString();
+		return this.type + "_" + Long.toHexString(this.address);
 	}
 
 	public Long getAddress()
