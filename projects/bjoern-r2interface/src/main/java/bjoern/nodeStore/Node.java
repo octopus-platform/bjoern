@@ -59,12 +59,6 @@ public abstract class Node
 		return key;
 	}
 
-	public NodeKey createEpsilonKey()
-	{
-		NodeKey key = new NodeKey(getAddress(), NodeTypes.ROOT);
-		return key;
-	}
-
 	public String getKey()
 	{
 		return getType() + "_" + getAddressAsHexString();

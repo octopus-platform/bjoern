@@ -1,7 +1,7 @@
 package bjoern.input.common.outputModules;
 
+import bjoern.nodeStore.Node;
 import bjoern.structures.annotations.Flag;
-import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.DirectedEdge;
 import bjoern.structures.interpretations.Function;
 
@@ -12,9 +12,9 @@ public interface OutputModule
 
 	void finish();
 
-	void writeFunction(Function function);
+	void writeNode(Node node);
 
-	void writeFlag(Flag flag);
+	void writeNodeNoReplace(Node node);
 
 	void writeEdge(DirectedEdge edge);
 
