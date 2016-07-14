@@ -50,6 +50,7 @@ public class RadareInputModule implements InputModule
 
 		JSONArray jsonFunctions = radare.getJSONFunctions();
 		int nFunctions = jsonFunctions.length();
+		int progressCounter = 0;
 
 		radare.enableEsil();
 		for (int i = 0; i < nFunctions; i++)
@@ -59,6 +60,7 @@ public class RadareInputModule implements InputModule
 					.createFromJSON(jsonFunction);
 			initializeFunctionContents(function);
 			retval.add(function);
+			logger.info("Processing function (" + ++progressCounter + "/" + nFunctions + ")");
 		}
 		radare.disableEsil();
 
