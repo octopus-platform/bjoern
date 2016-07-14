@@ -8,7 +8,7 @@ import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.EdgeTypes;
-import bjoern.structures.edges.Xref;
+import bjoern.structures.edges.Reference;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -133,7 +133,7 @@ public class Radare
 		return r2Pipe.cmd(cmd);
 	}
 
-	public String getDisassemblyForInstructionAt(Long addr) throws IOException
+	public String getDisassemblyForInstructionAtAddress(Long addr) throws IOException
 	{
 		String cmd = "pd 1 @" + Long.toUnsignedString(addr);
 		return r2Pipe.cmd(cmd).trim();
@@ -183,19 +183,19 @@ public class Radare
 		r2Pipe.readNextLine();
 	}
 
-	public List<Xref> getNextCrossReferences() throws IOException
+	public List<Reference> getNextCrossReferences() throws IOException
 	{
 		while (true)
 		{
 			String nextLine = r2Pipe.readNextLine();
 			if (nextLine.length() == 0 || nextLine.endsWith("\0"))
 				return null;
-			List<Xref> newXrefs = createXrefsFromLine(nextLine);
+			List<Reference> newReferences = createXrefsFromLine(nextLine);
 
-			if (newXrefs == null)
+			if (newReferences == null)
 				continue;
 
-			return newXrefs;
+			return newReferences;
 		}
 	}
 
@@ -226,7 +226,7 @@ public class Radare
 		return r2Pipe.cmd(String.format("ar %s", registerStr));
 	}
 
-	private List<Xref> createXrefsFromLine(String line)
+	private List<Reference> createXrefsFromLine(String line)
 	{
 
 		String[] parts = line.split("=");
@@ -248,12 +248,12 @@ public class Radare
 		String[] destinations = destList.split(",");
 		Long sourceId = Long.decode(parts[0].substring(lastDotPosition + 1));
 
-		LinkedList<Xref> retval = new LinkedList<Xref>();
+		LinkedList<Reference> retval = new LinkedList<Reference>();
 		for (String dest : destinations)
 		{
 			Long destId = Long.decode(dest);
-			Xref xref = createCallRef(destId, sourceId);
-			retval.add(xref);
+			Reference reference = createCallRef(destId, sourceId);
+			retval.add(reference);
 		}
 
 		return retval;
@@ -261,10 +261,8 @@ public class Radare
 
 	private CallRef createCallRef(Long dest, Long source)
 	{
-		CallRef xref = new CallRef();
-		xref.setType(EdgeTypes.CALL);
-		xref.setSourceKey(new NodeKey(source, NodeTypes.INSTRUCTION));
-		xref.setDestKey(new NodeKey(dest, NodeTypes.INSTRUCTION));
+		CallRef xref = new CallRef(new NodeKey(source, NodeTypes.INSTRUCTION),
+				new NodeKey(dest, NodeTypes.INSTRUCTION), EdgeTypes.CALL);
 		return xref;
 	}
 

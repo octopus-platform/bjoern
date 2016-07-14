@@ -4,18 +4,23 @@ import bjoern.nodeStore.NodeKey;
 
 public class DirectedEdge
 {
-	NodeKey sourceKey;
-	NodeKey destKey;
+	private NodeKey sourceKey;
+	private NodeKey destKey;
+	private String type;
 
-
-	String type;
+	public DirectedEdge(NodeKey sourceKey, NodeKey destKey, String type)
+	{
+		setSourceKey(sourceKey);
+		setDestKey(destKey);
+		setType(type);
+	}
 
 	public NodeKey getSourceKey()
 	{
 		return sourceKey;
 	}
 
-	public void setSourceKey(NodeKey sourceKey)
+	private void setSourceKey(NodeKey sourceKey)
 	{
 		this.sourceKey = sourceKey;
 	}
@@ -25,7 +30,7 @@ public class DirectedEdge
 		return destKey;
 	}
 
-	public void setDestKey(NodeKey destKey)
+	private void setDestKey(NodeKey destKey)
 	{
 		this.destKey = destKey;
 	}
@@ -35,7 +40,7 @@ public class DirectedEdge
 		return type;
 	}
 
-	public void setType(String type)
+	private void setType(String type)
 	{
 		this.type = type;
 	}

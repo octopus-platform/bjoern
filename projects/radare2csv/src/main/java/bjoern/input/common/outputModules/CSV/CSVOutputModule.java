@@ -283,10 +283,7 @@ public class CSVOutputModule implements OutputModule
 		NodeKey srcKey = node.createEpsilonKey();
 		NodeKey destKey = node.createKey();
 
-		DirectedEdge newEdge = new DirectedEdge();
-		newEdge.setSourceKey(srcKey);
-		newEdge.setDestKey(destKey);
-		newEdge.setType(type);
+		DirectedEdge newEdge = new DirectedEdge(srcKey, destKey, type);
 
 		writeEdge(newEdge);
 	}

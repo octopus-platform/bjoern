@@ -1,26 +1,26 @@
 package bjoern.input.radare;
 
-import java.io.IOException;
-import java.util.List;
-
 import bjoern.input.common.Exporter;
 import bjoern.input.common.outputModules.CSV.CSVOutputModule;
 import bjoern.input.radare.inputModule.RadareInputModule;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.DirectedEdge;
-import bjoern.structures.edges.Xref;
+import bjoern.structures.edges.Reference;
 import bjoern.structures.interpretations.Function;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * The Radare exporter uses the disassembly framework radare2
  * to extract graph representations of code from binaries.
- *
+ * <p>
  * In its current version, it simply executes "analyze all"
  * on the binary and writes out the resulting information
  * in CSV format. In the future, we would like to process
  * radare2 project files instead, so that any edits users have
  * made to the disassembly can be accounted for.
- * */
+ */
 
 public class RadareExporter extends Exporter
 {
@@ -46,15 +46,17 @@ public class RadareExporter extends Exporter
 
 	private void loadAndOutputCrossReferences()
 	{
-		List<Xref> xrefs;
-		try {
-			xrefs = inputModule.getCrossReferences();
-			for(DirectedEdge xref: xrefs)
+		List<Reference> references;
+		try
+		{
+			references = inputModule.getCrossReferences();
+			for (DirectedEdge xref : references)
 			{
 				outputModule.writeCrossReference(xref);
 			}
 
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

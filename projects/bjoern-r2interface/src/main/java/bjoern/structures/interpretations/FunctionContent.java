@@ -72,13 +72,8 @@ public class FunctionContent
 
 	public void addEdge(NodeKey sourceKey, NodeKey destKey, String type)
 	{
-		DirectedEdge newEdge = new DirectedEdge();
-
-		newEdge.setSourceKey(sourceKey);
-		newEdge.setDestKey(destKey);
-		newEdge.setType(type);
+		DirectedEdge newEdge = new DirectedEdge(sourceKey, destKey, type);
 		edges.add(newEdge);
-
 	}
 
 

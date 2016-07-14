@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import bjoern.structures.annotations.Flag;
-import bjoern.structures.edges.Xref;
+import bjoern.structures.edges.Reference;
 import bjoern.structures.interpretations.Function;
 
 public interface InputModule
@@ -20,6 +20,6 @@ public interface InputModule
 
 	public void finish(String outputDir);
 
-	public List<Xref> getCrossReferences() throws IOException;
+	public List<Reference> getCrossReferences() throws IOException;
 
 }
