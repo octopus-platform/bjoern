@@ -2,7 +2,6 @@ package bjoern.input.common.outputModules.CSV;
 
 import bjoern.input.common.outputModules.OutputModule;
 import bjoern.nodeStore.Node;
-import bjoern.nodeStore.NodeKey;
 import bjoern.structures.RootNode;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.annotations.VariableOrArgument;
@@ -10,10 +9,8 @@ import bjoern.structures.edges.DirectedEdge;
 import bjoern.structures.edges.EdgeTypes;
 import bjoern.structures.interpretations.BasicBlock;
 import bjoern.structures.interpretations.Function;
-import bjoern.structures.interpretations.FunctionContent;
 import bjoern.structures.interpretations.Instruction;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +32,6 @@ public class CSVOutputModule implements OutputModule
 
 	private void writeEdge(DirectedEdge edge)
 	{
-
 		String sourceKey = edge.getSourceKey().toString();
 		String destKey = edge.getDestKey().toString();
 		String label = edge.getType();
@@ -44,20 +40,43 @@ public class CSVOutputModule implements OutputModule
 		CSVWriter.addEdge(sourceKey, destKey, properties, label);
 	}
 
+	private void writeEdgeBetweenNodes(Node source, Node destination, String label)
+	{
+		CSVWriter.addEdge(source.getKey(), destination.getKey(), null, label);
+	}
+
+	private void writeNodeNoReplace(Node node)
+	{
+		CSVWriter.addNoReplaceNode(node);
+	}
+
+	private void writeNode(Node node)
+	{
+		CSVWriter.addNode(node);
+	}
+
+	private void writeRootNodeAndEdgeForNode(Node node, String edgeType)
+	{
+		RootNode rootNode = new RootNode(node.getAddress());
+		writeNodeNoReplace(rootNode);
+		writeEdgeBetweenNodes(rootNode, node, edgeType);
+	}
+
 	@Override
 	public void writeFunction(Function function)
 	{
-		writeFunctionNodes(function);
-		writeReferencesToFunction(function);
-		writeFunctionContent(function);
+		writeNodeNoReplace(function);
+		writeRootNodeAndEdgeForNode(function, EdgeTypes.INTERPRETATION);
+		writeBasicBlocksOfFunction(function);
+		writeArgumentsAndVariablesOfFunction(function);
+		writeCFGEdges(function);
 	}
 
 	@Override
 	public void writeFlag(Flag flag)
 	{
-		createRootNodeForNode(flag);
-		CSVWriter.addNode(flag);
-		attachFlagsToRootNodes(flag);
+		writeNode(flag);
+		writeRootNodeAndEdgeForNode(flag, EdgeTypes.ANNOTATION);
 	}
 
 	@Override
@@ -66,116 +85,45 @@ public class CSVOutputModule implements OutputModule
 		writeEdge(xref);
 	}
 
-	private void writeFunctionNodes(Function function)
+	private void writeBasicBlocksOfFunction(Function function)
 	{
-		createRootNodeForNode(function);
-		CSVWriter.addNoReplaceNode(function);
-	}
-
-	private void writeReferencesToFunction(Function function)
-	{
-		addEdgeFromRootNode(function, EdgeTypes.INTERPRETATION);
-	}
-
-	private void writeFunctionContent(Function function)
-	{
-		writeArgumentsAndVariables(function);
-		writeBasicBlocks(function);
-		writeCFGEdges(function);
-	}
-
-	private void writeBasicBlock(BasicBlock block)
-	{
-		createRootNodeForNode(block);
-		writeNodeForBasicBlock(block);
-		addEdgeFromRootNode(block, EdgeTypes.INTERPRETATION);
-		writeInstructions(block);
-	}
-
-	private void attachFlagsToRootNodes(Flag flag)
-	{
-		addEdgeFromRootNode(flag, EdgeTypes.ANNOTATION);
-	}
-
-	private void createRootNodeForNode(Node node)
-	{
-		CSVWriter.addNoReplaceNode(new RootNode(node.getAddress()));
-	}
-
-	private void writeArgumentsAndVariables(Function function)
-	{
-		FunctionContent content = function.getContent();
-		List<VariableOrArgument> varsAndArgs = content
-				.getVariablesAndArguments();
-
-		for (VariableOrArgument varOrArg : varsAndArgs)
+		for (BasicBlock block : function.getContent().getBasicBlocks())
 		{
-			createRootNodeForNode(varOrArg);
-			createNodeForVarOrArg(varOrArg);
-			addEdgeFromRootNode(varOrArg, EdgeTypes.ANNOTATION);
+			writeNode(block);
+			writeRootNodeAndEdgeForNode(block, EdgeTypes.INTERPRETATION);
+			writeEdgeFromFunctionToBasicBlock(function, block);
+			writeInstructionsOfBasicBlock(block);
 		}
 	}
 
-	private void createNodeForVarOrArg(VariableOrArgument varOrArg)
+	private void writeInstructionsOfBasicBlock(BasicBlock block)
 	{
-		CSVWriter.addNode(varOrArg);
+		for (Instruction instruction : block.getInstructions())
+		{
+			writeNode(instruction);
+			writeRootNodeAndEdgeForNode(instruction, EdgeTypes.INTERPRETATION);
+			writeEdgeFromBlockToInstruction(block, instruction);
+		}
 	}
 
-	private void writeBasicBlocks(Function function)
+	private void writeArgumentsAndVariablesOfFunction(Function function)
 	{
-		Collection<BasicBlock> basicBlocks = function.getContent()
-				.getBasicBlocks();
-		for (BasicBlock block : basicBlocks)
+		for (VariableOrArgument varOrArg : function.getContent().getVariablesAndArguments())
 		{
-			writeBasicBlock(block);
-			writeEdgeFromFunctionToBasicBlock(function, block);
+			writeNode(varOrArg);
+			writeRootNodeAndEdgeForNode(varOrArg, EdgeTypes.ANNOTATION);
 		}
 	}
 
 	private void writeEdgeFromFunctionToBasicBlock(Function function, BasicBlock block)
 	{
-		Map<String, Object> properties = new HashMap<String, Object>();
-
-		String srcId = function.getKey();
-		String dstId = block.getKey();
-
-		CSVWriter.addEdge(srcId, dstId, properties, EdgeTypes.IS_FUNCTION_OF);
-	}
-
-	private void writeInstructions(BasicBlock block)
-	{
-		Collection<Instruction> instructions = block.getInstructions();
-
-		for (Instruction instruction : instructions)
-		{
-			createRootNodeForNode(instruction);
-			writeInstruction(instruction);
-			addEdgeFromRootNode(instruction, EdgeTypes.INTERPRETATION);
-
-			writeEdgeFromBlockToInstruction(block, instruction);
-		}
-
+		writeEdgeBetweenNodes(function, block, EdgeTypes.IS_FUNCTION_OF);
 	}
 
 	private void writeEdgeFromBlockToInstruction(BasicBlock block,
 			Instruction instr)
 	{
-		Map<String, Object> properties = new HashMap<String, Object>();
-
-		String srcId = block.getKey();
-		String dstId = instr.getKey();
-
-		CSVWriter.addEdge(srcId, dstId, properties, EdgeTypes.IS_BB_OF);
-	}
-
-	private void writeInstruction(Instruction instr)
-	{
-		CSVWriter.addNode(instr);
-	}
-
-	private void writeNodeForBasicBlock(BasicBlock block)
-	{
-		CSVWriter.addNode(block);
+		writeEdgeBetweenNodes(block, instr, EdgeTypes.IS_BB_OF);
 	}
 
 	private void writeCFGEdges(Function function)
@@ -184,25 +132,8 @@ public class CSVOutputModule implements OutputModule
 		for (DirectedEdge edge : edges)
 		{
 
-			NodeKey from = edge.getSourceKey();
-			NodeKey to = edge.getDestKey();
-			String srcId = from.toString();
-			String dstId = to.toString();
-
-			Map<String, Object> properties = new HashMap<>();
-			String edgeType = edge.getType();
-			CSVWriter.addEdge(srcId, dstId, properties, edgeType);
+			writeEdge(edge);
 		}
-	}
-
-	private void addEdgeFromRootNode(Node node, String type)
-	{
-		NodeKey srcKey = node.createEpsilonKey();
-		NodeKey destKey = node.createKey();
-
-		DirectedEdge newEdge = new DirectedEdge(srcKey, destKey, type);
-
-		writeEdge(newEdge);
 	}
 
 }
