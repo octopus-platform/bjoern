@@ -37,15 +37,40 @@ public class Radare
 		r2Pipe.cmd("aaa");
 	}
 
+	private void setRadareVariable(String group, String variable, String value) throws IOException
+	{
+		r2Pipe.cmd("e " + group + "." + variable + " = " + value);
+	}
+
+	private String getRadareVariable(String group, String variable) throws IOException
+	{
+		return r2Pipe.cmd("e " + group + " " + variable);
+	}
+
+	private void setASMVariable(String variable, String value) throws IOException
+	{
+		setRadareVariable("asm", variable, value);
+	}
+
+	private String getASMVariable(String variable) throws IOException
+	{
+		return getRadareVariable("asm", variable);
+	}
+
+	private void setSCRVariable(String variable, String value) throws IOException
+	{
+		setRadareVariable("scr", variable, value);
+	}
+
 	private void setRadareOptions() throws IOException
 	{
-		r2Pipe.cmd("e scr.color = false");
-		r2Pipe.cmd("e asm.bytes = false");
-		r2Pipe.cmd("e asm.lines = false");
-		r2Pipe.cmd("e asm.fcnlines = false");
-		r2Pipe.cmd("e asm.xrefs = false");
-		r2Pipe.cmd("e asm.lbytes = false");
-		r2Pipe.cmd("e asm.indentspace = 0");
+		setSCRVariable("color", "false");
+		setASMVariable("bytes", "false");
+		setASMVariable("lines", "false");
+		setASMVariable("fcnlines", "false");
+		setASMVariable("xrefs", "false");
+		setASMVariable("lbytes", "false");
+		setASMVariable("indentspace", "0");
 	}
 
 	public void saveProject(String projectFilename) throws IOException
@@ -58,18 +83,17 @@ public class Radare
 		r2Pipe.cmd("Po " + projectFilename);
 		// This is a workaround: for some reason, when loading a
 		// project, r2 goes out of quiet mode
-		r2Pipe.cmd("e scr.interactive = false");
-		r2Pipe.cmd("e scr.prompt = false");
-		r2Pipe.cmd("e scr.color = false");
+		setSCRVariable("interactive", "false");
+		setSCRVariable("prompt", "false");
+		setSCRVariable("color", "false");
 	}
 
 	public Architecture getArchitecture() throws IOException
 	{
-		String arch = r2Pipe.cmd("e asm.arch");
-		String bits = r2Pipe.cmd("e asm.bits");
+		String arch = getASMVariable("arch");
+		String bits = getASMVariable("bits");
 
-		// TODO: Actually take a look at `arch` and `bits`
-		// to decide which architecture to return
+		// TODO: Actually take a look at `arch` and `bits` to decide which architecture to return
 		return new X64Architecture();
 	}
 
@@ -177,12 +201,12 @@ public class Radare
 
 	public void enableEsil() throws IOException
 	{
-		r2Pipe.cmd("e asm.esil=true");
+		setASMVariable("esil", "true");
 	}
 
 	public void disableEsil() throws IOException
 	{
-		r2Pipe.cmd("e asm.esil=false");
+		setASMVariable("esil", "false");
 	}
 
 	public void resetEsilState() throws IOException
