@@ -3,6 +3,7 @@ package bjoern.structures.interpretations;
 import bjoern.nodeStore.Node;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.annotations.VariableOrArgument;
 
 import java.util.Map;
 

@@ -14,7 +14,7 @@ public class FunctionContent
 {
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<DirectedEdge> controlFlowEdges = new LinkedList<DirectedEdge>();
-	DisassembledFunction disassembledFunction = new DisassembledFunction();
+	List<VariableOrArgument> variablesOrArguments = new LinkedList<>();
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -31,14 +31,14 @@ public class FunctionContent
 		return basicBlocks.get(addr);
 	}
 
-	public DisassemblyLine getDisassemblyLineForAddr(long addr)
+	public void addVariableOrArgument(VariableOrArgument varOrArg)
 	{
-		return disassembledFunction.getLineForAddr(addr);
+		this.variablesOrArguments.add(varOrArg);
 	}
 
 	public List<VariableOrArgument> getVariablesAndArguments()
 	{
-		return disassembledFunction.getVariablesAndArguments();
+		return this.variablesOrArguments;
 	}
 
 	public void addBasicBlock(long addr, BasicBlock node)
@@ -63,21 +63,4 @@ public class FunctionContent
 		controlFlowEdges.add(edge);
 	}
 
-	public void setDisassembledFunction(DisassembledFunction func)
-	{
-		disassembledFunction = func;
-	}
-
-	public void updateInstructionsFromDisassembly()
-	{
-		for (BasicBlock block : getBasicBlocks())
-		{
-			for (Instruction instruction : block.getInstructions())
-			{
-				DisassemblyLine line = this.getDisassemblyLineForAddr(instruction.getAddress());
-				if (line != null)
-					instruction.setComment(line.getComment());
-			}
-		}
-	}
 }

@@ -4,18 +4,17 @@ import bjoern.input.common.InputModule;
 import bjoern.nodeStore.NodeKey;
 import bjoern.nodeStore.NodeTypes;
 import bjoern.r2interface.Radare;
-import bjoern.r2interface.RadareDisassemblyParser;
 import bjoern.r2interface.creators.RadareFunctionContentCreator;
 import bjoern.r2interface.creators.RadareFunctionCreator;
-import bjoern.r2interface.exceptions.EmptyDisassembly;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
-import bjoern.structures.interpretations.DisassembledFunction;
 import bjoern.structures.interpretations.Function;
 import bjoern.structures.interpretations.FunctionContent;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +27,7 @@ public class RadareInputModule implements InputModule
 {
 
 	private Radare radare = new Radare();
+	private static final Logger logger = LoggerFactory.getLogger(RadareInputModule.class);
 
 	@Override
 	public void initialize(String filename, String projectFilename) throws IOException
@@ -68,7 +68,7 @@ public class RadareInputModule implements InputModule
 	@Override
 	public List<Flag> getFlags() throws IOException
 	{
-		List<Flag> retval = new LinkedList<Flag>();
+		List<Flag> retval = new LinkedList<>();
 		radare.askForFlags();
 		Flag flag;
 		while ((flag = radare.getNextFlag()) != null)
@@ -82,41 +82,15 @@ public class RadareInputModule implements InputModule
 			throws IOException
 	{
 
-		// The JSON data returned by radare's 'agj' command does not contain as much comments as the disassembled
-		// function (obtained by the command 'pdf').If we want more comments we can enable it, but this will
-		// result in poor performance :(.
-		boolean comment = false;
 		try
 		{
 			Long address = function.getAddress();
 			JSONObject jsonFunctionContent = radare.getJSONFunctionContentAt(address);
 			FunctionContent content = RadareFunctionContentCreator.createContentFromJSON(jsonFunctionContent);
-
-			if (comment)
-			{
-				String disassemblyStr = radare.getDisassemblyForFunctionAt(address);
-				generateDisassembly(address, disassemblyStr, content);
-				content.updateInstructionsFromDisassembly();
-			}
 			function.setContent(content);
-
 		} catch (InvalidRadareFunctionException e)
 		{
-			return;
-		}
-	}
-
-	private void generateDisassembly(Long address, String disassemblyStr, FunctionContent content)
-	{
-		try
-		{
-			RadareDisassemblyParser parser = new RadareDisassemblyParser();
-			DisassembledFunction func = parser.parseFunction(disassemblyStr, address);
-			content.setDisassembledFunction(func);
-		} catch (EmptyDisassembly e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 

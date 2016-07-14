@@ -114,7 +114,7 @@ public class Radare
 		}
 
 		if (jsonArray.length() != 1)
-			throw new InvalidRadareFunctionException();
+			throw new InvalidRadareFunctionException("empty function at address " + Long.toHexString(addr));
 
 		return jsonArray.getJSONObject(0);
 	}
