@@ -46,16 +46,21 @@ public class RadareInputModule implements InputModule
 	@Override
 	public List<Function> getFunctions() throws IOException
 	{
-		List<Function> retval = new LinkedList<Function>();
+		List<Function> retval = new LinkedList<>();
+
 		JSONArray jsonFunctions = radare.getJSONFunctions();
 		int nFunctions = jsonFunctions.length();
+
+		radare.enableEsil();
 		for (int i = 0; i < nFunctions; i++)
 		{
 			JSONObject jsonFunction = jsonFunctions.getJSONObject(i);
 			Function function = RadareFunctionCreator
 					.createFromJSON(jsonFunction);
+			initializeFunctionContents(function);
 			retval.add(function);
 		}
+		radare.disableEsil();
 
 		return retval;
 	}
@@ -73,52 +78,31 @@ public class RadareInputModule implements InputModule
 		return retval;
 	}
 
-	@Override
-	public void initializeFunctionContents(Function function)
+	private void initializeFunctionContents(Function function)
 			throws IOException
 	{
-		Long address = function.getAddress();
-		JSONObject jsonFunctionContent;
-		String disassemblyStr;
-		String esilDisassemblyStr;
 
+		// The JSON data returned by radare's 'agj' command does not contain as much comments as the disassembled
+		// function (obtained by the command 'pdf').If we want more comments we can enable it, but this will
+		// result in poor performance :(.
+		boolean comment = false;
 		try
 		{
-			jsonFunctionContent = radare.getJSONFunctionContentAt(address);
-			disassemblyStr = radare.getDisassemblyForFunctionAt(address);
-			radare.enableEsil();
-			esilDisassemblyStr = radare.getDisassemblyForFunctionAt(address);
-			radare.disableEsil();
+			Long address = function.getAddress();
+			JSONObject jsonFunctionContent = radare.getJSONFunctionContentAt(address);
+			FunctionContent content = RadareFunctionContentCreator.createContentFromJSON(jsonFunctionContent);
+
+			if (comment)
+			{
+				String disassemblyStr = radare.getDisassemblyForFunctionAt(address);
+				generateDisassembly(address, disassemblyStr, content);
+				content.updateInstructionsFromDisassembly();
+			}
+			function.setContent(content);
+
 		} catch (InvalidRadareFunctionException e)
 		{
 			return;
-		}
-
-		FunctionContent content = RadareFunctionContentCreator
-				.createContentFromJSON(jsonFunctionContent, address);
-
-		jsonFunctionContent = null;
-
-		generateDisassembly(address, disassemblyStr, content);
-		generateESILDisassembly(address, esilDisassemblyStr, content);
-
-		content.updateInstructionsFromDisassembly();
-
-		function.setContent(content);
-
-	}
-
-	private void generateESILDisassembly(Long address, String esilDisassemblyStr, FunctionContent content)
-	{
-		try
-		{
-			RadareDisassemblyParser parser = new RadareDisassemblyParser();
-			DisassembledFunction func = parser.parseFunction(esilDisassemblyStr, address);
-			content.setDisassembledEsilFunction(func);
-		} catch (EmptyDisassembly e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

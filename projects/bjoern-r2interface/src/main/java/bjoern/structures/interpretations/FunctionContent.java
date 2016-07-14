@@ -12,16 +12,9 @@ import java.util.List;
 
 public class FunctionContent
 {
-	private final long functionAddr;
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<DirectedEdge> controlFlowEdges = new LinkedList<DirectedEdge>();
 	DisassembledFunction disassembledFunction = new DisassembledFunction();
-	private DisassembledFunction disassembledEsilFunction = new DisassembledFunction();
-
-	public FunctionContent(long functionAddr)
-	{
-		this.functionAddr = functionAddr;
-	}
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -41,11 +34,6 @@ public class FunctionContent
 	public DisassemblyLine getDisassemblyLineForAddr(long addr)
 	{
 		return disassembledFunction.getLineForAddr(addr);
-	}
-
-	public DisassemblyLine getDisassemblyEsilLineForAddr(long addr)
-	{
-		return disassembledEsilFunction.getLineForAddr(addr);
 	}
 
 	public List<VariableOrArgument> getVariablesAndArguments()
@@ -75,17 +63,10 @@ public class FunctionContent
 		controlFlowEdges.add(edge);
 	}
 
-
 	public void setDisassembledFunction(DisassembledFunction func)
 	{
 		disassembledFunction = func;
 	}
-
-	public void setDisassembledEsilFunction(DisassembledFunction func)
-	{
-		disassembledEsilFunction = func;
-	}
-
 
 	public void updateInstructionsFromDisassembly()
 	{
@@ -93,27 +74,10 @@ public class FunctionContent
 		{
 			for (Instruction instruction : block.getInstructions())
 			{
-				addDisassemblyProperties(instruction, this);
+				DisassemblyLine line = this.getDisassemblyLineForAddr(instruction.getAddress());
+				if (line != null)
+					instruction.setComment(line.getComment());
 			}
 		}
 	}
-
-	private static void addDisassemblyProperties(Instruction instruction, FunctionContent content)
-	{
-		if (content == null)
-			return;
-		DisassemblyLine line = content.getDisassemblyLineForAddr(instruction.getAddress());
-		if (line == null)
-			return;
-
-		instruction.setComment(line.getComment());
-		instruction.setStringRepr(line.getInstruction());
-		DisassemblyLine esilLine = content.getDisassemblyEsilLineForAddr(instruction.getAddress());
-		if (esilLine == null)
-			return;
-
-		instruction.setEsilCode(esilLine.getInstruction());
-	}
-
-
 }

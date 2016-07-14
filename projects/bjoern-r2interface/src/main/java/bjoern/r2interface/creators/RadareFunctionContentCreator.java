@@ -17,12 +17,11 @@ import org.slf4j.LoggerFactory;
 public class RadareFunctionContentCreator
 {
 
-	public static Logger logger = LoggerFactory.getLogger(RadareFunctionContentCreator.class);
+	private static final Logger logger = LoggerFactory.getLogger(RadareFunctionContentCreator.class);
 
-	public static FunctionContent createContentFromJSON(
-			JSONObject jsonFunctionContent, Long address)
+	public static FunctionContent createContentFromJSON(JSONObject jsonFunctionContent)
 	{
-		FunctionContent content = new FunctionContent(address);
+		FunctionContent content = new FunctionContent();
 
 		initFunctionProperties(content, jsonFunctionContent);
 		createBasicBlocks(content, jsonFunctionContent);

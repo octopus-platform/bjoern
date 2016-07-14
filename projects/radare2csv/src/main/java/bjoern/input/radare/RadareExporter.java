@@ -90,7 +90,6 @@ public class RadareExporter extends Exporter
 		functions = getInputModule().getFunctions();
 		for (Function function : functions)
 		{
-			getInputModule().initializeFunctionContents(function);
 			writeFunction(function);
 
 			// we clear the function content after writing it to free up some

@@ -9,17 +9,15 @@ import bjoern.structures.interpretations.Function;
 
 public interface InputModule
 {
-	public void initialize(String filename, String projectFilename) throws IOException;
+	void initialize(String filename, String projectFilename) throws IOException;
 
-	public List<Function> getFunctions() throws IOException;
+	void finish(String outputDir);
 
-	public List<Flag> getFlags() throws IOException;
+	List<Function> getFunctions() throws IOException;
 
-	public void initializeFunctionContents(Function function)
-			throws IOException;
+	List<Flag> getFlags() throws IOException;
 
-	public void finish(String outputDir);
 
-	public List<CallRef> getCallReferences() throws IOException;
+	List<CallRef> getCallReferences() throws IOException;
 
 }

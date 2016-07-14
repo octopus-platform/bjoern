@@ -11,19 +11,14 @@ public class RadareInstructionCreator
 		Instruction retval = new Instruction(JSONUtils.getLongFromObject(jsonObj, "offset"));
 		String stringRepr = JSONUtils.getStringFromObject(jsonObj, "opcode");
 		String bytes = JSONUtils.getStringFromObject(jsonObj, "bytes");
+		String esilCode = JSONUtils.getStringFromObject(jsonObj, "esil");
+		String comment = JSONUtils.getStringFromObject(jsonObj, "comment");
 		retval.setStringRepr(stringRepr);
 		retval.setBytes(bytes);
+		retval.setEsilCode(esilCode);
+		retval.setComment(comment);
 		return retval;
 	}
 
-	public static Instruction createFromDisassemblyLine(DisassemblyLine line)
-	{
-		Instruction retval = new Instruction(line.getAddr());
-		retval.setStringRepr(line.getInstruction());
-		retval.setComment(line.getComment());
-		// TODO: bytes missing
-
-		return retval;
-	}
 
 }

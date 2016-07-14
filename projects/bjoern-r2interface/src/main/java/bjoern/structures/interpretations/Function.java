@@ -17,7 +17,7 @@ public class Function extends Node
 	public Function(long addr)
 	{
 		super(addr, NodeTypes.FUNCTION);
-		content = new FunctionContent(addr);
+		content = new FunctionContent();
 	}
 
 	public FunctionContent getContent()
