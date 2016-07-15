@@ -8,8 +8,9 @@ queryNodeIndex = { luceneQuery ->
 }
 
 getCallsTo = { callee ->
-    query = String.format('nodeType:Instr AND repr:call*')
-    queryNodeIndex(query).filter { it.repr.contains(callee) }
+    queryNodeIndex("nodeType:Flag").filter {
+        it.code.contains(callee)
+    }.in("IS_ANNOTATED_BY").out("INTERPRETABLE_AS").has("nodeType", "Instr").in("CALL")
 }
 
 getFunctions = { name ->
