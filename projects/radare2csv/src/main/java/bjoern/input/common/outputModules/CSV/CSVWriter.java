@@ -2,14 +2,17 @@ package bjoern.input.common.outputModules.CSV;
 
 import bjoern.structures.Node;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.edges.DirectedEdge;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import orientdbimporter.CSVCommands;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 
 public class CSVWriter
 {
@@ -30,42 +33,13 @@ public class CSVWriter
 	static PrintWriter nodeWriter;
 	static PrintWriter edgeWriter;
 
-	static Set<String> nodeLineSet = new HashSet<String>();
-	static Set<String> edgeLineSet = new HashSet<String>();
-
 	public static void finish()
 	{
-		writeNodeFile();
-		writeEdgeFile();
 		closeEdgeFile();
 		closeNodeFile();
 	}
 
-	private static void writeNodeFile()
-	{
-		List<String> arr = new ArrayList<String>(nodeLineSet);
-		Collections.sort(arr);
-		Collections.reverse(arr);
-		for (String csvLine : arr)
-		{
-			nodeWriter.write(csvLine);
-		}
-	}
-
-	private static void writeEdgeFile()
-	{
-		List<String> arr = new ArrayList<String>(edgeLineSet);
-		Collections.sort(arr);
-		Collections.reverse(arr);
-		for (String csvLine : arr)
-		{
-			edgeWriter.write(csvLine);
-		}
-
-	}
-
-
-	public static void changeOutputDir(String dirNameForFileNode)
+	public static void changeOutputDir(String dirNameForFileNode) throws IOException
 	{
 		finish();
 
@@ -73,18 +47,31 @@ public class CSVWriter
 		openEdgeFile(dirNameForFileNode);
 	}
 
-	public static void addNode(Node node)
+	public static void writeNode(Node node)
 	{
 		String csvLine = CSVCommands.ADD;
 		csvLine += generateNodePropertyString(node.getProperties());
-		nodeLineSet.add(csvLine);
+		nodeWriter.println(csvLine);
 	}
 
-	public static void addNoReplaceNode(Node node)
+	public static void writeNoReplaceNode(Node node)
 	{
 		String csvLine = CSVCommands.ADD_NO_REPLACE;
 		csvLine += generateNodePropertyString(node.getProperties());
-		nodeLineSet.add(csvLine);
+		nodeWriter.println(csvLine);
+	}
+
+	public static void writeEdge(DirectedEdge edge)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(edge.getSourceKey());
+		sb.append(SEPARATOR);
+		sb.append(edge.getDestKey());
+		sb.append(SEPARATOR);
+		sb.append(edge.getType());
+		// TODO: add properties
+		edgeWriter.println(sb.toString());
 	}
 
 	private static String generateNodePropertyString(Map<String, Object> properties)
@@ -99,7 +86,6 @@ public class CSVWriter
 				sb.append(escape(propValue));
 			}
 		}
-		sb.append("\n");
 		return sb.toString();
 	}
 
@@ -108,65 +94,41 @@ public class CSVWriter
 		return StringEscapeUtils.escapeCsv(propValue.replace("\\", "\\\\"));
 	}
 
-
-	public static void addEdge(String srcKey, String dstKey,
-			Map<String, Object> properties, String edgeType)
+	private static void openNodeFile(String outDir) throws IOException
 	{
-		StringBuilder sb = new StringBuilder();
-
-		sb.append(srcKey);
-		sb.append(SEPARATOR);
-		sb.append(dstKey);
-		sb.append(SEPARATOR);
-		sb.append(edgeType);
-		// TODO: add properties
-		sb.append("\n");
-
-		edgeLineSet.add(sb.toString());
-	}
-
-	private static void openNodeFile(String outDir)
-	{
-		String path = outDir + File.separator + "nodes.csv";
+		Path path = Paths.get(outDir, "nodes.csv");
 		nodeWriter = createWriter(path);
-		nodeWriter.write("command" + SEPARATOR);
-		writeNodePropertyNames();
+		nodeWriter.println(generateNodeFileHeader());
 	}
 
-	private static void writeNodePropertyNames()
+	private static void openEdgeFile(String outDir) throws IOException
 	{
-		String joined = StringUtils.join(nodeProperties, SEPARATOR);
-		nodeWriter.println(joined);
-	}
-
-	private static void openEdgeFile(String outDir)
-	{
-		String path = outDir + File.separator + "edges.csv";
+		Path path = Paths.get(outDir, "edges.csv");
 		edgeWriter = createWriter(path);
-		writeEdgePropertyNames();
+		edgeWriter.println(generateEdgeFileHeader());
 	}
 
-	private static void writeEdgePropertyNames()
+	private static String generateNodeFileHeader()
 	{
-		String joined = "nodeType_addr"
+		return "command"
+				+ SEPARATOR
+				+ StringUtils.join(nodeProperties, SEPARATOR);
+	}
+
+	private static String generateEdgeFileHeader()
+	{
+		return "nodeType_addr"
 				+ SEPARATOR
 				+ "nodeType_addr"
 				+ SEPARATOR
 				+ "type"
 				+ SEPARATOR
 				+ StringUtils.join(edgeProperties, SEPARATOR);
-		edgeWriter.println(joined);
 	}
 
-	private static PrintWriter createWriter(String path)
+	private static PrintWriter createWriter(Path path) throws IOException
 	{
-		try
-		{
-			return new PrintWriter(path);
-		} catch (FileNotFoundException e)
-		{
-			throw new RuntimeException("Cannot create file: " + path);
-		}
+		return new PrintWriter(Files.newOutputStream(path));
 	}
 
 	private static void closeNodeFile()
