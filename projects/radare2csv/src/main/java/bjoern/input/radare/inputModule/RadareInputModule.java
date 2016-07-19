@@ -4,6 +4,7 @@ import bjoern.input.common.InputModule;
 import bjoern.structures.NodeKey;
 import bjoern.structures.BjoernNodeTypes;
 import bjoern.r2interface.Radare;
+import bjoern.r2interface.creators.RadareFlagCreator;
 import bjoern.r2interface.creators.RadareFunctionContentCreator;
 import bjoern.r2interface.creators.RadareFunctionCreator;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
@@ -76,14 +77,25 @@ public class RadareInputModule implements InputModule
 	@Override
 	public Iterator<Flag> getFlags() throws IOException
 	{
-		List<Flag> retval = new LinkedList<>();
-		radare.askForFlags();
-		Flag flag;
-		while ((flag = radare.getNextFlag()) != null)
-		{
-			retval.add(flag);
-		}
-		return retval.iterator();
+		return new Iterator<Flag>() {
+
+			private JSONArray jsonFlags = radare.getFlags();
+			private int nextFlag = 0;
+
+			@Override
+			public boolean hasNext()
+			{
+				return nextFlag < jsonFlags.length();
+			}
+
+			@Override
+			public Flag next()
+			{
+				JSONObject jsonFlagObject = jsonFlags.getJSONObject(nextFlag++);
+				Flag flag = RadareFlagCreator.createFromJSON(jsonFlagObject);
+				return flag;
+			}
+		};
 	}
 
 	@Override

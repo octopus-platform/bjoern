@@ -3,7 +3,6 @@ package bjoern.r2interface;
 import bjoern.r2interface.architectures.Architecture;
 import bjoern.r2interface.architectures.X64Architecture;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
-import bjoern.structures.annotations.Flag;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -132,36 +131,16 @@ public class Radare
 		r2Pipe.quit();
 	}
 
-	public void askForFlags() throws IOException
+	public JSONArray getFlags() throws IOException
 	{
-		r2Pipe.cmdNoResponse("f");
-	}
-
-	public Flag getNextFlag() throws IOException
-	{
-		String nextLine = r2Pipe.readNextLine();
-		if (nextLine.length() == 0 || nextLine.endsWith("\0"))
-			return null;
-		return createFlagFromLine(nextLine);
-	}
-
-	private Flag createFlagFromLine(String line)
-	{
-		String[] parts = line.split(" ");
-		long addr = Long.decode(parts[0]);
-		Flag flag = new Flag(addr);
-		if (parts.length != 3)
+		String jsonString = r2Pipe.cmd("fj");
+		try
 		{
-			logger.info("Returning empty flag for line: {}", line);
-			return flag;
+			return new JSONArray(jsonString);
+		} catch (JSONException e)
+		{
+			return null;
 		}
-
-		int length = Integer.parseInt(parts[1]);
-		String value = parts[2];
-		flag.setLength(length);
-		flag.setValue(value);
-
-		return flag;
 	}
 
 	public JSONArray getReferences() throws IOException
@@ -180,6 +159,7 @@ public class Radare
 
 	private JSONObject parseReferenceLine(String line)
 	{
+		// The JSON object does not contain type information. We have to parse by hand.
 		// line format "type0.type1.type2.source=destination0,destination1,...,destinationN
 		JSONObject answer = new JSONObject();
 		String[] split = line.split("\\.");

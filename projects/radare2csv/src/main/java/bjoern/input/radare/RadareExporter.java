@@ -14,6 +14,8 @@ import bjoern.structures.edges.EdgeTypes;
 import bjoern.structures.interpretations.BasicBlock;
 import bjoern.structures.interpretations.Function;
 import bjoern.structures.interpretations.Instruction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -33,7 +35,7 @@ import java.util.List;
 public class RadareExporter extends Exporter
 {
 
-	List<Function> functions;
+	private static final Logger logger = LoggerFactory.getLogger(RadareExporter.class);
 
 	public RadareExporter()
 	{
@@ -60,29 +62,24 @@ public class RadareExporter extends Exporter
 		loadAndOutputCrossReferences();
 	}
 
-	private void loadAndOutputCrossReferences()
+	private void loadAndOutputCrossReferences() throws IOException
 	{
-		try
+		Iterator<CallRef> iterator = getInputModule().getCallReferences();
+		int counter = 0;
+		while (iterator.hasNext())
 		{
-			Iterator<CallRef> iterator = getInputModule().getCallReferences();
-			while (iterator.hasNext())
-			{
-				getOutputModule().writeEdge(iterator.next());
-			}
-
-		} catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("Processing call reference " + ++counter);
+			getOutputModule().writeEdge(iterator.next());
 		}
-
 	}
 
 	private void loadAndOutputFlags() throws IOException
 	{
 		Iterator<Flag> iterator = getInputModule().getFlags();
+		int counter = 0;
 		while (iterator.hasNext())
 		{
+			logger.info("Processing flag " + ++counter);
 			writeFlag(iterator.next());
 		}
 	}
@@ -90,15 +87,11 @@ public class RadareExporter extends Exporter
 	private void loadAndOutputFunctions() throws IOException
 	{
 		Iterator<Function> functions = getInputModule().getFunctions();
+		int counter = 0;
 		while (functions.hasNext())
 		{
-			Function function = functions.next();
-			writeFunction(function);
-
-			// we clear the function content after writing it to free up some
-			// memory. In addition, we clear all references to nodes still present
-			// in caches.
-			function.deleteContent();
+			logger.info("Processing function " + ++counter);
+			writeFunction(functions.next());
 		}
 
 	}
