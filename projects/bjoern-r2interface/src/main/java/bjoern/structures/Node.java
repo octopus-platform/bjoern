@@ -8,6 +8,7 @@ public abstract class Node
 	private long address;
 	private String type;
 	private String comment;
+	private NodeKey nodeKey;
 
 	public Node(long address, String type)
 	{
@@ -53,8 +54,11 @@ public abstract class Node
 
 	public NodeKey createKey()
 	{
-		NodeKey key = new NodeKey(getAddress(), getType());
-		return key;
+		if (nodeKey == null)
+		{
+			nodeKey = new NodeKey(getAddress(), getType());
+		}
+		return nodeKey;
 	}
 
 	public String getKey()
@@ -70,5 +74,11 @@ public abstract class Node
 		properties.put(BjoernNodeProperties.ADDR, getAddressAsHexString());
 		properties.put(BjoernNodeProperties.COMMENT, getComment());
 		return properties;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getKey();
 	}
 }

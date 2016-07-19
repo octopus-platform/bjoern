@@ -12,6 +12,26 @@ public final class NodeKey
 	}
 
 	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof NodeKey))
+		{
+			return false;
+		}
+		NodeKey other = (NodeKey) o;
+
+		return address.equals(other.address) && type.equals(other.type);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = type.hashCode();
+		result = 31 * result + address.hashCode();
+		return result;
+	}
+
+	@Override
 	public String toString()
 	{
 		return this.type + "_" + Long.toHexString(this.address);
