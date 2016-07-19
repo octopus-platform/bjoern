@@ -16,6 +16,7 @@ import bjoern.structures.interpretations.Function;
 import bjoern.structures.interpretations.Instruction;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -63,9 +64,10 @@ public class RadareExporter extends Exporter
 	{
 		try
 		{
-			for (CallRef call : getInputModule().getCallReferences())
+			Iterator<CallRef> iterator = getInputModule().getCallReferences();
+			while (iterator.hasNext())
 			{
-				getOutputModule().writeEdge(call);
+				getOutputModule().writeEdge(iterator.next());
 			}
 
 		} catch (IOException e)
@@ -78,18 +80,19 @@ public class RadareExporter extends Exporter
 
 	private void loadAndOutputFlags() throws IOException
 	{
-		List<Flag> flags = getInputModule().getFlags();
-		for (Flag flag : flags)
+		Iterator<Flag> iterator = getInputModule().getFlags();
+		while (iterator.hasNext())
 		{
-			writeFlag(flag);
+			writeFlag(iterator.next());
 		}
 	}
 
 	private void loadAndOutputFunctions() throws IOException
 	{
-		functions = getInputModule().getFunctions();
-		for (Function function : functions)
+		Iterator<Function> functions = getInputModule().getFunctions();
+		while (functions.hasNext())
 		{
+			Function function = functions.next();
 			writeFunction(function);
 
 			// we clear the function content after writing it to free up some
@@ -97,6 +100,7 @@ public class RadareExporter extends Exporter
 			// in caches.
 			function.deleteContent();
 		}
+
 	}
 
 	public void writeFunction(Function function)
@@ -161,8 +165,7 @@ public class RadareExporter extends Exporter
 		writeEdgeBetweenNodes(function, block, EdgeTypes.IS_FUNCTION_OF);
 	}
 
-	private void writeEdgeFromBlockToInstruction(BasicBlock block,
-			Instruction instr)
+	private void writeEdgeFromBlockToInstruction(BasicBlock block, Instruction instr)
 	{
 		writeEdgeBetweenNodes(block, instr, EdgeTypes.IS_BB_OF);
 	}

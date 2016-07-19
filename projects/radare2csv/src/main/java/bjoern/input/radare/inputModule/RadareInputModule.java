@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,32 +44,37 @@ public class RadareInputModule implements InputModule
 		}
 	}
 
-	@Override
-	public List<Function> getFunctions() throws IOException
+	public Iterator<Function> getFunctions() throws IOException
 	{
-		List<Function> retval = new LinkedList<>();
-
-		JSONArray jsonFunctions = radare.getJSONFunctions();
-		int nFunctions = jsonFunctions.length();
-		int progressCounter = 0;
-
-		radare.enableEsil();
-		for (int i = 0; i < nFunctions; i++)
+		return new Iterator<Function>()
 		{
-			JSONObject jsonFunction = jsonFunctions.getJSONObject(i);
-			Function function = RadareFunctionCreator
-					.createFromJSON(jsonFunction);
-			initializeFunctionContents(function);
-			retval.add(function);
-			logger.info("Processing function (" + ++progressCounter + "/" + nFunctions + ")");
-		}
-		radare.disableEsil();
+			private JSONArray jsonFunctions = radare.getJSONFunctions();
+			private int nextFunction = 0;
 
-		return retval;
+			@Override
+			public boolean hasNext()
+			{
+				return nextFunction < jsonFunctions.length();
+			}
+
+			@Override
+			public Function next()
+			{
+				JSONObject jsonFunctionObject = jsonFunctions.getJSONObject(nextFunction++);
+				Function function = RadareFunctionCreator.createFromJSON(jsonFunctionObject);
+				try
+				{
+					initializeFunctionContents(function);
+				} catch (IOException e)
+				{
+				}
+				return function;
+			}
+		};
 	}
 
 	@Override
-	public List<Flag> getFlags() throws IOException
+	public Iterator<Flag> getFlags() throws IOException
 	{
 		List<Flag> retval = new LinkedList<>();
 		radare.askForFlags();
@@ -77,13 +83,31 @@ public class RadareInputModule implements InputModule
 		{
 			retval.add(flag);
 		}
-		return retval;
+		return retval.iterator();
+	}
+
+	@Override
+	public Iterator<CallRef> getCallReferences() throws IOException
+	{
+		List<CallRef> callReferences = new LinkedList<>();
+		JSONArray references = radare.getReferences();
+		for (int i = 0; i < references.length(); i++)
+		{
+			JSONObject referenceJSONObject = references.getJSONObject(i);
+			if (referenceJSONObject.getString("type").equals("ref.code.call"))
+			{
+				NodeKey sourceKey = new NodeKey(referenceJSONObject.getLong("address"), NodeTypes.INSTRUCTION);
+				NodeKey destinationKey = new NodeKey(referenceJSONObject.getJSONArray("locations").getLong(0),
+						NodeTypes.INSTRUCTION);
+				callReferences.add(new CallRef(sourceKey, destinationKey));
+			}
+		}
+		return callReferences.iterator();
 	}
 
 	private void initializeFunctionContents(Function function)
 			throws IOException
 	{
-
 		try
 		{
 			Long address = function.getAddress();
@@ -114,24 +138,5 @@ public class RadareInputModule implements InputModule
 		Path cwd = Paths.get(outputDir).toAbsolutePath().normalize();
 		String projectFilename = cwd.toString() + File.separator + "radareProject";
 		radare.saveProject(projectFilename);
-	}
-
-	@Override
-	public List<CallRef> getCallReferences() throws IOException
-	{
-		List<CallRef> callReferences = new LinkedList<>();
-		JSONArray references = radare.getReferences();
-		for (int i = 0; i < references.length(); i++)
-		{
-			JSONObject referenceJSONObject = references.getJSONObject(i);
-			if (referenceJSONObject.getString("type").equals("ref.code.call"))
-			{
-				NodeKey sourceKey = new NodeKey(referenceJSONObject.getLong("address"), BjoernNodeTypes.INSTRUCTION);
-				NodeKey destinationKey = new NodeKey(referenceJSONObject.getJSONArray("locations").getLong(0),
-						BjoernNodeTypes.INSTRUCTION);
-				callReferences.add(new CallRef(sourceKey, destinationKey));
-			}
-		}
-		return callReferences;
 	}
 }

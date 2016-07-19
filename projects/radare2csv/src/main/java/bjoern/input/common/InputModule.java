@@ -1,7 +1,7 @@
 package bjoern.input.common;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Iterator;
 
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
@@ -13,11 +13,11 @@ public interface InputModule
 
 	void finish(String outputDir);
 
-	List<Function> getFunctions() throws IOException;
+	Iterator<Function> getFunctions() throws IOException;
 
-	List<Flag> getFlags() throws IOException;
+	Iterator<Flag> getFlags() throws IOException;
 
 
-	List<CallRef> getCallReferences() throws IOException;
+	Iterator<CallRef> getCallReferences() throws IOException;
 
 }
