@@ -115,7 +115,16 @@ public class Radare
 		if (jsonArray.length() != 1)
 			throw new InvalidRadareFunctionException("empty function at address 0x" + Long.toHexString(addr));
 
-		return jsonArray.getJSONObject(0);
+		JSONObject functionJSONObject = jsonArray.getJSONObject(0);
+		Long addressOfReceivedFunction = functionJSONObject.getLong("offset");
+		if (!addr.equals(addressOfReceivedFunction))
+		{
+			throw new InvalidRadareFunctionException("requested function content for address 0x"
+					+ Long.toHexString(addr)
+					+ " but received function content for address 0x"
+					+ addressOfReceivedFunction);
+		}
+		return functionJSONObject;
 	}
 
 	public void shutdown() throws Exception
