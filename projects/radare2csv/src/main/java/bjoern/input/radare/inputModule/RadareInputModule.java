@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 public class RadareInputModule implements InputModule
 {
@@ -77,7 +75,8 @@ public class RadareInputModule implements InputModule
 	@Override
 	public Iterator<Flag> getFlags() throws IOException
 	{
-		return new Iterator<Flag>() {
+		return new Iterator<Flag>()
+		{
 
 			private JSONArray jsonFlags = radare.getFlags();
 			private int nextFlag = 0;
@@ -101,20 +100,41 @@ public class RadareInputModule implements InputModule
 	@Override
 	public Iterator<CallRef> getCallReferences() throws IOException
 	{
-		List<CallRef> callReferences = new LinkedList<>();
-		JSONArray references = radare.getReferences();
-		for (int i = 0; i < references.length(); i++)
+		return new Iterator<CallRef>()
 		{
-			JSONObject referenceJSONObject = references.getJSONObject(i);
-			if (referenceJSONObject.getString("type").equals("ref.code.call"))
+
+			private JSONArray references = radare.getReferences();
+			private JSONObject jsonReference = null;
+			private int nextReference = 0;
+
+			@Override
+			public boolean hasNext()
 			{
-				NodeKey sourceKey = new NodeKey(referenceJSONObject.getLong("address"), NodeTypes.INSTRUCTION);
-				NodeKey destinationKey = new NodeKey(referenceJSONObject.getJSONArray("locations").getLong(0),
-						NodeTypes.INSTRUCTION);
-				callReferences.add(new CallRef(sourceKey, destinationKey));
+				while (nextReference < references.length())
+				{
+					jsonReference = references.getJSONObject(nextReference++);
+					if (isCallReference(jsonReference))
+					{
+						return true;
+					}
+				}
+				return false;
 			}
-		}
-		return callReferences.iterator();
+
+			private boolean isCallReference(JSONObject jsonReference)
+			{
+				return jsonReference.getString("type").equals("ref.code.call");
+			}
+
+			@Override
+			public CallRef next()
+			{
+				NodeKey sourceKey = new NodeKey(jsonReference.getLong("address"), NodeTypes.INSTRUCTION);
+				NodeKey destinationKey = new NodeKey(jsonReference.getJSONArray("locations").getLong(0),
+						NodeTypes.INSTRUCTION);
+				return new CallRef(sourceKey, destinationKey);
+			}
+		};
 	}
 
 	private void initializeFunctionContents(Function function)
