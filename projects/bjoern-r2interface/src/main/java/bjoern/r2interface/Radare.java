@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Radare
 {
@@ -65,6 +66,7 @@ public class Radare
 		setASMVariable("xrefs", "false");
 		setASMVariable("lbytes", "false");
 		setASMVariable("indentspace", "0");
+		setASMVariable("esil", "true");
 	}
 
 	public void saveProject(String projectFilename) throws IOException
@@ -145,14 +147,18 @@ public class Radare
 
 	public JSONArray getReferences() throws IOException
 	{
-		askForCrossReferences();
 		JSONArray answer = new JSONArray();
-		while (true)
+		String rawString = r2Pipe.cmd("ax");
+		Scanner scanner = new Scanner(rawString);
+		// Skip first line (header)
+		if (scanner.hasNextLine())
 		{
-			String line = r2Pipe.readNextLine();
-			if (line.length() == 0 || line.endsWith("\0"))
-				break;
-			answer.put(parseReferenceLine(line));
+			scanner.nextLine();
+		}
+		while (scanner.hasNext())
+		{
+			JSONObject jsonReference = parseReferenceLine(scanner.nextLine());
+			answer.put(jsonReference);
 		}
 		return answer;
 	}
@@ -168,23 +174,6 @@ public class Radare
 		answer.put("address", Long.decode(addresses[0]));
 		answer.put("locations", new JSONArray(Arrays.stream(addresses[1].split(",")).map(Long::decode).toArray()));
 		return answer;
-	}
-
-	private void askForCrossReferences() throws IOException
-	{
-		r2Pipe.cmdNoResponse("ax");
-		// skip first line
-		r2Pipe.readNextLine();
-	}
-
-	public void enableEsil() throws IOException
-	{
-		setASMVariable("esil", "true");
-	}
-
-	public void disableEsil() throws IOException
-	{
-		setASMVariable("esil", "false");
 	}
 
 	public void resetEsilState() throws IOException

@@ -71,19 +71,6 @@ class R2Pipe
 		return sb.toString();
 	}
 
-	public String readNextLine() throws IOException
-	{
-		StringBuffer sb = new StringBuffer();
-		byte[] b = new byte[1];
-		while (stdout.read(b) == 1)
-		{
-			if (b[0] == '\n' || b[0] == '\0')
-				break;
-			sb.append((char) b[0]);
-		}
-		return sb.toString();
-	}
-
 	public void quit() throws Exception
 	{
 		cmd("q");
