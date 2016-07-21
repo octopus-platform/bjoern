@@ -59,26 +59,24 @@ public class BlueprintsOutputModule implements OutputModule
 		} catch (IllegalArgumentException e)
 		{
 			// node already added, but no replace requested
+			logger.info("Node already added: " + node);
 		}
 	}
 
 	@Override
 	public void writeEdge(DirectedEdge edge)
 	{
-		Object id = 0;
-		Vertex source = graph.getVertex(edge.getSourceKey());
-		Vertex destination = graph.getVertex(edge.getDestKey());
-		if (source == null)
+		try
 		{
-			//
-			return;
-		}
-		if (destination == null)
+			Object id = 0;
+			Vertex source = graph.getVertex(edge.getSourceKey());
+			Vertex destination = graph.getVertex(edge.getDestKey());
+			String label = edge.getType();
+			graph.addEdge(id, source, destination, label);
+		} catch (IllegalArgumentException e)
 		{
-			//
-			return;
+			// source or destination node is missing
+			logger.warn("Cannot add edge: " + edge);
 		}
-		String label = edge.getType();
-		graph.addEdge(id, source, destination, label);
 	}
 }
