@@ -122,7 +122,7 @@ public class Radare
 			throw new InvalidRadareFunctionException("requested function content for address 0x"
 					+ Long.toHexString(addr)
 					+ " but received function content for address 0x"
-					+ addressOfReceivedFunction);
+					+ Long.toHexString(addressOfReceivedFunction));
 		}
 		return functionJSONObject;
 	}
