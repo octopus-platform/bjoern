@@ -1,7 +1,7 @@
 package bjoern.plugins.radareimporter;
 
 import bjoern.input.common.outputModules.OutputModule;
-import bjoern.nodeStore.Node;
+import bjoern.structures.Node;
 import bjoern.structures.edges.DirectedEdge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;

@@ -129,9 +129,9 @@ public class RadareInputModule implements InputModule
 			@Override
 			public CallRef next()
 			{
-				NodeKey sourceKey = new NodeKey(jsonReference.getLong("address"), NodeTypes.INSTRUCTION);
+				NodeKey sourceKey = new NodeKey(jsonReference.getLong("address"), BjoernNodeTypes.INSTRUCTION);
 				NodeKey destinationKey = new NodeKey(jsonReference.getJSONArray("locations").getLong(0),
-						NodeTypes.INSTRUCTION);
+						BjoernNodeTypes.INSTRUCTION);
 				return new CallRef(sourceKey, destinationKey);
 			}
 		};
