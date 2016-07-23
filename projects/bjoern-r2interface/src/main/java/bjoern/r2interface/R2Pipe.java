@@ -18,7 +18,6 @@ class R2Pipe
 	private final Process process;
 	private OutputStream stdin;
 	private InputStream stdout;
-	private StreamGobbler errorGobbler;
 
 	public R2Pipe(String filename) throws IOException
 	{
@@ -31,26 +30,21 @@ class R2Pipe
 	{
 		stdin = process.getOutputStream();
 		stdout = process.getInputStream();
-		errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
-		errorGobbler.start();
 	}
 
 	private Process spawnR2Process(String filename) throws IOException
 	{
-		try
-		{
-			return Runtime.getRuntime().exec(R2_LOC + " -q0 " + filename);
-		}
-		catch (IOException e)
-		{
-			throw new IOException("Cannot find `radare2` on path.");
-		}
+		ProcessBuilder processBuilder = new ProcessBuilder(R2_LOC, "-q0", filename);
+		processBuilder.redirectErrorStream(true);
+		return processBuilder.start();
 	}
 
 	public String cmd(String cmd) throws IOException
 	{
 		cmdNoResponse(cmd);
-		return readUpToZeroByte();
+		String result = readUpToZeroByte();
+		logger.debug(result);
+		return result;
 	}
 
 	public void cmdNoResponse(String cmd) throws IOException
