@@ -1,8 +1,7 @@
 package bjoern.pluginlib;
 
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.pluginlib.structures.Function;
-import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
@@ -16,7 +15,7 @@ public class LookupOperations
 	public static Iterable<Vertex> getAllFunctions(OrientGraphNoTx graph)
 	{
 		Iterable<Vertex> functions = graph.command(
-				BjoernConstants.LUCENE_QUERY).execute("nodeType:" + NodeTypes.FUNCTION);
+				BjoernConstants.LUCENE_QUERY).execute("nodeType:" + BjoernNodeTypes.FUNCTION);
 		return functions;
 	}
 
@@ -24,7 +23,7 @@ public class LookupOperations
 	{
 		boolean parallel = true;
 		Iterable<Vertex> functions = graph.command(BjoernConstants.LUCENE_QUERY)
-				.execute("nodeType:" + NodeTypes.FUNCTION);
+				.execute("nodeType:" + BjoernNodeTypes.FUNCTION);
 		return StreamSupport.stream(functions.spliterator(), parallel).map(Function::new)
 				.collect(Collectors.toList());
 	}

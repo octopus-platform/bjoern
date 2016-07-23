@@ -1,6 +1,6 @@
 package bjoern.input.common.outputModules.CSV;
 
-import bjoern.nodeStore.Node;
+import bjoern.structures.Node;
 import bjoern.structures.BjoernNodeProperties;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;

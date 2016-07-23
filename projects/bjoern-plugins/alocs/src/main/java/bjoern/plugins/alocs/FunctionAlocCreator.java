@@ -1,6 +1,6 @@
 package bjoern.plugins.alocs;
 
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.radare.emulation.esil.memaccess.ESILStackAccessEvaluator;
 import bjoern.pluginlib.radare.emulation.esil.memaccess.MemoryAccess;
@@ -99,7 +99,7 @@ public class FunctionAlocCreator
 
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(BjoernNodeProperties.ADDR, functionAddr);
-		properties.put(BjoernNodeProperties.TYPE, NodeTypes.ALOC);
+		properties.put(BjoernNodeProperties.TYPE, BjoernNodeTypes.ALOC);
 		properties.put(BjoernNodeProperties.SUBTYPE, subType);
 		properties.put(BjoernNodeProperties.NAME, alocName);
 

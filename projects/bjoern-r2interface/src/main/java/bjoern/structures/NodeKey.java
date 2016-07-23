@@ -1,4 +1,4 @@
-package bjoern.nodeStore;
+package bjoern.structures;
 
 public final class NodeKey
 {

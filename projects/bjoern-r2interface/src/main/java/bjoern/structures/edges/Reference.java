@@ -1,6 +1,6 @@
 package bjoern.structures.edges;
 
-import bjoern.nodeStore.NodeKey;
+import bjoern.structures.NodeKey;
 
 public abstract class Reference extends DirectedEdge
 {

@@ -1,6 +1,4 @@
-package bjoern.nodeStore;
-
-import bjoern.structures.BjoernNodeProperties;
+package bjoern.structures;
 
 import java.util.HashMap;
 import java.util.Map;

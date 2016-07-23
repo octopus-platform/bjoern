@@ -1,8 +1,8 @@
 package bjoern.input.radare.inputModule;
 
 import bjoern.input.common.InputModule;
-import bjoern.nodeStore.NodeKey;
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.NodeKey;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.r2interface.Radare;
 import bjoern.r2interface.creators.RadareFunctionContentCreator;
 import bjoern.r2interface.creators.RadareFunctionCreator;
@@ -126,9 +126,9 @@ public class RadareInputModule implements InputModule
 			JSONObject referenceJSONObject = references.getJSONObject(i);
 			if (referenceJSONObject.getString("type").equals("ref.code.call"))
 			{
-				NodeKey sourceKey = new NodeKey(referenceJSONObject.getLong("address"), NodeTypes.INSTRUCTION);
+				NodeKey sourceKey = new NodeKey(referenceJSONObject.getLong("address"), BjoernNodeTypes.INSTRUCTION);
 				NodeKey destinationKey = new NodeKey(referenceJSONObject.getJSONArray("locations").getLong(0),
-						NodeTypes.INSTRUCTION);
+						BjoernNodeTypes.INSTRUCTION);
 				callReferences.add(new CallRef(sourceKey, destinationKey));
 			}
 		}

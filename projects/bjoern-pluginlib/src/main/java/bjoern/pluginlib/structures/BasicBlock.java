@@ -1,10 +1,9 @@
 package bjoern.pluginlib.structures;
 
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
-import octopus.lib.structures.OctopusNode;
 
 import java.util.Iterator;
 
@@ -15,7 +14,7 @@ public class BasicBlock extends BjoernNode
 
 	public BasicBlock(Vertex vertex)
 	{
-		super(vertex, NodeTypes.BASIC_BLOCK);
+		super(vertex, BjoernNodeTypes.BASIC_BLOCK);
 	}
 
 	public Instruction getEntry()

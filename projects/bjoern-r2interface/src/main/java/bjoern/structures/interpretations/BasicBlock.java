@@ -1,8 +1,8 @@
 package bjoern.structures.interpretations;
 
-import bjoern.nodeStore.Node;
-import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.BjoernNodeTypes;
+import bjoern.structures.Node;
 
 import java.util.*;
 
@@ -15,7 +15,7 @@ public class BasicBlock extends Node
 
 	public BasicBlock(long address)
 	{
-		super(address, NodeTypes.BASIC_BLOCK);
+		super(address, BjoernNodeTypes.BASIC_BLOCK);
 	}
 
 	public void addInstruction(Instruction instr)
@@ -35,15 +35,8 @@ public class BasicBlock extends Node
 			return;
 
 		Collection<Instruction> collection = instructions.values();
-		sortedInstructions = new ArrayList<Instruction>(collection);
-		Comparator<? super Instruction> c;
-
-		sortedInstructions.sort(new InstructionComparator());
-	}
-
-	public Instruction getInstructionAtAddress(long address)
-	{
-		return instructions.get(address);
+		sortedInstructions = new ArrayList<>(collection);
+		Collections.sort(sortedInstructions);
 	}
 
 	public String getInstructionsStr()
@@ -64,17 +57,6 @@ public class BasicBlock extends Node
 		Map<String, Object> properties = super.getProperties();
 		properties.put(BjoernNodeProperties.REPR, getInstructionsStr());
 		return properties;
-	}
-
-}
-
-class InstructionComparator implements Comparator<Instruction>
-{
-
-	@Override
-	public int compare(Instruction o1, Instruction o2)
-	{
-		return o1.getAddress().compareTo(o2.getAddress());
 	}
 
 }

@@ -8,7 +8,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Function;
@@ -29,7 +29,7 @@ public class Traversals
 
 		pipe.start(func).in(EdgeTypes.INTERPRETATION).out(EdgeTypes.INTERPRETATION).filter(
 				v -> v.getProperty(BjoernNodeProperties.TYPE).equals
-						(NodeTypes.BASIC_BLOCK)
+						(BjoernNodeTypes.BASIC_BLOCK)
 		);
 
 		Vertex vertex = getFirstVertexFromPipeOrRaise(pipe);
@@ -72,7 +72,7 @@ public class Traversals
 
 		Vertex vertex;
 		pipeline.start(function).in(EdgeTypes.INTERPRETATION).out(EdgeTypes.INTERPRETATION)
-				.filter(v -> v.getProperty(BjoernNodeProperties.TYPE).equals(NodeTypes.INSTRUCTION));
+				.filter(v -> v.getProperty(BjoernNodeProperties.TYPE).equals(BjoernNodeTypes.INSTRUCTION));
 
 		if (pipeline.hasNext())
 		{
@@ -97,7 +97,7 @@ public class Traversals
 		pipe.start(function).as("loop")
 				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
 				.loop("loop", v -> true,
-						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(NodeTypes.ALOC));
+						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(BjoernNodeTypes.ALOC));
 		return pipe.toList().stream().map(Aloc::new).collect(Collectors.toList());
 	}
 

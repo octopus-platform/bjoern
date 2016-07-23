@@ -1,6 +1,6 @@
-package bjoern.nodeStore;
+package bjoern.structures;
 
-public class NodeTypes
+public class BjoernNodeTypes
 {
 	public static final String BASIC_BLOCK = "BB";
 	public static final String INSTRUCTION = "Instr";
@@ -9,5 +9,5 @@ public class NodeTypes
 	public static final Object ARG = "Arg";
 	public static final String FLAG = "Flag";
 	public static final String ALOC = "Aloc";
-	public static String ROOT = "Root";
+	public static final String ROOT = "Root";
 }

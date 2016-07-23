@@ -1,6 +1,6 @@
 package bjoern.plugins.functionexporter;
 
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.pluginlib.LookupOperations;
 import bjoern.plugins.functionexporter.io.dot.DotWriter;
 import bjoern.structures.BjoernNodeProperties;
@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +37,7 @@ public class FunctionExportPlugin extends OrientGraphConnectionPlugin
 	private static final String DEFAULT_FORMAT = "graphml";
 	private static final int DEFAULT_NUMBER_OF_THREADS = 4;
 
-	private static final String[] DEFAULT_NODES = {NodeTypes.FUNCTION, NodeTypes.BASIC_BLOCK, NodeTypes.INSTRUCTION};
+	private static final String[] DEFAULT_NODES = {BjoernNodeTypes.FUNCTION, BjoernNodeTypes.BASIC_BLOCK, BjoernNodeTypes.INSTRUCTION};
 	private static final String[] DEFAULT_EDGES = {EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF};
 
 	private String format;

@@ -1,12 +1,12 @@
 package bjoern.structures.interpretations;
 
-import bjoern.nodeStore.Node;
-import bjoern.nodeStore.NodeTypes;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.BjoernNodeTypes;
+import bjoern.structures.Node;
 
 import java.util.Map;
 
-public class Instruction extends Node
+public class Instruction extends Node implements Comparable<Instruction>
 {
 	private String stringRepr;
 	private String esilCode;
@@ -14,7 +14,7 @@ public class Instruction extends Node
 
 	public Instruction(long address)
 	{
-		super(address, NodeTypes.INSTRUCTION);
+		super(address, BjoernNodeTypes.INSTRUCTION);
 	}
 
 	public String getStringRepr()
@@ -55,5 +55,20 @@ public class Instruction extends Node
 	public void setEsilCode(String esilCode)
 	{
 		this.esilCode = esilCode;
+	}
+
+	@Override
+	public int compareTo(Instruction o)
+	{
+		if (this.getAddress() > o.getAddress())
+		{
+			return 1;
+		} else if (this.getAddress() < o.getAddress())
+		{
+			return -1;
+		} else
+		{
+			return 0;
+		}
 	}
 }

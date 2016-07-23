@@ -1,7 +1,7 @@
 package bjoern.structures.annotations;
 
-import bjoern.nodeStore.Node;
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.Node;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.BjoernNodeProperties;
 
 import java.util.Map;
@@ -20,7 +20,7 @@ public class Flag extends Node
 
 	public Flag(long address)
 	{
-		super(address, NodeTypes.FLAG);
+		super(address, BjoernNodeTypes.FLAG);
 	}
 
 	public String getValue()

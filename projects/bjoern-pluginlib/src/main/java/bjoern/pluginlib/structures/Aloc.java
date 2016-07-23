@@ -1,8 +1,7 @@
 package bjoern.pluginlib.structures;
 
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.BjoernNodeProperties;
-import octopus.lib.structures.OctopusNode;
 
 import com.tinkerpop.blueprints.Vertex;
 
@@ -10,7 +9,7 @@ public class Aloc extends BjoernNode
 {
 	public Aloc(Vertex vertex)
 	{
-		super(vertex, NodeTypes.ALOC);
+		super(vertex, BjoernNodeTypes.ALOC);
 	}
 
 	public String getName()

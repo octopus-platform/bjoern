@@ -1,6 +1,6 @@
 package bjoern.pluginlib.structures;
 
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.pluginlib.Traversals;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
@@ -13,7 +13,7 @@ public class Instruction extends BjoernNode implements Comparable<Instruction>
 
 	public Instruction(Vertex vertex)
 	{
-		super(vertex, NodeTypes.INSTRUCTION);
+		super(vertex, BjoernNodeTypes.INSTRUCTION);
 	}
 
 

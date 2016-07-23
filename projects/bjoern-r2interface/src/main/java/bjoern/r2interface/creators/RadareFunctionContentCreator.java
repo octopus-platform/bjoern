@@ -1,8 +1,7 @@
 package bjoern.r2interface.creators;
 
-import bjoern.nodeStore.NodeKey;
-import bjoern.nodeStore.NodeStore;
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.NodeKey;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.r2interface.exceptions.BasicBlockWithoutAddress;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
 import bjoern.structures.edges.ControlFlowEdge;
@@ -60,34 +59,18 @@ public class RadareFunctionContentCreator
 		}
 	}
 
-	private static BasicBlock createBasicBlock(
-			JSONObject jsonBlock) throws BasicBlockWithoutAddress, InvalidRadareFunctionException
+	private static BasicBlock createBasicBlock(JSONObject jsonBlock) throws BasicBlockWithoutAddress,
+			InvalidRadareFunctionException
 	{
 
 		Long address = JSONUtils.getLongFromObject(jsonBlock, "offset");
 		if (address == null)
 			throw new BasicBlockWithoutAddress();
 
-		return createBlockOrTakeExisting(jsonBlock, address);
+		return RadareBasicBlockCreator.createFromJSON(jsonBlock);
 	}
 
-	private static BasicBlock createBlockOrTakeExisting(JSONObject block,
-			Long address)
-	{
-		BasicBlock node;
-		node = (BasicBlock) NodeStore.getNodeForAddressAndType(address,
-				NodeTypes.BASIC_BLOCK);
-
-		if (node == null)
-		{
-			node = RadareBasicBlockCreator.createFromJSON(block);
-			NodeStore.addNode(node);
-		}
-		return node;
-	}
-
-	private static void createEdges(FunctionContent content,
-			JSONObject jsonFunctionContent)
+	private static void createEdges(FunctionContent content, JSONObject jsonFunctionContent)
 	{
 		JSONArray blocks = jsonFunctionContent.getJSONArray("blocks");
 		int numberOfBlocks = blocks.length();
@@ -98,50 +81,43 @@ public class RadareFunctionContentCreator
 		}
 	}
 
-	private static void createEdgesForBlock(FunctionContent content,
-			JSONObject jsonBlock)
+	private static void createEdgesForBlock(FunctionContent content, JSONObject jsonBlock)
 	{
-
-
-		NodeKey fromBlockKey = getBasicBlockForJSONBlock(jsonBlock).createKey();
+		NodeKey fromBlockKey = getJumpSourceKey(jsonBlock);
 		NodeKey jumpBlockKey = getJumpTargetKey(jsonBlock, "jump");
 		NodeKey failBlockKey = getJumpTargetKey(jsonBlock, "fail");
 
-		if (jumpBlockKey == null)
+		if (fromBlockKey == null || jumpBlockKey == null)
 			return;
 
-
 		if (failBlockKey == null)
+		{
 			content.addControlFlowEdge(new ControlFlowEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW));
-		else
+		} else
 		{
 			content.addControlFlowEdge(new ControlFlowEdge(fromBlockKey, jumpBlockKey, EdgeTypes.CFLOW_TRUE));
 			content.addControlFlowEdge(new ControlFlowEdge(fromBlockKey, failBlockKey, EdgeTypes.CFLOW_FALSE));
 		}
-
 	}
 
-	private static BasicBlock getBasicBlockForJSONBlock(JSONObject block)
+	private static NodeKey getJumpSourceKey(JSONObject block)
 	{
-		Long blockAddr = JSONUtils.getLongFromObject(block, "offset");
-		assert (blockAddr != null);
-
-		BasicBlock fromBlock = (BasicBlock) NodeStore.getNodeForAddressAndType(
-				blockAddr, NodeTypes.BASIC_BLOCK);
-
-		if (fromBlock == null)
-			throw new RuntimeException("From-node not in store.");
-
-		return fromBlock;
+		Long offset = JSONUtils.getLongFromObject(block, "offset");
+		if (offset == null)
+		{
+			return null;
+		}
+		return new NodeKey(offset, BjoernNodeTypes.BASIC_BLOCK);
 	}
 
 	private static NodeKey getJumpTargetKey(JSONObject block, String type)
 	{
 		Long toAddr = JSONUtils.getLongFromObject(block, type);
 		if (toAddr == null)
+		{
 			return null;
-
-		return new NodeKey(toAddr, NodeTypes.BASIC_BLOCK);
+		}
+		return new NodeKey(toAddr, BjoernNodeTypes.BASIC_BLOCK);
 	}
 
 }

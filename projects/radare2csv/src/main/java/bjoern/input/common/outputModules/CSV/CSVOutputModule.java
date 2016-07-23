@@ -1,7 +1,7 @@
 package bjoern.input.common.outputModules.CSV;
 
 import bjoern.input.common.outputModules.OutputModule;
-import bjoern.nodeStore.Node;
+import bjoern.structures.Node;
 import bjoern.structures.edges.DirectedEdge;
 
 import java.util.HashMap;

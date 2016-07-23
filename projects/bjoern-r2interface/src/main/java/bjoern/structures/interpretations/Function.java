@@ -1,9 +1,8 @@
 package bjoern.structures.interpretations;
 
-import bjoern.nodeStore.Node;
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.Node;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.BjoernNodeProperties;
-import bjoern.structures.annotations.VariableOrArgument;
 
 import java.util.Map;
 
@@ -17,7 +16,7 @@ public class Function extends Node
 
 	public Function(long addr)
 	{
-		super(addr, NodeTypes.FUNCTION);
+		super(addr, BjoernNodeTypes.FUNCTION);
 		content = new FunctionContent();
 	}
 

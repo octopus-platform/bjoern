@@ -1,6 +1,6 @@
 package bjoern.pluginlib.structures;
 
-import bjoern.nodeStore.NodeTypes;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.BjoernNodeProperties;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -11,13 +11,13 @@ public class BjoernNodeFactory
 		String nodeType = vertex.getProperty(BjoernNodeProperties.TYPE);
 		switch (nodeType)
 		{
-			case NodeTypes.ALOC:
+			case BjoernNodeTypes.ALOC:
 				return new Aloc(vertex);
-			case NodeTypes.BASIC_BLOCK:
+			case BjoernNodeTypes.BASIC_BLOCK:
 				return new BasicBlock(vertex);
-			case NodeTypes.FUNCTION:
+			case BjoernNodeTypes.FUNCTION:
 				return new Function(vertex);
-			case NodeTypes.INSTRUCTION:
+			case BjoernNodeTypes.INSTRUCTION:
 				return new Instruction(vertex);
 			default:
 				return new BjoernNode(vertex);

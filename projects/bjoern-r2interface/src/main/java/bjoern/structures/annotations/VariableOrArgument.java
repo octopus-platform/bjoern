@@ -1,6 +1,6 @@
 package bjoern.structures.annotations;
 
-import bjoern.nodeStore.Node;
+import bjoern.structures.Node;
 import bjoern.structures.BjoernNodeProperties;
 
 import java.util.Map;

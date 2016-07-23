@@ -4,7 +4,7 @@ import bjoern.input.common.Exporter;
 import bjoern.input.common.outputModules.CSV.CSVOutputModule;
 import bjoern.input.common.outputModules.OutputModule;
 import bjoern.input.radare.inputModule.RadareInputModule;
-import bjoern.nodeStore.Node;
+import bjoern.structures.Node;
 import bjoern.structures.RootNode;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.annotations.VariableOrArgument;
