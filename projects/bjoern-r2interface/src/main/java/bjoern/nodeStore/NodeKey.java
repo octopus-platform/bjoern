@@ -17,9 +17,4 @@ public final class NodeKey
 		return this.type + "_" + Long.toHexString(this.address);
 	}
 
-	public Long getAddress()
-	{
-		return this.address;
-	}
-
 }
