@@ -5,137 +5,62 @@ import java.util.Map;
 
 public enum ESILKeyword
 {
-	ASSIGNMENT("="),
-	COMPARE("=="),
-	SMALLER("<"),
-	SMALLER_OR_EQUAL("<="),
-	BIGGER(">"),
-	BIGGER_OR_EQUAL(">="),
-	SHIFT_LEFT("<<"),
-	SHIFT_RIGHT(">>"),
-	ROTATE_LEFT("<<<"),
-	ROTATE_RIGHT(">>>"),
-	AND("&"),
-	OR("|"),
-	XOR("^"),
-	ADD("+"),
-	SUB("-"),
-	MUL("*"),
-	DIV("/"),
-	MOD("%"),
-	NEG("!"),
-	INC("++"),
-	DEC("--"),
-	ADD_ASSIGN("+="),
-	SUB_ASSIGN("-="),
-	MUL_ASSIGN("*="),
-	DIV_ASSIGN("/="),
-	MOD_ASSIGN("%="),
-	SHIFT_LEFT_ASSIGN("<<="),
-	SHIFT_RIGHT_ASSIGN(">>="),
-	AND_ASSIGN("&="),
-	OR_ASSIGN("|="),
-	XOR_ASSIGN("^="),
-	INC_ASSIGN("++="),
-	DEC_ASSIGN("--="),
-	NEG_ASSIGN("!="),
-	POKE("=[]"),
-	POKE_AST("=[*]"),
-	POKE1("=[1]"),
-	POKE2("=[2]"),
-	POKE4("=[4]"),
-	POKE8("=[8]"),
-	PEEK("[]"),
-	PEEK_AST("[*]"),
-	PEEK1("[1]"),
-	PEEK2("[2]"),
-	PEEK4("[4]"),
-	PEEK8("[8]"),
-	START_CONDITIONAL("?{"),
-	END_CONDITIONAL("}");
-
-	private static Map<ESILKeyword, Integer> keywordToNargs = new HashMap<ESILKeyword, Integer>();
+	ASSIGNMENT("=", 2),
+	COMPARE("==", 2),
+	SMALLER("<", 2),
+	SMALLER_OR_EQUAL("<=", 2),
+	BIGGER(">", 2),
+	BIGGER_OR_EQUAL(">=", 2),
+	SHIFT_LEFT("<<", 2),
+	SHIFT_RIGHT(">>", 2),
+	ROTATE_LEFT("<<<", 2),
+	ROTATE_RIGHT(">>>", 2),
+	AND("&", 2),
+	OR("|", 2),
+	XOR("^", 2),
+	ADD("+", 2),
+	SUB("-", 2),
+	MUL("*", 2),
+	DIV("/", 2),
+	MOD("%", 2),
+	NEG("!", 1),
+	INC("++", 1),
+	DEC("--", 1),
+	ADD_ASSIGN("+=", 2),
+	SUB_ASSIGN("-=", 2),
+	MUL_ASSIGN("*=", 2),
+	DIV_ASSIGN("/=", 2),
+	MOD_ASSIGN("%=", 2),
+	SHIFT_LEFT_ASSIGN("<<=", 2),
+	SHIFT_RIGHT_ASSIGN(">>=", 2),
+	AND_ASSIGN("&=", 2),
+	OR_ASSIGN("|=", 2),
+	XOR_ASSIGN("^=", 2),
+	INC_ASSIGN("++=", 2),
+	DEC_ASSIGN("--=", 2),
+	NEG_ASSIGN("!=", 2),
+	POKE("=[]", 2),
+	POKE_AST("=[*]", 2),
+	POKE1("=[1]", 2),
+	POKE2("=[2]", 2),
+	POKE4("=[4]", 2),
+	POKE8("=[8]", 2),
+	PEEK("[]", 1),
+	PEEK_AST("[*]", 1),
+	PEEK1("[1]", 1),
+	PEEK2("[2]", 1),
+	PEEK4("[4]", 1),
+	PEEK8("[8]", 1),
+	START_CONDITIONAL("?{", 1),
+	END_CONDITIONAL("}", 1);
 
 	public final String keyword;
+	public final int numberOfArgs;
 
-	ESILKeyword(String s)
+	ESILKeyword(String s, int nArgs)
 	{
 		keyword = s;
-	}
-
-	static{
-		initializeKeywordToNargs();
-	}
-
-	private static void initializeKeywordToNargs()
-	{
-		keywordToNargs.put(ASSIGNMENT, 2);
-		keywordToNargs.put(COMPARE, 2);
-
-		keywordToNargs.put(SMALLER, 2);
-		keywordToNargs.put(SMALLER_OR_EQUAL, 2);
-		keywordToNargs.put(BIGGER, 2);
-		keywordToNargs.put(BIGGER_OR_EQUAL, 2);
-
-		keywordToNargs.put(SHIFT_LEFT, 2);
-
-		keywordToNargs.put(SHIFT_RIGHT, 2);
-
-		keywordToNargs.put(ROTATE_LEFT, 2);
-		keywordToNargs.put(ROTATE_RIGHT, 2);
-
-		keywordToNargs.put(AND, 2);
-		keywordToNargs.put(OR, 2);
-		keywordToNargs.put(XOR, 2);
-
-		keywordToNargs.put(ADD, 2);
-		keywordToNargs.put(SUB, 2);
-		keywordToNargs.put(MUL, 2);
-		keywordToNargs.put(DIV, 2);
-		keywordToNargs.put(MOD, 2);
-
-		keywordToNargs.put(NEG, 1);
-		keywordToNargs.put(INC, 1);
-		keywordToNargs.put(DEC, 1);
-
-		keywordToNargs.put(ADD_ASSIGN, 2);
-		keywordToNargs.put(SUB_ASSIGN, 2);
-		keywordToNargs.put(MUL_ASSIGN, 2);
-		keywordToNargs.put(DIV_ASSIGN, 2);
-		keywordToNargs.put(MOD_ASSIGN, 2);
-
-		keywordToNargs.put(SHIFT_LEFT_ASSIGN, 2);
-		keywordToNargs.put(SHIFT_RIGHT_ASSIGN, 2);
-		keywordToNargs.put(AND_ASSIGN, 2);
-		keywordToNargs.put(OR_ASSIGN, 2);
-
-		keywordToNargs.put(XOR_ASSIGN, 2);
-		keywordToNargs.put(INC_ASSIGN, 2);
-		keywordToNargs.put(DEC_ASSIGN, 2);
-		keywordToNargs.put(NEG_ASSIGN, 2);
-
-		keywordToNargs.put(POKE, 2);
-		keywordToNargs.put(POKE_AST, 2);
-		keywordToNargs.put(POKE1, 2);
-		keywordToNargs.put(POKE2, 2);
-		keywordToNargs.put(POKE4, 2);
-		keywordToNargs.put(POKE8, 2);
-
-		keywordToNargs.put(PEEK, 1);
-		keywordToNargs.put(PEEK_AST, 1);
-		keywordToNargs.put(PEEK1, 1);
-		keywordToNargs.put(PEEK2, 1);
-		keywordToNargs.put(PEEK4, 1);
-		keywordToNargs.put(PEEK8, 1);
-
-		keywordToNargs.put(START_CONDITIONAL, 1);
-		keywordToNargs.put(END_CONDITIONAL, 1);
-
-	}
-
-	public static int nargsForKeyword(ESILKeyword keyword)
-	{
-		return keywordToNargs.get(keyword);
+		this.numberOfArgs = nArgs;
 	}
 
 	public static ESILKeyword fromString(String word)

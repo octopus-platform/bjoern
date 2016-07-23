@@ -6,7 +6,8 @@ import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
 public class ESILAccessParser
 {
 
-	private static class ExtractorState{
+	private static class ExtractorState
+	{
 
 		public ExtractorState(int i, String e)
 		{
@@ -20,7 +21,7 @@ public class ESILAccessParser
 
 	public static String parse(ESILTokenStream tokenStream, int index)
 	{
-		ExtractorState state = extract_(tokenStream, index -1);
+		ExtractorState state = extract_(tokenStream, index - 1);
 		return state.expr;
 	}
 
@@ -30,16 +31,15 @@ public class ESILAccessParser
 		String curToken = tokenStream.getTokenAt(index);
 
 		ESILKeyword accessKeyword = ESILKeyword.fromString(curToken);
-		if(accessKeyword == null)
+		if (accessKeyword == null)
 			// is token a non-keyword?
-			return new ExtractorState(index -1, curToken);
-
-		int nargs = ESILKeyword.nargsForKeyword(accessKeyword);
+			return new ExtractorState(index - 1, curToken);
 
 		String retString = curToken;
 
-		int curIndex = index -1;
-		for(int i = 0; i < nargs; i++){
+		int curIndex = index - 1;
+		for (int i = 0; i < accessKeyword.numberOfArgs; i++)
+		{
 			ExtractorState state = extract_(tokenStream, curIndex);
 			curIndex = state.index;
 			retString = state.expr + "," + retString;
