@@ -1,9 +1,9 @@
 package bjoern.r2interface.creators;
 
-import bjoern.structures.NodeKey;
-import bjoern.structures.BjoernNodeTypes;
 import bjoern.r2interface.exceptions.BasicBlockWithoutAddress;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
+import bjoern.structures.BjoernNodeTypes;
+import bjoern.structures.NodeKey;
 import bjoern.structures.edges.ControlFlowEdge;
 import bjoern.structures.edges.EdgeTypes;
 import bjoern.structures.interpretations.BasicBlock;
@@ -18,7 +18,7 @@ public class RadareFunctionContentCreator
 
 	private static final Logger logger = LoggerFactory.getLogger(RadareFunctionContentCreator.class);
 
-	public static FunctionContent createContentFromJSON(JSONObject jsonFunctionContent)
+	public static FunctionContent createFromJSON(JSONObject jsonFunctionContent)
 	{
 		FunctionContent content = new FunctionContent();
 

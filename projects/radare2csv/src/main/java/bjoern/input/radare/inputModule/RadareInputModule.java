@@ -88,7 +88,7 @@ public class RadareInputModule implements InputModule
 		{
 			Long address = function.getAddress();
 			JSONObject jsonFunctionContent = radare.getJSONFunctionContentAt(address);
-			FunctionContent content = RadareFunctionContentCreator.createContentFromJSON(jsonFunctionContent);
+			FunctionContent content = RadareFunctionContentCreator.createFromJSON(jsonFunctionContent);
 			function.setContent(content);
 		} catch (InvalidRadareFunctionException e)
 		{
