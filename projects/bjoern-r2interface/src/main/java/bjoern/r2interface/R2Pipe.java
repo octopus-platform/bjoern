@@ -30,12 +30,14 @@ class R2Pipe
 	{
 		stdin = process.getOutputStream();
 		stdout = process.getInputStream();
+		StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
+		errorGobbler.start();
 	}
+
 
 	private Process spawnR2Process(String filename) throws IOException
 	{
 		ProcessBuilder processBuilder = new ProcessBuilder(R2_LOC, "-q0", filename);
-		processBuilder.redirectErrorStream(true);
 		return processBuilder.start();
 	}
 
