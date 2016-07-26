@@ -9,12 +9,15 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import octopus.lib.GraphOperations;
 import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 {
 	public static final String RETURN = "RETURN";
 
 	private OrientGraphNoTx graph;
+	private static final Logger logger = LoggerFactory.getLogger(InstructionLinkerPlugin.class);
 
 	@Override
 	public void execute() throws Exception
@@ -23,8 +26,10 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 
 		Iterable<Function> functions = LookupOperations.getFunctions(graph);
 
+		int counter = 0;
 		for (Function function : functions)
 		{
+			logger.info("Processing function " + ++counter);
 			for (BasicBlock block : function.basicBlocks())
 			{
 				linkInstructions(block);
@@ -35,8 +40,10 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 			}
 		}
 
+		counter = 0;
 		for (Function function : functions)
 		{
+			logger.info("Processing function " + ++counter);
 			for (BasicBlock block : function.basicBlocks())
 			{
 				for (Instruction instruction : block.instructions())
@@ -74,7 +81,11 @@ public class InstructionLinkerPlugin extends OrientGraphConnectionPlugin
 	{
 		Instruction src = srcBlock.getExit();
 		Instruction dst = dstBlock.getEntry();
-		linkInstructions(src, dst);
+		// Some basic blocks do not have instructions
+		if (dst != null)
+		{
+			linkInstructions(src, dst);
+		}
 	}
 
 	/**

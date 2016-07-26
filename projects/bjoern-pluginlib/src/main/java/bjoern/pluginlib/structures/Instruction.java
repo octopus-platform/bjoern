@@ -1,8 +1,8 @@
 package bjoern.pluginlib.structures;
 
-import bjoern.structures.BjoernNodeTypes;
 import bjoern.pluginlib.Traversals;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
@@ -15,7 +15,6 @@ public class Instruction extends BjoernNode implements Comparable<Instruction>
 	{
 		super(vertex, BjoernNodeTypes.INSTRUCTION);
 	}
-
 
 
 	public String getEsilCode()
@@ -50,15 +49,20 @@ public class Instruction extends BjoernNode implements Comparable<Instruction>
 
 	public GremlinPipeline<?, Instruction> exits()
 	{
-		final int maxLoops = 10000;
+		final int MAX_LOOPS = 10000;
 		final String[] EDGES = {Traversals.INSTR_CFLOW_EDGE, Traversals.INSTR_CFLOW_TRANSITIVE_EDGE};
-		return new GremlinPipeline<>(this.getBaseVertex()).as("start")
-				.out(EDGES).dedup().loop("start",
-						arg -> arg.getLoops() < maxLoops
-								&& arg.getObject().getEdges(Direction.OUT, EDGES).iterator().hasNext(),
-						arg -> arg.getLoops() < maxLoops
-								&& !arg.getObject().getEdges(Direction.OUT, EDGES).iterator().hasNext())
-				.dedup()
-				.transform(Instruction::new);
+		if (!this.getVertices(Direction.OUT, EDGES).iterator().hasNext())
+		{
+			return new GremlinPipeline<>(this);
+		} else
+		{
+			return new GremlinPipeline<>(this.getBaseVertex()).as("start")
+					.out(EDGES).dedup().loop("start",
+							arg -> arg.getLoops() < MAX_LOOPS,
+							arg -> arg.getLoops() < MAX_LOOPS
+									&& !arg.getObject().getEdges(Direction.OUT, EDGES).iterator().hasNext())
+					.dedup()
+					.transform(Instruction::new);
+		}
 	}
 }
