@@ -30,7 +30,11 @@ public class BasicBlock extends BjoernNode
 	public Instruction getExit()
 	{
 		Iterator<Instruction> instructions = orderedInstructions().iterator();
-		Instruction last = instructions.next();
+		Instruction last = null;
+		if (instructions.hasNext())
+		{
+			last = instructions.next();
+		}
 		while (instructions.hasNext())
 		{
 			last = instructions.next();
