@@ -8,13 +8,58 @@ import java.util.Map;
 
 public class Instruction extends Node implements Comparable<Instruction>
 {
-	private String stringRepr;
-	private String esilCode;
-	private String bytes;
+	private final String stringRepr;
+	private final String esilCode;
+	private final String bytes;
 
-	public Instruction(long address)
+	public static class Builder extends Node.Builder
 	{
-		super(address, BjoernNodeTypes.INSTRUCTION);
+
+		private String representation;
+		private String esilCode;
+		private String bytes;
+
+		public Builder(Long address)
+		{
+			super(address, BjoernNodeTypes.INSTRUCTION);
+		}
+
+		public Builder withRepresentation(String representation)
+		{
+			this.representation = representation;
+			return this;
+		}
+
+		public Builder withESILCode(String esilCode)
+		{
+			this.esilCode = esilCode;
+			return this;
+		}
+
+		public Builder withBytes(String bytes)
+		{
+			this.bytes = bytes;
+			return this;
+		}
+
+		@Override
+		public Builder withComment(String comment)
+		{
+			return (Builder) super.withComment(comment);
+		}
+
+		public Instruction build()
+		{
+			return new Instruction(this);
+		}
+	}
+
+	public Instruction(Builder builder)
+	{
+		super(builder);
+		this.stringRepr = builder.representation;
+		this.esilCode = builder.esilCode;
+		this.bytes = builder.bytes;
 	}
 
 	public String getStringRepr()
@@ -22,19 +67,9 @@ public class Instruction extends Node implements Comparable<Instruction>
 		return stringRepr;
 	}
 
-	public void setStringRepr(String stringRepr)
-	{
-		this.stringRepr = stringRepr;
-	}
-
 	public String getBytes()
 	{
 		return this.bytes;
-	}
-
-	public void setBytes(String bytes)
-	{
-		this.bytes = bytes;
 	}
 
 	@Override
@@ -50,11 +85,6 @@ public class Instruction extends Node implements Comparable<Instruction>
 	public String getEsilCode()
 	{
 		return esilCode;
-	}
-
-	public void setEsilCode(String esilCode)
-	{
-		this.esilCode = esilCode;
 	}
 
 	@Override

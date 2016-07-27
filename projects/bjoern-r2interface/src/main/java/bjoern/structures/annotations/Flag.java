@@ -1,8 +1,8 @@
 package bjoern.structures.annotations;
 
-import bjoern.structures.Node;
-import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.BjoernNodeTypes;
+import bjoern.structures.Node;
 
 import java.util.Map;
 
@@ -15,12 +15,42 @@ import java.util.Map;
 
 public class Flag extends Node
 {
-	private String value;
-	private long length;
+	private final String value;
+	private final long length;
 
-	public Flag(long address)
+	public static class Builder extends Node.Builder
 	{
-		super(address, BjoernNodeTypes.FLAG);
+		private String value;
+		private long length;
+
+		public Builder(Long address)
+		{
+			super(address, BjoernNodeTypes.FLAG);
+		}
+
+		public Builder withValue(String value)
+		{
+			this.value = value;
+			return this;
+		}
+
+		public Builder withLenght(long length)
+		{
+			this.length = length;
+			return this;
+		}
+
+		public Flag build()
+		{
+			return new Flag(this);
+		}
+	}
+
+	public Flag(Builder builder)
+	{
+		super(builder);
+		this.value = builder.value;
+		this.length = builder.length;
 	}
 
 	public String getValue()
@@ -28,19 +58,9 @@ public class Flag extends Node
 		return value;
 	}
 
-	public void setValue(String value)
-	{
-		this.value = value;
-	}
-
 	public long getLength()
 	{
 		return length;
-	}
-
-	public void setLength(long length)
-	{
-		this.length = length;
 	}
 
 	@Override

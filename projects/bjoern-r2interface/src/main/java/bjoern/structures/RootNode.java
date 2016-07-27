@@ -3,9 +3,22 @@ package bjoern.structures;
 public class RootNode extends Node
 {
 
-	public RootNode(long address)
+	public static class Builder extends Node.Builder
 	{
-		super(address, BjoernNodeTypes.ROOT);
+		public Builder(Long address)
+		{
+			super(address, BjoernNodeTypes.ROOT);
+		}
+
+		public RootNode build()
+		{
+			return new RootNode(this);
+		}
+	}
+
+	public RootNode(Builder builder)
+	{
+		super(builder);
 	}
 
 }

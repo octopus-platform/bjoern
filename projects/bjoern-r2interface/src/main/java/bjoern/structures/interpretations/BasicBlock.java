@@ -5,50 +5,73 @@ import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.Node;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class BasicBlock extends Node
 {
+	private final Map<Long, Instruction> instructions;
+	private List<Instruction> sortedInstructions = null;
 
-	HashMap<Long, Instruction> instructions = new HashMap<Long, Instruction>();
-	List<Instruction> sortedInstructions = null;
-
-	public BasicBlock(long address)
+	public BasicBlock(Builder builder)
 	{
-		super(address, BjoernNodeTypes.BASIC_BLOCK);
+		super(builder);
+		this.instructions = builder.addressToInstruction;
 	}
 
-	public void addInstruction(Instruction instr)
+	public static class Builder extends Node.Builder
 	{
-		instructions.put(instr.getAddress(), instr);
+
+		private Map<Long, Instruction> addressToInstruction = new HashMap<>();
+
+		public Builder(Long address)
+		{
+			super(address, BjoernNodeTypes.BASIC_BLOCK);
+		}
+
+		public Builder withInstructions(List<Instruction> instructions)
+		{
+			addressToInstruction = instructions.stream()
+					.collect(Collectors.toMap(Instruction::getAddress, instruction -> instruction));
+			return this;
+		}
+
+		public BasicBlock build()
+		{
+			return new BasicBlock(this);
+		}
 	}
 
 	public List<Instruction> getInstructions()
 	{
-		generateSortedInstructions();
-		return sortedInstructions;
+		return getSortedInstructions();
 	}
 
-	private void generateSortedInstructions()
+	private List<Instruction> getSortedInstructions()
 	{
 		if (sortedInstructions != null)
-			return;
+			return sortedInstructions;
 
 		Collection<Instruction> collection = instructions.values();
 		sortedInstructions = new ArrayList<>(collection);
 		Collections.sort(sortedInstructions);
+		return sortedInstructions;
 	}
 
 	public String getInstructionsStr()
 	{
-		generateSortedInstructions();
-
-		String retval = "";
-		for (Instruction instr : sortedInstructions)
+		final String DELIMITER = " | ";
+		StringBuilder stringBuilder = new StringBuilder();
+		for (Instruction instr : getSortedInstructions())
 		{
-			retval += instr.getStringRepr() + "|";
+			stringBuilder.append(instr.getStringRepr());
+			stringBuilder.append(DELIMITER);
 		}
-		return retval;
+		if (stringBuilder.length() > DELIMITER.length())
+		{
+			stringBuilder.setLength(stringBuilder.length() - DELIMITER.length());
+		}
+		return stringBuilder.toString();
 	}
 
 	@Override

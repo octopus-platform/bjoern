@@ -7,10 +7,10 @@ public class RadareFlagCreator
 {
 	public static Flag createFromJSON(JSONObject jsonFunction)
 	{
-		Flag retval = new Flag(jsonFunction.getLong("offset"));
-		retval.setValue(jsonFunction.getString("name"));
-		retval.setLength(jsonFunction.getLong("size"));
+		Long address = jsonFunction.getLong("offset");
+		String name = jsonFunction.getString("name");
+		Long size = jsonFunction.getLong("size");
 
-		return retval;
+		return new Flag.Builder(address).withValue(name).withLenght(size).build();
 	}
 }

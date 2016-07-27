@@ -7,7 +7,6 @@ import bjoern.input.radare.inputModule.RadareInputModule;
 import bjoern.structures.Node;
 import bjoern.structures.RootNode;
 import bjoern.structures.annotations.Flag;
-import bjoern.structures.annotations.VariableOrArgument;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.edges.DirectedEdge;
 import bjoern.structures.edges.EdgeTypes;
@@ -101,7 +100,6 @@ public class RadareExporter extends Exporter
 		getOutputModule().writeNodeNoReplace(function);
 		writeRootNodeAndEdgeForNode(function, EdgeTypes.INTERPRETATION);
 		writeBasicBlocksOfFunction(function);
-		writeArgumentsAndVariablesOfFunction(function);
 		writeCFGEdges(function);
 	}
 
@@ -118,7 +116,7 @@ public class RadareExporter extends Exporter
 
 	private void writeRootNodeAndEdgeForNode(Node node, String edgeType)
 	{
-		RootNode rootNode = new RootNode(node.getAddress());
+		RootNode rootNode = new RootNode.Builder(node.getAddress()).build();
 		getOutputModule().writeNodeNoReplace(rootNode);
 		writeEdgeBetweenNodes(rootNode, node, edgeType);
 	}
@@ -141,15 +139,6 @@ public class RadareExporter extends Exporter
 			getOutputModule().writeNode(instruction);
 			writeRootNodeAndEdgeForNode(instruction, EdgeTypes.INTERPRETATION);
 			writeEdgeFromBlockToInstruction(block, instruction);
-		}
-	}
-
-	private void writeArgumentsAndVariablesOfFunction(Function function)
-	{
-		for (VariableOrArgument varOrArg : function.getContent().getVariablesAndArguments())
-		{
-			getOutputModule().writeNode(varOrArg);
-			writeRootNodeAndEdgeForNode(varOrArg, EdgeTypes.ANNOTATION);
 		}
 	}
 

@@ -1,7 +1,6 @@
 package bjoern.structures.interpretations;
 
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
-import bjoern.structures.annotations.VariableOrArgument;
 import bjoern.structures.edges.ControlFlowEdge;
 import bjoern.structures.edges.DirectedEdge;
 
@@ -14,7 +13,6 @@ public class FunctionContent
 {
 	HashMap<Long, BasicBlock> basicBlocks = new HashMap<Long, BasicBlock>();
 	List<DirectedEdge> controlFlowEdges = new LinkedList<DirectedEdge>();
-	List<VariableOrArgument> variablesOrArguments = new LinkedList<>();
 
 	public Collection<BasicBlock> getBasicBlocks()
 	{
@@ -29,16 +27,6 @@ public class FunctionContent
 	public BasicBlock getBasicBlockAtAddress(long addr)
 	{
 		return basicBlocks.get(addr);
-	}
-
-	public void addVariableOrArgument(VariableOrArgument varOrArg)
-	{
-		this.variablesOrArguments.add(varOrArg);
-	}
-
-	public List<VariableOrArgument> getVariablesAndArguments()
-	{
-		return this.variablesOrArguments;
 	}
 
 	public void addBasicBlock(long addr, BasicBlock node)

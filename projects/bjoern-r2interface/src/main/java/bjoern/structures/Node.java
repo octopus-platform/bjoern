@@ -5,20 +5,35 @@ import java.util.Map;
 
 public abstract class Node
 {
-	private long address;
-	private String type;
-	private String comment;
 	private NodeKey nodeKey;
+	private final Long address;
+	private final String type;
+	private final String comment;
 
-	public Node(long address, String type)
+	public static abstract class Builder
 	{
-		setAddr(address);
-		setType(type);
+		private final Long address;
+		private final String type;
+		private String comment;
+
+		public Builder(Long address, String type)
+		{
+			this.address = address;
+			this.type = type;
+		}
+
+		public Builder withComment(String comment)
+		{
+			this.comment = comment;
+			return this;
+		}
 	}
 
-	private void setAddr(long addr)
+	public Node(Builder builder)
 	{
-		address = addr;
+		this.address = builder.address;
+		this.type = builder.type;
+		this.comment = builder.comment;
 	}
 
 	public Long getAddress()
@@ -34,17 +49,6 @@ public abstract class Node
 	public String getType()
 	{
 		return type;
-	}
-
-	private void setType(String type)
-	{
-		this.type = type;
-	}
-
-
-	public void setComment(String comment)
-	{
-		this.comment = comment;
 	}
 
 	public String getComment()

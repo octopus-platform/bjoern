@@ -1,17 +1,15 @@
 package bjoern.input.radare.inputModule;
 
 import bjoern.input.common.InputModule;
-import bjoern.structures.NodeKey;
-import bjoern.structures.BjoernNodeTypes;
 import bjoern.r2interface.Radare;
 import bjoern.r2interface.creators.RadareFlagCreator;
-import bjoern.r2interface.creators.RadareFunctionContentCreator;
 import bjoern.r2interface.creators.RadareFunctionCreator;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
+import bjoern.structures.BjoernNodeTypes;
+import bjoern.structures.NodeKey;
 import bjoern.structures.annotations.Flag;
 import bjoern.structures.edges.CallRef;
 import bjoern.structures.interpretations.Function;
-import bjoern.structures.interpretations.FunctionContent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -60,12 +58,15 @@ public class RadareInputModule implements InputModule
 			public Function next()
 			{
 				JSONObject jsonFunctionObject = jsonFunctions.getJSONObject(nextFunction++);
-				Function function = RadareFunctionCreator.createFromJSON(jsonFunctionObject);
+				Long functionOffset = jsonFunctionObject.getLong("offset");
+				Function function;
 				try
 				{
-					initializeFunctionContents(function);
-				} catch (IOException e)
+					JSONObject functionJSON = radare.getJSONFunctionContentAt(functionOffset);
+					function = RadareFunctionCreator.createFromJSON(functionJSON);
+				} catch (IOException | InvalidRadareFunctionException e)
 				{
+					function = RadareFunctionCreator.createFromJSON(jsonFunctionObject);
 				}
 				return function;
 			}
@@ -77,7 +78,6 @@ public class RadareInputModule implements InputModule
 	{
 		return new Iterator<Flag>()
 		{
-
 			private JSONArray jsonFlags = radare.getFlags();
 			private int nextFlag = 0;
 
@@ -94,7 +94,9 @@ public class RadareInputModule implements InputModule
 				Flag flag = RadareFlagCreator.createFromJSON(jsonFlagObject);
 				return flag;
 			}
-		};
+		}
+
+				;
 	}
 
 	@Override
@@ -135,21 +137,6 @@ public class RadareInputModule implements InputModule
 				return new CallRef(sourceKey, destinationKey);
 			}
 		};
-	}
-
-	private void initializeFunctionContents(Function function)
-			throws IOException
-	{
-		try
-		{
-			Long address = function.getAddress();
-			JSONObject jsonFunctionContent = radare.getJSONFunctionContentAt(address);
-			FunctionContent content = RadareFunctionContentCreator.createFromJSON(jsonFunctionContent);
-			function.setContent(content);
-		} catch (InvalidRadareFunctionException e)
-		{
-			logger.error(e.getMessage());
-		}
 	}
 
 	@Override

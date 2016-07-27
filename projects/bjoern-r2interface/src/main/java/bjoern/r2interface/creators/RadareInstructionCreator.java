@@ -7,19 +7,15 @@ public class RadareInstructionCreator
 {
 	public static Instruction createFromJSON(JSONObject jsonObj)
 	{
-		Instruction retval = new Instruction(JSONUtils.getLongFromObject(jsonObj, "offset"));
-		String stringRepr = JSONUtils.getStringFromObject(jsonObj, "opcode");
-		retval.setStringRepr(stringRepr);
-		String bytes = JSONUtils.getStringFromObject(jsonObj, "bytes");
-		retval.setBytes(bytes);
-		String esilCode = JSONUtils.getStringFromObject(jsonObj, "esil");
-		retval.setEsilCode(esilCode);
-		if (jsonObj.has("comment"))
-		{
-			String comment = JSONUtils.getStringFromObject(jsonObj, "comment");
-			retval.setComment(comment);
-		}
-		return retval;
-	}
+		Long address = jsonObj.getLong("offset");
+		String representation = jsonObj.getString("opcode");
+		String esilCode = jsonObj.getString("esil");
+		String bytes = jsonObj.getString("bytes");
+		String comment = JSONUtils.getStringFromObject(jsonObj, "comment");
 
+		return new Instruction.Builder(address).withRepresentation(representation).withESILCode(esilCode)
+				.withBytes(bytes).withComment(comment).build();
+	}
 }
+
+

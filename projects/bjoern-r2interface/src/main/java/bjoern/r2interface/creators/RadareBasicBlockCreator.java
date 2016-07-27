@@ -6,6 +6,9 @@ import bjoern.structures.interpretations.Instruction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
+import java.util.List;
+
 
 public class RadareBasicBlockCreator
 {
@@ -13,24 +16,23 @@ public class RadareBasicBlockCreator
 	public static BasicBlock createFromJSON(JSONObject block)
 	{
 		long addr = block.getLong("offset");
-		BasicBlock node = new BasicBlock(addr);
-		initInstructionsFromJSON(node, block);
+		JSONArray instructionsJSON = block.getJSONArray("ops");
+		BasicBlock node = new BasicBlock.Builder(addr).withInstructions(getInstructionsFromJSON(instructionsJSON))
+				.build();
 		return node;
 	}
 
-	private static void initInstructionsFromJSON(BasicBlock node,
-			JSONObject block)
+	private static List<Instruction> getInstructionsFromJSON(JSONArray instructionsJSON)
 	{
-		JSONArray instructionsJSON = block.getJSONArray("ops");
 
+		List<Instruction> instructions = new LinkedList<>();
 		int numberOfInstructions = instructionsJSON.length();
 		for (int i = 0; i < numberOfInstructions; i++)
 		{
-			JSONObject jsonInstr = instructionsJSON.getJSONObject(i);
-			Instruction instr = RadareInstructionCreator
-					.createFromJSON(jsonInstr);
-			node.addInstruction(instr);
+			JSONObject instructionJSON = instructionsJSON.getJSONObject(i);
+			Instruction instruction = RadareInstructionCreator.createFromJSON(instructionJSON);
+			instructions.add(instruction);
 		}
+		return instructions;
 	}
-
 }

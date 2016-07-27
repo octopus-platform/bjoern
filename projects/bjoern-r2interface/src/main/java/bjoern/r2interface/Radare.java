@@ -96,7 +96,13 @@ public class Radare
 	public JSONArray getJSONFunctions() throws IOException
 	{
 		String str = r2Pipe.cmd("aflj");
-		return new JSONArray(str);
+		try
+		{
+			return new JSONArray(str);
+		} catch (JSONException e)
+		{
+			return null;
+		}
 	}
 
 	public JSONObject getJSONFunctionContentAt(Long addr)

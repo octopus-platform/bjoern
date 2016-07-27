@@ -1,8 +1,8 @@
 package bjoern.structures.interpretations;
 
-import bjoern.structures.Node;
-import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.BjoernNodeTypes;
+import bjoern.structures.Node;
 
 import java.util.Map;
 
@@ -10,14 +10,44 @@ import java.util.Map;
 public class Function extends Node
 {
 
-	FunctionContent content;
+	private final FunctionContent content;
+	private final String name;
 
-	private String name = "";
-
-	public Function(long addr)
+	public static class Builder extends Node.Builder
 	{
-		super(addr, BjoernNodeTypes.FUNCTION);
-		content = new FunctionContent();
+
+		private String name;
+		private FunctionContent content;
+
+		public Builder(Long address)
+		{
+			super(address, BjoernNodeTypes.FUNCTION);
+		}
+
+		public Builder withName(String name)
+		{
+			this.name = name;
+			return this;
+		}
+
+		public Builder withContent(FunctionContent content)
+		{
+			this.content = content;
+			return this;
+		}
+
+		public Function build()
+		{
+			return new Function(this);
+		}
+
+	}
+
+	public Function(Builder builder)
+	{
+		super(builder);
+		this.name = builder.name;
+		this.content = builder.content;
 	}
 
 	public FunctionContent getContent()
@@ -25,24 +55,9 @@ public class Function extends Node
 		return content;
 	}
 
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
 	public String getName()
 	{
 		return name;
-	}
-
-	public void setContent(FunctionContent content)
-	{
-		this.content = content;
-	}
-
-	public void deleteContent()
-	{
-		content = null;
 	}
 
 	@Override

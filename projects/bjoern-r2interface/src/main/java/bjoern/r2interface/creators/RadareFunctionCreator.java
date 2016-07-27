@@ -2,6 +2,7 @@ package bjoern.r2interface.creators;
 
 
 import bjoern.structures.interpretations.Function;
+import bjoern.structures.interpretations.FunctionContent;
 import org.json.JSONObject;
 
 
@@ -10,18 +11,21 @@ public class RadareFunctionCreator
 
 	public static Function createFromJSON(JSONObject jsonFunction)
 	{
-		Function retval = new Function(jsonFunction.getLong("offset"));
-
-		initFunctionInfo(jsonFunction, retval);
-
-		return retval;
-	}
-
-	private static void initFunctionInfo(JSONObject jsonFunction,
-										 Function retval)
-	{
+		Long address = jsonFunction.getLong("offset");
 		String name = jsonFunction.getString("name");
-		retval.setName(name);
+		FunctionContent content = getFunctionContentFromJSON(jsonFunction);
+		Function function = new Function.Builder(address).withName(name).withContent(content).build();
+		return function;
 	}
 
+	private static FunctionContent getFunctionContentFromJSON(JSONObject jsonFunction)
+	{
+		try
+		{
+			return RadareFunctionContentCreator.createFromJSON(jsonFunction);
+		} catch (Exception e)
+		{
+			return new FunctionContent();
+		}
+	}
 }
