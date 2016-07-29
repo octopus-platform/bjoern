@@ -2,70 +2,77 @@ package bjoern.plugins.vsa.structures;
 
 import java.math.BigInteger;
 
-public abstract class StridedInterval
+public class StridedInterval
 {
 
-	private final long stride;
-	private final long lowerBound;
-	private final long upperBound;
+	protected final long stride;
+	protected final long lowerBound;
+	protected final long upperBound;
+	protected final DataWidth dataWidth;
 
-	StridedInterval(long stride, long lower, long upper)
+
+	protected StridedInterval(long stride, long lower, long upper, DataWidth dataWidth)
 	{
+		// Strided intervals must be immutable
+
+		lower = dataWidth.effectiveValue(lower);
+		upper = dataWidth.effectiveValue(upper);
+
 		if (stride < 0)
 		{
 			throw new IllegalArgumentException("Invalid strided interval: stride must not be negative");
 		} else if (stride == 0 && lower != upper)
 		{
 			throw new IllegalArgumentException("Invalid strided interval: stride must not be zero");
-		} else if ((lower > upper) && (stride != 1 || lower != 0 || upper != -1))
+		} else if ((lower > upper) && (stride != 1 || lower != 1 || upper != 0))
 		{
 			throw new IllegalArgumentException("Invalid strided interval: lower bound must not be larger than upper "
 					+ "bound.");
-		} else if (stride > 0 && ((upper - lower) % stride) != 0)
+		} else if (stride > 0 &&
+				BigInteger.valueOf(upper).subtract(BigInteger.valueOf(lower)).mod(BigInteger.valueOf(stride))
+						.longValue() != 0)
 		{
 			throw new IllegalArgumentException("Invalid strided interval: upper bound must be tight.");
 		}
+
 		this.stride = stride;
 		this.lowerBound = lower;
 		this.upperBound = upper;
+		this.dataWidth = dataWidth;
 	}
 
 	public static StridedInterval getTop(DataWidth dataWidth)
 	{
-		switch (dataWidth)
+		switch (dataWidth.getWidth())
 		{
-			case R4:
-				return StridedInterval4Bit.TOP;
-			case R64:
+			case 1:
+				return StridedInterval1Bit.TOP;
+			case 64:
 				return StridedInterval64Bit.TOP;
 			default:
-				return StridedInterval64Bit.TOP;
+				return getInterval(dataWidth.getMinimumValue(), dataWidth.getMaximumValue(), dataWidth);
 		}
 	}
 
 	public static StridedInterval getBottom(DataWidth dataWidth)
 	{
-		switch (dataWidth)
+		// the bottom element (empty set) is always represented by a stride equal to 1, minimum value equal to 1, and
+		// maximum value equal to 0.
+		switch (dataWidth.getWidth())
 		{
-			case R4:
-				return StridedInterval4Bit.BOTTOM;
-			case R64:
+			case 1:
+				return StridedInterval1Bit.BOTTOM;
+			case 64:
 				return StridedInterval64Bit.BOTTOM;
 			default:
-				return StridedInterval64Bit.BOTTOM;
+				return getStridedInterval(1, 1, 0, dataWidth);
 		}
 	}
 
 	public static StridedInterval getSingletonSet(long number, DataWidth dataWidth)
 	{
-		switch (dataWidth)
-		{
-			case R4:
-				return new StridedInterval4Bit(0, number, number);
-			case R64:
-			default:
-				return new StridedInterval64Bit(0, number, number);
-		}
+		// singleton sets have a stride equal to 0
+		return getStridedInterval(0, number, number, dataWidth);
 	}
 
 	public static StridedInterval getInterval(long lower, long upper, DataWidth dataWidth)
@@ -75,20 +82,33 @@ public abstract class StridedInterval
 
 	public static StridedInterval getStridedInterval(long stride, long lower, long upper, DataWidth dataWidth)
 	{
-		switch (dataWidth)
+		switch (dataWidth.getWidth())
 		{
-			case R4:
-				return new StridedInterval4Bit(stride, lower, upper);
-			case R64:
-			default:
+			case 1:
+				return new StridedInterval1Bit(stride, lower, upper);
+			case 64:
 				return new StridedInterval64Bit(stride, lower, upper);
+			default:
+				return new StridedInterval(stride, lower, upper, dataWidth);
 		}
 	}
 
 	@Override
 	public String toString()
 	{
-		return stride + "[" + lowerBound + ", " + upperBound + "]";
+		if (isSingletonSet())
+		{
+			return "{" + lowerBound + "}";
+		} else if (isBottom())
+		{
+			return "{}"; //empty set
+		} else if (isInterval())
+		{
+			return "[" + lowerBound + ", " + upperBound + "]";
+		} else
+		{
+			return stride + "[" + lowerBound + ", " + upperBound + "]";
+		}
 	}
 
 	@Override
@@ -113,79 +133,137 @@ public abstract class StridedInterval
 		return result;
 	}
 
+	public DataWidth getDataWidth()
+	{
+		return dataWidth;
+	}
+
 	public boolean isSingletonSet()
 	{
-		return stride == 0;
+		return stride == 0; // this implies that lowerBound == upperBound
 	}
 
 	public boolean isTop()
 	{
-		return this.equals(getTop(this.getDataWidth()));
+		return this.equals(getTop(dataWidth));
 	}
 
 	public boolean isBottom()
 	{
-		return this.equals(getBottom(this.getDataWidth()));
+		return this.equals(getBottom(dataWidth));
 	}
 
 	public boolean isZero()
 	{
-		return isSingletonSet() && contains(0);
+		return isSingletonSet() && lowerBound == 0;
+	}
+
+	public boolean isOne()
+	{
+		return isSingletonSet() && lowerBound == 1;
+	}
+
+	public boolean isInterval()
+	{
+		return stride == 1;
 	}
 
 	public boolean contains(long number)
 	{
-		if (lowerBound > number || upperBound < number)
-		{
-			return false;
-		} else
-		{
-			return isSingletonSet() && lowerBound == number || ((number - lowerBound) % stride) == 0;
-		}
+		return !(lowerBound > number || upperBound < number) && (isSingletonSet() && lowerBound == number
+				|| ((number - lowerBound) % stride) == 0);
 	}
 
 	public boolean contains(StridedInterval si)
 	{
-		return si.stride % this.stride == 0
-				&& si.lowerBound >= this.lowerBound && si.lowerBound <= this.upperBound
-				&& si.upperBound >= this.lowerBound && si.upperBound <= this.upperBound
-				&& this.contains(si.lowerBound);
+		if (isBottom())
+		{
+			return false;
+		} else if (si.isBottom())
+		{
+			return true;
+		} else if (isSingletonSet())
+		{
+			return equals(si);
+		} else if (si.isSingletonSet())
+		{
+			return contains(si.lowerBound);
+		} else
+		{
+			return si.stride % this.stride == 0
+					&& si.lowerBound >= this.lowerBound && si.lowerBound <= this.upperBound
+					&& si.upperBound >= this.lowerBound && si.upperBound <= this.upperBound
+					&& this.contains(si.lowerBound);
+		}
 	}
 
-	private boolean isLowerBoundMinimal()
+	protected boolean isLowerBoundMinimal()
 	{
-		return this.lowerBound == lowerLimit();
+		return this.lowerBound == dataWidth.getMinimumValue();
 	}
 
-	private boolean isUpperBoundMaximal()
+	protected boolean isUpperBoundMaximal()
 	{
-		return this.upperBound == upperLimit();
+		return this.upperBound == dataWidth.getMaximumValue();
 	}
 
-	public long sharedSuffixMask()
+	protected long sharedSuffixMask()
 	{
 		if (isSingletonSet())
 		{
-			return 0xffffffffffffffffl;
+			return 0xffffffffffffffffL;
 		}
 		int t = Long.numberOfTrailingZeros(stride);
-		long mask = (0x1 << t) - 1;
-		return mask;
+		return (0x1 << t) - 1;
 	}
 
-	public long sharedPrefixMask()
+	protected long sharedPrefixMask()
 	{
 		if (isSingletonSet())
 		{
-			return 0xffffffffffffffffl;
+			return 0xffffffffffffffffL;
 		}
 		long l = Long.numberOfLeadingZeros(lowerBound ^ upperBound);
 		if (l == 0)
 		{
-			return 0x0000000000000000l;
+			return 0x0000000000000000L;
 		}
-		long mask = 0x8000000000000000l >> (l - 1);
-		return mask;
+		return 0x8000000000000000L >> (l - 1);
+	}
+
+	public StridedInterval add(long c)
+	{
+		return this.add(getSingletonSet(c, dataWidth));
+	}
+
+	public StridedInterval add(StridedInterval si)
+	{
+		if (dataWidth.compareTo(si.dataWidth) < 0)
+		{
+			return si.add(this);
+		} else if (dataWidth.compareTo(si.dataWidth) > 0)
+		{
+			return add(si.signExtend(dataWidth));
+		}
+
+		long stride = gcd(this.stride, si.stride);
+		long lower = this.lowerBound + si.lowerBound;
+		long upper = this.upperBound + si.upperBound;
+
+		long u = this.lowerBound & si.lowerBound & ~lower & ~(this.upperBound & si.upperBound & ~upper);
+		long v = ((this.lowerBound ^ si.lowerBound) | ~(this.lowerBound ^ lower)) & (~this.upperBound & ~si.upperBound
+				& upper);
+
+		u = dataWidth.effectiveValue(u);
+		v = dataWidth.effectiveValue(v);
+		if ((u | v) < 0)
+		{
+			return getTop(dataWidth);
+		} else
+		{
+			return getStridedInterval(stride, dataWidth.effectiveValue(lower), dataWidth.effectiveValue(upper),
+					dataWidth);
+		}
 	}
 
 	public StridedInterval sub(long c)
@@ -205,12 +283,7 @@ public abstract class StridedInterval
 
 	public StridedInterval dec()
 	{
-		return this.add(-1);
-	}
-
-	public StridedInterval add(long c)
-	{
-		return this.add(getSingletonSet(c, getDataWidth()));
+		return this.sub(1);
 	}
 
 	public StridedInterval union(StridedInterval si)
@@ -242,17 +315,11 @@ public abstract class StridedInterval
 
 		long gcd = gcd(gcd(this.stride, si.stride), delta);
 		long stride = gcd < 0 ? -gcd : gcd;
-		return getStridedInterval(stride, lowerBound, upperBound, getDataWidth());
+		return getStridedInterval(stride, lowerBound, upperBound, DataWidth.maximum(dataWidth, si.dataWidth));
 	}
 
 	public StridedInterval intersect(StridedInterval si)
 	{
-		if (si.getDataWidth() != this.getDataWidth())
-		{
-			throw new IllegalArgumentException("Incompatible width.");
-		}
-
-		// handle inverted cases
 		if (this.upperBound > si.upperBound)
 		{
 			return si.intersect(this);
@@ -261,7 +328,7 @@ public abstract class StridedInterval
 		if (this.upperBound <= si.lowerBound)
 		{
 			// non-overlapping intervals
-			return getBottom(this.getDataWidth());
+			return getBottom(dataWidth);
 		} else
 		{
 			// partly overlapping intervals
@@ -275,7 +342,7 @@ public abstract class StridedInterval
 			// check if there can be any common elements
 			if ((difference % gcd) != 0)
 			{
-				return getBottom(this.getDataWidth());
+				return getBottom(dataWidth);
 			}
 
 			// find one solution (let's call it the anchor) to
@@ -296,52 +363,52 @@ public abstract class StridedInterval
 			long answerLowerBound = anchor + (t * answerStride);
 			if (answerLowerBound > Math.min(this.upperBound, si.upperBound))
 			{
-				return getBottom(getDataWidth());
+				return getBottom(dataWidth);
 			} else if (Math.min(this.upperBound, si.upperBound) - answerLowerBound < answerStride)
 			{
-				return getSingletonSet(answerLowerBound, getDataWidth());
+				return getSingletonSet(answerLowerBound, dataWidth);
 			} else
 			{
 				long answerSize = (Math.min(this.upperBound, si.upperBound) - answerLowerBound) / answerStride + 1;
 				return getStridedInterval(answerStride, answerLowerBound,
-						answerLowerBound + (answerSize - 1) * answerStride, getDataWidth());
+						answerLowerBound + (answerSize - 1) * answerStride, dataWidth);
 			}
 		}
 	}
 
 	public StridedInterval removeLowerBound()
 	{
-		return getStridedInterval(stride, lowerLimit(), upperBound, getDataWidth());
+		if (lowerBound == dataWidth.getMinimumValue())
+		{
+			return this;
+		} else if (isSingletonSet())
+		{
+			return getStridedInterval(1, dataWidth.getMinimumValue(), upperBound, dataWidth);
+		} else
+		{
+			long lowerBound = dataWidth.getMinimumValue();
+			long delta = BigInteger.valueOf(upperBound).subtract(BigInteger.valueOf(lowerBound))
+					.mod(BigInteger.valueOf(stride)).longValue();
+			lowerBound += delta;
+			return getStridedInterval(stride, lowerBound, upperBound, dataWidth);
+		}
 	}
 
 	public StridedInterval removeUpperBound()
 	{
-		return getStridedInterval(stride, lowerBound, upperLimit(), getDataWidth());
-	}
-
-	public StridedInterval add(StridedInterval si)
-	{
-		if (si.getDataWidth() != this.getDataWidth())
+		if (upperBound == dataWidth.getMaximumValue())
 		{
-			throw new IllegalArgumentException("Incompatible width.");
-		}
-
-		long stride = gcd(this.stride, si.stride);
-		long lower = this.lowerBound + si.lowerBound;
-		long upper = this.upperBound + si.upperBound;
-
-		long u = this.lowerBound & si.lowerBound & ~lower & ~(this.upperBound & si.upperBound & ~upper);
-		long v = ((this.lowerBound ^ si.lowerBound) | ~(this.lowerBound ^ lower)) & (~this.upperBound & ~si.upperBound
-				& upper);
-		u = getDataWidth().effectiveValue(u);
-		v = getDataWidth().effectiveValue(v);
-		if ((u | v) < 0)
+			return this;
+		} else if (isSingletonSet())
 		{
-			return getTop(getDataWidth());
+			return getStridedInterval(1, lowerBound, dataWidth.getMaximumValue(), dataWidth);
 		} else
 		{
-			return getStridedInterval(stride, getDataWidth().effectiveValue(lower), getDataWidth().effectiveValue
-					(upper), getDataWidth());
+			long upperBound = dataWidth.getMaximumValue();
+			long delta = BigInteger.valueOf(upperBound).subtract(BigInteger.valueOf(lowerBound))
+					.mod(BigInteger.valueOf(stride)).longValue();
+			upperBound -= delta;
+			return getStridedInterval(stride, lowerBound, upperBound, dataWidth);
 		}
 	}
 
@@ -352,18 +419,21 @@ public abstract class StridedInterval
 			return this;
 		} else if (!isLowerBoundMinimal())
 		{
-			return getStridedInterval(stride, -upperBound, -lowerBound, getDataWidth());
+			return getStridedInterval(stride, -upperBound, -lowerBound, dataWidth);
 		} else
 		{
-			return getTop(getDataWidth());
+			return getTop(dataWidth);
 		}
 	}
 
 	public StridedInterval or(StridedInterval si)
 	{
-		if (si.getDataWidth() != this.getDataWidth())
+		if (dataWidth.compareTo(si.dataWidth) < 0)
 		{
-			throw new IllegalArgumentException("Incompatible widths.");
+			return extend(si.dataWidth).or(si);
+		} else if (dataWidth.compareTo(si.dataWidth) > 0)
+		{
+			return or(si.extend(dataWidth));
 		}
 
 		long suffixMask1 = this.sharedSuffixMask();
@@ -392,33 +462,33 @@ public abstract class StridedInterval
 		while ((answerLowerBound & suffixBits) != suffixBits) answerLowerBound++;
 		while ((answerUpperBound & suffixBits) != suffixBits) answerUpperBound--;
 
-		return getStridedInterval(answerStride, answerLowerBound, answerUpperBound, this.getDataWidth());
+		return getStridedInterval(answerStride, answerLowerBound, answerUpperBound, dataWidth);
 
 	}
 
 	public StridedInterval not()
 	{
-		return getStridedInterval(stride, ~upperBound, ~lowerBound, getDataWidth());
+		return getStridedInterval(stride, ~upperBound, ~lowerBound, dataWidth);
 	}
 
 	public StridedInterval and(StridedInterval si)
 	{
-		return this.not().or(si.not()).not();
+		return not().or(si.not()).not();
 	}
 
 	public StridedInterval xor(StridedInterval si)
 	{
-		return this.not().or(si).not().or(this.or(si.not()).not());
+		return not().or(si).not().or(or(si.not()).not());
 	}
 
 	public Bool3 compare(StridedInterval si)
 	{
-		if (this.equals(si))
+		if (equals(si))
 		{
 			return Bool3.TRUE;
 		} else
 		{
-			if (this.intersect(si).isBottom())
+			if (intersect(si).isBottom())
 			{
 				return Bool3.FALSE;
 			} else
@@ -442,6 +512,37 @@ public abstract class StridedInterval
 		}
 	}
 
+
+	public StridedInterval widen(StridedInterval stridedInterval)
+	{
+		StridedInterval answer = this;
+		answer = lowerBound <= stridedInterval.lowerBound ? answer : answer.removeLowerBound();
+		answer = upperBound >= stridedInterval.upperBound ? answer : answer.removeUpperBound();
+		return answer;
+	}
+
+	public StridedInterval extend(DataWidth dataWidth)
+	{
+		if (this.dataWidth.compareTo(dataWidth) >= 0)
+		{
+			return this;
+		} else
+		{
+			throw new UnsupportedOperationException("Not yet implemented.");
+		}
+	}
+
+	public StridedInterval signExtend(DataWidth dataWidth)
+	{
+		if (this.dataWidth.compareTo(dataWidth) >= 0)
+		{
+			return this;
+		} else
+		{
+			return getStridedInterval(stride, lowerBound, upperBound, dataWidth);
+		}
+	}
+
 	public Bool3 greater(StridedInterval si)
 	{
 		return smaller(si).not();
@@ -455,18 +556,6 @@ public abstract class StridedInterval
 	public Bool3 smallerOrEqual(StridedInterval si)
 	{
 		return smaller(si).or(compare(si));
-	}
-
-	public abstract DataWidth getDataWidth();
-
-	public long upperLimit()
-	{
-		return getDataWidth().getMaximumValue();
-	}
-
-	public long lowerLimit()
-	{
-		return getDataWidth().getMinimumValue();
 	}
 
 	private static long gcd(long a, long b)
@@ -614,12 +703,5 @@ public abstract class StridedInterval
 		{
 			throw new IllegalArgumentException("Arguments are invalid bounds.");
 		}
-	}
-
-	public StridedInterval widen(StridedInterval stridedInterval)
-	{
-		long l = lowerBound <= stridedInterval.lowerBound ? lowerBound : lowerLimit();
-		long u = upperBound >= stridedInterval.upperBound ? upperBound : upperLimit();
-		return StridedInterval.getInterval(l, u, getDataWidth());
 	}
 }

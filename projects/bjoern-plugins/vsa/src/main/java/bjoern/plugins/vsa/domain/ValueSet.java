@@ -44,22 +44,6 @@ public class ValueSet
 		return valueSet;
 	}
 
-	static ValueSet copy(ValueSet valueSet)
-	{
-		if (valueSet.isTop())
-		{
-			return newTop(valueSet.dataWidth);
-		} else
-		{
-			ValueSet vs = new ValueSet(valueSet.dataWidth);
-			for (Map.Entry<MemoryRegion, StridedInterval> entry : valueSet.valueSet.entrySet())
-			{
-				vs.setValueOfRegion(entry.getKey(), entry.getValue());
-			}
-			return vs;
-		}
-	}
-
 	private void setValueOfRegion(MemoryRegion region, StridedInterval value)
 	{
 		assert !isTop() : "Cannot set region of top element";
@@ -97,30 +81,12 @@ public class ValueSet
 		return valueSet.keySet();
 	}
 
-	public ValueSet union(ValueSet valueSet)
-	{
-		if (this.isTop() || valueSet.isTop())
-		{
-			newTop(dataWidth);
-		}
-		ValueSet answer = new ValueSet(dataWidth);
-		for (MemoryRegion region : this.getRegions())
-		{
-			answer.setValueOfRegion(region, this.getValueOfRegion(region).union(valueSet.getValueOfRegion(region)));
-		}
-		for (MemoryRegion region : valueSet.getRegions())
-		{
-			answer.setValueOfRegion(region, this.getValueOfRegion(region).union(valueSet.getValueOfRegion(region)));
-		}
-		return answer;
-	}
-
 	private boolean isSingle()
 	{
 		return getRegions().size() == 1 && getRegions().stream().allMatch(region -> region instanceof LocalRegion);
 	}
 
-	public boolean isGlobal()
+	private boolean isGlobal()
 	{
 		return getRegions().size() == 1 && getRegions().stream().allMatch(region -> region instanceof GlobalRegion);
 	}
@@ -161,6 +127,24 @@ public class ValueSet
 		{
 			return "ValueSet[" + valueSet.toString() + ", " + dataWidth + "]";
 		}
+	}
+
+	public ValueSet union(ValueSet valueSet)
+	{
+		if (this.isTop() || valueSet.isTop())
+		{
+			newTop(dataWidth);
+		}
+		ValueSet answer = new ValueSet(dataWidth);
+		for (MemoryRegion region : this.getRegions())
+		{
+			answer.setValueOfRegion(region, this.getValueOfRegion(region).union(valueSet.getValueOfRegion(region)));
+		}
+		for (MemoryRegion region : valueSet.getRegions())
+		{
+			answer.setValueOfRegion(region, this.getValueOfRegion(region).union(valueSet.getValueOfRegion(region)));
+		}
+		return answer;
 	}
 
 	public ValueSet sub(ValueSet valueSet)
@@ -321,12 +305,6 @@ public class ValueSet
 		return newTop(dataWidth);
 	}
 
-	public ValueSet not()
-	{
-		logger.warn("Operation (not) not yet implemented");
-		return newTop(dataWidth);
-	}
-
 	public ValueSet widen(ValueSet valueSet)
 	{
 		ValueSet answer = new ValueSet(dataWidth);
@@ -337,4 +315,9 @@ public class ValueSet
 		return answer;
 	}
 
+	public ValueSet negate()
+	{
+		logger.warn("Operation (negate) not yet implemented");
+		return newGlobal(StridedInterval.getInterval(0, 1, DataWidth.R1));
+	}
 }

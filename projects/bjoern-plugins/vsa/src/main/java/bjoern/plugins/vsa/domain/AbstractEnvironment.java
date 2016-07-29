@@ -2,94 +2,95 @@ package bjoern.plugins.vsa.domain;
 
 import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
+import bjoern.plugins.vsa.transformer.esil.stack.Flag;
+import bjoern.plugins.vsa.transformer.esil.stack.Register;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class AbstractEnvironment
 {
-	private final Map<String, ValueSet> registers;
-	private final Map<String, Bool3> flags;
+	private final Map<String, Register> registers;
+	private final Map<String, Flag> flags;
 
 	public AbstractEnvironment()
 	{
-		registers = new HashMap<String, ValueSet>();
-		flags = new HashMap<String, Bool3>();
+		registers = new HashMap<>();
+		flags = new HashMap<>();
 	}
 
 	public AbstractEnvironment(AbstractEnvironment inEnv)
 	{
 		this();
-		for (String register : inEnv.getRegisters())
+		for (Register register : inEnv.registers.values())
 		{
-			registers.put(register, ValueSet.copy(inEnv.getValueSetOfRegister(register)));
+			setRegister(new Register(register));
 		}
-		for (String flag : inEnv.getFlags())
+		for (Flag flag : inEnv.flags.values())
 		{
-			flags.put(flag, inEnv.getValueOfFlag(flag));
+			setFlag(new Flag(flag));
 		}
 	}
 
-	public Bool3 getValueOfFlag(String flag)
+	public void setFlag(Flag flag)
+	{
+		this.flags.put(flag.getIdentifier(), flag);
+	}
+
+	public void setRegister(Register register)
+	{
+		this.registers.put(register.getIdentifier(), register);
+	}
+
+	public Flag getFlag(String flag)
 	{
 		if (!flags.containsKey(flag))
 		{
-			return Bool3.MAYBE;
+			return new Flag(flag, Bool3.MAYBE);
 		}
 		return flags.get(flag);
 	}
 
-	public void setValueOfFlag(String flag, Bool3 value)
-	{
-		flags.put(flag, value);
-	}
-
-	public ValueSet getValueSetOfRegister(String register)
+	public Register getRegister(String register)
 	{
 		if (!registers.containsKey(register))
 		{
-			return ValueSet.newTop(DataWidth.R64);
+			return new Register(register, ValueSet.newTop(DataWidth.R64));
 		}
 		return registers.get(register);
 	}
 
-	public void setValueSetOfRegister(String register, ValueSet value)
+	public Collection<Register> getRegisters()
 	{
-		registers.put(register, value);
+		return registers.values();
 	}
 
-	public Set<String> getFlags()
+	public Collection<Flag> getFlags()
 	{
-		return flags.keySet();
-	}
-
-	public Set<String> getRegisters()
-	{
-		return registers.keySet();
+		return flags.values();
 	}
 
 	public AbstractEnvironment union(AbstractEnvironment absEnv)
 	{
 		AbstractEnvironment answer = new AbstractEnvironment();
-		for (String register : this.getRegisters())
+
+		Set<String> registerIds = new HashSet<>();
+		registerIds.addAll(registers.keySet());
+		registerIds.addAll(absEnv.registers.keySet());
+		for (String identifier : registerIds)
 		{
-			answer.setValueSetOfRegister(register,
-					getValueSetOfRegister(register).union(absEnv.getValueSetOfRegister(register)));
+			answer.setRegister(new Register(identifier,
+					getRegister(identifier).getValue().union(absEnv.getRegister(identifier).getValue())));
 		}
-		for (String register : absEnv.getRegisters())
+
+		Set<String> flagIds = new HashSet<>();
+		flagIds.addAll(flags.keySet());
+		flagIds.addAll(absEnv.flags.keySet());
+		for (String identifier : flagIds)
 		{
-			answer.setValueSetOfRegister(register,
-					getValueSetOfRegister(register).union(absEnv.getValueSetOfRegister(register)));
+			answer.setFlag(new Flag(identifier,
+					getFlag(identifier).getBooleanValue().join(absEnv.getFlag(identifier).getBooleanValue())));
 		}
-		for (String flag : this.getFlags())
-		{
-			answer.setValueOfFlag(flag, getValueOfFlag(flag).join(absEnv.getValueOfFlag(flag)));
-		}
-		for (String flag : absEnv.getFlags())
-		{
-			answer.setValueOfFlag(flag, getValueOfFlag(flag).join(absEnv.getValueOfFlag(flag)));
-		}
+
 		return answer;
 	}
 
@@ -107,12 +108,15 @@ public class AbstractEnvironment
 	@Override
 	public int hashCode()
 	{
-		return registers.hashCode();
+		int result = registers.hashCode();
+		result = 31 * result + flags.hashCode();
+		return result;
 	}
 
 	@Override
 	public String toString()
 	{
-		return "AbstractEnvironment[" + registers.toString() + ", " + flags.toString() + "]";
+		return "AbstractEnvironment[" + registers.values().toString() + ", " + flags.values().toString() + "]";
 	}
+
 }

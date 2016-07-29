@@ -1,20 +1,19 @@
 package bjoern.pluginlib;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
-
-import bjoern.structures.BjoernNodeTypes;
 import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.edges.EdgeTypes;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class Traversals
 {
@@ -97,7 +96,8 @@ public class Traversals
 		pipe.start(function).as("loop")
 				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
 				.loop("loop", v -> true,
-						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(BjoernNodeTypes.ALOC));
+						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(
+								BjoernNodeTypes.ALOC)).dedup();
 		return pipe.toList().stream().map(Aloc::new).collect(Collectors.toList());
 	}
 

@@ -2,18 +2,21 @@ package bjoern.plugins.vsa;
 
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
+import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.domain.region.LocalRegion;
+import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
+import bjoern.plugins.vsa.transformer.esil.stack.Flag;
+import bjoern.plugins.vsa.transformer.esil.stack.Register;
 import bjoern.structures.BjoernEdgeProperties;
-import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -42,7 +45,13 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		{
 			Function function = new Function(v);
 			logger.info(function.toString());
-			performIntraProceduralVSA(function);
+			try
+			{
+				performIntraProceduralVSA(function);
+			} catch (Exception e)
+			{
+				logger.error("Error for function " + function + ": " + e.getMessage());
+			}
 		}
 		graph.shutdown();
 	}
@@ -51,15 +60,15 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 	{
 		assignment = new HashMap<>();
 		mycounter = new HashMap<>();
+		Queue<Instruction> worklist = new LinkedList<>();
+		Transformer transformer = new ESILTransformer();
+
 		Instruction entry = Traversals.functionToEntryInstruction(function);
 		if (entry == null)
 		{
 			return;
 		}
-
-		Queue<Instruction> worklist = new LinkedList<>();
-		Transformer transformer = new ESILTransformer();
-		initAbstractEnvironment(entry);
+		setAbstractEnvironment(entry, createAbstractEnvironment(function));
 		worklist.add(entry);
 		while (!worklist.isEmpty())
 		{
@@ -95,6 +104,32 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		writeResults();
 	}
 
+	private AbstractEnvironment createAbstractEnvironment(Function function)
+	{
+		AbstractEnvironment env = new AbstractEnvironment();
+		for (Aloc aloc : Traversals.functionToAlocs(function))
+		{
+			if (aloc.isFlag())
+			{
+				env.setFlag(new Flag(aloc.getName(), Bool3.MAYBE));
+			} else if (aloc.isRegister())
+			{
+				// TODO: Read initial values and the data width from aloc node.
+				ValueSet valueSet;
+				if (aloc.getName().equals("rsp"))
+				{
+					valueSet = ValueSet.newSingle(LocalRegion.newLocalRegion(),
+							StridedInterval.getSingletonSet(0, DataWidth.R64));
+				} else
+				{
+					valueSet = ValueSet.newTop(DataWidth.R64);
+				}
+				env.setRegister(new Register(aloc.getName(), valueSet));
+			}
+		}
+		return env;
+	}
+
 	private void writeResults()
 	{
 		for (Instruction instr : assignment.keySet())
@@ -103,25 +138,20 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 			logger.info(assignment.get(instr).toString());
 			for (Edge edge : instr.getEdges(Direction.OUT, EdgeTypes.READ))
 			{
-				String aloc = edge.getVertex(Direction.IN).getProperty(BjoernNodeProperties.NAME);
-				if (isFlag(aloc))
+				Aloc aloc = new Aloc(edge.getVertex(Direction.IN));
+				if (aloc.isFlag())
 				{
 					edge.setProperty(BjoernEdgeProperties.VALUE,
-							assignment.get(instr).getValueOfFlag(aloc).toString());
+							assignment.get(instr).getFlag(aloc.getName()).getBooleanValue().toString());
 				} else
 				{
 					edge.setProperty(BjoernEdgeProperties.VALUE,
-							assignment.get(instr).getValueSetOfRegister(aloc).toString());
+							assignment.get(instr).getRegister(aloc.getName()).getValue().toString());
 				}
 			}
 
 		}
 
-	}
-
-	private boolean isFlag(String aloc)
-	{
-		return aloc.startsWith("$") || (aloc.length() == 2 && aloc.endsWith("f"));
 	}
 
 	private int getCounter(Instruction n)
@@ -165,10 +195,11 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 	private void performWidening(AbstractEnvironment newEnv, AbstractEnvironment oldEnv)
 	{
 		logger.info("Performing widening: " + oldEnv + " [<=>] " + newEnv);
-		for (String register : newEnv.getRegisters())
+		for (Register register : newEnv.getRegisters())
 		{
-			newEnv.setValueSetOfRegister(register,
-					oldEnv.getValueSetOfRegister(register).widen(newEnv.getValueSetOfRegister(register)));
+			String identifier = register.getIdentifier();
+			ValueSet valueSet = oldEnv.getRegister(identifier).getValue().widen(register.getValue());
+			newEnv.setRegister(new Register(identifier, valueSet));
 		}
 	}
 
@@ -182,14 +213,4 @@ public class VSAPlugin extends OrientGraphConnectionPlugin
 		assignment.put(n, env);
 	}
 
-	private void initAbstractEnvironment(Instruction entry)
-	{
-		AbstractEnvironment initState = new AbstractEnvironment();
-		ValueSet valueSet;
-		valueSet = ValueSet.newSingle(LocalRegion.newLocalRegion(),
-				StridedInterval.getSingletonSet(0, DataWidth.R64));
-		initState.setValueSetOfRegister("rsp", valueSet);
-
-		setAbstractEnvironment(entry, initState);
-	}
 }

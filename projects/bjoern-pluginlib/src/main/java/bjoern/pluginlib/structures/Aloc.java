@@ -1,8 +1,7 @@
 package bjoern.pluginlib.structures;
 
-import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.BjoernNodeProperties;
-
+import bjoern.structures.BjoernNodeTypes;
 import com.tinkerpop.blueprints.Vertex;
 
 public class Aloc extends BjoernNode
@@ -20,5 +19,10 @@ public class Aloc extends BjoernNode
 	public boolean isFlag()
 	{
 		return getProperty(BjoernNodeProperties.SUBTYPE).toString().equals("flag");
+	}
+
+	public boolean isRegister()
+	{
+		return !isFlag();
 	}
 }
