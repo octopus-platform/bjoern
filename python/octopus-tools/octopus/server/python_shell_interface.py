@@ -1,5 +1,6 @@
 from octopus.server.orientdb.orientdb_shell_mananger import OrientDBShellManager
 from octopus.shell.octopus_shell import OctopusShellConnection
+import time
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = '2480'
@@ -30,15 +31,23 @@ class PythonShellInterface:
         self.shell_connection = self._getOrCreateFreeShell()
 
     def _getOrCreateFreeShell(self):
-        shell = self._getExistingFreeShell()
-        if not shell: shell = self._createNewShell()
-        return shell
+
+        while True:
+            try:
+                shell = self._getExistingFreeShell()
+                if not shell:
+                    shell = self._createNewShell()
+                return shell
+            except ConnectionRefusedError:
+                time.sleep(0.1)
 
     def _getExistingFreeShell(self):
 
         self._retrieveShellsFromServer()
-        if len(self.freeShellsForDatabase) == 0: return None
+        if len(self.freeShellsForDatabase) == 0:
+            return None
         return self._connectToShellWithPort(self.freeShellsForDatabase[0][0])
+
 
     def _retrieveShellsFromServer(self):
 
@@ -59,7 +68,8 @@ class PythonShellInterface:
 
     def _createNewShell(self):
         shellname = self._generateNameForNewShell()
-        self.shell_manager.create(self.databaseName, shellname)
+        port = self.shell_manager.create(self.databaseName, shellname)
+        return self._connectToShellWithPort(port)
 
     def _generateNameForNewShell(self):
         prefix = self._getPythonShellPrefix()
@@ -82,7 +92,13 @@ class PythonShellInterface:
         self.shell_connection = OctopusShellConnection(self.host, self.port)
 
     def runGremlinQuery(self, query):
-        return self.shell_connection.run_command(query)
+
+        while True:
+            try:
+                return self.shell_connection.run_command(query)
+            except ConnectionResetError:
+                self.shell_connection = self._getOrCreateFreeShell()
+                time.sleep(0.1)
 
     """
     Create chunks from a list of ids.
