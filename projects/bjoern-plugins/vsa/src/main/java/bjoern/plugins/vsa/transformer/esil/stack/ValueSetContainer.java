@@ -22,4 +22,9 @@ public class ValueSetContainer implements ESILStackItem<ValueSet>
 		return valueSet;
 	}
 
+	@Override
+	public String toString()
+	{
+		return valueSet.toString();
+	}
 }
