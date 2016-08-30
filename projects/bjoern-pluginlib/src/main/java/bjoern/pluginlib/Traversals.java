@@ -91,13 +91,9 @@ public class Traversals
 
 	public static List<Aloc> functionToAlocs(Function function)
 	{
-		GremlinPipeline<Vertex, Vertex> pipe = new GremlinPipeline<>();
-		pipe.start(function).as("loop")
-				.out(EdgeTypes.IS_FUNCTION_OF, EdgeTypes.IS_BB_OF, EdgeTypes.READ, EdgeTypes.WRITE)
-				.loop("loop", v -> true,
-						v -> v.getObject().getProperty(BjoernNodeProperties.TYPE).toString().equals(
-								BjoernNodeTypes.ALOC)).dedup();
-		return pipe.toList().stream().map(Aloc::new).collect(Collectors.toList());
+		GremlinPipeline<Function, Aloc> pipe = new GremlinPipeline<>();
+		pipe.start(function).out(ALOC_USE_EDGE).dedup().cast(Aloc.class);
+		return pipe.toList();
 	}
 
 }
