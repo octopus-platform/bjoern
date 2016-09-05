@@ -37,6 +37,11 @@ public class ValueSet
 		return valueSet;
 	}
 
+	public static ValueSet newSingle(StridedInterval values)
+	{
+		return newSingle(LocalRegion.newLocalRegion(), values);
+	}
+
 	public static ValueSet newSingle(LocalRegion region, StridedInterval values)
 	{
 		ValueSet valueSet = new ValueSet(values.getDataWidth());
@@ -46,7 +51,6 @@ public class ValueSet
 
 	private void setValueOfRegion(MemoryRegion region, StridedInterval value)
 	{
-		assert !isTop() : "Cannot set region of top element";
 		if (!this.dataWidth.equals(value.getDataWidth()))
 		{
 			throw new IllegalArgumentException("Invalid data width");
