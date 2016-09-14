@@ -23,6 +23,25 @@ public class Aloc extends BjoernNode
 
 	public boolean isRegister()
 	{
-		return !isFlag();
+		return getProperty(BjoernNodeProperties.SUBTYPE).toString().equals("reg");
 	}
+
+	public boolean isLocalVariable()
+	{
+		return getProperty(BjoernNodeProperties.SUBTYPE).toString().equals("local");
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(getProperty(BjoernNodeProperties.TYPE).toString());
+		sb.append("(");
+		sb.append(BjoernNodeProperties.NAME);
+		sb.append(":");
+		sb.append(getProperty(BjoernNodeProperties.NAME).toString());
+		sb.append(")");
+		return sb.toString();
+	}
+
 }
