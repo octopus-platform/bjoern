@@ -73,7 +73,7 @@ public class FunctionAlocCreator
 		List<MemoryAccess> access = memAccessEvaluator.extractMemoryAccesses(instr);
 		for (MemoryAccess m : access)
 		{
-			createAloc(m.getEsilExpression());
+			createAloc(m.getEsilExpression(), AlocTypes.LOCAL);
 			m.debugOut();
 		}
 	}
@@ -87,15 +87,15 @@ public class FunctionAlocCreator
 			Vertex registerVertex = registerToVertex.get(registerStr);
 			if (registerVertex == null)
 			{
-				registerVertex = createAloc(registerStr);
+
+				registerVertex = createAloc(registerStr, subTypeFromAlocName(registerStr));
 			}
 		}
 	}
 
-	private Vertex createAloc(String alocName) throws IOException
+	private Vertex createAloc(String alocName, String subType) throws IOException
 	{
 		String functionAddr = functionVertex.getProperty("addr");
-		String subType = subTypeFromAlocName(alocName);
 
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(BjoernNodeProperties.ADDR, functionAddr);
@@ -123,7 +123,7 @@ public class FunctionAlocCreator
 			return AlocTypes.FLAG;
 
 
-		return AlocTypes.UNKNOWN;
+		return AlocTypes.REGISTER;
 	}
 
 	private void linkFunctionAndAloc(Vertex alocVertex)
