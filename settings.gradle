@@ -1,4 +1,3 @@
-
 include 'projects:octopus:orientdbimporter'
 include 'projects:octopus:octopus-server'
 include 'projects:octopus:octopus-lang'
@@ -13,6 +12,7 @@ include 'projects:bjoern-plugins:radareimporter'
 include 'projects:bjoern-plugins:paramdetect'
 include 'projects:bjoern-plugins:alocs'
 include 'projects:bjoern-plugins:vsa'
+include 'projects:bjoern-plugins:usedefanalyzer'
 
 include 'projects:bjoern-lang'
 
