@@ -2,7 +2,7 @@ package bjoern.plugins.vsa.transformer.esil.stack;
 
 import bjoern.plugins.vsa.domain.ValueSet;
 
-public class ValueSetContainer implements ESILStackItem<ValueSet>
+public class ValueSetContainer implements ESILStackItem
 {
 
 	private final ValueSet valueSet;

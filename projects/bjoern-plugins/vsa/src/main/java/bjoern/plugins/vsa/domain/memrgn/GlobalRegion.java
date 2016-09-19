@@ -1,4 +1,4 @@
-package bjoern.plugins.vsa.domain.region;
+package bjoern.plugins.vsa.domain.memrgn;
 
 public class GlobalRegion implements MemoryRegion
 {

@@ -5,34 +5,39 @@ import bjoern.pluginlib.radare.emulation.esil.ESILTokenEvaluator;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
-import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
+import bjoern.plugins.vsa.transformer.esil.commands.ESILCommand;
 import bjoern.plugins.vsa.transformer.esil.stack.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.Map;
 
 public class ESILTransformer implements Transformer
 {
-	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
-	private AbstractEnvironment outEnv;
-	private ESILStack esilStack;
+	private final Map<ESILKeyword, ESILCommand> commands;
 
-	private ESILTokenStream tokenStream;
+	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
+	private AbstractEnvironment outEnv = null;
 	private ESILTokenEvaluator esilParser = new ESILTokenEvaluator();
 
-	@Override
-	public AbstractEnvironment transform(String esilCode, AbstractEnvironment env)
+	public ESILTransformer(Map<ESILKeyword, ESILCommand> commands)
 	{
-		outEnv = new AbstractEnvironment(env);
-		esilStack = new ESILStack();
-		tokenStream = new ESILTokenStream(esilCode);
+		this.commands = commands;
+	}
 
-		logger.info("Transforming [" + esilCode + "]");
+	@Override
+	public AbstractEnvironment transform(String esilCode, AbstractEnvironment inEnv)
+	{
+		// copy environment
+		outEnv = new AbstractEnvironment(inEnv);
+		// initialize esil stack
+		ESILStack esilStack = new ESILStack();
+		ESILTokenStream tokenStream = new ESILTokenStream(esilCode);
+
+		logger.info("Transforming: " + esilCode + "");
 
 		if (esilCode.equals(""))
 		{
@@ -42,304 +47,49 @@ public class ESILTransformer implements Transformer
 		while (tokenStream.hasNext())
 		{
 			String token = tokenStream.next();
-			convertToken(token);
+			if (esilParser.isEsilKeyword(token))
+			{
+				ESILKeyword keyword = ESILKeyword.fromString(token);
+				if (keyword == ESILKeyword.START_CONDITIONAL)
+				{
+					executeConditional(esilStack, tokenStream);
+				} else if (keyword == ESILKeyword.END_CONDITIONAL)
+				{
+				} else
+				{
+					ESILCommand command = commands.get(keyword);
+					command.execute(outEnv, esilStack);
+				}
+			} else
+			{
+				ESILStackItem item = convert(token);
+				esilStack.push(item);
+			}
 		}
-
 		return outEnv;
 	}
 
-	private void convertToken(String token)
+
+	private ESILStackItem convert(String token)
 	{
-		if (esilParser.isEsilKeyword(token))
+		if (esilParser.isNumericConstant(token))
 		{
-			executeEsilCommand(ESILKeyword.fromString(token));
-		} else if (esilParser.isNumericConstant(token))
-		{
-			pushValueSet(ValueSet
-					.newGlobal(StridedInterval
-							.getSingletonSet(esilParser.parseNumericConstant(token), DataWidth.R64)));
+			ValueSet valueSet = ValueSet
+					.newGlobal(StridedInterval.getSingletonSet(esilParser.parseNumericConstant(token), DataWidth.R64));
+			return new ValueSetContainer(valueSet);
 		} else if (esilParser.isRegister(token))
 		{
-			esilStack.push(outEnv.getRegister(token));
+			return new RegisterContainer(outEnv.getRegister(token));
 		} else if (esilParser.isFlag(token))
 		{
-			esilStack.push(outEnv.getFlag(token));
+			return new FlagContainer(outEnv.getFlag(token));
 		} else
 		{
-			throw new ESILTransformationException("Unknown ESIL token (" + token + ")");
+			throw new ESILTransformationException("Cannot convert token: " + token);
 		}
 	}
 
-	private void pushValueSet(ValueSet valueSet)
-	{
-		esilStack.push(new ValueSetContainer(valueSet));
-	}
-
-	private void executeEsilCommand(ESILKeyword command)
-	{
-		logger.debug("Executing esil command: " + command);
-		logger.debug("Stack content: " + esilStack);
-		logger.debug("Environment: " + outEnv);
-		switch (command)
-		{
-			case ASSIGNMENT:
-				executeAssignment();
-				break;
-			case COMPARE:
-				logger.warn("Operation (compare) not yet implemented");
-				esilStack.pop();
-				esilStack.pop();
-				break;
-			case SMALLER:
-			case SMALLER_OR_EQUAL:
-			case BIGGER:
-			case BIGGER_OR_EQUAL:
-				logger.warn("Operation (smaller*, bigger*) not yet implemented");
-				esilStack.pop();
-				esilStack.pop();
-				esilStack.push(
-						new ValueSetContainer(ValueSet.newGlobal(StridedInterval.getInterval(0, 1, DataWidth.R1))));
-				break;
-			case SHIFT_LEFT:
-				executeShiftLeft();
-				break;
-			case SHIFT_RIGHT:
-				executeShiftRight();
-				break;
-			case ROTATE_LEFT:
-				executeRotateLeft();
-				break;
-			case ROTATE_RIGHT:
-				executeRotateRight();
-				break;
-			case AND:
-				executeAnd();
-				break;
-			case OR:
-				executeOr();
-				break;
-			case XOR:
-				executeXor();
-				break;
-			case ADD:
-				executeAdd();
-				break;
-			case SUB:
-				executeSub();
-				break;
-			case MUL:
-				executeMul();
-				break;
-			case DIV:
-				executeDiv();
-				break;
-			case MOD:
-				executeMod();
-				break;
-			case NEG:
-				executeNeg();
-				break;
-			case INC:
-				executeInc();
-				break;
-			case DEC:
-				executeDec();
-				break;
-			case ADD_ASSIGN:
-				executeAddAssign();
-				break;
-			case SUB_ASSIGN:
-				executeSubAssign();
-				break;
-			case MUL_ASSIGN:
-				executeMulAssign();
-				break;
-			case DIV_ASSIGN:
-				executeDivAssign();
-				break;
-			case MOD_ASSIGN:
-				executeModAssign();
-				break;
-			case SHIFT_LEFT_ASSIGN:
-				executeShiftLeftAssign();
-				break;
-			case SHIFT_RIGHT_ASSIGN:
-				executeShiftRightAssign();
-				break;
-			case AND_ASSIGN:
-				executeAndAssign();
-				break;
-			case OR_ASSIGN:
-				executeOrAssign();
-				break;
-			case XOR_ASSIGN:
-				executeXorAssign();
-				break;
-			case INC_ASSIGN:
-				executeIncAssign();
-				break;
-			case DEC_ASSIGN:
-				executeDecAssign();
-				break;
-			case NEG_ASSIGN:
-				executeNegAssign();
-				break;
-			case POKE:
-			case POKE_AST:
-			case POKE1:
-			case POKE2:
-			case POKE4:
-			case POKE8:
-				executePoke();
-				break;
-			case PEEK:
-			case PEEK_AST:
-			case PEEK1:
-			case PEEK2:
-			case PEEK4:
-			case PEEK8:
-				executePeek();
-				break;
-			case START_CONDITIONAL:
-				executeConditional();
-				break;
-			case END_CONDITIONAL:
-				break;
-			default:
-				break;
-		}
-	}
-
-	private void executeMul()
-	{
-		pushValueSet(esilStack.popValueSet().mul(esilStack.popValueSet()));
-	}
-
-	private void executeMulAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeMul();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeDiv()
-	{
-		pushValueSet(esilStack.popValueSet().div(esilStack.popValueSet()));
-	}
-
-	private void executeDivAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeDiv();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeMod()
-	{
-		pushValueSet(esilStack.popValueSet().mod(esilStack.popValueSet()));
-	}
-
-	private void executeModAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeMod();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeShiftLeft()
-	{
-		pushValueSet(esilStack.popValueSet().shiftLeft(esilStack.popValueSet()));
-	}
-
-	private void executeShiftLeftAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeShiftLeft();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeShiftRight()
-	{
-		pushValueSet(esilStack.popValueSet().shiftRight(esilStack.popValueSet()));
-	}
-
-	private void executeShiftRightAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeShiftRight();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeRotateLeft()
-	{
-		pushValueSet(esilStack.popValueSet().rotateLeft(esilStack.popValueSet()));
-	}
-
-	private void executeRotateRight()
-	{
-		pushValueSet(esilStack.popValueSet().rotateRight(esilStack.popValueSet()));
-	}
-
-	private void executeNeg()
-	{
-		// TODO: not sure what neg (!) does!?
-		pushValueSet(esilStack.popValueSet().negate());
-	}
-
-	private void executeNegAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeNeg();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeXor()
-	{
-		pushValueSet(esilStack.popValueSet().xor(esilStack.popValueSet()));
-	}
-
-
-	private void executeXorAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeXor();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeOr()
-	{
-		pushValueSet(esilStack.popValueSet().or(esilStack.popValueSet()));
-	}
-
-	private void executeOrAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeOr();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeAnd()
-	{
-		pushValueSet(esilStack.popValueSet().and(esilStack.popValueSet()));
-	}
-
-	private void executeAndAssign()
-	{
-		ESILStackItem<ValueSet> element = esilStack.peek();
-		executeAnd();
-		esilStack.push(element);
-		executeAssignment();
-	}
-
-	private void executeConditional()
+	private void executeConditional(ESILStack esilStack, ESILTokenStream tokenStream)
 	{
 		ValueSet valueSet = esilStack.popValueSet();
 		if (valueSet.getValueOfGlobalRegion().isZero())
@@ -347,7 +97,6 @@ public class ESILTransformer implements Transformer
 			tokenStream.skipUntilToken(ESILKeyword.END_CONDITIONAL.keyword);
 		} else if (!valueSet.getValueOfGlobalRegion().isOne())
 		{
-			// nothing to do
 		} else
 		{
 			StringBuilder builder = new StringBuilder();
@@ -356,112 +105,20 @@ public class ESILTransformer implements Transformer
 				builder.append(tokenStream.next()).append(",");
 			} while (tokenStream.hasNext());
 
+			// remove trailing comma
 			builder.setLength(builder.length() - 1);
 			String esilCode = builder.toString();
 
-			AbstractEnvironment amc = new ESILTransformer().transform(esilCode, outEnv);
+			AbstractEnvironment amc = new ESILTransformer(commands).transform(esilCode, outEnv);
 			if (esilCode.indexOf("}") == esilCode.length() - 1)
 			{
-				this.outEnv = amc.union(this.outEnv);
+				outEnv = amc.union(outEnv);
 			} else
 			{
-				this.outEnv = amc
-						.union(new ESILTransformer().transform(esilCode.substring(esilCode.indexOf("}") + 2), outEnv));
+				outEnv = amc
+						.union(new ESILTransformer(commands)
+								.transform(esilCode.substring(esilCode.indexOf("}") + 2), outEnv));
 			}
-		}
-	}
-
-	private void executePeek()
-	{
-		logger.info("Loading data from memory not yet supported");
-		esilStack.pop();
-		pushValueSet(ValueSet.newTop(DataWidth.R64));
-	}
-
-	private void executePoke()
-	{
-		logger.info("Writing data to memory not yet supported");
-		esilStack.pop();
-		esilStack.pop();
-	}
-
-	private void executeInc()
-	{
-		pushValueSet(ValueSet.newGlobal(StridedInterval.getSingletonSet(1, DataWidth.R64)));
-		executeAdd();
-	}
-
-	private void executeIncAssign()
-	{
-		ESILStackItem<ValueSet> obj = esilStack.peek();
-		executeInc();
-		esilStack.push(obj);
-		executeAssignment();
-	}
-
-	private void executeDec()
-	{
-		pushValueSet(ValueSet.newGlobal(StridedInterval.getSingletonSet(1, DataWidth.R64)));
-		executeSub();
-	}
-
-	private void executeDecAssign()
-	{
-		ESILStackItem<ValueSet> obj = esilStack.peek();
-		executeDec();
-		esilStack.push(obj);
-		executeAssignment();
-	}
-
-	private void executeAdd()
-	{
-		pushValueSet(esilStack.popValueSet().add(esilStack.popValueSet()));
-	}
-
-	private void executeAddAssign()
-	{
-		ESILStackItem<ValueSet> obj = esilStack.peek();
-		executeAdd();
-		esilStack.push(obj);
-		executeAssignment();
-	}
-
-	private void executeSub()
-	{
-		pushValueSet(esilStack.popValueSet().sub(esilStack.popValueSet()));
-	}
-
-	private void executeSubAssign()
-	{
-		ESILStackItem<ValueSet> obj = esilStack.peek();
-		executeSub();
-		esilStack.push(obj);
-		executeAssignment();
-	}
-
-	private void executeAssignment()
-	{
-		Object obj = esilStack.pop();
-		if (obj instanceof Register)
-		{
-			String identifier = ((Register) obj).getIdentifier();
-			outEnv.setRegister(new Register(identifier, esilStack.popValueSet()));
-		} else if (obj instanceof Flag)
-		{
-			String identifier = ((Flag) obj).getIdentifier();
-			StridedInterval stridedInterval = esilStack.popValueSet().getValueOfGlobalRegion();
-			Flag flag;
-			if (stridedInterval.isZero())
-			{
-				flag = new Flag(identifier, Bool3.FALSE);
-			} else if (stridedInterval.isOne())
-			{
-				flag = new Flag(identifier, Bool3.TRUE);
-			} else
-			{
-				flag = new Flag(identifier, Bool3.MAYBE);
-			}
-			outEnv.setFlag(flag);
 		}
 	}
 

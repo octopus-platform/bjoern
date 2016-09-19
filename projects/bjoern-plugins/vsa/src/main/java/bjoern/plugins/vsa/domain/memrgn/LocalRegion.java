@@ -1,29 +1,29 @@
-package bjoern.plugins.vsa.domain.region;
+package bjoern.plugins.vsa.domain.memrgn;
 
-public class HeapRegion implements MemoryRegion
+public class LocalRegion implements MemoryRegion
 {
 	private static int counter = 0;
 	private final long id;
 
-	private HeapRegion(long id)
+	private LocalRegion(long id)
 	{
 		this.id = id;
 	}
 
-	public static HeapRegion getHeapRegion()
+	public static LocalRegion newLocalRegion()
 	{
-		return new HeapRegion(counter++);
+		return new LocalRegion(counter++);
 	}
 
 	@Override
 	public boolean equals(Object o)
 	{
-		if (!(o instanceof HeapRegion))
+		if (!(o instanceof LocalRegion))
 		{
 			return false;
 		}
 
-		HeapRegion other = (HeapRegion) o;
+		LocalRegion other = (LocalRegion) o;
 		return this.id == other.id;
 	}
 
@@ -33,9 +33,10 @@ public class HeapRegion implements MemoryRegion
 		return (int) (id ^ (id >>> 32));
 	}
 
+
 	@Override
 	public String toString()
 	{
-		return "heap" + id;
+		return "local" + id;
 	}
 }

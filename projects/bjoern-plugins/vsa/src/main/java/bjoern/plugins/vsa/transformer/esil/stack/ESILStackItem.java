@@ -1,6 +1,8 @@
 package bjoern.plugins.vsa.transformer.esil.stack;
 
-public interface ESILStackItem<T>
+import bjoern.plugins.vsa.domain.ValueSet;
+
+public interface ESILStackItem
 {
-	T getValue();
+	ValueSet getValue();
 }

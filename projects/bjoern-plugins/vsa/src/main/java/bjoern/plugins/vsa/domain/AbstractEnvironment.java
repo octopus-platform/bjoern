@@ -1,16 +1,24 @@
 package bjoern.plugins.vsa.domain;
 
+import bjoern.plugins.vsa.data.DataObject;
+import bjoern.plugins.vsa.data.Flag;
+import bjoern.plugins.vsa.data.Register;
 import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
-import bjoern.plugins.vsa.transformer.esil.stack.Flag;
-import bjoern.plugins.vsa.transformer.esil.stack.Register;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * An abstract environment represents a set of concrete states that can arise at a program point
+ * (see Balakrishnan, Gogul, and Thomas Reps. "WYSINWYX: What you see is not what you eXecute.").
+ */
 public class AbstractEnvironment
 {
-	private final Map<String, Register> registers;
-	private final Map<String, Flag> flags;
+	private final Map<String, DataObject<ValueSet>> registers;
+	private final Map<String, DataObject<Bool3>> flags;
 
 	public AbstractEnvironment()
 	{
@@ -21,52 +29,44 @@ public class AbstractEnvironment
 	public AbstractEnvironment(AbstractEnvironment inEnv)
 	{
 		this();
-		for (Register register : inEnv.registers.values())
+		for (DataObject<ValueSet> register : inEnv.registers.values())
 		{
-			setRegister(new Register(register));
+			setRegister(register.copy());
 		}
-		for (Flag flag : inEnv.flags.values())
+		for (DataObject<Bool3> flag : inEnv.flags.values())
 		{
-			setFlag(new Flag(flag));
+			setFlag(flag.copy());
 		}
 	}
 
-	public void setFlag(Flag flag)
+	public void setFlag(DataObject<Bool3> flag)
 	{
 		this.flags.put(flag.getIdentifier(), flag);
 	}
 
-	public void setRegister(Register register)
+	public void setRegister(DataObject<ValueSet> register)
 	{
 		this.registers.put(register.getIdentifier(), register);
 	}
 
-	public Flag getFlag(String flag)
+	public DataObject<ValueSet> getRegister(String registerName)
 	{
-		if (!flags.containsKey(flag))
+		if (!registers.containsKey(registerName))
 		{
-			return new Flag(flag, Bool3.MAYBE);
+			this.registers.put(registerName, new Register(registerName, ValueSet.newTop(DataWidth.R64)));
 		}
-		return flags.get(flag);
+		DataObject<ValueSet> register = registers.get(registerName);
+		return register;
 	}
 
-	public Register getRegister(String register)
+	public DataObject<Bool3> getFlag(String flagName)
 	{
-		if (!registers.containsKey(register))
+		if (!flags.containsKey(flagName))
 		{
-			return new Register(register, ValueSet.newTop(DataWidth.R64));
+			this.flags.put(flagName, new Flag(flagName, Bool3.MAYBE));
 		}
-		return registers.get(register);
-	}
-
-	public Collection<Register> getRegisters()
-	{
-		return registers.values();
-	}
-
-	public Collection<Flag> getFlags()
-	{
-		return flags.values();
+		DataObject<Bool3> flag = flags.get(flagName);
+		return flag;
 	}
 
 	public AbstractEnvironment union(AbstractEnvironment absEnv)
@@ -78,8 +78,9 @@ public class AbstractEnvironment
 		registerIds.addAll(absEnv.registers.keySet());
 		for (String identifier : registerIds)
 		{
-			answer.setRegister(new Register(identifier,
-					getRegister(identifier).getValue().union(absEnv.getRegister(identifier).getValue())));
+			ValueSet value1 = this.getRegister(identifier).read();
+			ValueSet value2 = absEnv.getRegister(identifier).read();
+			answer.setRegister(new Register(identifier, value1.union(value2)));
 		}
 
 		Set<String> flagIds = new HashSet<>();
@@ -87,10 +88,10 @@ public class AbstractEnvironment
 		flagIds.addAll(absEnv.flags.keySet());
 		for (String identifier : flagIds)
 		{
-			answer.setFlag(new Flag(identifier,
-					getFlag(identifier).getBooleanValue().join(absEnv.getFlag(identifier).getBooleanValue())));
+			Bool3 value1 = this.getFlag(identifier).read();
+			Bool3 value2 = absEnv.getFlag(identifier).read();
+			answer.setFlag(new Flag(identifier, value1.join(value2)));
 		}
-
 		return answer;
 	}
 
@@ -108,7 +109,8 @@ public class AbstractEnvironment
 	@Override
 	public int hashCode()
 	{
-		int result = registers.hashCode();
+		int result = 17;
+		result = 31 * result + registers.hashCode();
 		result = 31 * result + flags.hashCode();
 		return result;
 	}

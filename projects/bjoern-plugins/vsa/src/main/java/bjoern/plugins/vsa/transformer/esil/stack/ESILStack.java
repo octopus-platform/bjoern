@@ -7,13 +7,18 @@ import java.util.LinkedList;
 
 public class ESILStack
 {
-	private final Deque<ESILStackItem<ValueSet>> stack;
+	private final Deque<ESILStackItem> stack;
 
 	public ESILStack() {stack = new LinkedList<>();}
 
-	public void push(ESILStackItem<ValueSet> item)
+	public void push(ESILStackItem item)
 	{
 		this.stack.push(item);
+	}
+
+	public void pushValueSet(ValueSet valueSet)
+	{
+		this.push(new ValueSetContainer(valueSet));
 	}
 
 	public ValueSet popValueSet()
@@ -21,13 +26,20 @@ public class ESILStack
 		return this.stack.pop().getValue();
 	}
 
-	public ESILStackItem<ValueSet> pop()
+	public ESILStackItem pop()
 	{
 		return stack.pop();
 	}
 
-	public ESILStackItem<ValueSet> peek()
+	public ESILStackItem peek()
 	{
 		return stack.peek();
 	}
+
+	@Override
+	public String toString()
+	{
+		return stack.toString();
+	}
+
 }
