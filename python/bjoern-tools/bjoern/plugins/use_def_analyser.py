@@ -5,7 +5,7 @@ class UseDefAnalyser(OctopusPlugin):
     def __init__(self, executor):
         super().__init__(executor)
         self._pluginname = 'usedefanalyser.jar'
-        self._classname = 'bjoern.plugins.usedefanalyser.UseDefAnalyser'
+        self._classname = 'bjoern.plugins.usedefanalyser.UseDefAnalyserPlugin'
 
     def __setattr__(self, key, value):
         if key == "project":
