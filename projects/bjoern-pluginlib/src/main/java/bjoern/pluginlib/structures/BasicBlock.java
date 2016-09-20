@@ -10,7 +10,8 @@ import java.util.Iterator;
 public class BasicBlock extends BjoernNode
 {
 
-	private static final String[] CFLOW_EDGES = {EdgeTypes.CFLOW, EdgeTypes.CFLOW_TRUE, EdgeTypes.CFLOW_FALSE};
+	private static final String[] CFLOW_EDGES = {EdgeTypes.CFLOW, EdgeTypes
+			.CFLOW_TRUE, EdgeTypes.CFLOW_FALSE};
 
 	public BasicBlock(Vertex vertex)
 	{
@@ -42,18 +43,21 @@ public class BasicBlock extends BjoernNode
 		return last;
 	}
 
-	public GremlinPipeline<?, Instruction> instructions()
+	public GremlinPipeline<BasicBlock, Instruction> instructions()
 	{
-		return new GremlinPipeline<>(this.getBaseVertex()).out(EdgeTypes.IS_BB_OF).transform(Instruction::new);
+		return new GremlinPipeline<BasicBlock, Instruction>(this)
+				.out(EdgeTypes.IS_BB_OF).dedup().cast(Instruction.class);
 	}
 
 	public GremlinPipeline<?, Instruction> orderedInstructions()
 	{
-		return instructions().order(pair -> pair.getA().compareTo(pair.getB()));
+		return instructions().order(pair -> pair.getA().compareTo(pair.getB
+				()));
 	}
 
 	public GremlinPipeline<?, BasicBlock> cflow()
 	{
-		return new GremlinPipeline<>(this.getBaseVertex()).out(CFLOW_EDGES).transform(BasicBlock::new);
+		return new GremlinPipeline<>(this.getBaseVertex()).out(CFLOW_EDGES)
+				.transform(BasicBlock::new);
 	}
 }
