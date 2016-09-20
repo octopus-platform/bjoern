@@ -23,6 +23,10 @@ public class DataDependencePlugin extends OrientGraphConnectionPlugin
 		{
 			Instruction entry = Traversals
 					.functionToEntryInstruction(function);
+			if (null == entry)
+			{
+				continue;
+			}
 			Map<Vertex, Set<Edge>> reachingDefinitions = analyser
 					.analyse(graph, entry);
 			DataDependenceCreator
