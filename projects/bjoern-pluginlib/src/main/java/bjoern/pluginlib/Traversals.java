@@ -67,15 +67,14 @@ public class Traversals
 
 	public static Instruction functionToEntryInstruction(Function function)
 	{
-		GremlinPipeline<Vertex, Vertex> pipeline = createNewGremlinPipe();
+		GremlinPipeline<Function, Instruction> pipeline = new GremlinPipeline<>();
 
-		Vertex vertex;
 		pipeline.start(function).in(EdgeTypes.INTERPRETATION).out(EdgeTypes.INTERPRETATION)
 				.filter(v -> v.getProperty(BjoernNodeProperties.TYPE).equals(BjoernNodeTypes.INSTRUCTION));
 
 		if (pipeline.hasNext())
 		{
-			return new Instruction(pipeline.next());
+			return pipeline.next();
 		} else
 		{
 			return null;
