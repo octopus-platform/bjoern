@@ -27,9 +27,6 @@ public class DataDependenceCreator
 				{
 					Vertex source = edge.getVertex(Direction.OUT);
 					addEdge(source, destination, object);
-					System.out.println(
-							source + " --" + object + "--> " +
-									destination);
 				}
 
 			}
