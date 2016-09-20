@@ -21,7 +21,6 @@ public class DataDependencePlugin extends OrientGraphConnectionPlugin
 		ReachingDefinitionAnalyser analyser = new ReachingDefinitionAnalyser();
 		for (Function function : LookupOperations.getFunctions(graph))
 		{
-			System.out.println(function);
 			Instruction entry = Traversals
 					.functionToEntryInstruction(function);
 			Map<Vertex, Set<Edge>> reachingDefinitions = analyser
