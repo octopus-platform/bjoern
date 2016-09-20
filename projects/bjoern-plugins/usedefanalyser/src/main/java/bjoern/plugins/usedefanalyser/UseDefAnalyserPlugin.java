@@ -1,4 +1,4 @@
-package bjoern.plugins.usedefanalyzer;
+package bjoern.plugins.usedefanalyser;
 
 import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
@@ -10,19 +10,19 @@ import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
 
 import java.util.List;
 
-public class UseDefAnalyzerPlugin extends OrientGraphConnectionPlugin
+public class UseDefAnalyserPlugin extends OrientGraphConnectionPlugin
 {
 	@Override
 	public void execute() throws Exception
 	{
 		OrientGraphNoTx graph = orientConnector.getNoTxGraphInstance();
-		UseDefAnalyzer analyzer = new UseDefAnalyzer();
+		UseDefAnalyser analyzer = new UseDefAnalyser();
 		for (Function function : LookupOperations.getFunctions(graph))
 		{
 			List<Aloc> alocs = Traversals.functionToAlocs(function);
 			for (BasicBlock block : function.basicBlocks())
 			{
-				analyzer.analyze(block, alocs);
+				analyzer.analyse(block, alocs);
 			}
 		}
 	}

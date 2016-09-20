@@ -1,4 +1,4 @@
-package bjoern.plugins.usedefanalyzer;
+package bjoern.plugins.usedefanalyser;
 
 
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
@@ -23,13 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UseDefAnalyzer
+public class UseDefAnalyser
 {
 
 	private final Map<ESILKeyword, ESILCommand> commands;
 	private Observer observer;
 
-	public UseDefAnalyzer()
+	public UseDefAnalyser()
 	{
 		commands = new HashMap<>();
 		commands.put(ESILKeyword.ASSIGNMENT, new AssignmentCommand());
@@ -60,8 +60,10 @@ public class UseDefAnalyzer
 		commands.put(ESILKeyword.MUL_ASSIGN, new MulAssignCommand());
 		commands.put(ESILKeyword.DIV_ASSIGN, new DivAssignCommand());
 		commands.put(ESILKeyword.MOD_ASSIGN, new ModAssignCommand());
-		commands.put(ESILKeyword.SHIFT_LEFT_ASSIGN, new ShiftLeftAssignCommand());
-		commands.put(ESILKeyword.SHIFT_RIGHT_ASSIGN, new ShiftRightAssignCommand());
+		commands.put(ESILKeyword.SHIFT_LEFT_ASSIGN,
+				new ShiftLeftAssignCommand());
+		commands.put(ESILKeyword.SHIFT_RIGHT_ASSIGN,
+				new ShiftRightAssignCommand());
 		commands.put(ESILKeyword.AND_ASSIGN, new AndAssignCommand());
 		commands.put(ESILKeyword.OR_ASSIGN, new OrAssignCommand());
 		commands.put(ESILKeyword.XOR_ASSIGN, new XorAssignCommand());
@@ -84,14 +86,14 @@ public class UseDefAnalyzer
 		commands.put(ESILKeyword.PEEK8, peekCommand);
 	}
 
-	public void analyze(BasicBlock block, List<Aloc> alocs)
+	public void analyse(BasicBlock block, List<Aloc> alocs)
 	{
 		AbstractEnvironment env = loadMachineState(alocs);
-		analyze(block, env);
+		analyse(block, env);
 	}
 
 
-	public void analyze(BasicBlock block, AbstractEnvironment env)
+	public void analyse(BasicBlock block, AbstractEnvironment env)
 	{
 		for (Instruction instruction : block.orderedInstructions())
 		{
@@ -119,8 +121,10 @@ public class UseDefAnalyzer
 		{
 			if (aloc.isRegister())
 			{
-				ObservableDataObject<ValueSet> register = new ObservableDataObject<>(
-						new Register(aloc.getName(), ValueSet.newTop(DataWidth.R64)));
+				ObservableDataObject<ValueSet> register = new
+						ObservableDataObject<>(
+						new Register(aloc.getName(),
+								ValueSet.newTop(DataWidth.R64)));
 				register.addObserver(observer);
 				env.setRegister(register);
 			}
@@ -158,7 +162,8 @@ public class UseDefAnalyzer
 		}
 
 		@Override
-		public void updateWrite(DataObject<ValueSet> dataObject, ValueSet value)
+		public void updateWrite(DataObject<ValueSet> dataObject, ValueSet
+				value)
 		{
 			Aloc aloc = getAlocForDataObject(dataObject);
 			if (aloc != null && instruction != null)

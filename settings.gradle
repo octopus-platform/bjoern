@@ -12,7 +12,7 @@ include 'projects:bjoern-plugins:radareimporter'
 include 'projects:bjoern-plugins:paramdetect'
 include 'projects:bjoern-plugins:alocs'
 include 'projects:bjoern-plugins:vsa'
-include 'projects:bjoern-plugins:usedefanalyzer'
+include 'projects:bjoern-plugins:usedefanalyser'
 include 'projects:bjoern-plugins:datadependence'
 
 include 'projects:bjoern-lang'
