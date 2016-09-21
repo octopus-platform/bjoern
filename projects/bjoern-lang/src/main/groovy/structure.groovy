@@ -1,22 +1,26 @@
 package bjoernsteps;
 
-inSameBB = {
+inSameBlock = {
     _().in('IS_BB_OF').out('IS_BB_OF')
 }
 
 funcToFirstInstr = {
     _().in('INTERPRETABLE_AS').out('INTERPRETABLE_AS')
-            .filter{ it.nodeType == 'Instr' }
+            .filter { it.nodeType == 'Instr' }
 }
 
-instrToBB = {
+funcToAlocs = {
+    _().out("ALOC_USE_EDGE")
+}
+
+instrToBlock = {
     _().in("IS_BB_OF")
 }
 
-bBToFunc = {
+blockToFunc = {
     _().in("IS_FUNC_OF")
 }
 
 instrToFunc = {
-    _().instrToBB().bBToFunc()
+    _().instrToBlock().blockToFunc()
 }
