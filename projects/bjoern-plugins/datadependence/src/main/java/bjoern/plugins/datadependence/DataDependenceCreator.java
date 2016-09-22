@@ -33,12 +33,25 @@ public class DataDependenceCreator
 		}
 	}
 
+	/**
+	 * Add an data dependence edge from {@code source} to {@code destination}
+	 * with respect to the data object {@code object} (e.g. a variable/aloc).
+	 * <p>
+	 * An edge is only added if it does not exist already.
+	 *
+	 * @param source      the source node of the data dependence, i.e.the node
+	 *                    that changes the value of {@code object}
+	 * @param destination the destination node of the data dependence, ie.e
+	 *                    the node that reads the value of {@code object}
+	 * @param object      the data object.
+	 */
 	private static void addEdge(Vertex source, Vertex destination,
 			Vertex object)
 	{
 		for (Edge edge : source.getEdges(Direction.OUT, LABEL))
 		{
-			if (edge.getVertex(Direction.IN).equals(destination))
+			if (edge.getVertex(Direction.IN).equals(destination) && edge
+					.getProperty("aloc").equals(object))
 			{
 				// edge exists -> skip
 				return;
