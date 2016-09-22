@@ -5,12 +5,10 @@ import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
-import bjoern.plugins.vsa.data.DataObject;
-import bjoern.plugins.vsa.data.DataObjectObserver;
-import bjoern.plugins.vsa.data.ObservableDataObject;
-import bjoern.plugins.vsa.data.Register;
+import bjoern.plugins.vsa.data.*;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
+import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.Transformer;
@@ -27,7 +25,8 @@ public class UseDefAnalyser
 {
 
 	private final Map<ESILKeyword, ESILCommand> commands;
-	private Observer observer;
+	private Observer<ValueSet> registerObserver;
+	private Observer<Bool3> flagObserver;
 
 	public UseDefAnalyser()
 	{
@@ -97,9 +96,10 @@ public class UseDefAnalyser
 	{
 		for (Instruction instruction : block.orderedInstructions())
 		{
-			if (observer != null)
+			if (registerObserver != null)
 			{
-				observer.instruction = instruction;
+				registerObserver.instruction = instruction;
+				flagObserver.instruction = instruction;
 			}
 			String esilCode = instruction.getEsilCode();
 			Transformer transformer = new ESILTransformer(commands);
@@ -116,7 +116,8 @@ public class UseDefAnalyser
 	private AbstractEnvironment loadMachineState(List<Aloc> alocs)
 	{
 		AbstractEnvironment env = new AbstractEnvironment();
-		this.observer = new Observer(alocs);
+		this.registerObserver = new Observer<>(alocs);
+		this.flagObserver = new Observer<>(alocs);
 		for (Aloc aloc : alocs)
 		{
 			if (aloc.isRegister())
@@ -125,15 +126,23 @@ public class UseDefAnalyser
 						ObservableDataObject<>(
 						new Register(aloc.getName(),
 								ValueSet.newTop(DataWidth.R64)));
-				register.addObserver(observer);
+				register.addObserver(registerObserver);
 				env.setRegister(register);
+			}
+			if (aloc.isFlag())
+			{
+				ObservableDataObject<Bool3> flag = new
+						ObservableDataObject<>(
+						new Flag(aloc.getName(), Bool3.MAYBE));
+				flag.addObserver(flagObserver);
+				env.setFlag(flag);
 			}
 
 		}
 		return env;
 	}
 
-	private static class Observer implements DataObjectObserver<ValueSet>
+	private static class Observer<T> implements DataObjectObserver<T>
 	{
 		private final List<Aloc> alocs;
 		public Instruction instruction;
@@ -144,7 +153,7 @@ public class UseDefAnalyser
 		}
 
 		@Override
-		public void updateRead(DataObject<ValueSet> dataObject)
+		public void updateRead(DataObject<T> dataObject)
 		{
 			Aloc aloc = getAlocForDataObject(dataObject);
 			if (aloc != null && instruction != null)
@@ -162,7 +171,7 @@ public class UseDefAnalyser
 		}
 
 		@Override
-		public void updateWrite(DataObject<ValueSet> dataObject, ValueSet
+		public void updateWrite(DataObject<T> dataObject, T
 				value)
 		{
 			Aloc aloc = getAlocForDataObject(dataObject);
@@ -180,7 +189,7 @@ public class UseDefAnalyser
 			}
 		}
 
-		private Aloc getAlocForDataObject(DataObject<ValueSet> dataObject)
+		private Aloc getAlocForDataObject(DataObject<T> dataObject)
 		{
 			for (Aloc aloc : alocs)
 			{
