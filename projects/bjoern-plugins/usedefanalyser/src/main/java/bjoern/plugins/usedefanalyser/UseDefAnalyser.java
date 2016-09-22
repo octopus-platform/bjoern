@@ -25,8 +25,7 @@ public class UseDefAnalyser
 {
 
 	private final Map<ESILKeyword, ESILCommand> commands;
-	private Observer<ValueSet> registerObserver;
-	private Observer<Bool3> flagObserver;
+	private Instruction instruction;
 
 	public UseDefAnalyser()
 	{
@@ -96,11 +95,7 @@ public class UseDefAnalyser
 	{
 		for (Instruction instruction : block.orderedInstructions())
 		{
-			if (registerObserver != null)
-			{
-				registerObserver.instruction = instruction;
-				flagObserver.instruction = instruction;
-			}
+			this.instruction = instruction;
 			String esilCode = instruction.getEsilCode();
 			Transformer transformer = new ESILTransformer(commands);
 			try
@@ -116,8 +111,7 @@ public class UseDefAnalyser
 	private AbstractEnvironment loadMachineState(List<Aloc> alocs)
 	{
 		AbstractEnvironment env = new AbstractEnvironment();
-		this.registerObserver = new Observer<>(alocs);
-		this.flagObserver = new Observer<>(alocs);
+
 		for (Aloc aloc : alocs)
 		{
 			if (aloc.isRegister())
@@ -126,7 +120,7 @@ public class UseDefAnalyser
 						ObservableDataObject<>(
 						new Register(aloc.getName(),
 								ValueSet.newTop(DataWidth.R64)));
-				register.addObserver(registerObserver);
+				register.addObserver(new Observer<>(aloc));
 				env.setRegister(register);
 			}
 			if (aloc.isFlag())
@@ -134,7 +128,7 @@ public class UseDefAnalyser
 				ObservableDataObject<Bool3> flag = new
 						ObservableDataObject<>(
 						new Flag(aloc.getName(), Bool3.MAYBE));
-				flag.addObserver(flagObserver);
+				flag.addObserver(new Observer<>(aloc));
 				env.setFlag(flag);
 			}
 
@@ -142,63 +136,53 @@ public class UseDefAnalyser
 		return env;
 	}
 
-	private static class Observer<T> implements DataObjectObserver<T>
+	private class Observer<T> implements DataObjectObserver<T>
 	{
-		private final List<Aloc> alocs;
-		public Instruction instruction;
 
-		public Observer(List<Aloc> alocs)
+		private final Aloc aloc;
+
+		public Observer(Aloc aloc)
 		{
-			this.alocs = alocs;
+			this.aloc = aloc;
 		}
 
 		@Override
 		public void updateRead(DataObject<T> dataObject)
 		{
-			Aloc aloc = getAlocForDataObject(dataObject);
-			if (aloc != null && instruction != null)
+			if (null == instruction)
 			{
-				for (Edge edge : instruction.getEdges(Direction.OUT, "READ"))
-				{
-					if (edge.getVertex(Direction.IN).equals(aloc))
-					{
-						// edge exists -> skip
-						return;
-					}
-				}
-				instruction.addEdge("READ", aloc);
+				return;
 			}
+			for (Edge edge : instruction.getEdges(Direction.OUT, "READ"))
+			{
+				if (edge.getVertex(Direction.IN).equals(aloc))
+				{
+					// edge exists -> skip
+					return;
+				}
+			}
+			// add read edge from instruction to aloc
+			instruction.addEdge("READ", aloc);
 		}
 
 		@Override
 		public void updateWrite(DataObject<T> dataObject, T
 				value)
 		{
-			Aloc aloc = getAlocForDataObject(dataObject);
-			if (aloc != null && instruction != null)
+			if (null == instruction)
 			{
-				for (Edge edge : instruction.getEdges(Direction.OUT, "WRITE"))
-				{
-					if (edge.getVertex(Direction.IN).equals(aloc))
-					{
-						// edge exists -> skip
-						return;
-					}
-				}
-				instruction.addEdge("WRITE", aloc);
+				return;
 			}
-		}
-
-		private Aloc getAlocForDataObject(DataObject<T> dataObject)
-		{
-			for (Aloc aloc : alocs)
+			for (Edge edge : instruction.getEdges(Direction.OUT, "WRITE"))
 			{
-				if (aloc.getName().equals(dataObject.getIdentifier()))
+				if (edge.getVertex(Direction.IN).equals(aloc))
 				{
-					return aloc;
+					// edge exists -> skip
+					return;
 				}
 			}
-			return null;
+			// add write edge from instruction to aloc
+			instruction.addEdge("WRITE", aloc);
 		}
 	}
 
