@@ -3,13 +3,17 @@ package bjoern.r2interface;
 import bjoern.r2interface.architectures.Architecture;
 import bjoern.r2interface.architectures.X64Architecture;
 import bjoern.r2interface.exceptions.InvalidRadareFunctionException;
+import bjoern.structures.RegisterFamily;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.*;
 
 public class Radare
@@ -17,6 +21,7 @@ public class Radare
 	private R2Pipe r2Pipe;
 
 	private HashMap<String, Integer> regWidthHash;
+	private HashMap<String, RegisterFamily> regFamilyHash;
 
 	private static final Logger logger = LoggerFactory.getLogger(Radare.class);
 
@@ -24,6 +29,60 @@ public class Radare
 	{
 		r2Pipe = new R2Pipe(filename);
 		setRadareOptions();
+		initializeRegisterHashs();
+	}
+
+	private void initializeRegisterHashs() throws IOException
+	{
+		String arpResult = r2Pipe.cmd("arp");
+		String line;
+
+		regWidthHash = new HashMap<>();
+		regFamilyHash = new HashMap<>();
+		BufferedReader buffer = new BufferedReader(new StringReader(arpResult));
+
+		while (null != (line = buffer.readLine()))
+		{
+			if (!line.startsWith("gpr"))
+			{
+				continue;
+			}
+
+			String parts[] = line.split("\t");
+
+			int widthInBit = Integer.parseInt(parts[2].replaceFirst(".",""));
+			int globalStart = Integer.parseInt(parts[3]);
+
+			updateRegWidthHash(parts[1],widthInBit);
+			updateRegFamilyHash(parts[1],widthInBit, globalStart);
+		}
+		System.out.println("Done");
+	}
+
+	private void updateRegWidthHash(String register, int widthInBit)
+	{
+		regWidthHash.put(register, widthInBit);
+	}
+
+	private void updateRegFamilyHash(String register, int widthInBit, int globalStart)
+	{
+		RegisterFamily newFamily = new RegisterFamily(register, globalStart, globalStart + widthInBit/8 - 1);
+		boolean merged = false;
+
+		for(Map.Entry<String, RegisterFamily> entry: regFamilyHash.entrySet())
+		{
+			if (entry.getValue().overlaps(newFamily))
+			{
+				merged = true;
+				entry.getValue().merge(newFamily);
+
+				// We need to keep on searching with the new merged family
+				// because two formerly destinct families may both overlap
+				// with the same newFamily.
+				newFamily = entry.getValue();
+			}
+		}
+		regFamilyHash.put(register,newFamily);
 	}
 
 	public void analyzeBinary() throws IOException
