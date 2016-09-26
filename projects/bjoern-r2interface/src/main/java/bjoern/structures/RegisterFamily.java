@@ -21,6 +21,7 @@ public class RegisterFamily {
 
     public void merge(RegisterFamily otherFamily)
     {
+        name = otherFamily.name;
         start = Math.min(start, otherFamily.start);
         end = Math.max(end, otherFamily.end);
     }

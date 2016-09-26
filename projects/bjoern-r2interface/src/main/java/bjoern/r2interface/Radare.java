@@ -56,7 +56,6 @@ public class Radare
 			updateRegWidthHash(parts[1],widthInBit);
 			updateRegFamilyHash(parts[1],widthInBit, globalStart);
 		}
-		System.out.println("Done");
 	}
 
 	private void updateRegWidthHash(String register, int widthInBit)
@@ -67,19 +66,13 @@ public class Radare
 	private void updateRegFamilyHash(String register, int widthInBit, int globalStart)
 	{
 		RegisterFamily newFamily = new RegisterFamily(register, globalStart, globalStart + widthInBit/8 - 1);
-		boolean merged = false;
 
 		for(Map.Entry<String, RegisterFamily> entry: regFamilyHash.entrySet())
 		{
 			if (entry.getValue().overlaps(newFamily))
 			{
-				merged = true;
-				entry.getValue().merge(newFamily);
-
-				// We need to keep on searching with the new merged family
-				// because two formerly destinct families may both overlap
-				// with the same newFamily.
-				newFamily = entry.getValue();
+				newFamily.merge(entry.getValue());
+				entry.setValue(newFamily);
 			}
 		}
 		regFamilyHash.put(register,newFamily);
