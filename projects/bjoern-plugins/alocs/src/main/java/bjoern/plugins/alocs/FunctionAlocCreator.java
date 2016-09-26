@@ -17,6 +17,8 @@ import java.util.*;
 public class FunctionAlocCreator
 {
 
+	private static final String BELONGS_TO_EDGE = "BELONGS_TO";
+
 	private Map<String, Vertex> registerToVertex = new HashMap<String,
 			Vertex>();
 	private Radare radare;
@@ -69,7 +71,7 @@ public class FunctionAlocCreator
 				register = createRegisterAloc(registerName);
 			}
 			Vertex family = getRegisterFamilyNode(registerName);
-			register.addEdge("BELONGS_TO", family);
+			register.addEdge(BELONGS_TO_EDGE, family);
 			function.addEdge(Traversals.ALOC_USE_EDGE, register);
 		}
 	}
