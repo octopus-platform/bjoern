@@ -69,9 +69,9 @@ public class FunctionAlocCreator
 			} else
 			{
 				register = createRegisterAloc(registerName);
+				Vertex family = getRegisterFamilyNode(registerName);
+				register.addEdge(BELONGS_TO_EDGE, family);
 			}
-			Vertex family = getRegisterFamilyNode(registerName);
-			register.addEdge(BELONGS_TO_EDGE, family);
 			function.addEdge(Traversals.ALOC_USE_EDGE, register);
 		}
 	}
