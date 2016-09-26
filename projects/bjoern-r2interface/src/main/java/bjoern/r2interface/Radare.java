@@ -250,15 +250,15 @@ public class Radare
 		return r2Pipe.cmd(String.format("ar %s", registerStr));
 	}
 
-	public List<String> getRegistersWritten(String addr) throws IOException
+	public List<String> getRegistersWritten(Long addr) throws IOException
 	{
-		String cmd = "aeaw @ " + addr;
+		String cmd = "aeaw @ " + Long.toUnsignedString(addr);
 		return cmdAndSplitResultAtWhitespace(cmd);
 	}
 
-	public List<String> getRegistersRead(String addr) throws IOException
+	public List<String> getRegistersRead(Long addr) throws IOException
 	{
-		String cmd = "aear @ " + addr;
+		String cmd = "aear @ " + Long.toUnsignedString(addr);
 		return cmdAndSplitResultAtWhitespace(cmd);
 	}
 

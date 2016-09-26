@@ -51,15 +51,15 @@ public class FunctionAlocCreator
 
 	private void createAlocsForInstruction(Instruction instr) throws IOException
 	{
-		long address = instr.getAddress();
-		createAlocsForRegisters(instr, address);
+		createAlocsForRegisters(instr);
 	}
 
-	private void createAlocsForRegisters(Instruction instr, long address) throws IOException
+	private void createAlocsForRegisters(Instruction instr) throws IOException
 	{
-		List<String> registersRead = radare.getRegistersRead(Long.toUnsignedString(address));
+		Long address = instr.getAddress();
+		List<String> registersRead = radare.getRegistersRead(address);
 		createAlocsForRegisterList(instr, registersRead, EdgeTypes.READ);
-		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
+		List<String> registersWritten = radare.getRegistersWritten(address);
 		createAlocsForRegisterList(instr, registersWritten, EdgeTypes.WRITE);
 	}
 
