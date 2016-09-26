@@ -35,15 +35,13 @@ public class Traversals
 		return new BasicBlock(vertex);
 	}
 
-	public static List<Instruction> functionToInstructions(Vertex func)
+	public static List<Instruction> functionToInstructions(Function func)
 	{
-		GremlinPipeline<Vertex, Vertex> pipe = createNewGremlinPipe();
+		GremlinPipeline<Function, Instruction> pipe = new GremlinPipeline<>();
 
 		pipe.start(func).out(EdgeTypes.IS_FUNCTION_OF).out(EdgeTypes.IS_BB_OF);
 
-		List<Vertex> list = pipe.toList();
-
-		return list.stream().map(Instruction::new).collect(Collectors.toList());
+		return pipe.toList();
 	}
 
 
