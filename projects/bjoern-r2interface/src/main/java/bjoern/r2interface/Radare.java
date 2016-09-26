@@ -280,7 +280,7 @@ public class Radare
 
 	public String getRegisterFamily(String register)
 	{
-		throw new UnsupportedOperationException();
+		return regFamilyHash.get(register).getName();
 	}
 
 }

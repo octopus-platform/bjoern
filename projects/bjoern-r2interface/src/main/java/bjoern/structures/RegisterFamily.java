@@ -25,4 +25,10 @@ public class RegisterFamily {
         start = Math.min(start, otherFamily.start);
         end = Math.max(end, otherFamily.end);
     }
+
+    public String getName()
+    {
+        return name;
+    }
+
 }
