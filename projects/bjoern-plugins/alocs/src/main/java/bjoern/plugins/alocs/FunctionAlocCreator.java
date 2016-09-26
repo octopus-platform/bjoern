@@ -1,33 +1,30 @@
 package bjoern.plugins.alocs;
 
 import bjoern.pluginlib.Traversals;
-import bjoern.pluginlib.structures.BjoernNode;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.r2interface.Radare;
 import bjoern.r2interface.architectures.Architecture;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.BjoernNodeTypes;
-import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import octopus.lib.GraphOperations;
-import octopus.lib.structures.OctopusNode;
+import com.tinkerpop.blueprints.util.GraphHelper;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FunctionAlocCreator
 {
 
-	private Map<String, Vertex> registerToVertex = new HashMap<String, Vertex>();
+	private Map<String, Vertex> registerToVertex = new HashMap<String,
+			Vertex>();
 	private Radare radare;
 	private OrientGraphNoTx graph;
 	private Function function;
 
-	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
+	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws
+			IOException
 	{
 		this.radare = radare;
 		this.graph = graph;
@@ -49,7 +46,8 @@ public class FunctionAlocCreator
 		}
 	}
 
-	private void createAlocsForInstruction(Instruction instr) throws IOException
+	private void createAlocsForInstruction(Instruction instr) throws
+			IOException
 	{
 		createAlocsForRegisters(instr);
 	}
@@ -57,65 +55,59 @@ public class FunctionAlocCreator
 	private void createAlocsForRegisters(Instruction instr) throws IOException
 	{
 		Long address = instr.getAddress();
-		List<String> registersRead = radare.getRegistersRead(address);
-		createAlocsForRegisterList(instr, registersRead, EdgeTypes.READ);
-		List<String> registersWritten = radare.getRegistersWritten(address);
-		createAlocsForRegisterList(instr, registersWritten, EdgeTypes.WRITE);
-	}
-
-	private void createAlocsForRegisterList(Instruction instr, List<String> registersRead, String edgeType) throws
-			IOException
-	{
-		for (String registerStr : registersRead)
+		Set<String> registerNames = new HashSet<>();
+		registerNames.addAll(radare.getRegistersRead(address));
+		registerNames.addAll(radare.getRegistersWritten(address));
+		for (String registerName : registerNames)
 		{
-
-			Vertex registerVertex = registerToVertex.get(registerStr);
-			if (registerVertex == null)
+			Vertex register;
+			if (isFlag(registerName))
 			{
-
-				registerVertex = createAloc(registerStr, subTypeFromAlocName(registerStr));
+				register = createFlagAloc(registerName);
+			} else
+			{
+				register = createRegisterAloc(registerName);
 			}
+			Vertex family = getRegisterFamilyNode(registerName);
+			register.addEdge("BELONGS_TO", family);
+			function.addEdge(Traversals.ALOC_USE_EDGE, register);
 		}
 	}
 
-	private Vertex createAloc(String alocName, String subType) throws IOException
+	private Vertex getRegisterFamilyNode(String registerName)
 	{
-		String functionAddr = function.getProperty("addr");
-
-		Map<String, String> properties = new HashMap<String, String>();
-		properties.put(BjoernNodeProperties.ADDR, functionAddr);
-		properties.put(BjoernNodeProperties.TYPE, BjoernNodeTypes.ALOC);
-		properties.put(BjoernNodeProperties.SUBTYPE, subType);
-		properties.put(BjoernNodeProperties.NAME, alocName);
-
-		Vertex alocVertex = GraphOperations.addNode(graph, properties);
-		registerToVertex.put(alocName, alocVertex);
-		linkFunctionAndAloc(alocVertex);
-		return alocVertex;
+		String registerFamily = radare.getRegisterFamily(registerName);
+		if (!registerToVertex.containsKey(registerFamily))
+		{
+			registerToVertex
+					.put(registerFamily, GraphHelper.addVertex(graph, 0));
+		}
+		return registerToVertex.get(registerFamily);
 	}
 
-	/**
-	 * Determines the subtype by register name, e.g., register, flag, local, ...
-	 *
-	 * @throws IOException
-	 */
+	private Vertex createRegisterAloc(String alocName)
+	{
+		return createAloc(alocName, AlocTypes.REGISTER);
+	}
 
-	private String subTypeFromAlocName(String alocName) throws IOException
+	private Vertex createFlagAloc(String alocName)
+	{
+		return createAloc(alocName, AlocTypes.FLAG);
+	}
+
+	private Vertex createAloc(String alocName, String subType)
+	{
+		return GraphHelper.addVertex(graph, 0,
+				BjoernNodeProperties.TYPE, BjoernNodeTypes.ALOC,
+				BjoernNodeProperties.SUBTYPE, subType,
+				BjoernNodeProperties.NAME, alocName);
+	}
+
+	private boolean isFlag(String registerName) throws IOException
 	{
 		Architecture architecture = radare.getArchitecture();
-
-		if (alocName.startsWith("$") || architecture.isFlag(alocName))
-			return AlocTypes.FLAG;
-
-
-		return AlocTypes.REGISTER;
-	}
-
-	private void linkFunctionAndAloc(Vertex alocVertex)
-	{
-		OctopusNode alocNode = new BjoernNode(alocVertex);
-
-		GraphOperations.addEdge(graph, function, alocNode, Traversals.ALOC_USE_EDGE);
+		return registerName.startsWith("$") || architecture
+				.isFlag(registerName);
 	}
 
 }
