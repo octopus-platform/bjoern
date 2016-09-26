@@ -14,6 +14,7 @@ import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
 import bjoern.plugins.vsa.transformer.esil.commands.*;
+import bjoern.plugins.vsa.transformer.esil.stack.ValueSetContainer;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 
@@ -26,6 +27,7 @@ public class UseDefAnalyser
 
 	private final Map<ESILKeyword, ESILCommand> commands;
 	private Instruction instruction;
+	private boolean ignoreAccesses;
 
 	public UseDefAnalyser()
 	{
@@ -68,20 +70,35 @@ public class UseDefAnalyser
 		commands.put(ESILKeyword.INC_ASSIGN, new IncAssignCommand());
 		commands.put(ESILKeyword.DEC_ASSIGN, new DecAssignCommand());
 		commands.put(ESILKeyword.NEG_ASSIGN, new NegAssignCommand());
-		ESILCommand pokeCommand = new PokeCommand();
+		ESILCommand pokeCommand = stack ->
+		{
+			ignoreAccesses = true;
+			ValueSet destinationAddress = stack.pop().execute(stack)
+					.getValue();
+			ignoreAccesses = false;
+			ValueSet value = stack.pop().execute(stack).getValue();
+			return null;
+		};
 		commands.put(ESILKeyword.POKE, pokeCommand);
 		commands.put(ESILKeyword.POKE_AST, pokeCommand);
 		commands.put(ESILKeyword.POKE1, pokeCommand);
 		commands.put(ESILKeyword.POKE2, pokeCommand);
 		commands.put(ESILKeyword.POKE4, pokeCommand);
 		commands.put(ESILKeyword.POKE8, pokeCommand);
-		ESILCommand peekCommand = new PeekCommand();
+		ESILCommand peekCommand = stack ->
+		{
+			ignoreAccesses = true;
+			ValueSet address = stack.pop().execute(stack).getValue();
+			ignoreAccesses = false;
+			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
+		};
 		commands.put(ESILKeyword.PEEK, peekCommand);
 		commands.put(ESILKeyword.PEEK_AST, peekCommand);
 		commands.put(ESILKeyword.PEEK1, peekCommand);
 		commands.put(ESILKeyword.PEEK2, peekCommand);
 		commands.put(ESILKeyword.PEEK4, peekCommand);
 		commands.put(ESILKeyword.PEEK8, peekCommand);
+		ignoreAccesses = false;
 	}
 
 	public void analyse(BasicBlock block, List<Aloc> alocs)
@@ -95,16 +112,27 @@ public class UseDefAnalyser
 	{
 		for (Instruction instruction : block.orderedInstructions())
 		{
-			this.instruction = instruction;
-			String esilCode = instruction.getEsilCode();
-			Transformer transformer = new ESILTransformer(commands);
-			try
-			{
-				env = transformer.transform(esilCode, env);
-			} catch (ESILTransformationException e)
-			{
-				e.printStackTrace();
-			}
+			analyse(instruction, env);
+
+		}
+	}
+
+	public void analyse(Instruction instruction, AbstractEnvironment env)
+	{
+		this.instruction = instruction;
+		String esilCode = instruction.getEsilCode();
+		analyse(esilCode, env);
+	}
+
+	public void analyse(String esilCode, AbstractEnvironment env)
+	{
+		Transformer transformer = new ESILTransformer(commands);
+		try
+		{
+			env = transformer.transform(esilCode, env);
+		} catch (ESILTransformationException e)
+		{
+			e.printStackTrace();
 		}
 	}
 
@@ -120,7 +148,7 @@ public class UseDefAnalyser
 						ObservableDataObject<>(
 						new Register(aloc.getName(),
 								ValueSet.newTop(DataWidth.R64)));
-				register.addObserver(new Observer<>(aloc));
+				register.addObserver(new DataObjectAccessObserver<>(aloc));
 				env.setRegister(register);
 			}
 			if (aloc.isFlag())
@@ -128,7 +156,7 @@ public class UseDefAnalyser
 				ObservableDataObject<Bool3> flag = new
 						ObservableDataObject<>(
 						new Flag(aloc.getName(), Bool3.MAYBE));
-				flag.addObserver(new Observer<>(aloc));
+				flag.addObserver(new DataObjectAccessObserver<>(aloc));
 				env.setFlag(flag);
 			}
 
@@ -136,12 +164,11 @@ public class UseDefAnalyser
 		return env;
 	}
 
-	private class Observer<T> implements DataObjectObserver<T>
+	private class DataObjectAccessObserver<T> implements DataObjectObserver<T>
 	{
-
 		private final Aloc aloc;
 
-		public Observer(Aloc aloc)
+		public DataObjectAccessObserver(Aloc aloc)
 		{
 			this.aloc = aloc;
 		}
@@ -149,7 +176,7 @@ public class UseDefAnalyser
 		@Override
 		public void updateRead(DataObject<T> dataObject)
 		{
-			if (null == instruction)
+			if (null == instruction || ignoreAccesses)
 			{
 				return;
 			}

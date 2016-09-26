@@ -1,14 +1,20 @@
 package bjoern.plugins.vsa.transformer.esil.commands;
 
-import bjoern.plugins.vsa.domain.AbstractEnvironment;
-import bjoern.plugins.vsa.transformer.esil.stack.ESILStack;
+import bjoern.plugins.vsa.domain.ValueSet;
+import bjoern.plugins.vsa.transformer.esil.stack.ESILStackItem;
+
+import java.util.Deque;
 
 public class PokeCommand implements ESILCommand
 {
 	@Override
-	public void execute(AbstractEnvironment env, ESILStack stack)
+	public ESILStackItem execute(Deque<ESILCommand> stack)
 	{
-		stack.pop();
-		stack.pop();
+		ValueSet destinationAddress = stack.pop().execute(stack).getValue();
+		ValueSet value = stack.pop().execute(stack).getValue();
+		// write value to aloc at destinationAddress
+
+		// this command returns nothing/no item is pushed on the stack
+		return null;
 	}
 }
