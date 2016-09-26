@@ -1,9 +1,10 @@
 package bjoern.plugins.vsa.transformer.esil.commands;
 
-import bjoern.plugins.vsa.domain.AbstractEnvironment;
-import bjoern.plugins.vsa.transformer.esil.stack.ESILStack;
+import bjoern.plugins.vsa.transformer.esil.stack.ESILStackItem;
+
+import java.util.Deque;
 
 public interface ESILCommand
 {
-	void execute(AbstractEnvironment env, ESILStack stack);
+	ESILStackItem execute(Deque<ESILCommand> stack);
 }

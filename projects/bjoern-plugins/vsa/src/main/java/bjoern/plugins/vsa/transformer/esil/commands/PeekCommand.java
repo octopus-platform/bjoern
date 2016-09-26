@@ -1,16 +1,18 @@
 package bjoern.plugins.vsa.transformer.esil.commands;
 
-import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.DataWidth;
-import bjoern.plugins.vsa.transformer.esil.stack.ESILStack;
+import bjoern.plugins.vsa.transformer.esil.stack.ESILStackItem;
+import bjoern.plugins.vsa.transformer.esil.stack.ValueSetContainer;
+
+import java.util.Deque;
 
 public class PeekCommand implements ESILCommand
 {
 	@Override
-	public void execute(AbstractEnvironment env, ESILStack stack)
+	public ESILStackItem execute(Deque<ESILCommand> stack)
 	{
-		stack.pop();
-		stack.pushValueSet(ValueSet.newTop(DataWidth.R64));
+		ValueSet address = stack.pop().execute(stack).getValue();
+		return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
 	}
 }
