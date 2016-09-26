@@ -10,14 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Radare
 {
 	private R2Pipe r2Pipe;
+
+	private HashMap<String, Integer> regWidthHash;
 
 	private static final Logger logger = LoggerFactory.getLogger(Radare.class);
 
@@ -220,6 +219,16 @@ public class Radare
 
 		String[] registersAr = registers.split(" ");
 		return Arrays.asList(registersAr);
+	}
+
+	public int getRegisterWidth(String register)
+	{
+		return regWidthHash.get(register);
+	}
+
+	public String getRegisterFamily(String register)
+	{
+		throw new UnsupportedOperationException();
 	}
 
 }
