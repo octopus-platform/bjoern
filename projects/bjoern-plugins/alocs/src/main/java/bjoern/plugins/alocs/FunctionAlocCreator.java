@@ -1,9 +1,6 @@
 package bjoern.plugins.alocs;
 
 import bjoern.pluginlib.Traversals;
-import bjoern.pluginlib.radare.emulation.esil.memaccess
-		.ESILStackAccessEvaluator;
-import bjoern.pluginlib.radare.emulation.esil.memaccess.MemoryAccess;
 import bjoern.pluginlib.structures.BjoernNode;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
@@ -29,19 +26,16 @@ public class FunctionAlocCreator
 	private Radare radare;
 	private OrientGraphNoTx graph;
 	private Function function;
-	private ESILStackAccessEvaluator memAccessEvaluator;
 
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
 	{
 		this.radare = radare;
 		this.graph = graph;
-		this.memAccessEvaluator = new ESILStackAccessEvaluator(radare);
 	}
 
 	public void createAlocsForFunction(Function function) throws IOException
 	{
 		this.function = function;
-		memAccessEvaluator.initializeForFunction(function);
 		createAlocsForAllInstructions();
 	}
 
@@ -59,7 +53,6 @@ public class FunctionAlocCreator
 	{
 		long address = instr.getAddress();
 		createAlocsForRegisters(instr, address);
-		createAlocsForMemoryAccesses(instr, address);
 	}
 
 	private void createAlocsForRegisters(Instruction instr, long address) throws IOException
@@ -68,17 +61,6 @@ public class FunctionAlocCreator
 		createAlocsForRegisterList(instr, registersRead, EdgeTypes.READ);
 		List<String> registersWritten = radare.getRegistersWritten(Long.toUnsignedString(address));
 		createAlocsForRegisterList(instr, registersWritten, EdgeTypes.WRITE);
-	}
-
-	private void createAlocsForMemoryAccesses(Instruction instr, long address) throws IOException
-	{
-
-		List<MemoryAccess> access = memAccessEvaluator.extractMemoryAccesses(instr);
-		for (MemoryAccess m : access)
-		{
-			createAloc(m.getEsilExpression(), AlocTypes.LOCAL);
-			m.debugOut();
-		}
 	}
 
 	private void createAlocsForRegisterList(Instruction instr, List<String> registersRead, String edgeType) throws
