@@ -2,6 +2,7 @@ package bjoern.plugins.alocs;
 
 import java.io.IOException;
 
+import bjoern.pluginlib.structures.Function;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 
@@ -16,7 +17,7 @@ public class AlocPlugin extends RadareProjectPlugin {
 	public void execute() throws Exception
 	{
 		graph = getOrientConnector().getNoTxGraphInstance();
-		Iterable<Vertex> allFunctions = LookupOperations.getAllFunctions(graph);
+		Iterable<Function> allFunctions = LookupOperations.getFunctions(graph);
 
 		try{
 			createAlocsForFunctions(allFunctions);
@@ -27,9 +28,9 @@ public class AlocPlugin extends RadareProjectPlugin {
 		graph.shutdown();
 	}
 
-	private void createAlocsForFunctions(Iterable<Vertex> functions) throws IOException
+	private void createAlocsForFunctions(Iterable<Function> functions) throws IOException
 	{
-		for(Vertex func : functions)
+		for(Function func : functions)
 		{
 			new FunctionAlocCreator(getRadare(), graph).createAlocsForFunction(func);
 		}

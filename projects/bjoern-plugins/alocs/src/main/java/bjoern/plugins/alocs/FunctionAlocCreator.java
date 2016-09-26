@@ -1,14 +1,16 @@
 package bjoern.plugins.alocs;
 
-import bjoern.structures.BjoernNodeTypes;
 import bjoern.pluginlib.Traversals;
-import bjoern.pluginlib.radare.emulation.esil.memaccess.ESILStackAccessEvaluator;
+import bjoern.pluginlib.radare.emulation.esil.memaccess
+		.ESILStackAccessEvaluator;
 import bjoern.pluginlib.radare.emulation.esil.memaccess.MemoryAccess;
 import bjoern.pluginlib.structures.BjoernNode;
+import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.r2interface.Radare;
 import bjoern.r2interface.architectures.Architecture;
 import bjoern.structures.BjoernNodeProperties;
+import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
@@ -26,7 +28,7 @@ public class FunctionAlocCreator
 	private Map<String, Vertex> registerToVertex = new HashMap<String, Vertex>();
 	private Radare radare;
 	private OrientGraphNoTx graph;
-	private Vertex functionVertex;
+	private Function function;
 	private ESILStackAccessEvaluator memAccessEvaluator;
 
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws IOException
@@ -36,16 +38,17 @@ public class FunctionAlocCreator
 		this.memAccessEvaluator = new ESILStackAccessEvaluator(radare);
 	}
 
-	public void createAlocsForFunction(Vertex function) throws IOException
+	public void createAlocsForFunction(Function function) throws IOException
 	{
-		functionVertex = function;
+		this.function = function;
 		memAccessEvaluator.initializeForFunction(function);
 		createAlocsForAllInstructions();
 	}
 
 	private void createAlocsForAllInstructions() throws IOException
 	{
-		List<Instruction> instructions = Traversals.functionToInstructions(functionVertex);
+		List<Instruction> instructions = Traversals.functionToInstructions(
+				function);
 		for (Instruction instr : instructions)
 		{
 			createAlocsForInstruction(instr);
@@ -95,7 +98,7 @@ public class FunctionAlocCreator
 
 	private Vertex createAloc(String alocName, String subType) throws IOException
 	{
-		String functionAddr = functionVertex.getProperty("addr");
+		String functionAddr = function.getProperty("addr");
 
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(BjoernNodeProperties.ADDR, functionAddr);
@@ -128,10 +131,9 @@ public class FunctionAlocCreator
 
 	private void linkFunctionAndAloc(Vertex alocVertex)
 	{
-		OctopusNode functionNode = new BjoernNode(functionVertex);
 		OctopusNode alocNode = new BjoernNode(alocVertex);
 
-		GraphOperations.addEdge(graph, functionNode, alocNode, Traversals.ALOC_USE_EDGE);
+		GraphOperations.addEdge(graph, function, alocNode, Traversals.ALOC_USE_EDGE);
 	}
 
 }
