@@ -19,12 +19,12 @@ class ReachingDefinitionAnalyser
 	static class Definition
 	{
 		private final Vertex location;
-		private final String name;
+		private final Object identifier;
 
-		Definition(Vertex location, String name)
+		Definition(Vertex location, Object identifier)
 		{
 			this.location = location;
-			this.name = name;
+			this.identifier = identifier;
 		}
 
 		public Vertex getLocation()
@@ -32,9 +32,9 @@ class ReachingDefinitionAnalyser
 			return location;
 		}
 
-		public String getName()
+		public Object getIdentifier()
 		{
-			return name;
+			return identifier;
 		}
 
 		@Override
@@ -46,7 +46,7 @@ class ReachingDefinitionAnalyser
 			}
 			Definition definition = (Definition) object;
 			return location.equals(definition.location)
-					&& name.equals(definition.name);
+					&& identifier.equals(definition.identifier);
 		}
 
 		@Override
@@ -54,14 +54,14 @@ class ReachingDefinitionAnalyser
 		{
 			int hashCode = 17;
 			hashCode = 31 * hashCode + location.hashCode();
-			hashCode = 31 * hashCode + name.hashCode();
+			hashCode = 31 * hashCode + identifier.hashCode();
 			return hashCode;
 		}
 
 		@Override
 		public String toString()
 		{
-			return name + "@" + location.getId().toString();
+			return identifier.toString() + "@" + location.getId().toString();
 		}
 	}
 
@@ -75,7 +75,7 @@ class ReachingDefinitionAnalyser
 					.in("BELONGS_TO");
 			for (Vertex register : pipe)
 			{
-				String registerName = register.getProperty("name");
+				String registerName = register.getProperty("identifier");
 				genSet.add(new Definition(vertex, registerName));
 			}
 			return genSet;
@@ -89,7 +89,7 @@ class ReachingDefinitionAnalyser
 			for (Edge writeEdge : pipe)
 			{
 				String registerName = writeEdge.getVertex(Direction.IN)
-						.getProperty("name");
+						.getProperty("identifier");
 				Vertex genVertex = writeEdge.getVertex(Direction.OUT);
 				killSet.add(new Definition(genVertex, registerName));
 			}

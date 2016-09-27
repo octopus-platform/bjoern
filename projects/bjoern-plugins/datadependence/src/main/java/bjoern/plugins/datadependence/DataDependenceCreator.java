@@ -23,7 +23,7 @@ public class DataDependenceCreator
 			for (ReachingDefinitionAnalyser.Definition definition : entry
 					.getValue())
 			{
-				String object = definition.getName();
+				Object object = definition.getIdentifier();
 				Vertex destination = entry.getKey();
 				Set<String> useSet = getUseSet(destination);
 				if (useSet.contains(object))
@@ -48,7 +48,7 @@ public class DataDependenceCreator
 	 * @param object      the data object.
 	 */
 	private static void addEdge(Vertex source, Vertex destination,
-			String object)
+			Object object)
 	{
 		for (Edge edge : source.getEdges(Direction.OUT, LABEL))
 		{
