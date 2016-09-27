@@ -64,7 +64,8 @@ public class FunctionAlocCreator
 		return registerNames;
 	}
 
-	private Vertex createAlocForRegister(String registerName) throws IOException
+	private Vertex createAlocForRegister(String registerName) throws
+			IOException
 	{
 		Vertex aloc;
 		if (isFlag(registerName))
@@ -84,7 +85,8 @@ public class FunctionAlocCreator
 		String registerFamilyName = radare.getRegisterFamily(registerName);
 		if (!registerFamilyCache.containsKey(registerFamilyName))
 		{
-			Vertex familyNode = GraphHelper.addVertex(graph, 0);
+			Vertex familyNode = GraphHelper.addVertex(graph, 0,
+					BjoernNodeProperties.NAME, registerFamilyName);
 			registerFamilyCache
 					.put(registerFamilyName, familyNode);
 			return familyNode;
