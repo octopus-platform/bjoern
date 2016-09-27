@@ -4,7 +4,6 @@ import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.r2interface.Radare;
-import bjoern.r2interface.architectures.Architecture;
 import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.BjoernNodeTypes;
 import com.tinkerpop.blueprints.Vertex;
@@ -49,8 +48,9 @@ public class FunctionAlocCreator
 				.functionToInstructions(function))
 		{
 			registerNames.addAll(getRegisterNames(instruction));
-
 		}
+		registerNames.remove(radare.getRegisterByRole("SP"));
+		registerNames.remove(radare.getRegisterByRole("PC"));
 		return registerNames;
 	}
 
@@ -117,9 +117,7 @@ public class FunctionAlocCreator
 
 	private boolean isFlag(String registerName) throws IOException
 	{
-		Architecture architecture = radare.getArchitecture();
-		return registerName.startsWith("$") || architecture
-				.isFlag(registerName);
+		return registerName.startsWith("$") || radare.isFlag(registerName);
 	}
 
 }

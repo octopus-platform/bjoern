@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.*;
 
@@ -39,7 +38,8 @@ public class Radare
 
 		regWidthHash = new HashMap<>();
 		regFamilyHash = new HashMap<>();
-		BufferedReader buffer = new BufferedReader(new StringReader(arpResult));
+		BufferedReader buffer = new BufferedReader(new StringReader
+				(arpResult));
 
 		while (null != (line = buffer.readLine()))
 		{
@@ -50,11 +50,11 @@ public class Radare
 
 			String parts[] = line.split("\t");
 
-			int widthInBit = Integer.parseInt(parts[2].replaceFirst(".",""));
+			int widthInBit = Integer.parseInt(parts[2].replaceFirst(".", ""));
 			int globalStart = Integer.parseInt(parts[3]);
 
-			updateRegWidthHash(parts[1],widthInBit);
-			updateRegFamilyHash(parts[1],widthInBit, globalStart);
+			updateRegWidthHash(parts[1], widthInBit);
+			updateRegFamilyHash(parts[1], widthInBit, globalStart);
 		}
 	}
 
@@ -63,11 +63,14 @@ public class Radare
 		regWidthHash.put(register, widthInBit);
 	}
 
-	private void updateRegFamilyHash(String register, int widthInBit, int globalStart)
+	private void updateRegFamilyHash(String register, int widthInBit,
+			int globalStart)
 	{
-		RegisterFamily newFamily = new RegisterFamily(register, globalStart, globalStart + widthInBit/8 - 1);
+		RegisterFamily newFamily = new RegisterFamily(register, globalStart,
+				globalStart + widthInBit / 8 - 1);
 
-		for(Map.Entry<String, RegisterFamily> entry: regFamilyHash.entrySet())
+		for (Map.Entry<String, RegisterFamily> entry : regFamilyHash
+				.entrySet())
 		{
 			if (entry.getValue().overlaps(newFamily))
 			{
@@ -75,7 +78,7 @@ public class Radare
 				entry.setValue(newFamily);
 			}
 		}
-		regFamilyHash.put(register,newFamily);
+		regFamilyHash.put(register, newFamily);
 	}
 
 	public void analyzeBinary() throws IOException
@@ -83,17 +86,20 @@ public class Radare
 		r2Pipe.cmd("aaa");
 	}
 
-	private void setRadareVariable(String group, String variable, String value) throws IOException
+	private void setRadareVariable(String group, String variable,
+			String value) throws IOException
 	{
 		r2Pipe.cmd("e " + group + "." + variable + " = " + value);
 	}
 
-	private String getRadareVariable(String group, String variable) throws IOException
+	private String getRadareVariable(String group,
+			String variable) throws IOException
 	{
 		return r2Pipe.cmd("e " + group + " " + variable);
 	}
 
-	private void setASMVariable(String variable, String value) throws IOException
+	private void setASMVariable(String variable,
+			String value) throws IOException
 	{
 		setRadareVariable("asm", variable, value);
 	}
@@ -103,7 +109,8 @@ public class Radare
 		return getRadareVariable("asm", variable);
 	}
 
-	private void setSCRVariable(String variable, String value) throws IOException
+	private void setSCRVariable(String variable,
+			String value) throws IOException
 	{
 		setRadareVariable("scr", variable, value);
 	}
@@ -171,16 +178,18 @@ public class Radare
 		}
 
 		if (jsonArray.length() != 1)
-			throw new InvalidRadareFunctionException("empty function at address 0x" + Long.toHexString(addr));
+			throw new InvalidRadareFunctionException(
+					"empty function at address 0x" + Long.toHexString(addr));
 
 		JSONObject functionJSONObject = jsonArray.getJSONObject(0);
 		Long addressOfReceivedFunction = functionJSONObject.getLong("offset");
 		if (!addr.equals(addressOfReceivedFunction))
 		{
-			throw new InvalidRadareFunctionException("requested function content for address 0x"
-					+ Long.toHexString(addr)
-					+ " but received function content for address 0x"
-					+ Long.toHexString(addressOfReceivedFunction));
+			throw new InvalidRadareFunctionException(
+					"requested function content for address 0x"
+							+ Long.toHexString(addr)
+							+ " but received function content for address 0x"
+							+ Long.toHexString(addressOfReceivedFunction));
 		}
 		return functionJSONObject;
 	}
@@ -222,14 +231,18 @@ public class Radare
 
 	private JSONObject parseReferenceLine(String line)
 	{
-		// The JSON object does not contain type information. We have to parse by hand.
-		// line format "type0.type1.type2.source=destination0,destination1,...,destinationN
+		// The JSON object does not contain type information. We have to parse
+		// by hand.
+		// line format "type0.type1.type2.source=destination0,destination1,
+		// ...,destinationN
 		JSONObject answer = new JSONObject();
 		String[] split = line.split("\\.");
 		answer.put("type", split[0] + "." + split[1] + "." + split[2]);
 		String[] addresses = split[3].split("=");
 		answer.put("address", Long.decode(addresses[0]));
-		answer.put("locations", new JSONArray(Arrays.stream(addresses[1].split(",")).map(Long::decode).toArray()));
+		answer.put("locations", new JSONArray(
+				Arrays.stream(addresses[1].split(",")).map(Long::decode)
+						.toArray()));
 		return answer;
 	}
 
@@ -263,7 +276,8 @@ public class Radare
 	}
 
 
-	private List<String> cmdAndSplitResultAtWhitespace(String cmd) throws IOException
+	private List<String> cmdAndSplitResultAtWhitespace(
+			String cmd) throws IOException
 	{
 		String registers = r2Pipe.cmd(cmd).trim();
 		if (registers.length() == 0)
@@ -283,4 +297,67 @@ public class Radare
 		return regFamilyHash.get(register).getName();
 	}
 
+	public String getRegisterRole(String register) throws IOException
+	{
+		JSONArray jsonArray = getRegisterProfile().getJSONArray("alias_info");
+		for (int i = 0; i < jsonArray.length(); i++)
+		{
+			JSONObject aliasInfo = jsonArray.getJSONObject(i);
+			if (aliasInfo.getString("reg").equals(register))
+			{
+				return aliasInfo.getString("role_str");
+			}
+		}
+		return null;
+	}
+
+	public String getRegisterByRole(String role) throws IOException
+	{
+		JSONArray jsonArray = getRegisterProfile().getJSONArray("alias_info");
+		for (int i = 0; i < jsonArray.length(); i++)
+		{
+			JSONObject aliasInfo = jsonArray.getJSONObject(i);
+			if (aliasInfo.getString("role_str").equals(role))
+			{
+				return aliasInfo.getString("reg");
+			}
+		}
+		return null;
+	}
+
+	private JSONObject getRegisterProfile() throws IOException
+	{
+		String jsonString = r2Pipe.cmd("arpj");
+		JSONObject registerProfile = new JSONObject(jsonString);
+		return registerProfile;
+	}
+
+	public boolean isFlag(String registerName) throws IOException
+	{
+		JSONArray jsonArray = getRegisterProfile().getJSONArray("reg_info");
+		for (int i = 0; i < jsonArray.length(); i++)
+		{
+			JSONObject registerInformation = jsonArray.getJSONObject(i);
+			if (registerInformation.getString("name").equals(registerName))
+			{
+				return registerInformation.getString("type_str").equals("flg");
+			}
+		}
+		throw new IllegalArgumentException();
+	}
+
+	public boolean isGeneralPurposeRegister(
+			String registerName) throws IOException
+	{
+		JSONArray jsonArray = getRegisterProfile().getJSONArray("reg_info");
+		for (int i = 0; i < jsonArray.length(); i++)
+		{
+			JSONObject registerInformation = jsonArray.getJSONObject(i);
+			if (registerInformation.getString("name").equals(registerName))
+			{
+				return registerInformation.getString("type_str").equals("gpr");
+			}
+		}
+		throw new IllegalArgumentException();
+	}
 }
