@@ -24,3 +24,7 @@ blockToFunc = {
 instrToFunc = {
     _().instrToBlock().blockToFunc()
 }
+
+followCallToFunc = {
+    _().out("CALL").instrToFunc()
+}
