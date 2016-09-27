@@ -12,18 +12,19 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.util.GraphHelper;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class FunctionAlocCreator
 {
 
 	private static final String BELONGS_TO_EDGE = "BELONGS_TO";
 
-	private Map<String, Vertex> registerToVertex = new HashMap<String,
-			Vertex>();
+	private Map<String, Vertex> registerFamilyCache = new HashMap<>();
 	private Radare radare;
 	private OrientGraphNoTx graph;
-	private Function function;
 
 	FunctionAlocCreator(Radare radare, OrientGraphNoTx graph) throws
 			IOException
@@ -34,57 +35,61 @@ public class FunctionAlocCreator
 
 	public void createAlocsForFunction(Function function) throws IOException
 	{
-		this.function = function;
-		createAlocsForAllInstructions();
-	}
-
-	private void createAlocsForAllInstructions() throws IOException
-	{
-		List<Instruction> instructions = Traversals.functionToInstructions(
-				function);
-		for (Instruction instr : instructions)
+		for (String registerName : getRegisterNames(function))
 		{
-			createAlocsForInstruction(instr);
+			Vertex aloc = createAlocForRegister(registerName);
+			function.addEdge(Traversals.ALOC_USE_EDGE, aloc);
 		}
 	}
 
-	private void createAlocsForInstruction(Instruction instr) throws
-			IOException
+	private Set<String> getRegisterNames(Function function) throws IOException
 	{
-		createAlocsForRegisters(instr);
+		Set<String> registerNames = new HashSet<>();
+		for (Instruction instruction : Traversals
+				.functionToInstructions(function))
+		{
+			registerNames.addAll(getRegisterNames(instruction));
+
+		}
+		return registerNames;
 	}
 
-	private void createAlocsForRegisters(Instruction instr) throws IOException
+	private Set<String> getRegisterNames(Instruction instruction) throws
+			IOException
 	{
-		Long address = instr.getAddress();
+		Long address = instruction.getAddress();
 		Set<String> registerNames = new HashSet<>();
 		registerNames.addAll(radare.getRegistersRead(address));
 		registerNames.addAll(radare.getRegistersWritten(address));
-		for (String registerName : registerNames)
+		return registerNames;
+	}
+
+	private Vertex createAlocForRegister(String registerName) throws IOException
+	{
+		Vertex aloc;
+		if (isFlag(registerName))
 		{
-			Vertex register;
-			if (isFlag(registerName))
-			{
-				register = createFlagAloc(registerName);
-			} else
-			{
-				register = createRegisterAloc(registerName);
-				Vertex family = getRegisterFamilyNode(registerName);
-				register.addEdge(BELONGS_TO_EDGE, family);
-			}
-			function.addEdge(Traversals.ALOC_USE_EDGE, register);
+			aloc = createFlagAloc(registerName);
+		} else
+		{
+			aloc = createRegisterAloc(registerName);
+			Vertex family = getRegisterFamilyNode(registerName);
+			aloc.addEdge(BELONGS_TO_EDGE, family);
 		}
+		return aloc;
 	}
 
 	private Vertex getRegisterFamilyNode(String registerName)
 	{
-		String registerFamily = radare.getRegisterFamily(registerName);
-		if (!registerToVertex.containsKey(registerFamily))
+		String registerFamilyName = radare.getRegisterFamily(registerName);
+		if (!registerFamilyCache.containsKey(registerFamilyName))
 		{
-			registerToVertex
-					.put(registerFamily, GraphHelper.addVertex(graph, 0));
+			Vertex familyNode = GraphHelper.addVertex(graph, 0);
+			registerFamilyCache
+					.put(registerFamilyName, familyNode);
+			return familyNode;
 		}
-		return registerToVertex.get(registerFamily);
+		return registerFamilyCache.get(registerFamilyName);
 	}
 
 	private Vertex createRegisterAloc(String alocName)
