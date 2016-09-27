@@ -148,7 +148,7 @@ public class UseDefAnalyser
 				String familyName = getFamilyNameOfRegister(aloc);
 				DataObject<ValueSet> register = new Register(aloc.getName(),
 						ValueSet.newTop(DataWidth.R64));
-				if (familyName != "rsp" && familyName != "rip")
+				if (!familyName.equals("rsp") && !familyName.equals("rip"))
 				{
 					ObservableDataObject<ValueSet> dataObject = new
 							ObservableDataObject<>(register);
@@ -206,8 +206,7 @@ public class UseDefAnalyser
 		}
 
 		@Override
-		public void updateWrite(DataObject<T> dataObject, T
-				value)
+		public void updateWrite(DataObject<T> dataObject, T value)
 		{
 			if (null == instruction)
 			{
