@@ -88,10 +88,16 @@ class ReachingDefinitionAnalyser
 					.inE("WRITE");
 			for (Edge writeEdge : pipe)
 			{
-				String registerName = writeEdge.getVertex(Direction.IN)
-						.getProperty("name");
 				Vertex genVertex = writeEdge.getVertex(Direction.OUT);
-				killSet.add(new Definition(genVertex, registerName));
+				Vertex aloc = writeEdge.getVertex(Direction.IN);
+				GremlinPipeline<Vertex, Object> pipe2 = new
+						GremlinPipeline<>();
+				pipe2.start(aloc).out("BELONGS_TO").in("BELONGS_TO")
+						.property("name");
+				for (Object identifier : pipe2)
+				{
+					killSet.add(new Definition(genVertex, identifier));
+				}
 			}
 			return killSet;
 		};
