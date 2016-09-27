@@ -13,22 +13,24 @@ public class DataDependenceCreator
 	private static final String LABEL = "REACHES";
 
 	public static void createFromReachingDefinitions(
-			Map<Vertex, Set<Edge>> reachingDefinitions)
+			Map<Vertex, Set<ReachingDefinitionAnalyser.Definition>>
+					reachingDefinitions)
 	{
-		for (Map.Entry<Vertex, Set<Edge>> entry1 : reachingDefinitions
+		for (Map.Entry<Vertex, Set<ReachingDefinitionAnalyser.Definition>>
+				entry : reachingDefinitions
 				.entrySet())
 		{
-			for (Edge edge : entry1.getValue())
+			for (ReachingDefinitionAnalyser.Definition definition : entry
+					.getValue())
 			{
-				Vertex object = edge.getVertex(Direction.IN);
-				Vertex destination = entry1.getKey();
-				Set<Vertex> useSet = getUseSet(destination);
+				String object = definition.getName();
+				Vertex destination = entry.getKey();
+				Set<String> useSet = getUseSet(destination);
 				if (useSet.contains(object))
 				{
-					Vertex source = edge.getVertex(Direction.OUT);
+					Vertex source = definition.getLocation();
 					addEdge(source, destination, object);
 				}
-
 			}
 		}
 	}
@@ -46,7 +48,7 @@ public class DataDependenceCreator
 	 * @param object      the data object.
 	 */
 	private static void addEdge(Vertex source, Vertex destination,
-			Vertex object)
+			String object)
 	{
 		for (Edge edge : source.getEdges(Direction.OUT, LABEL))
 		{
@@ -58,15 +60,15 @@ public class DataDependenceCreator
 			}
 		}
 		Edge edge = source.addEdge(LABEL, destination);
-		edge.setProperty("aloc", object.getId());
+		edge.setProperty("aloc", object);
 	}
 
-	private static Set<Vertex> getUseSet(Vertex destination)
+	private static Set<String> getUseSet(Vertex destination)
 	{
-		Set<Vertex> set = new HashSet<>();
+		Set<String> set = new HashSet<>();
 		for (Vertex vertex : destination.getVertices(Direction.OUT, "READ"))
 		{
-			set.add(vertex);
+			set.add(vertex.getProperty("name"));
 		}
 		return set;
 	}

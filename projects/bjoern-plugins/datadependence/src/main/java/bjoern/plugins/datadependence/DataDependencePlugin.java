@@ -4,7 +4,6 @@ import bjoern.pluginlib.LookupOperations;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
@@ -27,8 +26,9 @@ public class DataDependencePlugin extends OrientGraphConnectionPlugin
 			{
 				continue;
 			}
-			Map<Vertex, Set<Edge>> reachingDefinitions = analyser
-					.analyse(graph, entry);
+			Map<Vertex, Set<ReachingDefinitionAnalyser.Definition>>
+					reachingDefinitions = analyser
+					.analyse(entry);
 			DataDependenceCreator
 					.createFromReachingDefinitions(reachingDefinitions);
 

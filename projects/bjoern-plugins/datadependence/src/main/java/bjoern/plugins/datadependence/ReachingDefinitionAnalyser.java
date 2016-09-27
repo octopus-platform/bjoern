@@ -2,39 +2,111 @@ package bjoern.plugins.datadependence;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 
 import java.util.*;
+import java.util.function.Function;
 
-public class ReachingDefinitionAnalyser
+class ReachingDefinitionAnalyser
 {
 	private static final String[] CFLOW_LABEL = {"NEXT_INSTR",
 			"NEXT_INSTR_TRANSITIVE"};
-	private static final String[] DEF_LABEL = {"WRITE"};
-	private Map<Vertex, Set<Edge>> out;
+	private final Function<Vertex, Set<Definition>> gen;
+	private final Function<Vertex, Set<Definition>> kill;
+	private Map<Vertex, Set<Definition>> out;
 
-	/**
-	 * Calculate the reaching definitions for the given flow graph {@code
-	 * graph} with entry node {@code entry}. Each node of the flow graph must
-	 * be connected to a set of nodes representing the object defined by this
-	 * node as well as nodes representing the objects used by this node.
-	 *
-	 * @param graph the flow graph
-	 * @param entry the entry node
-	 * @return a mapping from nodes to all reaching definitions
-	 */
-	public Map<Vertex, Set<Edge>> analyse(Graph graph, Vertex entry)
+	static class Definition
+	{
+		private final Vertex location;
+		private final String name;
+
+		Definition(Vertex location, String name)
+		{
+			this.location = location;
+			this.name = name;
+		}
+
+		public Vertex getLocation()
+		{
+			return location;
+		}
+
+		public String getName()
+		{
+			return name;
+		}
+
+		@Override
+		public boolean equals(Object object)
+		{
+			if (!(object instanceof Definition))
+			{
+				return false;
+			}
+			Definition definition = (Definition) object;
+			return location.equals(definition.location)
+					&& name.equals(definition.name);
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int hashCode = 17;
+			hashCode = 31 * hashCode + location.hashCode();
+			hashCode = 31 * hashCode + name.hashCode();
+			return hashCode;
+		}
+
+		@Override
+		public String toString()
+		{
+			return name + "@" + location.getId().toString();
+		}
+	}
+
+	ReachingDefinitionAnalyser()
+	{
+		this.gen = vertex ->
+		{
+			Set<Definition> genSet = new HashSet<>();
+			GremlinPipeline<Vertex, Vertex> pipe = new GremlinPipeline<>();
+			pipe.start(vertex).out("WRITE").out("BELONGS_TO")
+					.in("BELONGS_TO");
+			for (Vertex register : pipe)
+			{
+				String registerName = register.getProperty("name");
+				genSet.add(new Definition(vertex, registerName));
+			}
+			return genSet;
+		};
+		this.kill = vertex ->
+		{
+			Set<Definition> killSet = new HashSet<>();
+			GremlinPipeline<Vertex, Edge> pipe = new GremlinPipeline<>();
+			pipe.start(vertex).out("WRITE").out("BELONGS_TO").in("BELOGNS_TO")
+					.inE("WRITE");
+			for (Edge writeEdge : pipe)
+			{
+				String registerName = writeEdge.getVertex(Direction.IN)
+						.getProperty("name");
+				Vertex genVertex = writeEdge.getVertex(Direction.OUT);
+				killSet.add(new Definition(genVertex, registerName));
+			}
+			return killSet;
+		};
+	}
+
+	Map<Vertex, Set<Definition>> analyse(Vertex entry)
 	{
 		this.out = new HashMap<>();
 		Queue<Vertex> worklist = getAllNodes(entry);
 		while (!worklist.isEmpty())
 		{
 			Vertex vertex = worklist.remove();
-			Set<Edge> in = getIn(vertex);
-			Set<Edge> outNew = calculateOut(vertex, in);
-			Set<Edge> outOld = getOut(vertex);
+			Set<Definition> in = getIn(vertex);
+			Set<Definition> outNew = calculateOut(vertex, in);
+			Set<Definition> outOld = getOut(vertex);
 			if (!outNew.equals(outOld))
 			{
 				this.out.put(vertex, outNew);
@@ -51,12 +123,12 @@ public class ReachingDefinitionAnalyser
 		return collectReachingDefinitions();
 	}
 
-	private Map<Vertex, Set<Edge>> collectReachingDefinitions()
+	private Map<Vertex, Set<Definition>> collectReachingDefinitions()
 	{
-		Map<Vertex, Set<Edge>> reachingDefinitions = new HashMap<>();
+		Map<Vertex, Set<Definition>> reachingDefinitions = new HashMap<>();
 		for (Vertex vertex : out.keySet())
 		{
-			Set<Edge> definitions = new HashSet<>();
+			Set<Definition> definitions = new HashSet<>();
 			for (Vertex predecessor : vertex
 					.getVertices(Direction.IN, CFLOW_LABEL))
 			{
@@ -82,9 +154,9 @@ public class ReachingDefinitionAnalyser
 		return worklist;
 	}
 
-	private Set<Edge> getIn(Vertex vertex)
+	private Set<Definition> getIn(Vertex vertex)
 	{
-		Set<Edge> in = new HashSet<>();
+		Set<Definition> in = new HashSet<>();
 		for (Vertex predecessor : vertex.getVertices(Direction.IN,
 				CFLOW_LABEL))
 		{
@@ -93,9 +165,9 @@ public class ReachingDefinitionAnalyser
 		return in;
 	}
 
-	private Set<Edge> getOut(Vertex predecessor)
+	private Set<Definition> getOut(Vertex predecessor)
 	{
-		Set<Edge> out = this.out.get(predecessor);
+		Set<Definition> out = this.out.get(predecessor);
 		if (null == out)
 		{
 			out = getGenSet(predecessor);
@@ -104,38 +176,25 @@ public class ReachingDefinitionAnalyser
 		return out;
 	}
 
-	private Set<Edge> calculateOut(Vertex vertex, Set<Edge> in)
+	private Set<Definition> calculateOut(Vertex vertex, Set<Definition> in)
 	{
-		Set<Edge> out = new HashSet<>();
-		Set<Edge> kill = getKillSet(vertex);
-		Set<Edge> gen = getGenSet(vertex);
+		Set<Definition> out = new HashSet<>();
+		Set<Definition> kill = getKillSet(vertex);
+		Set<Definition> gen = getGenSet(vertex);
 		out.addAll(in);
 		out.removeAll(kill);
 		out.addAll(gen);
 		return out;
 	}
 
-	private Set<Edge> getGenSet(Vertex vertex)
+	private Set<Definition> getGenSet(Vertex vertex)
 	{
-		Set<Edge> set = new HashSet<>();
-		for (Edge edge : vertex.getEdges(Direction.OUT, DEF_LABEL))
-		{
-			set.add(edge);
-		}
-		return set;
+		return this.gen.apply(vertex);
 	}
 
-	private Set<Edge> getKillSet(Vertex vertex)
+	private Set<Definition> getKillSet(Vertex vertex)
 	{
-		Set<Edge> set = new HashSet<>();
-		for (Vertex x : vertex.getVertices(Direction.OUT, DEF_LABEL))
-		{
-			for (Edge edge : x.getEdges(Direction.IN, DEF_LABEL))
-			{
-				set.add(edge);
-			}
-		}
-		return set;
+		return this.kill.apply(vertex);
 	}
 
 }
