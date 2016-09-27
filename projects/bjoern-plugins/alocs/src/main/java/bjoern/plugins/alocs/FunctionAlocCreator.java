@@ -19,8 +19,8 @@ import java.util.Set;
 
 public class FunctionAlocCreator
 {
-
 	private static final String BELONGS_TO_EDGE = "BELONGS_TO";
+	private static final String FAMILY_TYPE = "RegisterFamily";
 
 	private Map<String, Vertex> registerFamilyCache = new HashMap<>();
 	private Radare radare;
@@ -86,6 +86,7 @@ public class FunctionAlocCreator
 		if (!registerFamilyCache.containsKey(registerFamilyName))
 		{
 			Vertex familyNode = GraphHelper.addVertex(graph, 0,
+					BjoernNodeProperties.TYPE, FAMILY_TYPE,
 					BjoernNodeProperties.NAME, registerFamilyName);
 			registerFamilyCache
 					.put(registerFamilyName, familyNode);
