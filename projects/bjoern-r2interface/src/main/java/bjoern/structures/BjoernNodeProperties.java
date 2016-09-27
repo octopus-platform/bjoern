@@ -14,4 +14,5 @@ public class BjoernNodeProperties extends OctopusNodeProperties
 	public static final Object VAR = "var";
 	public static final String ESIL = "esil";
 
+	public static final String WIDTH = "width";
 }

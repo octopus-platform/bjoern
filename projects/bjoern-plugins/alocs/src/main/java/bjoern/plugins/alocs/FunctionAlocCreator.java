@@ -92,22 +92,24 @@ public class FunctionAlocCreator
 		return registerFamilyCache.get(registerFamilyName);
 	}
 
-	private Vertex createRegisterAloc(String alocName)
+	private Vertex createRegisterAloc(String registerName)
 	{
-		return createAloc(alocName, AlocTypes.REGISTER);
+		return createAloc(registerName, AlocTypes.REGISTER,
+				radare.getRegisterWidth(registerName));
 	}
 
-	private Vertex createFlagAloc(String alocName)
+	private Vertex createFlagAloc(String flagName)
 	{
-		return createAloc(alocName, AlocTypes.FLAG);
+		return createAloc(flagName, AlocTypes.FLAG, 1);
 	}
 
-	private Vertex createAloc(String alocName, String subType)
+	private Vertex createAloc(String alocName, String subType, Integer width)
 	{
 		return GraphHelper.addVertex(graph, 0,
 				BjoernNodeProperties.TYPE, BjoernNodeTypes.ALOC,
 				BjoernNodeProperties.SUBTYPE, subType,
-				BjoernNodeProperties.NAME, alocName);
+				BjoernNodeProperties.NAME, alocName,
+				BjoernNodeProperties.WIDTH, width);
 	}
 
 	private boolean isFlag(String registerName) throws IOException
