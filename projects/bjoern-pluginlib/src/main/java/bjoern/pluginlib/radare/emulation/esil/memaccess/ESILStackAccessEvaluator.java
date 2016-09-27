@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import bjoern.r2interface.architectures.UnknownArchitectureException;
 import com.tinkerpop.blueprints.Vertex;
 
 import bjoern.pluginlib.Traversals;
@@ -47,7 +48,7 @@ public class ESILStackAccessEvaluator {
 		MEM_ACCESS_TOKENS.addAll(PEEK_TOKENS);
 	}
 
-	public ESILStackAccessEvaluator(Radare radare) throws IOException
+	public ESILStackAccessEvaluator(Radare radare) throws IOException, UnknownArchitectureException
 	{
 		emulator = new ESILEmulator(radare);
 	}

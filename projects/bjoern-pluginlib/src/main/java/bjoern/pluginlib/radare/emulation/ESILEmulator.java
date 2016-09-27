@@ -1,18 +1,19 @@
 package bjoern.pluginlib.radare.emulation;
 
-import java.io.IOException;
-import java.util.function.Predicate;
-
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.r2interface.Radare;
 import bjoern.r2interface.architectures.Architecture;
+import bjoern.r2interface.architectures.UnknownArchitectureException;
+
+import java.io.IOException;
+import java.util.function.Predicate;
 
 public class ESILEmulator {
 
 	Architecture architecture;
 	Radare radare;
 
-	public ESILEmulator(Radare radare) throws IOException
+	public ESILEmulator(Radare radare) throws IOException, UnknownArchitectureException
 	{
 		this.radare = radare;
 		setArchitecture(radare.getArchitecture());
