@@ -15,6 +15,7 @@ import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
 import bjoern.plugins.vsa.transformer.esil.commands.*;
 import bjoern.plugins.vsa.transformer.esil.stack.ValueSetContainer;
+import bjoern.structures.BjoernNodeProperties;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 
@@ -144,11 +145,17 @@ public class UseDefAnalyser
 		{
 			if (aloc.isRegister())
 			{
-				ObservableDataObject<ValueSet> register = new
-						ObservableDataObject<>(
-						new Register(aloc.getName(),
-								ValueSet.newTop(DataWidth.R64)));
-				register.addObserver(new DataObjectAccessObserver<>(aloc));
+				String familyName = getFamilyNameOfRegister(aloc);
+				DataObject<ValueSet> register = new Register(aloc.getName(),
+						ValueSet.newTop(DataWidth.R64));
+				if (familyName != "rsp" && familyName != "rip")
+				{
+					ObservableDataObject<ValueSet> dataObject = new
+							ObservableDataObject<>(register);
+					dataObject.addObserver(
+							new DataObjectAccessObserver<>(aloc));
+					register = dataObject;
+				}
 				env.setRegister(register);
 			}
 			if (aloc.isFlag())
@@ -162,6 +169,12 @@ public class UseDefAnalyser
 
 		}
 		return env;
+	}
+
+	private String getFamilyNameOfRegister(Aloc node)
+	{
+		return node.getVertices(Direction.OUT, "BELONGS_TO").iterator().next()
+				.getProperty(BjoernNodeProperties.NAME);
 	}
 
 	private class DataObjectAccessObserver<T> implements DataObjectObserver<T>
