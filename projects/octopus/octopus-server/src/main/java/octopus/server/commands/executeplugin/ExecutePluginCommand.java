@@ -49,8 +49,6 @@ public class ExecutePluginCommand extends OServerCommandAbstract
 	public boolean execute(OHttpRequest iRequest,
 						   OHttpResponse iResponse) throws Exception
 	{
-		OLogManager.instance().warn(this, "startplugin");
-
 		parseContent(iRequest.content);
 
 		Object result = executePlugin();
