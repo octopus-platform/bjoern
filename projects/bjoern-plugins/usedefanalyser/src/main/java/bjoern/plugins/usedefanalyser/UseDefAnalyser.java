@@ -127,6 +127,8 @@ public class UseDefAnalyser {
 			transformer.transform(esilCode, env);
 		} catch (ESILTransformationException e) {
 			logger.error(e.getMessage());
+		} catch (Exception e) {
+			logger.error("Unknown error");
 		}
 	}
 
