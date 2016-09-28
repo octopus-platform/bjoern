@@ -11,47 +11,37 @@ import bjoern.plugins.vsa.transformer.esil.stack.RegisterContainer;
 
 import java.util.Deque;
 
-public class AssignmentCommand implements ESILCommand
-{
+public class AssignmentCommand implements ESILCommand {
 	@Override
-	public ESILStackItem execute(Deque<ESILCommand> stack)
-	{
+	public ESILStackItem execute(Deque<ESILCommand> stack) {
 
 		ESILStackItem item = stack.pop().execute(stack);
 
-		if (item instanceof RegisterContainer)
-		{
+		if (item instanceof RegisterContainer) {
 			RegisterContainer registerContainer = (RegisterContainer) item;
 			DataObject<ValueSet> register = registerContainer.getRegister();
 			register.write(stack.pop().execute(stack).getValue());
-		} else if (item instanceof FlagContainer)
-		{
+		} else if (item instanceof FlagContainer) {
 			FlagContainer flagContainer = (FlagContainer) item;
 			DataObject<Bool3> flag = flagContainer.getFlag();
 			ValueSet valueSet = stack.pop().execute(stack).getValue();
-			if (valueSet.isGlobal())
-			{
+			if (valueSet.isGlobal()) {
 				StridedInterval stridedInterval = valueSet
 						.getValueOfGlobalRegion();
-				if (stridedInterval.isZero())
-				{
+				if (stridedInterval.isZero()) {
 					flag.write(Bool3.FALSE);
-				} else if (stridedInterval.isOne())
-				{
+				} else if (stridedInterval.isOne()) {
 					flag.write(Bool3.TRUE);
-				} else
-				{
+				} else {
 					flag.write(Bool3.MAYBE);
 				}
-			} else
-			{
+			} else {
 				throw new ESILTransformationException(
 						"Error while executing assignment command: Cannot "
 								+ "assign "
 								+ valueSet + " to flag");
 			}
-		} else
-		{
+		} else {
 			throw new ESILTransformationException(
 					"Error while executing assignment command");
 		}

@@ -1,6 +1,5 @@
 package bjoern.plugins.usedefanalyser;
 
-
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.BasicBlock;
@@ -17,20 +16,22 @@ import bjoern.plugins.vsa.transformer.esil.commands.*;
 import bjoern.plugins.vsa.transformer.esil.stack.ValueSetContainer;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UseDefAnalyser
-{
+public class UseDefAnalyser {
+	private static final Logger logger = LoggerFactory
+			.getLogger(UseDefAnalyser.class);
 
 	private final Map<ESILKeyword, ESILCommand> commands;
 	private Instruction instruction;
 	private boolean ignoreAccesses;
 
-	public UseDefAnalyser()
-	{
+	public UseDefAnalyser() {
 		commands = new HashMap<>();
 		commands.put(ESILKeyword.ASSIGNMENT, new AssignmentCommand());
 		ESILCommand relationalCommand = new RelationalCommand();
@@ -74,7 +75,7 @@ public class UseDefAnalyser
 		{
 			ignoreAccesses = true;
 			ValueSet destinationAddress = stack.pop().execute(stack)
-					.getValue();
+			                                   .getValue();
 			ignoreAccesses = false;
 			ValueSet value = stack.pop().execute(stack).getValue();
 			return null;
@@ -101,49 +102,39 @@ public class UseDefAnalyser
 		ignoreAccesses = false;
 	}
 
-	public void analyse(BasicBlock block, List<Aloc> alocs)
-	{
+	public void analyse(BasicBlock block, List<Aloc> alocs) {
 		AbstractEnvironment env = loadMachineState(alocs);
 		analyse(block, env);
 	}
 
 
-	public void analyse(BasicBlock block, AbstractEnvironment env)
-	{
-		for (Instruction instruction : block.orderedInstructions())
-		{
+	public void analyse(BasicBlock block, AbstractEnvironment env) {
+		for (Instruction instruction : block.orderedInstructions()) {
 			analyse(instruction, env);
 
 		}
 	}
 
-	public void analyse(Instruction instruction, AbstractEnvironment env)
-	{
+	public void analyse(Instruction instruction, AbstractEnvironment env) {
 		this.instruction = instruction;
 		String esilCode = instruction.getEsilCode();
 		analyse(esilCode, env);
 	}
 
-	public void analyse(String esilCode, AbstractEnvironment env)
-	{
+	public void analyse(String esilCode, AbstractEnvironment env) {
 		Transformer transformer = new ESILTransformer(commands);
-		try
-		{
-			env = transformer.transform(esilCode, env);
-		} catch (ESILTransformationException e)
-		{
-			e.printStackTrace();
+		try {
+			transformer.transform(esilCode, env);
+		} catch (ESILTransformationException e) {
+			logger.error(e.getMessage());
 		}
 	}
 
-	private AbstractEnvironment loadMachineState(List<Aloc> alocs)
-	{
+	private AbstractEnvironment loadMachineState(List<Aloc> alocs) {
 		AbstractEnvironment env = new AbstractEnvironment();
 
-		for (Aloc aloc : alocs)
-		{
-			if (aloc.isRegister())
-			{
+		for (Aloc aloc : alocs) {
+			if (aloc.isRegister()) {
 				DataObject<ValueSet> register = new Register(aloc.getName(),
 						ValueSet.newTop(DataWidth.R64));
 				ObservableDataObject<ValueSet> dataObject = new
@@ -153,8 +144,7 @@ public class UseDefAnalyser
 				register = dataObject;
 				env.setRegister(register);
 			}
-			if (aloc.isFlag())
-			{
+			if (aloc.isFlag()) {
 				ObservableDataObject<Bool3> flag = new
 						ObservableDataObject<>(
 						new Flag(aloc.getName(), Bool3.MAYBE));
@@ -166,26 +156,21 @@ public class UseDefAnalyser
 		return env;
 	}
 
-	private class DataObjectAccessObserver<T> implements DataObjectObserver<T>
-	{
+	private class DataObjectAccessObserver<T>
+			implements DataObjectObserver<T> {
 		private final Aloc aloc;
 
-		public DataObjectAccessObserver(Aloc aloc)
-		{
+		public DataObjectAccessObserver(Aloc aloc) {
 			this.aloc = aloc;
 		}
 
 		@Override
-		public void updateRead(DataObject<T> dataObject)
-		{
-			if (null == instruction || ignoreAccesses)
-			{
+		public void updateRead(DataObject<T> dataObject) {
+			if (null == instruction || ignoreAccesses) {
 				return;
 			}
-			for (Edge edge : instruction.getEdges(Direction.OUT, "READ"))
-			{
-				if (edge.getVertex(Direction.IN).equals(aloc))
-				{
+			for (Edge edge : instruction.getEdges(Direction.OUT, "READ")) {
+				if (edge.getVertex(Direction.IN).equals(aloc)) {
 					// edge exists -> skip
 					return;
 				}
@@ -195,16 +180,12 @@ public class UseDefAnalyser
 		}
 
 		@Override
-		public void updateWrite(DataObject<T> dataObject, T value)
-		{
-			if (null == instruction)
-			{
+		public void updateWrite(DataObject<T> dataObject, T value) {
+			if (null == instruction) {
 				return;
 			}
-			for (Edge edge : instruction.getEdges(Direction.OUT, "WRITE"))
-			{
-				if (edge.getVertex(Direction.IN).equals(aloc))
-				{
+			for (Edge edge : instruction.getEdges(Direction.OUT, "WRITE")) {
+				if (edge.getVertex(Direction.IN).equals(aloc)) {
 					// edge exists -> skip
 					return;
 				}
