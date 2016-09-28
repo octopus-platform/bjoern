@@ -22,23 +22,21 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class ESILTransformer implements Transformer
-{
+public class ESILTransformer implements Transformer {
 	private final Map<ESILKeyword, ESILCommand> commands;
 
 	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
 	private AbstractEnvironment outEnv = null;
 	private ESILTokenEvaluator esilParser = new ESILTokenEvaluator();
 
-	public ESILTransformer(Map<ESILKeyword, ESILCommand> commands)
-	{
+	public ESILTransformer(Map<ESILKeyword, ESILCommand> commands) {
 		this.commands = commands;
 	}
 
 	@Override
-	public AbstractEnvironment transform(String esilCode,
-			AbstractEnvironment inEnv)
-	{
+	public AbstractEnvironment transform(
+			String esilCode,
+			AbstractEnvironment inEnv) {
 		// copy environment
 		outEnv = new AbstractEnvironment(inEnv);
 		// initialize esil stack
@@ -47,35 +45,30 @@ public class ESILTransformer implements Transformer
 
 		logger.info("Transforming: " + esilCode + "");
 
-		if (esilCode.equals(""))
-		{
+		if (esilCode.equals("")) {
 			return outEnv;
 		}
 
-		while (tokenStream.hasNext())
-		{
+		while (tokenStream.hasNext()) {
 			String token = tokenStream.next();
-			if (esilParser.isEsilKeyword(token))
-			{
+			if (esilParser.isEsilKeyword(token)) {
 				ESILKeyword keyword = ESILKeyword.fromString(token);
-				if (keyword == ESILKeyword.START_CONDITIONAL)
-				{
+				if (keyword == ESILKeyword.START_CONDITIONAL) {
 					ConditionalCommand command = new ConditionalCommand(
 							conditionalFromTokenStream(tokenStream));
 					command.execute(esilStack);
-				} else
-				{
+				} else {
 					ESILCommand command = commands.get(keyword);
-					if (keyword.sideEffect)
-					{
-						command.execute(esilStack);
-					} else
-					{
+					if (keyword.sideEffect) {
+						ESILStackItem result = command.execute(esilStack);
+						if (result != null) {
+							esilStack.push(new PopCommand(result));
+						}
+					} else {
 						esilStack.push(command);
 					}
 				}
-			} else
-			{
+			} else {
 				ESILStackItem item = convert(token);
 				esilStack.push(new PopCommand(item));
 			}
@@ -83,14 +76,11 @@ public class ESILTransformer implements Transformer
 		return outEnv;
 	}
 
-	private String conditionalFromTokenStream(ESILTokenStream tokenStream)
-	{
+	private String conditionalFromTokenStream(ESILTokenStream tokenStream) {
 		StringBuilder builder = new StringBuilder();
-		do
-		{
+		do {
 			String s = tokenStream.next();
-			if (s.equals(ESILKeyword.END_CONDITIONAL.keyword))
-			{
+			if (s.equals(ESILKeyword.END_CONDITIONAL.keyword)) {
 				break;
 			}
 			builder.append(s);
@@ -98,23 +88,18 @@ public class ESILTransformer implements Transformer
 		return builder.toString();
 	}
 
-	private ESILStackItem convert(String token)
-	{
-		if (esilParser.isNumericConstant(token))
-		{
+	private ESILStackItem convert(String token) {
+		if (esilParser.isNumericConstant(token)) {
 			ValueSet valueSet = ValueSet
 					.newGlobal(StridedInterval.getSingletonSet(
 							esilParser.parseNumericConstant(token),
 							DataWidth.R64));
 			return new ValueSetContainer(valueSet);
-		} else if (esilParser.isRegister(token))
-		{
+		} else if (esilParser.isRegister(token)) {
 			return new RegisterContainer(outEnv.getRegister(token));
-		} else if (esilParser.isFlag(token))
-		{
+		} else if (esilParser.isFlag(token)) {
 			return new FlagContainer(outEnv.getFlag(token));
-		} else
-		{
+		} else {
 			throw new ESILTransformationException(
 					"Cannot convert token: " + token);
 		}
