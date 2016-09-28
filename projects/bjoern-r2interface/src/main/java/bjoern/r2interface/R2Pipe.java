@@ -45,7 +45,6 @@ class R2Pipe
 	{
 		cmdNoResponse(cmd);
 		String result = readUpToZeroByte();
-		logger.debug(result);
 		return result;
 	}
 
