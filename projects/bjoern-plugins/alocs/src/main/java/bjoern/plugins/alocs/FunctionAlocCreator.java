@@ -9,6 +9,8 @@ import bjoern.structures.BjoernNodeTypes;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.util.GraphHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,6 +20,8 @@ import java.util.Set;
 
 public class FunctionAlocCreator
 {
+	private static final Logger logger = LoggerFactory
+			.getLogger(FunctionAlocCreator.class);
 	private static final String BELONGS_TO_EDGE = "BELONGS_TO";
 	private static final String FAMILY_TYPE = "RegisterFamily";
 
@@ -36,8 +40,14 @@ public class FunctionAlocCreator
 	{
 		for (String registerName : getRegisterNames(function))
 		{
-			Vertex aloc = createAlocForRegister(registerName);
-			function.addEdge(Traversals.ALOC_USE_EDGE, aloc);
+			try {
+				Vertex aloc = createAlocForRegister(registerName);
+				function.addEdge(Traversals.ALOC_USE_EDGE, aloc);
+			}
+			catch (IllegalArgumentException e)
+			{
+				logger.warn("Failed to create aloc for {}.", registerName);
+			}
 		}
 	}
 
