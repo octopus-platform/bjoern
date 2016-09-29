@@ -54,7 +54,7 @@ class ReachingDefinitionAnalyser {
 		@Override
 		public int hashCode() {
 			int hashCode = 17;
-			hashCode = 31 * hashCode + location.hashCode();
+			hashCode = 31 * hashCode + location.getId().hashCode();
 			hashCode = 31 * hashCode + identifier.hashCode();
 			return hashCode;
 		}
@@ -82,19 +82,18 @@ class ReachingDefinitionAnalyser {
 
 	Map<Vertex, Set<Definition>> analyse(Vertex entry) {
 		this.out = new HashMap<>();
-		Queue<Vertex> worklist = getAllNodes(entry);
-		while (!worklist.isEmpty()) {
-			Vertex vertex = worklist.remove();
-			Set<Definition> in = getIn(vertex);
-			Set<Definition> outNew = computeOut(vertex, in);
-			Set<Definition> outOld = getOut(vertex);
-			if (!outNew.equals(outOld)) {
-				this.out.put(vertex, outNew);
-				for (Vertex successor : vertex.getVertices(Direction.OUT,
-						CFLOW_LABEL)) {
-					if (!worklist.contains(successor)) {
-						worklist.add(successor);
-					}
+		List<Vertex> nodes = getAllNodesInReversePostOrder(entry);
+		boolean changed = true;
+		while (changed) {
+			changed = false;
+			for (int i = 0; i < nodes.size(); i++) {
+				Vertex vertex = nodes.get(i);
+				Set<Definition> in = getIn(vertex);
+				Set<Definition> outNew = computeOut(vertex, in);
+				Set<Definition> outOld = getOut(vertex);
+				if (!outNew.equals(outOld)) {
+					this.out.put(vertex, outNew);
+					changed = true;
 				}
 			}
 		}
@@ -127,6 +126,24 @@ class ReachingDefinitionAnalyser {
 			worklist.add(vertex);
 		}
 		return worklist;
+	}
+
+	private List<Vertex> getAllNodesInReversePostOrder(Vertex entry) {
+		Deque<Vertex> stack1 = new LinkedList<>();
+		List<Vertex> stack2 = new LinkedList<>();
+		stack1.push(entry);
+		while (!stack1.isEmpty()) {
+			Vertex root = stack1.pop();
+			stack2.add(root);
+			for (Vertex child : root.getVertices(Direction.OUT,
+					CFLOW_LABEL)) {
+				if (stack1.contains(child) || stack2.contains(child)) {
+					continue;
+				}
+				stack1.push(child);
+			}
+		}
+		return stack2;
 	}
 
 	private Set<Definition> getIn(Vertex vertex) {
