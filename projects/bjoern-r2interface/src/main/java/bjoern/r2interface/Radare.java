@@ -244,6 +244,14 @@ public class Radare {
 		return cmdAndSplitResultAtWhitespace(cmd);
 	}
 
+	public Set<String> getRegistersUsedByFunctionAt(Long addr) throws
+			IOException {
+		String cmd = "aeaf @ 0x" + Long.toHexString(addr);
+		String result = r2Pipe.cmd(cmd).trim();
+		String[] uses = result.split("\n")[0].substring(3).split(" ");
+		return new HashSet<>(Arrays.asList(uses));
+	}
+
 
 	private List<String> cmdAndSplitResultAtWhitespace(
 			String cmd) throws IOException {
