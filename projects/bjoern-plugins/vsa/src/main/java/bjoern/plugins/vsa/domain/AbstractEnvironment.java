@@ -17,8 +17,8 @@ import java.util.Set;
  */
 public class AbstractEnvironment
 {
-	private final Map<String, DataObject<ValueSet>> registers;
-	private final Map<String, DataObject<Bool3>> flags;
+	private final Map<Object, DataObject<ValueSet>> registers;
+	private final Map<Object, DataObject<Bool3>> flags;
 
 	public AbstractEnvironment()
 	{
@@ -49,7 +49,7 @@ public class AbstractEnvironment
 		this.registers.put(register.getIdentifier(), register);
 	}
 
-	public DataObject<ValueSet> getRegister(String registerName)
+	public DataObject<ValueSet> getRegister(Object registerName)
 	{
 		if (!registers.containsKey(registerName))
 		{
@@ -59,7 +59,7 @@ public class AbstractEnvironment
 		return register;
 	}
 
-	public DataObject<Bool3> getFlag(String flagName)
+	public DataObject<Bool3> getFlag(Object flagName)
 	{
 		if (!flags.containsKey(flagName))
 		{
@@ -73,20 +73,20 @@ public class AbstractEnvironment
 	{
 		AbstractEnvironment answer = new AbstractEnvironment();
 
-		Set<String> registerIds = new HashSet<>();
+		Set<Object> registerIds = new HashSet<>();
 		registerIds.addAll(registers.keySet());
 		registerIds.addAll(absEnv.registers.keySet());
-		for (String identifier : registerIds)
+		for (Object identifier : registerIds)
 		{
 			ValueSet value1 = this.getRegister(identifier).read();
 			ValueSet value2 = absEnv.getRegister(identifier).read();
 			answer.setRegister(new Register(identifier, value1.union(value2)));
 		}
 
-		Set<String> flagIds = new HashSet<>();
+		Set<Object> flagIds = new HashSet<>();
 		flagIds.addAll(flags.keySet());
 		flagIds.addAll(absEnv.flags.keySet());
-		for (String identifier : flagIds)
+		for (Object identifier : flagIds)
 		{
 			Bool3 value1 = this.getFlag(identifier).read();
 			Bool3 value2 = absEnv.getFlag(identifier).read();

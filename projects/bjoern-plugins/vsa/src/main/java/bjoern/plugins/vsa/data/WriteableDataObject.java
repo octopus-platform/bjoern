@@ -1,38 +1,32 @@
 package bjoern.plugins.vsa.data;
 
-public abstract class GenericDataObject<T> implements DataObject<T>
-{
-	private final String identifier;
+public abstract class WriteableDataObject<T> implements DataObject<T> {
+	private final Object identifier;
 	private T value;
 
-	public GenericDataObject(String identifier, T value)
-	{
+	public WriteableDataObject(Object identifier, T value) {
 		this.identifier = identifier;
 		this.value = value;
 	}
 
 	@Override
-	public String getIdentifier()
-	{
+	public Object getIdentifier() {
 		return this.identifier;
 	}
 
 	@Override
-	public T read()
-	{
+	public T read() {
 		return this.value;
 	}
 
 	@Override
-	public void write(T value)
-	{
+	public void write(T value) {
 		this.value = value;
 
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return this.identifier + " = " + this.value;
 	}
 }
