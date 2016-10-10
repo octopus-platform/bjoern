@@ -8,7 +8,6 @@ import bjoern.plugins.vsa.data.DataObject;
 import bjoern.plugins.vsa.data.DataObjectObserver;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
-import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.Transformer;
@@ -20,8 +19,11 @@ import com.tinkerpop.blueprints.Edge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class UseDefAnalyser {
@@ -103,16 +105,38 @@ public class UseDefAnalyser {
 		ignoreAccesses = false;
 	}
 
-	public void analyse(BasicBlock block, List<Aloc> alocs) {
-		AbstractEnvironment env = loadMachineState(alocs);
+	public void analyse(BasicBlock block) {
+		AbstractEnvironment env = loadMachineState(block);
 		analyse(block, env);
+	}
+
+	private AbstractEnvironment loadMachineState(final BasicBlock block) {
+		AbstractEnvironment env = new AbstractEnvironment();
+		for (Edge edge : block.getEdges(Direction.OUT, "VALUE")) {
+			try {
+				String serializedValueSet = edge.getProperty("value");
+				ByteArrayInputStream bi = new ByteArrayInputStream(
+						Base64.getDecoder()
+						      .decode(serializedValueSet.getBytes()));
+				ObjectInputStream si = new ObjectInputStream(bi);
+				ValueSet value = (ValueSet) si.readObject();
+				Aloc aloc = (Aloc) edge.getVertex(Direction.IN);
+				if (aloc.isRegister()) {
+					env.setRegister(aloc.getName(), value);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		return env;
 	}
 
 
 	public void analyse(BasicBlock block, AbstractEnvironment env) {
 		for (Instruction instruction : block.orderedInstructions()) {
 			analyse(instruction, env);
-
 		}
 	}
 
@@ -131,35 +155,6 @@ public class UseDefAnalyser {
 		} catch (Exception e) {
 			logger.error("Unknown error");
 		}
-	}
-
-	private AbstractEnvironment loadMachineState(List<Aloc> alocs) {
-		AbstractEnvironment env = new AbstractEnvironment();
-
-		for (Aloc aloc : alocs) {
-			if (aloc.isRegister()) {
-//				DataObject<ValueSet> register = new Register(aloc.getName(),
-//						ValueSet.newTop(DataWidth.R64));
-//				ObservableDataObject<ValueSet> dataObject = new
-//						ObservableDataObject<>(register);
-//				dataObject.addObserver(
-//						new DataObjectAccessObserver<>(aloc));
-//				register = dataObject;
-//				env.setRegister(register);
-				env.setRegister(aloc.getName(),
-						ValueSet.newTop(DataWidth.R64));
-			}
-			if (aloc.isFlag()) {
-//				ObservableDataObject<Bool3> flag = new
-//						ObservableDataObject<>(
-//						new Flag(aloc.getName(), Bool3.MAYBE));
-//				flag.addObserver(new DataObjectAccessObserver<>(aloc));
-//				env.setFlag(flag);
-				env.setFlag(aloc.getName(), Bool3.MAYBE);
-			}
-
-		}
-		return env;
 	}
 
 	private class DataObjectAccessObserver<T>
