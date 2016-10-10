@@ -1,10 +1,6 @@
 package bjoern.plugins.vsa.domain;
 
-import bjoern.plugins.vsa.data.DataObject;
-import bjoern.plugins.vsa.data.Flag;
-import bjoern.plugins.vsa.data.Register;
 import bjoern.plugins.vsa.structures.Bool3;
-import bjoern.plugins.vsa.structures.DataWidth;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,94 +8,71 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An abstract environment represents a set of concrete states that can arise at a program point
- * (see Balakrishnan, Gogul, and Thomas Reps. "WYSINWYX: What you see is not what you eXecute.").
+ * An abstract environment represents a set of concrete states that can arise
+ * at a program point (see Balakrishnan, Gogul, and Thomas Reps. "WYSINWYX:
+ * What you see is not what you eXecute.").
  */
-public class AbstractEnvironment
-{
-	private final Map<Object, DataObject<ValueSet>> registers;
-	private final Map<Object, DataObject<Bool3>> flags;
+public class AbstractEnvironment {
+	private final Map<Object, ValueSet> registers;
+	private final Map<Object, Bool3> flags;
 
-	public AbstractEnvironment()
-	{
+	public AbstractEnvironment() {
 		registers = new HashMap<>();
 		flags = new HashMap<>();
 	}
 
-	public AbstractEnvironment(AbstractEnvironment inEnv)
-	{
+	public AbstractEnvironment(AbstractEnvironment inEnv) {
 		this();
-		for (DataObject<ValueSet> register : inEnv.registers.values())
-		{
-			setRegister(register.copy());
+		for (Map.Entry<Object, ValueSet> entry : inEnv.registers.entrySet()) {
+			setRegister(entry.getKey(), entry.getValue());
 		}
-		for (DataObject<Bool3> flag : inEnv.flags.values())
-		{
-			setFlag(flag.copy());
+		for (Map.Entry<Object, Bool3> entry : inEnv.flags.entrySet()) {
+			setFlag(entry.getKey(), entry.getValue());
 		}
 	}
 
-	public void setFlag(DataObject<Bool3> flag)
-	{
-		this.flags.put(flag.getIdentifier(), flag);
+	public void setFlag(Object id, Bool3 flag) {
+		this.flags.put(id, flag);
 	}
 
-	public void setRegister(DataObject<ValueSet> register)
-	{
-		this.registers.put(register.getIdentifier(), register);
+	public void setRegister(Object id, ValueSet register) {
+		this.registers.put(id, register);
 	}
 
-	public DataObject<ValueSet> getRegister(Object registerName)
-	{
-		if (!registers.containsKey(registerName))
-		{
-			this.registers.put(registerName, new Register(registerName, ValueSet.newTop(DataWidth.R64)));
-		}
-		DataObject<ValueSet> register = registers.get(registerName);
-		return register;
+	public ValueSet getRegister(Object id) {
+		return registers.get(id);
 	}
 
-	public DataObject<Bool3> getFlag(Object flagName)
-	{
-		if (!flags.containsKey(flagName))
-		{
-			this.flags.put(flagName, new Flag(flagName, Bool3.MAYBE));
-		}
-		DataObject<Bool3> flag = flags.get(flagName);
-		return flag;
+	public Bool3 getFlag(Object id) {
+		return flags.get(id);
 	}
 
-	public AbstractEnvironment union(AbstractEnvironment absEnv)
-	{
+	public AbstractEnvironment union(AbstractEnvironment absEnv) {
 		AbstractEnvironment answer = new AbstractEnvironment();
 
 		Set<Object> registerIds = new HashSet<>();
 		registerIds.addAll(registers.keySet());
 		registerIds.addAll(absEnv.registers.keySet());
-		for (Object identifier : registerIds)
-		{
-			ValueSet value1 = this.getRegister(identifier).read();
-			ValueSet value2 = absEnv.getRegister(identifier).read();
-			answer.setRegister(new Register(identifier, value1.union(value2)));
+		for (Object id : registerIds) {
+			ValueSet value1 = this.getRegister(id);
+			ValueSet value2 = absEnv.getRegister(id);
+			answer.setRegister(id, value1.union(value2));
 		}
 
 		Set<Object> flagIds = new HashSet<>();
 		flagIds.addAll(flags.keySet());
 		flagIds.addAll(absEnv.flags.keySet());
-		for (Object identifier : flagIds)
-		{
-			Bool3 value1 = this.getFlag(identifier).read();
-			Bool3 value2 = absEnv.getFlag(identifier).read();
-			answer.setFlag(new Flag(identifier, value1.join(value2)));
+		for (Object id : flagIds) {
+			Bool3 value1 = this.getFlag(id);
+			Bool3 value2 = absEnv.getFlag(id);
+			answer.setFlag(id, value1.join(value2));
 		}
 		return answer;
 	}
 
 	@Override
-	public boolean equals(Object o)
-	{
-		if (!(o instanceof AbstractEnvironment))
-		{
+	public boolean equals(Object o) {
+		if (!(o instanceof AbstractEnvironment)) {
 			return false;
 		}
 		AbstractEnvironment other = (AbstractEnvironment) o;
@@ -107,8 +80,7 @@ public class AbstractEnvironment
 	}
 
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		int result = 17;
 		result = 31 * result + registers.hashCode();
 		result = 31 * result + flags.hashCode();
@@ -116,9 +88,9 @@ public class AbstractEnvironment
 	}
 
 	@Override
-	public String toString()
-	{
-		return "AbstractEnvironment[" + registers.values().toString() + ", " + flags.values().toString() + "]";
+	public String toString() {
+		return "AbstractEnvironment[" + registers.values().toString() + ", "
+				+ flags.values().toString() + "]";
 	}
 
 }

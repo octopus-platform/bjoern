@@ -3,8 +3,12 @@ package bjoern.plugins.vsa.transformer;
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenEvaluator;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
+import bjoern.plugins.vsa.data.DataObject;
+import bjoern.plugins.vsa.data.Flag;
+import bjoern.plugins.vsa.data.Register;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
+import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
@@ -96,9 +100,19 @@ public class ESILTransformer implements Transformer {
 							DataWidth.R64));
 			return new ValueSetContainer(valueSet);
 		} else if (esilParser.isRegister(token)) {
-			return new RegisterContainer(outEnv.getRegister(token));
+			ValueSet value = outEnv.getRegister(token);
+			if (value == null) {
+				value = ValueSet.newTop(DataWidth.R64);
+			}
+			DataObject<ValueSet> dataObject = new Register(token, value);
+			return new RegisterContainer(dataObject);
 		} else if (esilParser.isFlag(token)) {
-			return new FlagContainer(outEnv.getFlag(token));
+			Bool3 value = outEnv.getFlag(token);
+			if (value == null) {
+				value = Bool3.MAYBE;
+			}
+			DataObject<Bool3> dataObject = new Flag(token, value);
+			return new FlagContainer(dataObject);
 		} else {
 			throw new ESILTransformationException(
 					"Cannot convert token: " + token);

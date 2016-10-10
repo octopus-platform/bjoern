@@ -4,7 +4,8 @@ import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
-import bjoern.plugins.vsa.data.*;
+import bjoern.plugins.vsa.data.DataObject;
+import bjoern.plugins.vsa.data.DataObjectObserver;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.Bool3;
@@ -137,21 +138,24 @@ public class UseDefAnalyser {
 
 		for (Aloc aloc : alocs) {
 			if (aloc.isRegister()) {
-				DataObject<ValueSet> register = new Register(aloc.getName(),
+//				DataObject<ValueSet> register = new Register(aloc.getName(),
+//						ValueSet.newTop(DataWidth.R64));
+//				ObservableDataObject<ValueSet> dataObject = new
+//						ObservableDataObject<>(register);
+//				dataObject.addObserver(
+//						new DataObjectAccessObserver<>(aloc));
+//				register = dataObject;
+//				env.setRegister(register);
+				env.setRegister(aloc.getName(),
 						ValueSet.newTop(DataWidth.R64));
-				ObservableDataObject<ValueSet> dataObject = new
-						ObservableDataObject<>(register);
-				dataObject.addObserver(
-						new DataObjectAccessObserver<>(aloc));
-				register = dataObject;
-				env.setRegister(register);
 			}
 			if (aloc.isFlag()) {
-				ObservableDataObject<Bool3> flag = new
-						ObservableDataObject<>(
-						new Flag(aloc.getName(), Bool3.MAYBE));
-				flag.addObserver(new DataObjectAccessObserver<>(aloc));
-				env.setFlag(flag);
+//				ObservableDataObject<Bool3> flag = new
+//						ObservableDataObject<>(
+//						new Flag(aloc.getName(), Bool3.MAYBE));
+//				flag.addObserver(new DataObjectAccessObserver<>(aloc));
+//				env.setFlag(flag);
+				env.setFlag(aloc.getName(), Bool3.MAYBE);
 			}
 
 		}

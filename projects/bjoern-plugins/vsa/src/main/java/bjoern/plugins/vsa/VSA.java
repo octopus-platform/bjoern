@@ -5,8 +5,6 @@ import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
-import bjoern.plugins.vsa.data.Flag;
-import bjoern.plugins.vsa.data.Register;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.Bool3;
@@ -21,15 +19,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class VSA
-{
+public class VSA {
 	private Logger logger = LoggerFactory.getLogger(VSA.class);
 	private final Map<Instruction, AbstractEnvironment> assignment;
 
 	private static final Map<ESILKeyword, ESILCommand> commands;
 
-	static
-	{
+	static {
 		commands = new HashMap<>();
 		commands.put(ESILKeyword.ASSIGNMENT, new AssignmentCommand());
 		ESILCommand relationalCommand = new RelationalCommand();
@@ -59,8 +55,10 @@ public class VSA
 		commands.put(ESILKeyword.MUL_ASSIGN, new MulAssignCommand());
 		commands.put(ESILKeyword.DIV_ASSIGN, new DivAssignCommand());
 		commands.put(ESILKeyword.MOD_ASSIGN, new ModAssignCommand());
-		commands.put(ESILKeyword.SHIFT_LEFT_ASSIGN, new ShiftLeftAssignCommand());
-		commands.put(ESILKeyword.SHIFT_RIGHT_ASSIGN, new ShiftRightAssignCommand());
+		commands.put(ESILKeyword.SHIFT_LEFT_ASSIGN,
+				new ShiftLeftAssignCommand());
+		commands.put(ESILKeyword.SHIFT_RIGHT_ASSIGN,
+				new ShiftRightAssignCommand());
 		commands.put(ESILKeyword.AND_ASSIGN, new AndAssignCommand());
 		commands.put(ESILKeyword.OR_ASSIGN, new OrAssignCommand());
 		commands.put(ESILKeyword.XOR_ASSIGN, new XorAssignCommand());
@@ -83,48 +81,43 @@ public class VSA
 		commands.put(ESILKeyword.PEEK8, peekCommand);
 	}
 
-	public VSA()
-	{
+	public VSA() {
 		this.assignment = new HashMap<>();
 	}
 
-	public void performIntraProceduralVSA(Function function)
-	{
+	public void performIntraProceduralVSA(Function function) {
+		this.assignment.clear();
 		Queue<Instruction> worklist = new LinkedList<>();
 		Transformer transformer = new ESILTransformer(VSA.commands);
 
 		Instruction entry = Traversals.functionToEntryInstruction(function);
-		if (entry == null)
-		{
+		if (entry == null) {
 			return;
 		}
-		setAbstractEnvironment(entry, createInitialAbstractEnvironment(function));
+		setAbstractEnvironment(entry,
+				createInitialAbstractEnvironment(function));
 		worklist.add(entry);
-		while (!worklist.isEmpty())
-		{
+		while (!worklist.isEmpty()) {
 			AbstractEnvironment out;
 			Instruction n = worklist.remove();
-			try
-			{
-				out = transformer.transform(n.getEsilCode(), getAbstractEnvironment(n));
-			} catch (ESILTransformationException e)
-			{
+			try {
+				out = transformer.transform(n.getEsilCode(),
+						getAbstractEnvironment(n));
+			} catch (ESILTransformationException e) {
 				logger.error(e.getMessage());
 				out = new AbstractEnvironment();
-			} catch (NoSuchElementException e)
-			{
+			} catch (NoSuchElementException e) {
 				logger.error("Invalid esil stack");
 				out = new AbstractEnvironment();
 			}
-			List<Instruction> successors = Traversals.instructionToSuccessors(n);
-			for (Instruction successor : successors)
-			{
+			List<Instruction> successors = Traversals.instructionToSuccessors(
+					n);
+			for (Instruction successor : successors) {
 //				if (getCounter(n) < getCounter(successor))
 //				{
 //					performWidening(out, getAbstractEnvironment(successor));
 //				}
-				if (updateAbstractEnvironment(successor, out))
-				{
+				if (updateAbstractEnvironment(successor, out)) {
 					worklist.add(successor);
 				}
 			}
@@ -134,28 +127,26 @@ public class VSA
 //		writeResults();
 	}
 
-	private AbstractEnvironment createInitialAbstractEnvironment(Function function)
-	{
+	private AbstractEnvironment createInitialAbstractEnvironment(
+			Function function) {
 		AbstractEnvironment env = new AbstractEnvironment();
-		for (Aloc aloc : Traversals.functionToAlocs(function))
-		{
-			if (aloc.isFlag())
-			{
-				env.setFlag(new Flag(aloc.getName(), Bool3.MAYBE));
-			} else if (aloc.isRegister())
-			{
+		for (Aloc aloc : Traversals.functionToAlocs(function)) {
+			if (aloc.isFlag()) {
+//				env.setFlag(new Flag(aloc.getName(), Bool3.MAYBE));
+				env.setFlag(aloc.getName(), Bool3.MAYBE);
+			} else if (aloc.isRegister()) {
 				// TODO: Read initial values and the data width from aloc node.
 				ValueSet valueSet;
-				if (aloc.getName().equals("rsp"))
-				{
-					valueSet = ValueSet.newSingle(StridedInterval.getSingletonSet(0, DataWidth.R64));
-				} else
-				{
+				if (aloc.getName().equals("rsp")) {
+					valueSet = ValueSet.newSingle(
+							StridedInterval.getSingletonSet(0,
+									DataWidth.R64));
+				} else {
 					valueSet = ValueSet.newTop(DataWidth.R64);
 				}
-				env.setRegister(new Register(aloc.getName(), valueSet));
-			} else if (aloc.isLocalVariable())
-			{
+//				env.setRegister(new Register(aloc.getName(), valueSet));
+				env.setRegister(aloc.getName(), valueSet);
+			} else if (aloc.isLocalVariable()) {
 //				ValueSet valueSet = ValueSet.newTop(DataWidth.R64);
 //				env.setLocalAloc(new LocalAloc(aloc.getName(), valueSet));
 			}
@@ -187,22 +178,18 @@ public class VSA
 //
 //	}
 
-	private boolean updateAbstractEnvironment(Instruction n, AbstractEnvironment amc)
-	{
+	private boolean updateAbstractEnvironment(
+			Instruction n, AbstractEnvironment amc) {
 		AbstractEnvironment oldEnv = getAbstractEnvironment(n);
-		if (oldEnv == null)
-		{
+		if (oldEnv == null) {
 			setAbstractEnvironment(n, amc);
 			return true;
-		} else
-		{
+		} else {
 			AbstractEnvironment newEnv;
 			newEnv = oldEnv.union(amc);
-			if (oldEnv.equals(newEnv))
-			{
+			if (oldEnv.equals(newEnv)) {
 				return false;
-			} else
-			{
+			} else {
 				setAbstractEnvironment(n, newEnv);
 				return true;
 			}
@@ -236,13 +223,12 @@ public class VSA
 //		}
 //	}
 
-	private AbstractEnvironment getAbstractEnvironment(Instruction n)
-	{
+	private AbstractEnvironment getAbstractEnvironment(Instruction n) {
 		return assignment.get(n);
 	}
 
-	private void setAbstractEnvironment(Instruction n, AbstractEnvironment env)
-	{
+	private void setAbstractEnvironment(
+			Instruction n, AbstractEnvironment env) {
 		assignment.put(n, env);
 	}
 
