@@ -89,8 +89,9 @@ public class AbstractEnvironment {
 
 	@Override
 	public String toString() {
-		return "AbstractEnvironment[" + registers.values().toString() + ", "
-				+ flags.values().toString() + "]";
+		StringBuilder builder = new StringBuilder();
+		return "AbstractEnvironment[" + registers.toString() + ", "
+				+ flags.toString() + "]";
 	}
 
 }
