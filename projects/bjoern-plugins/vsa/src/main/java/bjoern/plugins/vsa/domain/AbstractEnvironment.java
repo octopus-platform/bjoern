@@ -47,6 +47,10 @@ public class AbstractEnvironment {
 		return flags.get(id);
 	}
 
+	public Iterable<Map.Entry<Object, ValueSet>> getRegisters() {
+		return registers.entrySet();
+	}
+
 	public AbstractEnvironment union(AbstractEnvironment absEnv) {
 		AbstractEnvironment answer = new AbstractEnvironment();
 

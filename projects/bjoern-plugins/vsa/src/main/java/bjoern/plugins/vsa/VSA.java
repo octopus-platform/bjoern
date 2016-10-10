@@ -81,12 +81,16 @@ public class VSA {
 		commands.put(ESILKeyword.PEEK8, peekCommand);
 	}
 
+	private HashMap<Instruction, Integer> mycounter;
+
 	public VSA() {
 		this.assignment = new HashMap<>();
+		this.mycounter = new HashMap<>();
 	}
 
 	public void performIntraProceduralVSA(Function function) {
 		this.assignment.clear();
+		this.mycounter.clear();
 		Queue<Instruction> worklist = new LinkedList<>();
 		Transformer transformer = new ESILTransformer(VSA.commands);
 
@@ -113,15 +117,14 @@ public class VSA {
 			List<Instruction> successors = Traversals.instructionToSuccessors(
 					n);
 			for (Instruction successor : successors) {
-//				if (getCounter(n) < getCounter(successor))
-//				{
-//					performWidening(out, getAbstractEnvironment(successor));
-//				}
+				if (getCounter(n) < getCounter(successor)) {
+					performWidening(out, getAbstractEnvironment(successor));
+				}
 				if (updateAbstractEnvironment(successor, out)) {
 					worklist.add(successor);
 				}
 			}
-//			incrementCounter(n);
+			incrementCounter(n);
 		}
 
 //		writeResults();
@@ -132,7 +135,6 @@ public class VSA {
 		AbstractEnvironment env = new AbstractEnvironment();
 		for (Aloc aloc : Traversals.functionToAlocs(function)) {
 			if (aloc.isFlag()) {
-//				env.setFlag(new Flag(aloc.getName(), Bool3.MAYBE));
 				env.setFlag(aloc.getName(), Bool3.MAYBE);
 			} else if (aloc.isRegister()) {
 				// TODO: Read initial values and the data width from aloc node.
@@ -144,7 +146,6 @@ public class VSA {
 				} else {
 					valueSet = ValueSet.newTop(DataWidth.R64);
 				}
-//				env.setRegister(new Register(aloc.getName(), valueSet));
 				env.setRegister(aloc.getName(), valueSet);
 			} else if (aloc.isLocalVariable()) {
 //				ValueSet valueSet = ValueSet.newTop(DataWidth.R64);
@@ -154,10 +155,8 @@ public class VSA {
 		return env;
 	}
 
-//	private void writeResults()
-//	{
-//		for (Instruction instr : assignment.keySet())
-//		{
+//	private void writeResults() {
+//		for (Instruction instr : assignment.keySet()) {
 //			logger.info(instr.getEsilCode());
 //			logger.info(assignment.get(instr).toString());
 //			for (Edge edge : instr.getEdges(Direction.OUT, EdgeTypes.READ))
@@ -175,7 +174,6 @@ public class VSA {
 //			}
 //
 //		}
-//
 //	}
 
 	private boolean updateAbstractEnvironment(
@@ -196,32 +194,28 @@ public class VSA {
 		}
 	}
 
-//	private int getCounter(Instruction n)
-//	{
-//		if (mycounter.containsKey(n))
-//		{
-//			return mycounter.get(n);
-//		} else
-//		{
-//			return 0;
-//		}
-//	}
-//
-//	private void incrementCounter(Instruction n)
-//	{
-//		mycounter.put(n, getCounter(n) + 1);
-//	}
-//
-//	private void performWidening(AbstractEnvironment newEnv, AbstractEnvironment oldEnv)
-//	{
-//		logger.info("Performing widening: " + oldEnv + " [<=>] " + newEnv);
-//		for (Register register : newEnv.getRegisters())
-//		{
-//			String identifier = register.getIdentifier();
-//			ValueSet valueSet = oldEnv.getRegister(identifier).getValue().widen(register.getValue());
-//			newEnv.setRegister(new Register(identifier, valueSet));
-//		}
-//	}
+	private int getCounter(Instruction n) {
+		if (mycounter.containsKey(n)) {
+			return mycounter.get(n);
+		} else {
+			return 0;
+		}
+	}
+
+	private void incrementCounter(Instruction n) {
+		mycounter.put(n, getCounter(n) + 1);
+	}
+
+	private void performWidening(
+			AbstractEnvironment newEnv, AbstractEnvironment oldEnv) {
+		logger.debug("Performing widening: " + oldEnv + " [<=>] " + newEnv);
+		for (Map.Entry<Object, ValueSet> registerEntry : newEnv.getRegisters()) {
+			Object identifier = registerEntry.getKey();
+			ValueSet valueSet = oldEnv.getRegister(identifier)
+			                          .widen(registerEntry.getValue());
+			newEnv.setRegister(identifier, valueSet);
+		}
+	}
 
 	private AbstractEnvironment getAbstractEnvironment(Instruction n) {
 		return assignment.get(n);
