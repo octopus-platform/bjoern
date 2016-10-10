@@ -127,7 +127,8 @@ public class VSA {
 			}
 			List<BasicBlock> successors = Traversals.blockToSuccessors(n);
 			for (BasicBlock successor : successors) {
-				if (getCounter(n) < getCounter(successor)) {
+				if (getCounter(n) < getCounter(successor) || n.equals(
+						successor)) {
 					performWidening(out, getAbstractEnvironment(successor));
 				}
 				if (updateAbstractEnvironment(successor, out)) {
