@@ -3,6 +3,7 @@ package bjoern.plugins.vsa;
 import bjoern.pluginlib.Traversals;
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.structures.Aloc;
+import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Function;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
@@ -21,7 +22,7 @@ import java.util.*;
 
 public class VSA {
 	private Logger logger = LoggerFactory.getLogger(VSA.class);
-	private final Map<Instruction, AbstractEnvironment> assignment;
+	private final Map<BasicBlock, AbstractEnvironment> assignment;
 
 	private static final Map<ESILKeyword, ESILCommand> commands;
 
@@ -81,7 +82,7 @@ public class VSA {
 		commands.put(ESILKeyword.PEEK8, peekCommand);
 	}
 
-	private HashMap<Instruction, Integer> mycounter;
+	private HashMap<BasicBlock, Integer> mycounter;
 
 	public VSA() {
 		this.assignment = new HashMap<>();
@@ -91,21 +92,28 @@ public class VSA {
 	public void performIntraProceduralVSA(Function function) {
 		this.assignment.clear();
 		this.mycounter.clear();
-		Queue<Instruction> worklist = new LinkedList<>();
+		Queue<BasicBlock> worklist = new LinkedList<>();
 		Transformer transformer = new ESILTransformer(VSA.commands);
 
-		Instruction entry = Traversals.functionToEntryInstruction(function);
-		if (entry == null) {
-			return;
-		}
-		setAbstractEnvironment(entry,
+		BasicBlock basicBlock = Traversals.functionToEntryBlock(function);
+		String esilSequence = esilSequence(basicBlock);
+
+
+//		Instruction entry = Traversals.functionToEntryInstruction(function);
+//		if (entry == null) {
+//			return;
+//		}
+
+		setAbstractEnvironment(basicBlock,
 				createInitialAbstractEnvironment(function));
-		worklist.add(entry);
+		worklist.add(basicBlock);
+
+
 		while (!worklist.isEmpty()) {
 			AbstractEnvironment out;
-			Instruction n = worklist.remove();
+			BasicBlock n = worklist.remove();
 			try {
-				out = transformer.transform(n.getEsilCode(),
+				out = transformer.transform(esilSequence(n),
 						getAbstractEnvironment(n));
 			} catch (ESILTransformationException e) {
 				logger.error(e.getMessage());
@@ -114,9 +122,8 @@ public class VSA {
 				logger.error("Invalid esil stack");
 				out = new AbstractEnvironment();
 			}
-			List<Instruction> successors = Traversals.instructionToSuccessors(
-					n);
-			for (Instruction successor : successors) {
+			List<BasicBlock> successors = Traversals.blockToSuccessors(n);
+			for (BasicBlock successor : successors) {
 				if (getCounter(n) < getCounter(successor)) {
 					performWidening(out, getAbstractEnvironment(successor));
 				}
@@ -127,7 +134,17 @@ public class VSA {
 			incrementCounter(n);
 		}
 
-//		writeResults();
+		writeResults();
+	}
+
+	private String esilSequence(final BasicBlock basicBlock) {
+		StringBuilder builder = new StringBuilder();
+
+		for (Instruction instruction : basicBlock.orderedInstructions()) {
+			builder.append(instruction.getEsilCode()).append(",");
+		}
+		builder.setLength(builder.length() - 1);
+		return builder.toString();
 	}
 
 	private AbstractEnvironment createInitialAbstractEnvironment(
@@ -155,10 +172,10 @@ public class VSA {
 		return env;
 	}
 
-//	private void writeResults() {
-//		for (Instruction instr : assignment.keySet()) {
-//			logger.info(instr.getEsilCode());
-//			logger.info(assignment.get(instr).toString());
+	private void writeResults() {
+		for (BasicBlock instr : assignment.keySet()) {
+			logger.info(instr.getRepresentation());
+			logger.info(assignment.get(instr).toString());
 //			for (Edge edge : instr.getEdges(Direction.OUT, EdgeTypes.READ))
 //			{
 //				Aloc aloc = new Aloc(edge.getVertex(Direction.IN));
@@ -173,11 +190,11 @@ public class VSA {
 //				}
 //			}
 //
-//		}
-//	}
+		}
+	}
 
 	private boolean updateAbstractEnvironment(
-			Instruction n, AbstractEnvironment amc) {
+			BasicBlock n, AbstractEnvironment amc) {
 		AbstractEnvironment oldEnv = getAbstractEnvironment(n);
 		if (oldEnv == null) {
 			setAbstractEnvironment(n, amc);
@@ -194,7 +211,7 @@ public class VSA {
 		}
 	}
 
-	private int getCounter(Instruction n) {
+	private int getCounter(BasicBlock n) {
 		if (mycounter.containsKey(n)) {
 			return mycounter.get(n);
 		} else {
@@ -202,7 +219,7 @@ public class VSA {
 		}
 	}
 
-	private void incrementCounter(Instruction n) {
+	private void incrementCounter(BasicBlock n) {
 		mycounter.put(n, getCounter(n) + 1);
 	}
 
@@ -217,12 +234,12 @@ public class VSA {
 		}
 	}
 
-	private AbstractEnvironment getAbstractEnvironment(Instruction n) {
+	private AbstractEnvironment getAbstractEnvironment(BasicBlock n) {
 		return assignment.get(n);
 	}
 
 	private void setAbstractEnvironment(
-			Instruction n, AbstractEnvironment env) {
+			BasicBlock n, AbstractEnvironment env) {
 		assignment.put(n, env);
 	}
 
