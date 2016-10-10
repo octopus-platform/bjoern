@@ -70,8 +70,8 @@ public class FunctionAlocCreator {
 			IOException {
 		Set<String> registerNames = radare.getRegistersUsedByFunctionAt(
 				function.getAddress());
-        registerNames.remove(radare.getRegisterByRole("SP"));
-        registerNames.remove(radare.getRegisterByRole("PC"));
+//        registerNames.remove(radare.getRegisterByRole("SP"));
+//        registerNames.remove(radare.getRegisterByRole("PC"));
 		return registerNames;
 	}
 
