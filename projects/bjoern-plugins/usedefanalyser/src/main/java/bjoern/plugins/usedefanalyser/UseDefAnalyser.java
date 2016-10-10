@@ -10,12 +10,11 @@ import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.transformer.ESILTransformer;
-import bjoern.plugins.vsa.transformer.Transformer;
-import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
 import bjoern.plugins.vsa.transformer.esil.commands.*;
 import bjoern.plugins.vsa.transformer.esil.stack.ValueSetContainer;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,7 @@ public class UseDefAnalyser {
 	private final Map<ESILKeyword, ESILCommand> commands;
 	private Instruction instruction;
 	private boolean ignoreAccesses;
+	private Map<Object, Aloc> alocs;
 
 	public UseDefAnalyser() {
 		commands = new HashMap<>();
@@ -102,10 +102,12 @@ public class UseDefAnalyser {
 		commands.put(ESILKeyword.PEEK2, peekCommand);
 		commands.put(ESILKeyword.PEEK4, peekCommand);
 		commands.put(ESILKeyword.PEEK8, peekCommand);
-		ignoreAccesses = false;
+		alocs = new HashMap<>();
 	}
 
 	public void analyse(BasicBlock block) {
+		ignoreAccesses = false;
+		alocs.clear();
 		AbstractEnvironment env = loadMachineState(block);
 		analyse(block, env);
 	}
@@ -124,6 +126,7 @@ public class UseDefAnalyser {
 				if (aloc.isRegister()) {
 					env.setRegister(aloc.getName(), value);
 				}
+				alocs.put(aloc.getName(), aloc);
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -133,41 +136,27 @@ public class UseDefAnalyser {
 		return env;
 	}
 
-
-	public void analyse(BasicBlock block, AbstractEnvironment env) {
+	private void analyse(BasicBlock block, AbstractEnvironment env) {
+		ESILTransformer transformer = new ESILTransformer(commands);
+		transformer.observer = new DataObjectAccessObserver();
 		for (Instruction instruction : block.orderedInstructions()) {
-			analyse(instruction, env);
-		}
-	}
-
-	public void analyse(Instruction instruction, AbstractEnvironment env) {
-		this.instruction = instruction;
-		String esilCode = instruction.getEsilCode();
-		analyse(esilCode, env);
-	}
-
-	public void analyse(String esilCode, AbstractEnvironment env) {
-		Transformer transformer = new ESILTransformer(commands);
-		try {
-			transformer.transform(esilCode, env);
-		} catch (ESILTransformationException e) {
-			logger.error(e.getMessage());
-		} catch (Exception e) {
-			logger.error("Unknown error");
+			this.instruction = instruction;
+			String esilCode = instruction.getEsilCode();
+			env = transformer.transform(esilCode, env);
 		}
 	}
 
 	private class DataObjectAccessObserver<T>
 			implements DataObjectObserver<T> {
-		private final Aloc aloc;
-
-		public DataObjectAccessObserver(Aloc aloc) {
-			this.aloc = aloc;
-		}
 
 		@Override
 		public void updateRead(DataObject<T> dataObject) {
 			if (null == instruction || ignoreAccesses) {
+				return;
+			}
+			Aloc aloc = instructionToAloc(instruction,
+					dataObject.getIdentifier().toString());
+			if (aloc == null) {
 				return;
 			}
 			for (Edge edge : instruction.getEdges(Direction.OUT, "READ")) {
@@ -185,6 +174,11 @@ public class UseDefAnalyser {
 			if (null == instruction) {
 				return;
 			}
+			Aloc aloc = instructionToAloc(instruction,
+					dataObject.getIdentifier().toString());
+			if (aloc == null) {
+				return;
+			}
 			for (Edge edge : instruction.getEdges(Direction.OUT, "WRITE")) {
 				if (edge.getVertex(Direction.IN).equals(aloc)) {
 					// edge exists -> skip
@@ -194,6 +188,17 @@ public class UseDefAnalyser {
 			// add write edge from instruction to aloc
 			instruction.addEdge("WRITE", aloc);
 		}
+	}
+
+	private static Aloc instructionToAloc(
+			Instruction instruction, String alocName) {
+		GremlinPipeline<Instruction, Aloc> pipe = new GremlinPipeline();
+		pipe.start(instruction)
+		    .in("IS_BB_OF")
+		    .in("IS_FUNC_OF")
+		    .out("ALOC_USE_EDGE")
+		    .filter(v -> v.getProperty("name").equals(alocName));
+		return pipe.hasNext() ? pipe.next() : null;
 	}
 
 }

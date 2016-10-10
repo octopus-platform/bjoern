@@ -30,6 +30,7 @@ public class ESILTransformer implements Transformer {
 	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
 	private AbstractEnvironment outEnv = null;
 	private ESILTokenEvaluator esilParser = new ESILTokenEvaluator();
+	public DataObjectObserver observer;
 
 	public ESILTransformer(Map<ESILKeyword, ESILCommand> commands) {
 		this.commands = commands;
@@ -105,6 +106,9 @@ public class ESILTransformer implements Transformer {
 			ObservableDataObject<ValueSet> dataObject = new ObservableDataObject<>(
 					new Register(token, value));
 			dataObject.addObserver(new RegisterObserver(outEnv));
+			if (observer != null) {
+				dataObject.addObserver(observer);
+			}
 			return new RegisterContainer(dataObject);
 		} else if (esilParser.isFlag(token)) {
 			Bool3 value = outEnv.getFlag(token);
@@ -114,6 +118,9 @@ public class ESILTransformer implements Transformer {
 			ObservableDataObject<Bool3> dataObject = new ObservableDataObject<>(
 					new Flag(token, value));
 			dataObject.addObserver(new FlagObserver(outEnv));
+			if (observer != null) {
+				dataObject.addObserver(observer);
+			}
 			return new FlagContainer(dataObject);
 		} else {
 			throw new ESILTransformationException(
