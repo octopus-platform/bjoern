@@ -8,11 +8,12 @@ import bjoern.plugins.vsa.structures.StridedInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class ValueSet
+public class ValueSet implements Serializable
 {
 	private static Logger logger = LoggerFactory.getLogger(ValueSet.class);
 

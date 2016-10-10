@@ -1,18 +1,17 @@
 package bjoern.plugins.vsa.structures;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class DataWidth implements Comparable<DataWidth>
-{
+public final class DataWidth implements Comparable<DataWidth>, Serializable {
 
 	private static Map<Integer, DataWidth> cache;
 	public static DataWidth R1;
 	public static DataWidth R4;
 	public static DataWidth R64;
 
-	static
-	{
+	static {
 		cache = new HashMap<>();
 		R1 = getInstance(1);
 		R4 = getInstance(4);
@@ -23,28 +22,25 @@ public final class DataWidth implements Comparable<DataWidth>
 	private final long minimumValue;
 	private final long maximumValue;
 
-	private DataWidth(int width)
-	{
+	private DataWidth(int width) {
 		if (width < 1) {
-			throw new IllegalArgumentException("Invalid width: width must be larger than zero.");
+			throw new IllegalArgumentException(
+					"Invalid width: width must be larger than zero.");
 		}
 		this.width = width;
 		if (equals(R1)) {
 			minimumValue = 0;
 			maximumValue = 1;
 
-		} else
-		{
+		} else {
 			minimumValue = -(0x1l << (width - 1l));
 			maximumValue = -(minimumValue + 1);
 		}
 	}
 
-	public static DataWidth getInstance(int width)
-	{
+	public static DataWidth getInstance(int width) {
 		DataWidth o = cache.get(width);
-		if (o == null)
-		{
+		if (o == null) {
 			o = new DataWidth(width);
 			cache.put(width, o);
 		}
@@ -52,50 +48,53 @@ public final class DataWidth implements Comparable<DataWidth>
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "R" + width;
 	}
 
-	public long effectiveValue(long value)
-	{
+	public long effectiveValue(long value) {
 		long highBitMask = 0x1l << (width - 1l);
 		if (equals(R1)) {
 			return value & highBitMask;
-		} else
-		{
+		} else {
 			return -(value & highBitMask) + (value & (highBitMask - 1l));
 		}
 	}
 
-	public int getWidth()
-	{
+	public int getWidth() {
 		return width;
 	}
 
-	public long getMaximumValue()
-	{
+	public long getMaximumValue() {
 		return maximumValue;
 	}
 
-	public long getMinimumValue()
-	{
+	public long getMinimumValue() {
 		return minimumValue;
 	}
 
-	public int compareTo(DataWidth dataWidth)
-	{
+	public int compareTo(DataWidth dataWidth) {
 		return width - dataWidth.width;
 	}
 
-	public static DataWidth maximum(DataWidth dataWidth1, DataWidth dataWidth2)
-	{
-		if (dataWidth1.compareTo(dataWidth2) < 0)
-		{
+	public static DataWidth maximum(
+			DataWidth dataWidth1, DataWidth dataWidth2) {
+		if (dataWidth1.compareTo(dataWidth2) < 0) {
 			return dataWidth2;
-		} else
-		{
+		} else {
 			return dataWidth1;
 		}
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof DataWidth)) {
+			return false;
+		}
+		DataWidth dataWidth = (DataWidth) obj;
+		return this.width == dataWidth.width;
 	}
 }

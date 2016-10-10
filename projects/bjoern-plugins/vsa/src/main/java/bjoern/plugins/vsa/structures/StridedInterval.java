@@ -1,8 +1,9 @@
 package bjoern.plugins.vsa.structures;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class StridedInterval
+public class StridedInterval implements Serializable
 {
 
 	protected final long stride;

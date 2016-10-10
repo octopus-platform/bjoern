@@ -15,9 +15,12 @@ import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.Transformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
 import bjoern.plugins.vsa.transformer.esil.commands.*;
+import com.tinkerpop.blueprints.Edge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
 
 public class VSA {
@@ -134,7 +137,7 @@ public class VSA {
 			incrementCounter(n);
 		}
 
-		writeResults();
+		writeResults(function);
 	}
 
 	private String esilSequence(final BasicBlock basicBlock) {
@@ -172,24 +175,28 @@ public class VSA {
 		return env;
 	}
 
-	private void writeResults() {
-		for (BasicBlock instr : assignment.keySet()) {
-			logger.info(instr.getRepresentation());
-			logger.info(assignment.get(instr).toString());
-//			for (Edge edge : instr.getEdges(Direction.OUT, EdgeTypes.READ))
-//			{
-//				Aloc aloc = new Aloc(edge.getVertex(Direction.IN));
-//				if (aloc.isFlag())
-//				{
-//					edge.setProperty(BjoernEdgeProperties.VALUE,
-//							assignment.get(instr).getFlag(aloc.getName()).getBooleanValue().toString());
-//				} else
-//				{
-//					edge.setProperty(BjoernEdgeProperties.VALUE,
-//							assignment.get(instr).getRegister(aloc.getName()).getValue().toString());
-//				}
-//			}
-//
+	private void writeResults(Function function) {
+		for (BasicBlock block : assignment.keySet()) {
+			logger.info(block.getRepresentation());
+			logger.info(assignment.get(block).toString());
+			AbstractEnvironment env = assignment.get(block);
+			for (Aloc aloc : Traversals.functionToAlocs(function)) {
+				if (aloc.isRegister()) {
+					try {
+						ValueSet value = env.getRegister(aloc.getName());
+						Edge edge = block.addEdge("VALUE", aloc);
+						ByteArrayOutputStream bo = new ByteArrayOutputStream();
+						ObjectOutputStream so = new ObjectOutputStream(bo);
+						so.writeObject(value);
+						so.flush();
+						edge.setProperty("value", new String(
+								Base64.getEncoder()
+								      .encode(bo.toByteArray())));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 

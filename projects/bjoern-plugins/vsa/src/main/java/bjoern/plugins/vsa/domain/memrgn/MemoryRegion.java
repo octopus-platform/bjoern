@@ -1,5 +1,7 @@
 package bjoern.plugins.vsa.domain.memrgn;
 
-public interface MemoryRegion
+import java.io.Serializable;
+
+public interface MemoryRegion extends Serializable
 {
 }
