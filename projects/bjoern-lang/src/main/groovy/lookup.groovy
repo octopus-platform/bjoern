@@ -10,7 +10,9 @@ queryNodeIndex = { luceneQuery ->
 getCallsTo = { callee ->
     queryNodeIndex("nodeType:Flag").filter {
         it.code.contains(callee)
-    }.in("IS_ANNOTATED_BY").out("INTERPRETABLE_AS").has("nodeType", "Instr").in("CALL")
+    }.copySplit(_().in("IS_ANNOTATED_BY").out("INTERPRETABLE_AS").has("nodeType", "Instr").in("CALL"),
+    _().transform{queryNodeIndex("nodeType:Instr AND addr:" + Integer.toHexString(Integer.parseInt(it.addr,16) - 1))}
+            .scatter()).exhaustMerge().dedup()
 }
 
 getFunctions = { name ->
