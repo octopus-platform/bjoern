@@ -3,7 +3,9 @@ package bjoern.plugins.vsa.transformer;
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenEvaluator;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
-import bjoern.plugins.vsa.data.*;
+import bjoern.plugins.vsa.data.DataObjectObserver;
+import bjoern.plugins.vsa.data.Flag;
+import bjoern.plugins.vsa.data.Register;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.Bool3;
@@ -104,73 +106,16 @@ public class ESILTransformer implements Transformer {
 			if (value == null) {
 				value = ValueSet.newTop(DataWidth.R64);
 			}
-			ObservableDataObject<ValueSet> dataObject = new ObservableDataObject<>(
-					new Register(token, value));
-			dataObject.addObserver(new RegisterObserver(outEnv));
-			if (observer != null) {
-				dataObject.addObserver(observer);
-			}
-			return new RegisterContainer(dataObject);
+			return new RegisterContainer(new Register(token, value));
 		} else if (esilParser.isFlag(token)) {
 			Bool3 value = outEnv.getFlag(token);
 			if (value == null) {
 				value = Bool3.MAYBE;
 			}
-			ObservableDataObject<Bool3> dataObject = new ObservableDataObject<>(
-					new Flag(token, value));
-			dataObject.addObserver(new FlagObserver(outEnv));
-			if (observer != null) {
-				dataObject.addObserver(observer);
-			}
-			return new FlagContainer(dataObject);
+			return new FlagContainer(new Flag(token, value));
 		} else {
 			throw new ESILTransformationException(
 					"Cannot convert token: " + token);
 		}
 	}
-
-	private static class RegisterObserver
-			implements DataObjectObserver<ValueSet> {
-
-		private final AbstractEnvironment env;
-
-		public RegisterObserver(AbstractEnvironment env) {
-			this.env = env;
-		}
-
-		@Override
-		public void updateRead(
-				final DataObject<ValueSet> dataObject) {
-
-		}
-
-		@Override
-		public void updateWrite(
-				final DataObject<ValueSet> dataObject, final ValueSet value) {
-			this.env.setRegister(dataObject.getIdentifier(), value);
-		}
-	}
-
-	private static class FlagObserver implements DataObjectObserver<Bool3> {
-
-		private final AbstractEnvironment env;
-
-		public FlagObserver(AbstractEnvironment env) {
-			this.env = env;
-		}
-
-		@Override
-		public void updateRead(
-				final DataObject<Bool3> dataObject) {
-
-		}
-
-		@Override
-		public void updateWrite(
-				final DataObject<Bool3> dataObject, final Bool3 value) {
-			this.env.setFlag(dataObject.getIdentifier(), value);
-
-		}
-	}
-
 }

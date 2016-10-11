@@ -22,7 +22,8 @@ public class AssignmentCommand implements ESILCommand {
 		if (item instanceof RegisterContainer) {
 			RegisterContainer registerContainer = (RegisterContainer) item;
 			DataObject<ValueSet> register = registerContainer.getRegister();
-			register.write(stack.pop().execute(stack, env).getValue());
+			env.setRegister(register.getIdentifier(),
+					stack.pop().execute(stack, env).getValue());
 		} else if (item instanceof FlagContainer) {
 			FlagContainer flagContainer = (FlagContainer) item;
 			DataObject<Bool3> flag = flagContainer.getFlag();
@@ -31,11 +32,11 @@ public class AssignmentCommand implements ESILCommand {
 				StridedInterval stridedInterval = valueSet
 						.getValueOfGlobalRegion();
 				if (stridedInterval.isZero()) {
-					flag.write(Bool3.FALSE);
+					env.setFlag(flag.getIdentifier(), Bool3.FALSE);
 				} else if (stridedInterval.isOne()) {
-					flag.write(Bool3.TRUE);
+					env.setFlag(flag.getIdentifier(), Bool3.TRUE);
 				} else {
-					flag.write(Bool3.MAYBE);
+					env.setFlag(flag.getIdentifier(), Bool3.MAYBE);
 				}
 			} else {
 				throw new ESILTransformationException(
