@@ -59,28 +59,13 @@ public class UseDefAnalyser {
 		commands.put(ESILKeyword.NEG, new NegateCommand());
 		commands.put(ESILKeyword.INC, new IncCommand());
 		commands.put(ESILKeyword.DEC, new DecCommand());
-		commands.put(ESILKeyword.ADD_ASSIGN, new AddAssignCommand());
-		commands.put(ESILKeyword.SUB_ASSIGN, new SubAssignCommand());
-		commands.put(ESILKeyword.MUL_ASSIGN, new MulAssignCommand());
-		commands.put(ESILKeyword.DIV_ASSIGN, new DivAssignCommand());
-		commands.put(ESILKeyword.MOD_ASSIGN, new ModAssignCommand());
-		commands.put(ESILKeyword.SHIFT_LEFT_ASSIGN,
-				new ShiftLeftAssignCommand());
-		commands.put(ESILKeyword.SHIFT_RIGHT_ASSIGN,
-				new ShiftRightAssignCommand());
-		commands.put(ESILKeyword.AND_ASSIGN, new AndAssignCommand());
-		commands.put(ESILKeyword.OR_ASSIGN, new OrAssignCommand());
-		commands.put(ESILKeyword.XOR_ASSIGN, new XorAssignCommand());
-		commands.put(ESILKeyword.INC_ASSIGN, new IncAssignCommand());
-		commands.put(ESILKeyword.DEC_ASSIGN, new DecAssignCommand());
-		commands.put(ESILKeyword.NEG_ASSIGN, new NegAssignCommand());
-		ESILCommand pokeCommand = stack ->
+		ESILCommand pokeCommand = (stack, env) ->
 		{
 			ignoreAccesses = true;
-			ValueSet destinationAddress = stack.pop().execute(stack)
+			ValueSet destinationAddress = stack.pop().execute(stack, env)
 			                                   .getValue();
 			ignoreAccesses = false;
-			ValueSet value = stack.pop().execute(stack).getValue();
+			ValueSet value = stack.pop().execute(stack, env).getValue();
 			return null;
 		};
 		commands.put(ESILKeyword.POKE, pokeCommand);
@@ -89,10 +74,10 @@ public class UseDefAnalyser {
 		commands.put(ESILKeyword.POKE2, pokeCommand);
 		commands.put(ESILKeyword.POKE4, pokeCommand);
 		commands.put(ESILKeyword.POKE8, pokeCommand);
-		ESILCommand peekCommand = stack ->
+		ESILCommand peekCommand = (stack, env) ->
 		{
 			ignoreAccesses = true;
-			ValueSet address = stack.pop().execute(stack).getValue();
+			ValueSet address = stack.pop().execute(stack, env).getValue();
 			ignoreAccesses = false;
 			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
 		};
@@ -102,6 +87,47 @@ public class UseDefAnalyser {
 		commands.put(ESILKeyword.PEEK2, peekCommand);
 		commands.put(ESILKeyword.PEEK4, peekCommand);
 		commands.put(ESILKeyword.PEEK8, peekCommand);
+		commands.put(ESILKeyword.ADD_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.ADD),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.SUB_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.SUB),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.MUL_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.MUL),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.DIV_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.DIV),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.MOD_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.MOD),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.SHIFT_LEFT_ASSIGN,
+				new CompoundAssignCommand(
+						commands.get(ESILKeyword.SHIFT_LEFT),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.SHIFT_RIGHT_ASSIGN,
+				new CompoundAssignCommand(
+						commands.get(ESILKeyword.SHIFT_RIGHT),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.AND_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.AND),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.OR_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.XOR_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.XOR),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.INC_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.INC),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.DEC_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.DEC),
+						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.NEG_ASSIGN,
+				new CompoundAssignCommand(commands.get(ESILKeyword.NEG),
+						commands.get(ESILKeyword.ASSIGNMENT)));
 		alocs = new HashMap<>();
 	}
 

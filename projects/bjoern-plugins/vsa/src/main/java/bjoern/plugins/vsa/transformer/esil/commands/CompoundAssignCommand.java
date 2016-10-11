@@ -1,26 +1,26 @@
 package bjoern.plugins.vsa.transformer.esil.commands;
 
-import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
+import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.transformer.esil.stack.ESILStackItem;
 
 import java.util.Deque;
 
-public class CompoundAssignCommand implements ESILCommand
-{
+public class CompoundAssignCommand implements ESILCommand {
 	private final ESILCommand command;
+	private final ESILCommand assignCommand;
 
-	public CompoundAssignCommand(ESILCommand command)
-	{
+	public CompoundAssignCommand(
+			ESILCommand command, ESILCommand assignCommand) {
 		this.command = command;
+		this.assignCommand = assignCommand;
 	}
 
 	@Override
-	public final ESILStackItem execute(Deque<ESILCommand> stack)
-	{
+	public final ESILStackItem execute(
+			Deque<ESILCommand> stack, AbstractEnvironment env) {
 		ESILCommand item = stack.peek();
 		stack.push(command);
 		stack.push(item);
-		return ESILCommandFactory.getCommand(ESILKeyword.ASSIGNMENT)
-				.execute(stack);
+		return assignCommand.execute(stack, env);
 	}
 }

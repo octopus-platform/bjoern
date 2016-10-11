@@ -88,9 +88,12 @@ public class AbstractEnvironment {
 		Set<Object> localVariableIds = new HashSet<>();
 		localVariableIds.addAll(localVariables.keySet());
 		localVariableIds.addAll(absEnv.localVariables.keySet());
-		for (Object id : registerIds) {
+		for (Object id : localVariableIds) {
 			ValueSet value1 = this.getLocalVariable(id);
 			ValueSet value2 = absEnv.getLocalVariable(id);
+			if (value1 == null || value2 == null) {
+				continue;
+			}
 			answer.setLocalVariable(id, value1.union(value2));
 		}
 

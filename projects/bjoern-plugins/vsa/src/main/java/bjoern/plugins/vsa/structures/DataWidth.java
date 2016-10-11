@@ -28,7 +28,7 @@ public final class DataWidth implements Comparable<DataWidth>, Serializable {
 					"Invalid width: width must be larger than zero.");
 		}
 		this.width = width;
-		if (equals(R1)) {
+		if (width == 1) {
 			minimumValue = 0;
 			maximumValue = 1;
 

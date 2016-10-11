@@ -7,24 +7,20 @@ import octopus.lib.plugintypes.OrientGraphConnectionPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VSAPlugin extends OrientGraphConnectionPlugin
-{
+public class VSAPlugin extends OrientGraphConnectionPlugin {
 	private Logger logger = LoggerFactory.getLogger(VSAPlugin.class);
 
 	@Override
-	public void execute() throws Exception
-	{
+	public void execute() throws Exception {
 		OrientGraphNoTx graph = orientConnector.getNoTxGraphInstance();
 		VSA vsa = new VSA();
-		for (Function function : LookupOperations.getFunctions(graph))
-		{
-			try
-			{
+		for (Function function : LookupOperations.getFunctions(graph)) {
+			try {
 				logger.info(function.toString());
 				vsa.performIntraProceduralVSA(function);
-			} catch (Exception e)
-			{
-				logger.error("Error for function " + function + ": " + e.getMessage());
+			} catch (Exception e) {
+				logger.error("Error for function " + function + ": "
+						+ e.getMessage());
 			}
 		}
 		graph.shutdown();

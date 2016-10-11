@@ -59,11 +59,12 @@ public class ESILTransformer implements Transformer {
 				if (keyword == ESILKeyword.START_CONDITIONAL) {
 					ConditionalCommand command = new ConditionalCommand(
 							conditionalFromTokenStream(tokenStream));
-					command.execute(esilStack);
+					command.execute(esilStack, outEnv);
 				} else {
 					ESILCommand command = commands.get(keyword);
 					if (keyword.sideEffect) {
-						ESILStackItem result = command.execute(esilStack);
+						ESILStackItem result = command.execute(esilStack,
+								outEnv);
 						if (result != null) {
 							esilStack.push(new PopCommand(result));
 						}

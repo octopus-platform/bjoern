@@ -1,6 +1,7 @@
 package bjoern.plugins.vsa.transformer.esil.commands;
 
 import bjoern.plugins.vsa.data.DataObject;
+import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
 import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.StridedInterval;
@@ -13,18 +14,19 @@ import java.util.Deque;
 
 public class AssignmentCommand implements ESILCommand {
 	@Override
-	public ESILStackItem execute(Deque<ESILCommand> stack) {
+	public ESILStackItem execute(
+			Deque<ESILCommand> stack, AbstractEnvironment env) {
 
-		ESILStackItem item = stack.pop().execute(stack);
+		ESILStackItem item = stack.pop().execute(stack, env);
 
 		if (item instanceof RegisterContainer) {
 			RegisterContainer registerContainer = (RegisterContainer) item;
 			DataObject<ValueSet> register = registerContainer.getRegister();
-			register.write(stack.pop().execute(stack).getValue());
+			register.write(stack.pop().execute(stack, env).getValue());
 		} else if (item instanceof FlagContainer) {
 			FlagContainer flagContainer = (FlagContainer) item;
 			DataObject<Bool3> flag = flagContainer.getFlag();
-			ValueSet valueSet = stack.pop().execute(stack).getValue();
+			ValueSet valueSet = stack.pop().execute(stack, env).getValue();
 			if (valueSet.isGlobal()) {
 				StridedInterval stridedInterval = valueSet
 						.getValueOfGlobalRegion();
