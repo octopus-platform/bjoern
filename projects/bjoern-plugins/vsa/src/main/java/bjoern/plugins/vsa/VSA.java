@@ -125,13 +125,6 @@ public class VSA {
 		Transformer transformer = new ESILTransformer(VSA.commands);
 
 		BasicBlock basicBlock = Traversals.functionToEntryBlock(function);
-		String esilSequence = esilSequence(basicBlock);
-
-
-//		Instruction entry = Traversals.functionToEntryInstruction(function);
-//		if (entry == null) {
-//			return;
-//		}
 
 		setAbstractEnvironment(basicBlock,
 				createInitialAbstractEnvironment(function));
