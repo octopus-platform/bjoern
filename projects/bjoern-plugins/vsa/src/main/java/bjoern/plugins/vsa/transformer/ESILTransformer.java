@@ -25,17 +25,22 @@ import org.slf4j.LoggerFactory;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.function.Function;
 
 public class ESILTransformer implements Transformer {
 	private final Map<ESILKeyword, ESILCommand> commands;
+	private final Function<ESILStackItem, ESILCommand> popCommand;
 
 	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
 	private AbstractEnvironment outEnv = null;
 	private ESILTokenEvaluator esilParser = new ESILTokenEvaluator();
 	public DataObjectObserver observer;
 
-	public ESILTransformer(Map<ESILKeyword, ESILCommand> commands) {
+	public ESILTransformer(
+			Map<ESILKeyword, ESILCommand> commands,
+			Function<ESILStackItem, ESILCommand> popCommand) {
 		this.commands = commands;
+		this.popCommand = popCommand;
 	}
 
 	@Override
@@ -76,7 +81,7 @@ public class ESILTransformer implements Transformer {
 				}
 			} else {
 				ESILStackItem item = convert(token);
-				esilStack.push(new PopCommand(item));
+				esilStack.push(popCommand.apply(item));
 			}
 		}
 		return outEnv;

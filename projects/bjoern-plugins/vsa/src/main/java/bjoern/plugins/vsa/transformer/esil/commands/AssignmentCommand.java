@@ -13,6 +13,7 @@ import bjoern.plugins.vsa.transformer.esil.stack.RegisterContainer;
 import java.util.Deque;
 
 public class AssignmentCommand implements ESILCommand {
+
 	@Override
 	public ESILStackItem execute(
 			Deque<ESILCommand> stack, AbstractEnvironment env) {

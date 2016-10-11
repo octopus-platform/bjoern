@@ -8,12 +8,21 @@ import bjoern.plugins.vsa.data.DataObject;
 import bjoern.plugins.vsa.data.DataObjectObserver;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
+import bjoern.plugins.vsa.domain.memrgn.LocalRegion;
+import bjoern.plugins.vsa.domain.memrgn.MemoryRegion;
+import bjoern.plugins.vsa.structures.Bool3;
 import bjoern.plugins.vsa.structures.DataWidth;
+import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.ESILTransformer;
+import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
 import bjoern.plugins.vsa.transformer.esil.commands.*;
+import bjoern.plugins.vsa.transformer.esil.stack.ESILStackItem;
+import bjoern.plugins.vsa.transformer.esil.stack.FlagContainer;
+import bjoern.plugins.vsa.transformer.esil.stack.RegisterContainer;
 import bjoern.plugins.vsa.transformer.esil.stack.ValueSetContainer;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Base64;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,9 +46,9 @@ public class UseDefAnalyser {
 
 	public UseDefAnalyser() {
 		commands = new HashMap<>();
-		commands.put(ESILKeyword.ASSIGNMENT, new AssignmentCommand());
+		commands.put(ESILKeyword.ASSIGNMENT,
+				new AssignmentCommand());
 		ESILCommand relationalCommand = new RelationalCommand();
-		commands.put(ESILKeyword.ASSIGNMENT, new AssignmentCommand());
 		commands.put(ESILKeyword.COMPARE, relationalCommand);
 		commands.put(ESILKeyword.SMALLER, relationalCommand);
 		commands.put(ESILKeyword.SMALLER_OR_EQUAL, relationalCommand);
@@ -59,28 +69,14 @@ public class UseDefAnalyser {
 		commands.put(ESILKeyword.NEG, new NegateCommand());
 		commands.put(ESILKeyword.INC, new IncCommand());
 		commands.put(ESILKeyword.DEC, new DecCommand());
-		ESILCommand pokeCommand = (stack, env) ->
-		{
-			ignoreAccesses = true;
-			ValueSet destinationAddress = stack.pop().execute(stack, env)
-			                                   .getValue();
-			ignoreAccesses = false;
-			ValueSet value = stack.pop().execute(stack, env).getValue();
-			return null;
-		};
+		ESILCommand pokeCommand = new UseDefAnalyser.PokeCommand();
 		commands.put(ESILKeyword.POKE, pokeCommand);
 		commands.put(ESILKeyword.POKE_AST, pokeCommand);
 		commands.put(ESILKeyword.POKE1, pokeCommand);
 		commands.put(ESILKeyword.POKE2, pokeCommand);
 		commands.put(ESILKeyword.POKE4, pokeCommand);
 		commands.put(ESILKeyword.POKE8, pokeCommand);
-		ESILCommand peekCommand = (stack, env) ->
-		{
-			ignoreAccesses = true;
-			ValueSet address = stack.pop().execute(stack, env).getValue();
-			ignoreAccesses = false;
-			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
-		};
+		ESILCommand peekCommand = new UseDefAnalyser.PeekCommand();
 		commands.put(ESILKeyword.PEEK, peekCommand);
 		commands.put(ESILKeyword.PEEK_AST, peekCommand);
 		commands.put(ESILKeyword.PEEK1, peekCommand);
@@ -163,7 +159,8 @@ public class UseDefAnalyser {
 	}
 
 	private void analyse(BasicBlock block, AbstractEnvironment env) {
-		ESILTransformer transformer = new ESILTransformer(commands);
+		ESILTransformer transformer = new ESILTransformer(commands,
+				UseDefAnalyser.PopCommand::new);
 		transformer.observer = new DataObjectAccessObserver();
 		for (Instruction instruction : block.orderedInstructions()) {
 			this.instruction = instruction;
@@ -223,8 +220,216 @@ public class UseDefAnalyser {
 		    .in("IS_BB_OF")
 		    .in("IS_FUNC_OF")
 		    .out("ALOC_USE_EDGE")
-		    .filter(v -> v.getProperty("name").equals(alocName));
+		    .has("name", alocName);
 		return pipe.hasNext() ? pipe.next() : null;
 	}
 
+	private static void createEdgeIfNotExist(
+			Vertex source, Vertex destination, String label) {
+		for (Edge edge : source.getEdges(Direction.OUT, label)) {
+			if (edge.getVertex(Direction.IN).equals(destination)) {
+				// edge exists -> skip
+				return;
+			}
+		}
+		// add read edge from instruction to aloc
+		source.addEdge(label, destination);
+	}
+
+
+	private class AssignmentCommand implements ESILCommand {
+
+		@Override
+		public ESILStackItem execute(
+				final Deque<ESILCommand> stack,
+				final AbstractEnvironment env) {
+			Aloc aloc;
+
+			ignoreAccesses = true;
+			ESILStackItem item = stack.pop().execute(stack, env);
+			ignoreAccesses = false;
+			if (item instanceof RegisterContainer) {
+				RegisterContainer registerContainer = (RegisterContainer) item;
+				DataObject<ValueSet> register = registerContainer.getRegister();
+				env.setRegister(register.getIdentifier(),
+						stack.pop().execute(stack, env).getValue());
+				aloc = instructionToAloc(instruction,
+						register.getIdentifier().toString());
+			} else if (item instanceof FlagContainer) {
+				FlagContainer flagContainer = (FlagContainer) item;
+				DataObject<Bool3> flag = flagContainer.getFlag();
+				ValueSet valueSet = stack.pop()
+				                         .execute(stack, env)
+				                         .getValue();
+				if (valueSet.isGlobal()) {
+					StridedInterval stridedInterval = valueSet
+							.getValueOfGlobalRegion();
+					aloc = instructionToAloc(instruction,
+							flag.getIdentifier().toString());
+					if (stridedInterval.isZero()) {
+						env.setFlag(flag.getIdentifier(), Bool3.FALSE);
+					} else if (stridedInterval.isOne()) {
+						env.setFlag(flag.getIdentifier(), Bool3.TRUE);
+					} else {
+						env.setFlag(flag.getIdentifier(), Bool3.MAYBE);
+					}
+				} else {
+					throw new ESILTransformationException(
+							"Error while executing assignment command: Cannot "
+									+ "assign "
+									+ valueSet + " to flag");
+				}
+			} else {
+				throw new ESILTransformationException(
+						"Error while executing assignment command");
+			}
+			if (aloc != null) {
+				createEdgeIfNotExist(instruction, aloc, "WRITE");
+			}
+			return null;
+		}
+	}
+
+	public class PokeCommand implements ESILCommand {
+
+		@Override
+		public ESILStackItem execute(
+				Deque<ESILCommand> stack, AbstractEnvironment env) {
+			ignoreAccesses = true;
+			ValueSet value1 = stack.pop().execute(stack, env).getValue();
+			ignoreAccesses = false;
+			ValueSet value2 = stack.pop().execute(stack, env).getValue();
+			if (env == null) {
+				return null;
+			}
+			StridedInterval addresses = getValueOfLocalRegion(value1);
+			ValueSet tmp = env.getRegister("rbp");
+			if (tmp == null) {
+				return null;
+			}
+			StridedInterval rbp = getValueOfLocalRegion(tmp);
+			addresses = addresses.sub(rbp);
+			if (addresses.isSingletonSet()) {
+				for (long address : addresses.values()) {
+					addWriteEdge(address);
+					env.setLocalVariable(address, value2);
+				}
+			}
+			// this command returns nothing/no item is pushed on the stack
+			return null;
+		}
+
+		private void addWriteEdge(final long address) {
+			GremlinPipeline<Instruction, Aloc> pipe = new GremlinPipeline();
+			pipe.start(instruction)
+			    .in("IS_BB_OF")
+			    .in("IS_FUNC_OF")
+			    .out("ALOC_USE_EDGE")
+			    .has("offset", (int) address);
+			if (pipe.hasNext()) {
+				createEdgeIfNotExist(instruction, pipe.next(), "WRITE");
+			}
+		}
+
+		private StridedInterval getValueOfLocalRegion(ValueSet valueSet) {
+			if (valueSet.isTop()) {
+				return StridedInterval.getTop(valueSet.getDataWidth());
+			}
+			for (MemoryRegion region : valueSet.getRegions()) {
+				if (region instanceof LocalRegion) {
+					return valueSet.getValueOfRegion(region);
+				}
+			}
+			return StridedInterval.getBottom(valueSet.getDataWidth());
+		}
+	}
+
+	public class PeekCommand implements ESILCommand {
+
+		@Override
+		public ESILStackItem execute(
+				Deque<ESILCommand> stack, AbstractEnvironment env) {
+			ignoreAccesses = true;
+			ValueSet value = stack.pop().execute(stack, env).getValue();
+			ignoreAccesses = false;
+			StridedInterval bpOffset = getValueOfLocalRegion(value);
+			ValueSet tmp = env.getRegister("rbp");
+			if (tmp != null) {
+				StridedInterval rbp = getValueOfLocalRegion(tmp);
+				StridedInterval spOffset = bpOffset.sub(rbp);
+				if (spOffset.isSingletonSet()) {
+					for (long address : spOffset.values()) {
+						ValueSet data = env.getLocalVariable(address);
+						if (data != null) {
+							createReadEdge(address);
+							return new ValueSetContainer(data);
+						}
+					}
+				}
+			}
+			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
+		}
+
+		private void createReadEdge(final long address) {
+			GremlinPipeline<Instruction, Aloc> pipe = new GremlinPipeline();
+			pipe.start(instruction)
+			    .in("IS_BB_OF")
+			    .in("IS_FUNC_OF")
+			    .out("ALOC_USE_EDGE")
+			    .has("offset", (int) address);
+			if (pipe.hasNext()) {
+				createEdgeIfNotExist(instruction, pipe.next(), "READ");
+			}
+		}
+
+
+		private StridedInterval getValueOfLocalRegion(ValueSet valueSet) {
+			if (valueSet.isTop()) {
+				return StridedInterval.getTop(valueSet.getDataWidth());
+			}
+			for (MemoryRegion region : valueSet.getRegions()) {
+				if (region instanceof LocalRegion) {
+					StridedInterval interval = valueSet.getValueOfRegion(
+							region);
+					return interval;
+				}
+			}
+			return StridedInterval.getBottom(valueSet.getDataWidth());
+		}
+	}
+
+	public class PopCommand extends
+	                        bjoern.plugins.vsa.transformer.esil.commands.PopCommand {
+
+		private DataObject<?> dataObject;
+
+		public PopCommand(final ESILStackItem item) {
+			super(item);
+			if (item instanceof RegisterContainer) {
+				dataObject = ((RegisterContainer) item).getRegister();
+			} else if (item instanceof FlagContainer) {
+				dataObject = ((FlagContainer) item).getFlag();
+			}
+		}
+
+		@Override
+		public ESILStackItem execute(
+				final Deque<ESILCommand> stack,
+				final AbstractEnvironment env) {
+			createReadEdge();
+			return super.execute(stack, env);
+		}
+
+		private void createReadEdge() {
+			if (null == instruction || null == dataObject || ignoreAccesses) {
+				return;
+			}
+			Aloc aloc = instructionToAloc(instruction,
+					dataObject.getIdentifier().toString());
+			if (aloc == null) {
+				return;
+			}
+			createEdgeIfNotExist(instruction, aloc, "READ");
+		}
+	}
 }

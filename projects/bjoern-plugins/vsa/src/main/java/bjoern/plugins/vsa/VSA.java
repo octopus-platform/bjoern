@@ -122,7 +122,8 @@ public class VSA {
 		this.assignment.clear();
 		this.mycounter.clear();
 		Queue<BasicBlock> worklist = new LinkedList<>();
-		Transformer transformer = new ESILTransformer(VSA.commands);
+		Transformer transformer = new ESILTransformer(VSA.commands,
+				PopCommand::new);
 
 		BasicBlock basicBlock = Traversals.functionToEntryBlock(function);
 
