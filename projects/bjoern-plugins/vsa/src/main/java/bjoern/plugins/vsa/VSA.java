@@ -169,8 +169,7 @@ public class VSA {
 				}
 				env.setRegister(aloc.getName(), valueSet);
 			} else if (aloc.isLocalVariable()) {
-//				ValueSet valueSet = ValueSet.newTop(DataWidth.R64);
-//				env.setLocalAloc(new LocalAloc(aloc.getName(), valueSet));
+				env.setLocalVariable(aloc.getProperty("offset"), null);
 			}
 		}
 		return env;
