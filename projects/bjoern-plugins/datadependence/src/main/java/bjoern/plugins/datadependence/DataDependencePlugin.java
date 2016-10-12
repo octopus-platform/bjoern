@@ -52,6 +52,15 @@ public class DataDependencePlugin extends OrientGraphConnectionPlugin {
 				genSet.add(new ReachingDefinitionAnalyser.Definition(vertex,
 						registerName));
 			}
+			// TODO: merge traversals
+			pipe = new GremlinPipeline<>();
+			pipe.start(vertex)
+			    .out("WRITE");
+			for (Vertex register : pipe) {
+				String registerName = register.getProperty("name");
+				genSet.add(new ReachingDefinitionAnalyser.Definition(vertex,
+						registerName));
+			}
 			return genSet;
 		}
 
@@ -78,6 +87,17 @@ public class DataDependencePlugin extends OrientGraphConnectionPlugin {
 							genVertex, identifier));
 				}
 			}
+			// TODO: merge traversals
+			pipe = new GremlinPipeline<>();
+			pipe.start(vertex).out("WRITE").inE("WRITE");
+			for (Edge writeEdge : pipe) {
+				Vertex genVertex = writeEdge.getVertex(Direction.OUT);
+				Vertex aloc = writeEdge.getVertex(Direction.IN);
+				killSet.add(
+						new ReachingDefinitionAnalyser.Definition(genVertex,
+								aloc.getProperty("name")));
+			}
+
 			return killSet;
 		}
 	}
