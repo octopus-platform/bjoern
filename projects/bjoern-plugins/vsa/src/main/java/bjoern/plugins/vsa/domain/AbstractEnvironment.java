@@ -73,6 +73,9 @@ public class AbstractEnvironment {
 		for (Object id : registerIds) {
 			ValueSet value1 = this.getRegister(id);
 			ValueSet value2 = absEnv.getRegister(id);
+			if (value1 == null || value2 == null) {
+				continue;
+			}
 			answer.setRegister(id, value1.union(value2));
 		}
 

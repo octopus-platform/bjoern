@@ -272,8 +272,12 @@ public class VSA {
 		logger.debug("Performing widening: " + oldEnv + " [<=>] " + newEnv);
 		for (Map.Entry<Object, ValueSet> registerEntry : newEnv.getRegisters()) {
 			Object identifier = registerEntry.getKey();
-			ValueSet valueSet = oldEnv.getRegister(identifier)
-			                          .widen(registerEntry.getValue());
+			ValueSet valueSet = oldEnv.getRegister(identifier);
+			if (valueSet == null) {
+				continue;
+			}
+
+			ValueSet result = valueSet.widen(registerEntry.getValue());
 			newEnv.setRegister(identifier, valueSet);
 		}
 	}

@@ -25,6 +25,9 @@ public class PokeCommand implements ESILCommand {
 			return null;
 		}
 		StridedInterval rbp = getValueOfLocalRegion(tmp);
+		if (rbp.isBottom()) {
+			return null;
+		}
 		addresses = addresses.sub(rbp);
 		if (addresses.isSingletonSet()) {
 			for (long address : addresses.values()) {

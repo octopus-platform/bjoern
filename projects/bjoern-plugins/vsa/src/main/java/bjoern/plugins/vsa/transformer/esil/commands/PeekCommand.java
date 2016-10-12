@@ -17,13 +17,17 @@ public class PeekCommand implements ESILCommand {
 	public ESILStackItem execute(
 			Deque<ESILCommand> stack, AbstractEnvironment env) {
 		ValueSet value = stack.pop().execute(stack, env).getValue();
-		StridedInterval addresses = getValueOfLocalRegion(value);
+		StridedInterval bpOffset = getValueOfLocalRegion(value);
+		// Peek from non-local region.
+		if (bpOffset.isBottom()) {
+			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
+		}
 		ValueSet tmp = env.getRegister("rbp");
 		if (tmp != null) {
 			StridedInterval rbp = getValueOfLocalRegion(tmp);
-			addresses = addresses.sub(rbp);
-			if (addresses.isSingletonSet()) {
-				for (long address : addresses.values()) {
+			StridedInterval spOffset = bpOffset.sub(rbp);
+			if (spOffset.isSingletonSet()) {
+				for (long address : spOffset.values()) {
 					ValueSet data = env.getLocalVariable(address);
 					if (data != null) {
 						return new ValueSetContainer(data);

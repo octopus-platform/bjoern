@@ -308,6 +308,9 @@ public class UseDefAnalyser {
 				return null;
 			}
 			StridedInterval rbp = getValueOfLocalRegion(tmp);
+			if (rbp.isBottom()) {
+				return null;
+			}
 			addresses = addresses.sub(rbp);
 			if (addresses.isSingletonSet()) {
 				for (long address : addresses.values()) {
@@ -353,6 +356,10 @@ public class UseDefAnalyser {
 			ValueSet value = stack.pop().execute(stack, env).getValue();
 			ignoreAccesses = false;
 			StridedInterval bpOffset = getValueOfLocalRegion(value);
+			// Peek from non-local region.
+			if (bpOffset.isBottom()) {
+				return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
+			}
 			ValueSet tmp = env.getRegister("rbp");
 			if (tmp != null) {
 				StridedInterval rbp = getValueOfLocalRegion(tmp);
