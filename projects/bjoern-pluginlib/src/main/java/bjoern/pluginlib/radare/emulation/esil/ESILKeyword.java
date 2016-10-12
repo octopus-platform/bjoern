@@ -1,7 +1,6 @@
 package bjoern.pluginlib.radare.emulation.esil;
 
-public enum ESILKeyword
-{
+public enum ESILKeyword {
 	ASSIGNMENT("=", 2, true),
 	COMPARE("==", 2, true),
 	SMALLER("<", 2, true),
@@ -49,25 +48,26 @@ public enum ESILKeyword
 	PEEK4("[4]", 1, false),
 	PEEK8("[8]", 1, false),
 	START_CONDITIONAL("?{", 1, true),
-	END_CONDITIONAL("}", 1, false);
+	END_CONDITIONAL("}", 1, false),
+	OR_POKE1("|=[1]", 2, true),
+	OR_POKE2("|=[2]", 2, true),
+	OR_POKE4("|=[4]", 2, true),
+	OR_POKE8("|=[8]", 2, true),
+	OR_POKE_AST("|=[*]", 2, true);
 
 	public final String keyword;
 	public final int numberOfArgs;
 	public final boolean sideEffect;
 
-	ESILKeyword(String s, int nArgs, boolean sideEffect)
-	{
+	ESILKeyword(String s, int nArgs, boolean sideEffect) {
 		this.keyword = s;
 		this.numberOfArgs = nArgs;
 		this.sideEffect = sideEffect;
 	}
 
-	public static ESILKeyword fromString(String word)
-	{
-		for (ESILKeyword command : values())
-		{
-			if (command.keyword.equals(word))
-			{
+	public static ESILKeyword fromString(String word) {
+		for (ESILKeyword command : values()) {
+			if (command.keyword.equals(word)) {
 				return command;
 			}
 		}

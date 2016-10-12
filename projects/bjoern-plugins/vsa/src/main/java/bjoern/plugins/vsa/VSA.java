@@ -109,6 +109,21 @@ public class VSA {
 		commands.put(ESILKeyword.NEG_ASSIGN,
 				new CompoundAssignCommand(commands.get(ESILKeyword.NEG),
 						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.OR_POKE1,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE1)));
+		commands.put(ESILKeyword.OR_POKE2,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE2)));
+		commands.put(ESILKeyword.OR_POKE4,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE4)));
+		commands.put(ESILKeyword.OR_POKE8,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE8)));
+		commands.put(ESILKeyword.OR_POKE_AST,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE_AST)));
 	}
 
 	private HashMap<BasicBlock, Integer> mycounter;
