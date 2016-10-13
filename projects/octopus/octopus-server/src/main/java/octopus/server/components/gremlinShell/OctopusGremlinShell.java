@@ -31,7 +31,7 @@ public class OctopusGremlinShell
 	private void registerMethodMissingHandler()
 	{
 		String cmd = "GremlinGroovyPipeline.metaClass.methodMissing =";
-		cmd += "{String name, args -> Gremlin.compose(delegate, \"$name\"(args))}";
+		cmd += "{String name, args -> Gremlin.compose(delegate, \"$name\"(*args))}";
 		execute(cmd);
 	}
 
