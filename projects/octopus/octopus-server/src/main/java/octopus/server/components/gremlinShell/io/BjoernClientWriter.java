@@ -1,5 +1,7 @@
 package octopus.server.components.gremlinShell.io;
 
+import com.tinkerpop.pipes.Pipe;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -29,7 +31,7 @@ public class BjoernClientWriter extends BufferedWriter
 		if (result == null)
 		{
 			writeMessage("");
-		} else if (result instanceof Iterable)
+		} else if (result instanceof Pipe)
 		{
 			StringBuilder sBuilder = new StringBuilder();
 			Iterable<?> iterable = (Iterable<?>) result;
