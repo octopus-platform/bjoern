@@ -232,6 +232,21 @@ public class VSA {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+				} else if (aloc.isLocalVariable()) {
+					try {
+						ValueSet value = env.getLocalVariable(
+								((Number) aloc.getProperty("offset")).longValue());
+						Edge edge = block.addEdge("VALUE", aloc);
+						ByteArrayOutputStream bo = new ByteArrayOutputStream();
+						ObjectOutputStream so = new ObjectOutputStream(bo);
+						so.writeObject(value);
+						so.flush();
+						edge.setProperty("value", new String(
+								Base64.getEncoder()
+								      .encode(bo.toByteArray())));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

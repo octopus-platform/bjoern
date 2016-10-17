@@ -25,6 +25,9 @@ public class PeekCommand implements ESILCommand {
 		ValueSet tmp = env.getRegister("rbp");
 		if (tmp != null) {
 			StridedInterval rbp = getValueOfLocalRegion(tmp);
+			if (rbp.isBottom()) {
+				return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
+			}
 			StridedInterval spOffset = bpOffset.sub(rbp);
 			if (spOffset.isSingletonSet()) {
 				for (long address : spOffset.values()) {

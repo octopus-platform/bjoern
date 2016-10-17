@@ -147,6 +147,10 @@ public class UseDefAnalyser {
 				Aloc aloc = (Aloc) edge.getVertex(Direction.IN);
 				if (aloc.isRegister()) {
 					env.setRegister(aloc.getName(), value);
+				} else if (aloc.isLocalVariable()) {
+					env.setLocalVariable(
+							((Number) aloc.getProperty("offset")).longValue(),
+							value);
 				}
 				alocs.put(aloc.getName(), aloc);
 			} catch (IOException e) {
@@ -224,6 +228,14 @@ public class UseDefAnalyser {
 		return pipe.hasNext() ? pipe.next() : null;
 	}
 
+	private static boolean isStackPointer(Aloc aloc) {
+		return aloc.getName().endsWith("sp");
+	}
+
+	private static boolean isInstructionPointer(Aloc aloc) {
+		return aloc.getName().endsWith("ip");
+	}
+
 	private static void createEdgeIfNotExist(
 			Vertex source, Vertex destination, String label) {
 		for (Edge edge : source.getEdges(Direction.OUT, label)) {
@@ -283,7 +295,8 @@ public class UseDefAnalyser {
 				throw new ESILTransformationException(
 						"Error while executing assignment command");
 			}
-			if (aloc != null) {
+			if (aloc != null && !isStackPointer(aloc)
+					&& !isInstructionPointer(aloc)) {
 				createEdgeIfNotExist(instruction, aloc, "WRITE");
 			}
 			return null;
@@ -330,7 +343,11 @@ public class UseDefAnalyser {
 			    .out("ALOC_USE_EDGE")
 			    .has("offset", (int) address);
 			if (pipe.hasNext()) {
-				createEdgeIfNotExist(instruction, pipe.next(), "WRITE");
+				Aloc aloc = pipe.next();
+				if (aloc != null && !isStackPointer(aloc)
+						&& !isInstructionPointer(aloc)) {
+					createEdgeIfNotExist(instruction, aloc, "WRITE");
+				}
 			}
 		}
 
@@ -363,6 +380,10 @@ public class UseDefAnalyser {
 			ValueSet tmp = env.getRegister("rbp");
 			if (tmp != null) {
 				StridedInterval rbp = getValueOfLocalRegion(tmp);
+				if (rbp.isBottom()) {
+					return new ValueSetContainer(
+							ValueSet.newTop(DataWidth.R64));
+				}
 				StridedInterval spOffset = bpOffset.sub(rbp);
 				if (spOffset.isSingletonSet()) {
 					for (long address : spOffset.values()) {
@@ -385,7 +406,11 @@ public class UseDefAnalyser {
 			    .out("ALOC_USE_EDGE")
 			    .has("offset", (int) address);
 			if (pipe.hasNext()) {
-				createEdgeIfNotExist(instruction, pipe.next(), "READ");
+				Aloc aloc = pipe.next();
+				if (aloc != null && !isStackPointer(aloc)
+						&& !isInstructionPointer(aloc)) {
+					createEdgeIfNotExist(instruction, aloc, "READ");
+				}
 			}
 		}
 
@@ -433,10 +458,10 @@ public class UseDefAnalyser {
 			}
 			Aloc aloc = instructionToAloc(instruction,
 					dataObject.getIdentifier().toString());
-			if (aloc == null) {
-				return;
+			if (aloc != null && !isStackPointer(aloc)
+					&& !isInstructionPointer(aloc)) {
+				createEdgeIfNotExist(instruction, aloc, "READ");
 			}
-			createEdgeIfNotExist(instruction, aloc, "READ");
 		}
 	}
 }
