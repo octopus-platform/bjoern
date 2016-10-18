@@ -67,6 +67,9 @@ public class AbstractEnvironment {
 
 	public ValueSet getBPVariable(Long offset) {
 		ValueSet bp = getRegister(basePointer);
+		if (bp.isTop()) {
+			return null;
+		}
 		Set<MemoryRegion> regions = bp.getRegions();
 		if (regions.size() != 1) {
 			return null;
