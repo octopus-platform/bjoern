@@ -21,10 +21,10 @@ public class PokeCommand implements ESILCommand {
 		if (basePointer == null) {
 			return null;
 		}
-		offsets = offsets.sub(basePointer);
-		Long offset = getLocalValue(offsets);
-		if (offset != null) {
-			env.setLocalVariable(offset, value);
+		Long spOffset = getLocalValue(offsets);
+		Long base = getLocalValue(basePointer);
+		if (spOffset != null && base != null) {
+			poke(env, -base + spOffset, value);
 		}
 		// this command returns nothing/no item is pushed on the stack
 		return null;
@@ -49,6 +49,11 @@ public class PokeCommand implements ESILCommand {
 	protected ESILStackItem getOperand(
 			Deque<ESILCommand> stack, AbstractEnvironment env) {
 		return stack.pop().execute(stack, env);
+	}
+
+	protected void poke(
+			AbstractEnvironment env, Long offset, ValueSet value) {
+		env.setLocalVariable(offset, value);
 	}
 
 	private StridedInterval getValueOfLocalRegion(ValueSet valueSet) {

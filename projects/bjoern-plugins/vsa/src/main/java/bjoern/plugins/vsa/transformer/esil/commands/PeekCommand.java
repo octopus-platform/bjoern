@@ -18,12 +18,17 @@ public class PeekCommand implements ESILCommand {
 	public ESILStackItem execute(
 			Deque<ESILCommand> stack, AbstractEnvironment env) {
 		ValueSet offsets = getOperand(stack, env).getValue();
-
-		Long spOffset = getSPOffset(offsets);
-		if (spOffset == null) {
+		ValueSet basePointer = env.getBasePointer();
+		if (basePointer == null) {
 			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
 		}
-		ValueSet value = env.getBPVariable(spOffset);
+
+		Long spOffset = getLocalValue(offsets);
+		Long base = getLocalValue(basePointer);
+		if (spOffset == null || base == null) {
+			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
+		}
+		ValueSet value = peek(env, -base + spOffset);
 		if (value == null) {
 			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
 		} else {
@@ -31,7 +36,7 @@ public class PeekCommand implements ESILCommand {
 		}
 	}
 
-	private Long getSPOffset(final ValueSet offsets) {
+	private Long getLocalValue(final ValueSet offsets) {
 		Set<MemoryRegion> regions = offsets.getRegions();
 		if (regions.size() != 1) {
 			return null;
@@ -50,6 +55,10 @@ public class PeekCommand implements ESILCommand {
 	protected ESILStackItem getOperand(
 			Deque<ESILCommand> stack, AbstractEnvironment env) {
 		return stack.pop().execute(stack, env);
+	}
+
+	protected ValueSet peek(AbstractEnvironment env, Long offset) {
+		return env.getLocalVariable(offset);
 	}
 
 }

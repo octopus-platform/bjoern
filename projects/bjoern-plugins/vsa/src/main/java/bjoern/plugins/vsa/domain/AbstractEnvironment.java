@@ -1,9 +1,6 @@
 package bjoern.plugins.vsa.domain;
 
-import bjoern.plugins.vsa.domain.memrgn.LocalRegion;
-import bjoern.plugins.vsa.domain.memrgn.MemoryRegion;
 import bjoern.plugins.vsa.structures.Bool3;
-import bjoern.plugins.vsa.structures.StridedInterval;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,32 +62,8 @@ public class AbstractEnvironment {
 		return flags.get(id);
 	}
 
-	public ValueSet getSPVariable(Long offset) {
+	public ValueSet getLocalVariable(Long offset) {
 		return localVariables.get(offset);
-	}
-
-	public ValueSet getBPVariable(Long offset) {
-		ValueSet bp = getBasePointer();
-		if (bp == null) {
-			return null;
-		}
-		if (bp.isTop()) {
-			return null;
-		}
-		Set<MemoryRegion> regions = bp.getRegions();
-		if (regions.size() != 1) {
-			return null;
-		}
-		MemoryRegion region = regions.iterator().next();
-		if (!(region instanceof LocalRegion)) {
-			return null;
-		}
-		StridedInterval baseAddresses = bp.getValueOfRegion(region);
-		if (!baseAddresses.isSingletonSet()) {
-			return null;
-		}
-		Long baseAddress = baseAddresses.values().iterator().next();
-		return getSPVariable(baseAddress + offset);
 	}
 
 	public Iterable<Map.Entry<Object, ValueSet>> getRegisters() {
@@ -125,8 +98,8 @@ public class AbstractEnvironment {
 		localVariableIds.addAll(localVariables.keySet());
 		localVariableIds.addAll(absEnv.localVariables.keySet());
 		for (Long offset : localVariableIds) {
-			ValueSet value1 = this.getSPVariable(offset);
-			ValueSet value2 = absEnv.getSPVariable(offset);
+			ValueSet value1 = this.getLocalVariable(offset);
+			ValueSet value2 = absEnv.getLocalVariable(offset);
 			if (value1 == null || value2 == null) {
 				continue;
 			}

@@ -3,7 +3,6 @@ package bjoern.plugins.vsa.transformer;
 import bjoern.pluginlib.radare.emulation.esil.ESILKeyword;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenEvaluator;
 import bjoern.pluginlib.radare.emulation.esil.ESILTokenStream;
-import bjoern.plugins.vsa.data.DataObjectObserver;
 import bjoern.plugins.vsa.data.Flag;
 import bjoern.plugins.vsa.data.Register;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
@@ -34,7 +33,6 @@ public class ESILTransformer implements Transformer {
 	private Logger logger = LoggerFactory.getLogger(ESILTransformer.class);
 	private AbstractEnvironment outEnv = null;
 	private ESILTokenEvaluator esilParser = new ESILTokenEvaluator();
-	public DataObjectObserver observer;
 
 	public ESILTransformer(
 			Map<ESILKeyword, ESILCommand> commands,
