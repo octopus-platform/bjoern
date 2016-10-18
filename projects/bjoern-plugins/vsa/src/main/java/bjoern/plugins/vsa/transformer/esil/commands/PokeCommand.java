@@ -8,34 +8,47 @@ import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.esil.stack.ESILStackItem;
 
 import java.util.Deque;
+import java.util.Set;
 
 public class PokeCommand implements ESILCommand {
 
 	@Override
 	public ESILStackItem execute(
 			Deque<ESILCommand> stack, AbstractEnvironment env) {
-		ValueSet value1 = stack.pop().execute(stack, env).getValue();
-		ValueSet value2 = stack.pop().execute(stack, env).getValue();
-		if (env == null) {
+		ValueSet offsets = getOperand(stack, env).getValue();
+		ValueSet value = getOperand(stack, env).getValue();
+		ValueSet basePointer = env.getBasePointer();
+		if (basePointer == null) {
 			return null;
 		}
-		StridedInterval addresses = getValueOfLocalRegion(value1);
-		ValueSet tmp = env.getRegister("rbp");
-		if (tmp == null) {
-			return null;
-		}
-		StridedInterval rbp = getValueOfLocalRegion(tmp);
-		if (rbp.isBottom()) {
-			return null;
-		}
-		addresses = addresses.sub(rbp);
-		if (addresses.isSingletonSet()) {
-			for (long address : addresses.values()) {
-				env.setLocalVariable(address, value2);
-			}
+		offsets = offsets.sub(basePointer);
+		Long offset = getLocalValue(offsets);
+		if (offset != null) {
+			env.setLocalVariable(offset, value);
 		}
 		// this command returns nothing/no item is pushed on the stack
 		return null;
+	}
+
+	private Long getLocalValue(final ValueSet offsets) {
+		Set<MemoryRegion> regions = offsets.getRegions();
+		if (regions.size() != 1) {
+			return null;
+		}
+		MemoryRegion region = regions.iterator().next();
+		if (!(region instanceof LocalRegion)) {
+			return null;
+		}
+		StridedInterval interval = offsets.getValueOfRegion(region);
+		if (!interval.isSingletonSet()) {
+			return null;
+		}
+		return interval.values().iterator().next();
+	}
+
+	protected ESILStackItem getOperand(
+			Deque<ESILCommand> stack, AbstractEnvironment env) {
+		return stack.pop().execute(stack, env);
 	}
 
 	private StridedInterval getValueOfLocalRegion(ValueSet valueSet) {
