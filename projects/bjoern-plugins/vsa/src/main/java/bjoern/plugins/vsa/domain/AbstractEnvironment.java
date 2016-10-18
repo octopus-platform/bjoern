@@ -57,6 +57,10 @@ public class AbstractEnvironment {
 		return registers.get(id);
 	}
 
+	public ValueSet getBasePointer() {
+		return getRegister(basePointer);
+	}
+
 	public Bool3 getFlag(Object id) {
 		return flags.get(id);
 	}
@@ -66,7 +70,7 @@ public class AbstractEnvironment {
 	}
 
 	public ValueSet getBPVariable(Long offset) {
-		ValueSet bp = getRegister(basePointer);
+		ValueSet bp = getBasePointer();
 		if (bp == null) {
 			return null;
 		}
