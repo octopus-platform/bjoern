@@ -5,13 +5,9 @@ import bjoern.pluginlib.structures.Aloc;
 import bjoern.pluginlib.structures.BasicBlock;
 import bjoern.pluginlib.structures.Instruction;
 import bjoern.plugins.vsa.data.DataObject;
-import bjoern.plugins.vsa.data.DataObjectObserver;
 import bjoern.plugins.vsa.domain.AbstractEnvironment;
 import bjoern.plugins.vsa.domain.ValueSet;
-import bjoern.plugins.vsa.domain.memrgn.LocalRegion;
-import bjoern.plugins.vsa.domain.memrgn.MemoryRegion;
 import bjoern.plugins.vsa.structures.Bool3;
-import bjoern.plugins.vsa.structures.DataWidth;
 import bjoern.plugins.vsa.structures.StridedInterval;
 import bjoern.plugins.vsa.transformer.ESILTransformer;
 import bjoern.plugins.vsa.transformer.esil.ESILTransformationException;
@@ -19,7 +15,6 @@ import bjoern.plugins.vsa.transformer.esil.commands.*;
 import bjoern.plugins.vsa.transformer.esil.stack.ESILStackItem;
 import bjoern.plugins.vsa.transformer.esil.stack.FlagContainer;
 import bjoern.plugins.vsa.transformer.esil.stack.RegisterContainer;
-import bjoern.plugins.vsa.transformer.esil.stack.ValueSetContainer;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -165,55 +160,10 @@ public class UseDefAnalyser {
 	private void analyse(BasicBlock block, AbstractEnvironment env) {
 		ESILTransformer transformer = new ESILTransformer(commands,
 				UseDefAnalyser.PopCommand::new);
-		transformer.observer = new DataObjectAccessObserver();
 		for (Instruction instruction : block.orderedInstructions()) {
 			this.instruction = instruction;
 			String esilCode = instruction.getEsilCode();
 			env = transformer.transform(esilCode, env);
-		}
-	}
-
-	private class DataObjectAccessObserver<T>
-			implements DataObjectObserver<T> {
-
-		@Override
-		public void updateRead(DataObject<T> dataObject) {
-			if (null == instruction || ignoreAccesses) {
-				return;
-			}
-			Aloc aloc = instructionToAloc(instruction,
-					dataObject.getIdentifier().toString());
-			if (aloc == null) {
-				return;
-			}
-			for (Edge edge : instruction.getEdges(Direction.OUT, "READ")) {
-				if (edge.getVertex(Direction.IN).equals(aloc)) {
-					// edge exists -> skip
-					return;
-				}
-			}
-			// add read edge from instruction to aloc
-			instruction.addEdge("READ", aloc);
-		}
-
-		@Override
-		public void updateWrite(DataObject<T> dataObject, T value) {
-			if (null == instruction) {
-				return;
-			}
-			Aloc aloc = instructionToAloc(instruction,
-					dataObject.getIdentifier().toString());
-			if (aloc == null) {
-				return;
-			}
-			for (Edge edge : instruction.getEdges(Direction.OUT, "WRITE")) {
-				if (edge.getVertex(Direction.IN).equals(aloc)) {
-					// edge exists -> skip
-					return;
-				}
-			}
-			// add write edge from instruction to aloc
-			instruction.addEdge("WRITE", aloc);
 		}
 	}
 
@@ -303,36 +253,35 @@ public class UseDefAnalyser {
 		}
 	}
 
-	public class PokeCommand implements ESILCommand {
+	public class PokeCommand extends
+	                         bjoern.plugins.vsa.transformer.esil.commands.PokeCommand {
+
+		private boolean addressOperand;
 
 		@Override
 		public ESILStackItem execute(
 				Deque<ESILCommand> stack, AbstractEnvironment env) {
-			ignoreAccesses = true;
-			ValueSet value1 = stack.pop().execute(stack, env).getValue();
+			addressOperand = true;
+			return super.execute(stack, env);
+		}
+
+		@Override
+		protected ESILStackItem getOperand(
+				final Deque<ESILCommand> stack,
+				final AbstractEnvironment env) {
+			ignoreAccesses = true && addressOperand;
+			ESILStackItem item = super.getOperand(stack, env);
 			ignoreAccesses = false;
-			ValueSet value2 = stack.pop().execute(stack, env).getValue();
-			if (env == null) {
-				return null;
-			}
-			StridedInterval addresses = getValueOfLocalRegion(value1);
-			ValueSet tmp = env.getRegister("rbp");
-			if (tmp == null) {
-				return null;
-			}
-			StridedInterval rbp = getValueOfLocalRegion(tmp);
-			if (rbp.isBottom()) {
-				return null;
-			}
-			addresses = addresses.sub(rbp);
-			if (addresses.isSingletonSet()) {
-				for (long address : addresses.values()) {
-					addWriteEdge(address);
-					env.setLocalVariable(address, value2);
-				}
-			}
-			// this command returns nothing/no item is pushed on the stack
-			return null;
+			addressOperand = false;
+			return item;
+		}
+
+		@Override
+		protected void poke(
+				final AbstractEnvironment env, final Long offset,
+				final ValueSet value) {
+			addWriteEdge(offset);
+			super.poke(env, offset, value);
 		}
 
 		private void addWriteEdge(final long address) {
@@ -350,52 +299,26 @@ public class UseDefAnalyser {
 				}
 			}
 		}
-
-		private StridedInterval getValueOfLocalRegion(ValueSet valueSet) {
-			if (valueSet.isTop()) {
-				return StridedInterval.getTop(valueSet.getDataWidth());
-			}
-			for (MemoryRegion region : valueSet.getRegions()) {
-				if (region instanceof LocalRegion) {
-					return valueSet.getValueOfRegion(region);
-				}
-			}
-			return StridedInterval.getBottom(valueSet.getDataWidth());
-		}
 	}
 
-	public class PeekCommand implements ESILCommand {
+	public class PeekCommand extends
+	                         bjoern.plugins.vsa.transformer.esil.commands.PeekCommand {
 
 		@Override
-		public ESILStackItem execute(
-				Deque<ESILCommand> stack, AbstractEnvironment env) {
+		protected ESILStackItem getOperand(
+				final Deque<ESILCommand> stack,
+				final AbstractEnvironment env) {
 			ignoreAccesses = true;
-			ValueSet value = stack.pop().execute(stack, env).getValue();
+			ESILStackItem item = super.getOperand(stack, env);
 			ignoreAccesses = false;
-			StridedInterval bpOffset = getValueOfLocalRegion(value);
-			// Peek from non-local region.
-			if (bpOffset.isBottom()) {
-				return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
-			}
-			ValueSet tmp = env.getRegister("rbp");
-			if (tmp != null) {
-				StridedInterval rbp = getValueOfLocalRegion(tmp);
-				if (rbp.isBottom()) {
-					return new ValueSetContainer(
-							ValueSet.newTop(DataWidth.R64));
-				}
-				StridedInterval spOffset = bpOffset.sub(rbp);
-				if (spOffset.isSingletonSet()) {
-					for (long address : spOffset.values()) {
-						ValueSet data = env.getSPVariable(address);
-						if (data != null) {
-							createReadEdge(address);
-							return new ValueSetContainer(data);
-						}
-					}
-				}
-			}
-			return new ValueSetContainer(ValueSet.newTop(DataWidth.R64));
+			return item;
+		}
+
+		@Override
+		protected ValueSet peek(
+				final AbstractEnvironment env, final Long offset) {
+			createReadEdge(offset);
+			return super.peek(env, offset);
 		}
 
 		private void createReadEdge(final long address) {
@@ -412,21 +335,6 @@ public class UseDefAnalyser {
 					createEdgeIfNotExist(instruction, aloc, "READ");
 				}
 			}
-		}
-
-
-		private StridedInterval getValueOfLocalRegion(ValueSet valueSet) {
-			if (valueSet.isTop()) {
-				return StridedInterval.getTop(valueSet.getDataWidth());
-			}
-			for (MemoryRegion region : valueSet.getRegions()) {
-				if (region instanceof LocalRegion) {
-					StridedInterval interval = valueSet.getValueOfRegion(
-							region);
-					return interval;
-				}
-			}
-			return StridedInterval.getBottom(valueSet.getDataWidth());
 		}
 	}
 
