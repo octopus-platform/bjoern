@@ -387,7 +387,7 @@ public class UseDefAnalyser {
 				StridedInterval spOffset = bpOffset.sub(rbp);
 				if (spOffset.isSingletonSet()) {
 					for (long address : spOffset.values()) {
-						ValueSet data = env.getLocalVariable(address);
+						ValueSet data = env.getSPVariable(address);
 						if (data != null) {
 							createReadEdge(address);
 							return new ValueSetContainer(data);

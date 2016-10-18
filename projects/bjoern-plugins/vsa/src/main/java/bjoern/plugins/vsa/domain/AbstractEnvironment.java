@@ -1,6 +1,9 @@
 package bjoern.plugins.vsa.domain;
 
+import bjoern.plugins.vsa.domain.memrgn.LocalRegion;
+import bjoern.plugins.vsa.domain.memrgn.MemoryRegion;
 import bjoern.plugins.vsa.structures.Bool3;
+import bjoern.plugins.vsa.structures.StridedInterval;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +18,9 @@ import java.util.Set;
 public class AbstractEnvironment {
 	private final Map<Object, ValueSet> registers;
 	private final Map<Object, Bool3> flags;
-	private final Map<Object, ValueSet> localVariables;
+	private final Map<Long, ValueSet> localVariables;
+	// TODO parameterize rbp
+	private Object basePointer = "rbp";
 
 	public AbstractEnvironment() {
 		registers = new HashMap<>();
@@ -31,7 +36,7 @@ public class AbstractEnvironment {
 		for (Map.Entry<Object, Bool3> entry : inEnv.flags.entrySet()) {
 			setFlag(entry.getKey(), entry.getValue());
 		}
-		for (Map.Entry<Object, ValueSet> entry : inEnv.localVariables.entrySet()) {
+		for (Map.Entry<Long, ValueSet> entry : inEnv.localVariables.entrySet()) {
 			setLocalVariable(entry.getKey(), entry.getValue());
 		}
 	}
@@ -44,8 +49,8 @@ public class AbstractEnvironment {
 		this.registers.put(id, register);
 	}
 
-	public void setLocalVariable(Object id, ValueSet value) {
-		this.localVariables.put(id, value);
+	public void setLocalVariable(Long offset, ValueSet value) {
+		this.localVariables.put(offset, value);
 	}
 
 	public ValueSet getRegister(Object id) {
@@ -56,8 +61,26 @@ public class AbstractEnvironment {
 		return flags.get(id);
 	}
 
-	public ValueSet getLocalVariable(Object id) {
-		return localVariables.get(id);
+	public ValueSet getSPVariable(Long offset) {
+		return localVariables.get(offset);
+	}
+
+	public ValueSet getBPVariable(Long offset) {
+		ValueSet bp = getRegister(basePointer);
+		Set<MemoryRegion> regions = bp.getRegions();
+		if (regions.size() != 1) {
+			return null;
+		}
+		MemoryRegion region = regions.iterator().next();
+		if (!(region instanceof LocalRegion)) {
+			return null;
+		}
+		StridedInterval baseAddresses = bp.getValueOfRegion(region);
+		if (!baseAddresses.isSingletonSet()) {
+			return null;
+		}
+		Long baseAddress = baseAddresses.values().iterator().next();
+		return localVariables.get(baseAddress + offset);
 	}
 
 	public Iterable<Map.Entry<Object, ValueSet>> getRegisters() {
@@ -88,16 +111,16 @@ public class AbstractEnvironment {
 			answer.setFlag(id, value1.join(value2));
 		}
 
-		Set<Object> localVariableIds = new HashSet<>();
+		Set<Long> localVariableIds = new HashSet<>();
 		localVariableIds.addAll(localVariables.keySet());
 		localVariableIds.addAll(absEnv.localVariables.keySet());
-		for (Object id : localVariableIds) {
-			ValueSet value1 = this.getLocalVariable(id);
-			ValueSet value2 = absEnv.getLocalVariable(id);
+		for (Long offset : localVariableIds) {
+			ValueSet value1 = this.getSPVariable(offset);
+			ValueSet value2 = absEnv.getSPVariable(offset);
 			if (value1 == null || value2 == null) {
 				continue;
 			}
-			answer.setLocalVariable(id, value1.union(value2));
+			answer.setLocalVariable(offset, value1.union(value2));
 		}
 
 		return answer;
@@ -125,7 +148,6 @@ public class AbstractEnvironment {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
 		return "AbstractEnvironment["
 				+ registers.toString() + ", "
 				+ flags.toString() + ", "

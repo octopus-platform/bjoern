@@ -234,7 +234,7 @@ public class VSA {
 					}
 				} else if (aloc.isLocalVariable()) {
 					try {
-						ValueSet value = env.getLocalVariable(
+						ValueSet value = env.getSPVariable(
 								((Number) aloc.getProperty("offset")).longValue());
 						Edge edge = block.addEdge("VALUE", aloc);
 						ByteArrayOutputStream bo = new ByteArrayOutputStream();
