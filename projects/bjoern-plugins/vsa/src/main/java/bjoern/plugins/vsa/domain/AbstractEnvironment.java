@@ -67,6 +67,9 @@ public class AbstractEnvironment {
 
 	public ValueSet getBPVariable(Long offset) {
 		ValueSet bp = getRegister(basePointer);
+		if (bp == null) {
+			return null;
+		}
 		if (bp.isTop()) {
 			return null;
 		}
@@ -83,7 +86,7 @@ public class AbstractEnvironment {
 			return null;
 		}
 		Long baseAddress = baseAddresses.values().iterator().next();
-		return localVariables.get(baseAddress + offset);
+		return getSPVariable(baseAddress + offset);
 	}
 
 	public Iterable<Map.Entry<Object, ValueSet>> getRegisters() {
