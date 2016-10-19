@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import bjoern.pluginlib.structures.Function;
 import bjoern.r2interface.architectures.UnknownArchitectureException;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -53,12 +54,12 @@ public class ESILStackAccessEvaluator {
 		emulator = new ESILEmulator(radare);
 	}
 
-	public void initializeForFunction(Vertex function) throws IOException
+	public void initializeForFunction(Function function) throws IOException
 	{
 		stackState = emulateFirstBasicBlock(function);
 	}
 
-	private StackState emulateFirstBasicBlock(Vertex function) throws IOException
+	private StackState emulateFirstBasicBlock(Function function) throws IOException
 	{
 		BasicBlock entryBlock;
 		try{

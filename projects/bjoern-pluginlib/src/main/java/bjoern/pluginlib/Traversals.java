@@ -8,7 +8,6 @@ import bjoern.structures.BjoernNodeProperties;
 import bjoern.structures.BjoernNodeTypes;
 import bjoern.structures.edges.EdgeTypes;
 import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 
 import java.util.List;
@@ -21,8 +20,8 @@ public class Traversals {
 	public final static String ALOC_USE_EDGE = "ALOC_USE_EDGE";
 	public static final String INSTR_CFLOW_TRANSITIVE_EDGE = "NEXT_INSTR_TRANSITIVE";
 
-	public static BasicBlock functionToEntryBlock(Vertex func) {
-		GremlinPipeline<Vertex, Vertex> pipe = createNewGremlinPipe();
+	public static BasicBlock functionToEntryBlock(Function func) {
+		GremlinPipeline<Function, BasicBlock> pipe = new GremlinPipeline<>();
 
 		pipe.start(func)
 		    .in(EdgeTypes.INTERPRETATION)
@@ -32,8 +31,11 @@ public class Traversals {
 						    (BjoernNodeTypes.BASIC_BLOCK)
 		    );
 
-		Vertex vertex = getFirstVertexFromPipeOrRaise(pipe);
-		return new BasicBlock(vertex);
+		if (pipe.hasNext()) {
+			return pipe.next();
+		} else {
+			return null;
+		}
 	}
 
 	public static List<Instruction> functionToInstructions(Function func) {
@@ -44,26 +46,6 @@ public class Traversals {
 		    .out(EdgeTypes.IS_BB_OF);
 
 		return pipe.toList();
-	}
-
-
-	private static GremlinPipeline<Vertex, Vertex> createNewGremlinPipe() {
-		return new GremlinPipeline<>();
-	}
-
-	private static Vertex getFirstVertexFromPipeOrRaise(
-			GremlinPipeline<Vertex, Vertex> pipe) {
-		if (!pipe.hasNext()) {
-			throw new RuntimeException("Empty pipeline");
-		}
-
-		Vertex vertex = pipe.next();
-
-		if (vertex == null) {
-			throw new RuntimeException("Empty pipeline");
-		}
-
-		return vertex;
 	}
 
 	public static Instruction functionToEntryInstruction(Function function) {

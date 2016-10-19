@@ -141,6 +141,9 @@ public class VSA {
 				PopCommand::new);
 
 		BasicBlock basicBlock = Traversals.functionToEntryBlock(function);
+		if (basicBlock == null) {
+			return;
+		}
 
 		setAbstractEnvironment(basicBlock,
 				createInitialAbstractEnvironment(function));
