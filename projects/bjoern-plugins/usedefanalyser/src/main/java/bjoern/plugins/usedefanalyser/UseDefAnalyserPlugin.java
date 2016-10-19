@@ -18,7 +18,15 @@ public class UseDefAnalyserPlugin extends OrientGraphConnectionPlugin {
 		for (Function function : LookupOperations.getFunctions(graph)) {
 			logger.info(function.toString());
 			for (BasicBlock block : function.basicBlocks()) {
-				analyzer.analyse(block);
+				try {
+					analyzer.analyse(block);
+				} catch (Exception e) {
+					logger.error("Error while analysing block @0x"
+							+ Long.toHexString(block.getAddress())
+							+ " of function " + function + ": "
+							+ e.getMessage());
+					return;
+				}
 			}
 		}
 	}

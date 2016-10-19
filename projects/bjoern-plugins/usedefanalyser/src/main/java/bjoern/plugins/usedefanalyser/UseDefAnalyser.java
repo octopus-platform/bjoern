@@ -25,10 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Base64;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class UseDefAnalyser {
 	private static final Logger logger = LoggerFactory
@@ -41,8 +38,7 @@ public class UseDefAnalyser {
 
 	public UseDefAnalyser() {
 		commands = new HashMap<>();
-		commands.put(ESILKeyword.ASSIGNMENT,
-				new AssignmentCommand());
+		commands.put(ESILKeyword.ASSIGNMENT, new AssignmentCommand());
 		ESILCommand relationalCommand = new RelationalCommand();
 		commands.put(ESILKeyword.COMPARE, relationalCommand);
 		commands.put(ESILKeyword.SMALLER, relationalCommand);
@@ -119,6 +115,21 @@ public class UseDefAnalyser {
 		commands.put(ESILKeyword.NEG_ASSIGN,
 				new CompoundAssignCommand(commands.get(ESILKeyword.NEG),
 						commands.get(ESILKeyword.ASSIGNMENT)));
+		commands.put(ESILKeyword.OR_POKE1,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE1)));
+		commands.put(ESILKeyword.OR_POKE2,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE2)));
+		commands.put(ESILKeyword.OR_POKE4,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE4)));
+		commands.put(ESILKeyword.OR_POKE8,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE8)));
+		commands.put(ESILKeyword.OR_POKE_AST,
+				new CompoundPokeCommand(commands.get(ESILKeyword.OR),
+						commands.get(ESILKeyword.POKE_AST)));
 		alocs = new HashMap<>();
 	}
 
@@ -163,7 +174,15 @@ public class UseDefAnalyser {
 		for (Instruction instruction : block.orderedInstructions()) {
 			this.instruction = instruction;
 			String esilCode = instruction.getEsilCode();
-			env = transformer.transform(esilCode, env);
+			try {
+				env = transformer.transform(esilCode, env);
+			} catch (ESILTransformationException e) {
+				logger.error(e.getMessage());
+				env = new AbstractEnvironment();
+			} catch (NoSuchElementException e) {
+				logger.error("Invalid esil stack");
+				env = new AbstractEnvironment();
+			}
 		}
 	}
 
