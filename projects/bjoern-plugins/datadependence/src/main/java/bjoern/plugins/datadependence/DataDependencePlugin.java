@@ -18,7 +18,6 @@ import java.util.Set;
 public class DataDependencePlugin extends OrientGraphConnectionPlugin {
 	@Override
 	public void execute() throws Exception {
-		/*
 		OrientGraphNoTx graph = orientConnector.getNoTxGraphInstance();
 		ReachingDefinitionAnalyser analyser = new ReachingDefinitionAnalyser(
 				DefinitionProvider::generatedDefinitions,
@@ -36,7 +35,6 @@ public class DataDependencePlugin extends OrientGraphConnectionPlugin {
 					.createFromReachingDefinitions(reachingDefinitions);
 
 		}
-		*/
 	}
 
 	private static class DefinitionProvider {
