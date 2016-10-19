@@ -301,7 +301,7 @@ public class VSA {
 			}
 
 			ValueSet result = valueSet.widen(registerEntry.getValue());
-			newEnv.setRegister(identifier, valueSet);
+			newEnv.setRegister(identifier, result);
 		}
 	}
 
