@@ -90,6 +90,8 @@ public class ExecutePluginCommand extends OServerCommandAbstract
 			return plugin.result();
 		} catch (Exception e)
 		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 			throw new OHttpRequestException(e.getMessage());
 		}
 	}
