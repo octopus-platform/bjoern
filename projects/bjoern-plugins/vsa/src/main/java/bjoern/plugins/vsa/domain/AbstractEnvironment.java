@@ -91,6 +91,9 @@ public class AbstractEnvironment {
 		for (Object id : flagIds) {
 			Bool3 value1 = this.getFlag(id);
 			Bool3 value2 = absEnv.getFlag(id);
+			if (value1 == null || value2 == null) {
+				continue;
+			}
 			answer.setFlag(id, value1.join(value2));
 		}
 
