@@ -92,7 +92,7 @@ public class ESILTransformer implements Transformer {
 			if (s.equals(ESILKeyword.END_CONDITIONAL.keyword)) {
 				break;
 			}
-			builder.append(s);
+			builder.append(s).append(",");
 		} while (tokenStream.hasNext());
 		return builder.toString();
 	}
