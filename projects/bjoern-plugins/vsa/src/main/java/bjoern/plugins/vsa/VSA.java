@@ -181,6 +181,10 @@ public class VSA {
 
 		for (Instruction instruction : basicBlock.orderedInstructions()) {
 			builder.append(instruction.getEsilCode()).append(",");
+			// TODO: This hack resets rax after function call
+			if (instruction.isCall()) {
+				builder.append("1,rax,*=,");
+			}
 		}
 		builder.setLength(builder.length() - 1);
 		return builder.toString();
@@ -235,7 +239,8 @@ public class VSA {
 				} else if (aloc.isLocalVariable()) {
 					try {
 						ValueSet value = env.getLocalVariable(
-								((Number) aloc.getProperty("offset")).longValue());
+								((Number) aloc.getProperty(
+										"offset")).longValue());
 						Edge edge = block.addEdge("VALUE", aloc);
 						ByteArrayOutputStream bo = new ByteArrayOutputStream();
 						ObjectOutputStream so = new ObjectOutputStream(bo);
