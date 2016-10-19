@@ -25,7 +25,6 @@ public class UseDefAnalyserPlugin extends OrientGraphConnectionPlugin {
 							+ Long.toHexString(block.getAddress())
 							+ " of function " + function + ": "
 							+ e.getMessage());
-					return;
 				}
 			}
 		}
