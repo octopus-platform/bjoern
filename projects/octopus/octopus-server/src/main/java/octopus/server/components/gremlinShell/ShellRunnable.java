@@ -1,10 +1,6 @@
 package octopus.server.components.gremlinShell;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -137,7 +133,10 @@ public class ShellRunnable implements Runnable
 					clientWriter.writeResult(evalResult);
 				} catch (Exception ex)
 				{
-					String errorMessage = ex.getMessage();
+					StringWriter strWriter = new StringWriter();
+					PrintWriter printWriter = new PrintWriter(strWriter);
+					ex.printStackTrace(printWriter);
+					String errorMessage = ex.getMessage() + "\n" + strWriter;
 					if(errorMessage != null)
 						clientWriter.writeMessage(errorMessage);
 					else
